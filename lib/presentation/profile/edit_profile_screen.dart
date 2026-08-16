@@ -107,7 +107,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              loc.isRTL ? 'تم حفظ الملف الشخصي ✓' : 'Profile saved ✓',
+              loc.profileSaved,
             ),
             backgroundColor: AppTheme.success,
             behavior: SnackBarBehavior.floating,

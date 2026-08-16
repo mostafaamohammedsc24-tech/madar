@@ -179,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .trim();
     final phone =
         _profile?['phone_e164'] as String? ??
-        (loc.isRTL ? 'غير محدد' : 'Not set');
+        (loc.notSet);
     final photoUrl = _profile?['profile_photo_url'] as String?;
     final accountStatus = _profile?['account_status'] as String? ?? 'pending';
 
@@ -231,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   displayName.isEmpty
-                      ? (loc.isRTL ? 'مستخدم مدار' : 'Madar User')
+                      ? loc.madarUser
                       : displayName,
                   style: const TextStyle(
                     color: Colors.white,
@@ -277,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.bar_chart, color: Colors.white),
-                tooltip: loc.isRTL ? 'لوحة العمولات' : 'Commission Dashboard',
+                tooltip: loc.commissionDashboard,
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -315,7 +315,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            loc.isRTL ? 'التحقق والأمان' : 'Verification & Security',
+            loc.verificationSecurity,
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -323,7 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           _buildVerificationRow(
             icon: Icons.phone,
-            label: loc.isRTL ? 'رقم الهاتف' : 'Phone Number',
+            label: loc.phoneNumberLabel,
             status: phoneStatus,
             theme: theme,
             loc: loc,
@@ -331,7 +331,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Divider(height: 24),
           _buildVerificationRow(
             icon: Icons.face,
-            label: loc.isRTL ? 'التحقق البيومتري' : 'Biometric Verification',
+            label: loc.biometricVerification,
             status: 'verified',
             theme: theme,
             loc: loc,
@@ -339,7 +339,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Divider(height: 24),
           _buildVerificationRow(
             icon: Icons.badge,
-            label: loc.isRTL ? 'الهوية الوطنية' : 'National ID',
+            label: loc.nationalId,
             status: idStatus,
             theme: theme,
             loc: loc,
@@ -358,9 +358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     final isVerified = status == 'verified';
     final color = isVerified ? AppTheme.success : Colors.orange;
-    final statusLabel = isVerified
-        ? (loc.isRTL ? 'موثق' : 'Verified')
-        : (loc.isRTL ? 'غير موثق' : 'Unverified');
+    final statusLabel = isVerified ? loc.verified : loc.unverified;
 
     return Row(
       children: [
@@ -504,14 +502,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Divider(height: 1, indent: 56),
           _buildSettingsTile(
             icon: Icons.phone_android,
-            label: loc.isRTL ? 'تغيير رقم الهاتف' : 'Change Phone Number',
+            label: loc.changePhone,
             onTap: _requestPhoneChange,
             theme: theme,
           ),
           const Divider(height: 1, indent: 56),
           _buildSettingsTile(
             icon: Icons.notifications,
-            label: loc.isRTL ? 'الإشعارات' : 'Notifications',
+            label: loc.notifications,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -523,9 +521,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Divider(height: 1, indent: 56),
           _buildSettingsTile(
             icon: Icons.bar_chart,
-            label: loc.isRTL
-                ? 'لوحة عمولات البائع'
-                : 'Seller Commission Dashboard',
+            label: loc.sellerCommissionDashboard,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -594,7 +590,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icon(Icons.folder_special, color: AppTheme.primary, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    loc.isRTL ? 'أرشيف الوثائق' : 'Documents Archive',
+                    loc.documentsArchive,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -634,7 +630,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(width: 12),
               _buildArchiveItem(
                 icon: Icons.gavel,
-                label: loc.isRTL ? 'العقود' : 'Contracts',
+                label: loc.contracts,
                 count:
                     '${_allTransactions.where((t) => (t['current_stage_index'] as int? ?? 0) >= 2).length}',
                 theme: theme,
@@ -648,7 +644,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(width: 12),
               _buildArchiveItem(
                 icon: Icons.home_work,
-                label: loc.isRTL ? 'السندات' : 'Title Deeds',
+                label: loc.titleDeeds,
                 count:
                     '${_allTransactions.where((t) => (t['current_stage_index'] as int? ?? 0) >= 5).length}',
                 theme: theme,
@@ -814,7 +810,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Icon(Icons.favorite, color: AppTheme.error, size: 18),
               const SizedBox(width: 8),
               Text(
-                loc.isRTL ? 'المفضلة' : 'Favorites',
+                loc.favorites,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -877,7 +873,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : '';
                   final title =
                       prop['title'] as String? ??
-                      (loc.isRTL ? 'عقار' : 'Property');
+                      (loc.property);
                   final price = prop['asking_price_usd'] as num? ?? 0;
                   return GestureDetector(
                     onTap: () => context.push('/property-detail', extra: prop),
@@ -982,7 +978,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Icon(Icons.bookmarks, color: AppTheme.primary, size: 18),
               const SizedBox(width: 8),
               Text(
-                loc.isRTL ? 'البحوث المحفوظة' : 'Saved Searches',
+                loc.savedSearchesTitle,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -1025,7 +1021,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 query.isNotEmpty
                     ? query
                     : (filters?['filter'] as String? ??
-                          (loc.isRTL ? 'بحث' : 'Search')),
+                          (loc.search)),
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -1085,7 +1081,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                loc.isRTL ? 'الإشعارات' : 'Notifications',
+                loc.notifications,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -1123,8 +1119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: AppTheme.primary,
                             ),
                             title: Text(
-                              n['title'] as String? ??
-                                  (loc.isRTL ? 'إشعار' : 'Notification'),
+                              n['title'] as String? ?? loc.notifications,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1157,7 +1152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(loc.isRTL ? 'تغيير رقم الهاتف' : 'Change Phone Number'),
+        title: Text(loc.changePhone),
         content: Text(
           loc.isRTL
               ? 'سيتم التواصل معك من فريق الدعم لتغيير رقم هاتفك'
@@ -1166,7 +1161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(loc.isRTL ? 'حسناً' : 'OK'),
+            child: Text(loc.ok),
           ),
         ],
       ),
@@ -1176,11 +1171,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _getStatusLabel(String status, AppLocalizations loc) {
     switch (status) {
       case 'active':
-        return loc.isRTL ? 'حساب نشط ✓' : 'Active Account ✓';
+        return loc.activeAccount;
       case 'pending':
-        return loc.isRTL ? 'قيد المراجعة' : 'Under Review';
+        return loc.underReview;
       case 'suspended':
-        return loc.isRTL ? 'موقوف' : 'Suspended';
+        return loc.accountSuspended;
       default:
         return status;
     }

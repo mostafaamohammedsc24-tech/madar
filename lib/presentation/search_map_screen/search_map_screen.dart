@@ -257,7 +257,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(loc.isRTL ? 'تم حفظ البحث ✓' : 'Search saved ✓'),
+          content: Text(loc.searchSaved),
           backgroundColor: AppTheme.success,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
@@ -745,7 +745,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '${isRTL ? 'منطقة:' : 'Area:'} $_activeAreaLabel — ${_filteredProperties.length} ${isRTL ? 'عقار' : 'properties'}',
+                          loc.areaLabel(_activeAreaLabel!, _filteredProperties.length),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -796,7 +796,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                   _MapControlButton(
                     iconName: 'layers',
                     onTap: () => _showMapTypeSheet(context),
-                    tooltip: isRTL ? 'نوع الخريطة' : 'Map Type',
+                    tooltip: loc.mapType,
                   ),
                   const SizedBox(height: 8),
                   _MapControlButton(
@@ -807,9 +807,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                         if (!_isDrawingMode) _applyFilters();
                       });
                     },
-                    tooltip: _isDrawingMode
-                        ? (isRTL ? 'إلغاء' : 'Cancel Draw')
-                        : (isRTL ? 'رسم منطقة' : 'Draw Area'),
+                    tooltip: _isDrawingMode ? loc.cancelDraw : loc.drawArea,
                     isActive: _isDrawingMode,
                   ),
                   const SizedBox(height: 8),
@@ -817,7 +815,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                   _MapControlButton(
                     iconName: 'auto_awesome',
                     onTap: _showAiRecommendations,
-                    tooltip: isRTL ? 'توصيات الذكاء الاصطناعي' : 'AI Picks',
+                    tooltip: loc.aiPicks,
                     isActive: false,
                   ),
                 ],
@@ -874,7 +872,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            isRTL ? 'تم' : 'Done',
+                            loc.done,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -923,7 +921,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          isRTL ? 'جاري التحميل...' : 'Loading properties...',
+                          loc.loadingProperties,
                           style: const TextStyle(fontSize: 12),
                         ),
                       ],
@@ -1112,7 +1110,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      isRTL ? 'حفظ' : 'Save',
+                                      loc.save,
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
@@ -1396,18 +1394,18 @@ class _MapTypeSheet extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final isRTL = loc.isRTL;
     final types = [
-      {'id': 'normal', 'label': isRTL ? 'عادي' : 'Standard', 'icon': 'map'},
+      {'id': 'normal', 'label': loc.mapTypeStandard, 'icon': 'map'},
       {
         'id': 'satellite',
-        'label': isRTL ? 'قمر صناعي' : 'Satellite',
+        'label': loc.mapTypeSatellite,
         'icon': 'satellite_alt',
       },
       {
         'id': 'terrain',
-        'label': isRTL ? 'تضاريس' : 'Terrain',
+        'label': loc.mapTypeTerrain,
         'icon': 'terrain',
       },
-      {'id': 'hybrid', 'label': isRTL ? 'هجين' : 'Hybrid', 'icon': 'layers'},
+      {'id': 'hybrid', 'label': loc.mapTypeHybrid, 'icon': 'layers'},
     ];
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1420,7 +1418,7 @@ class _MapTypeSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isRTL ? 'نوع الخريطة' : 'Map Type',
+            loc.mapType,
             style: theme.textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
@@ -1522,7 +1520,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isRTL = widget.isRTL;
+    final loc = AppLocalizations.of(context);
     return Container(
       height: MediaQuery.of(context).size.height * 0.88,
       decoration: BoxDecoration(
@@ -1536,14 +1534,14 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
             child: Row(
               children: [
                 Text(
-                  isRTL ? 'التصفية' : 'Filters',
+                  loc.filters,
                   style: theme.textTheme.titleLarge,
                 ),
                 const Spacer(),
                 TextButton(
                   onPressed: widget.onReset,
                   child: Text(
-                    isRTL ? 'إعادة تعيين' : 'Reset All',
+                    loc.resetAll,
                     style: TextStyle(color: AppTheme.error),
                   ),
                 ),
@@ -1558,7 +1556,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isRTL ? 'نوع الإعلان' : 'Listing Type',
+                    loc.listingType,
                     style: theme.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 12),
@@ -1576,7 +1574,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                           'Investment',
                         ].map((f) {
                           final isSelected = _selected == f;
-                          final label = isRTL ? _localizeFilter(f) : f;
+                          final label = loc.filterLabel(f);
                           return GestureDetector(
                             onTap: () => setState(() => _selected = f),
                             child: AnimatedContainer(
@@ -1610,7 +1608,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    isRTL ? 'المدينة' : 'City',
+                    loc.city,
                     style: theme.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 12),
@@ -1655,7 +1653,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        isRTL ? 'نطاق السعر' : 'Price Range',
+                        loc.priceRange,
                         style: theme.textTheme.titleSmall,
                       ),
                       Text(
@@ -1682,7 +1680,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        isRTL ? 'المساحة (م²)' : 'Area (m²)',
+                        loc.areaSqm,
                         style: theme.textTheme.titleSmall,
                       ),
                       Text(
@@ -1706,7 +1704,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    isRTL ? 'الحد الأدنى للغرف' : 'Min Bedrooms',
+                    loc.minBedrooms,
                     style: theme.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 12),
@@ -1732,7 +1730,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                             ),
                             child: Center(
                               child: Text(
-                                n == 0 ? (isRTL ? 'أي' : 'Any') : '$n+',
+                                n == 0 ? loc.any : '$n+',
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -1778,7 +1776,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                   ),
                 ),
                 child: Text(
-                  isRTL ? 'تطبيق التصفية' : 'Apply Filters',
+                  loc.applyFilters,
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -1792,26 +1790,6 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
     );
   }
 
-  String _localizeFilter(String f) {
-    switch (f) {
-      case 'All':
-        return 'الكل';
-      case 'Sale':
-        return 'للبيع';
-      case 'Rent':
-        return 'للإيجار';
-      case 'Mortgage':
-        return 'رهن';
-      case 'Land':
-        return 'أرض';
-      case 'Commercial':
-        return 'تجاري';
-      case 'Investment':
-        return 'استثمار';
-      default:
-        return f;
-    }
-  }
 }
 
 // ─── Saved Searches Sheet ─────────────────────────────────────────────────────
@@ -1858,14 +1836,14 @@ class _SavedSearchesSheet extends StatelessWidget {
                 Icon(Icons.bookmarks, color: AppTheme.primary, size: 20),
                 const SizedBox(width: 10),
                 Text(
-                  isRTL ? 'البحوث المحفوظة' : 'Saved Searches',
+                  loc.savedSearchesTitle,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const Spacer(),
                 Text(
-                  '${savedSearches.length} ${isRTL ? 'محفوظ' : 'saved'}',
+                  loc.savedCount(savedSearches.length),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -1961,6 +1939,7 @@ class _FilterHistorySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.75,
@@ -1988,7 +1967,7 @@ class _FilterHistorySheet extends StatelessWidget {
                 Icon(Icons.history, color: AppTheme.primary, size: 20),
                 const SizedBox(width: 10),
                 Text(
-                  isRTL ? 'سجل البحث والتصفية' : 'Search & Filter History',
+                  loc.searchFilterHistory,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -1998,7 +1977,7 @@ class _FilterHistorySheet extends StatelessWidget {
                   TextButton(
                     onPressed: onClearHistory,
                     child: Text(
-                      isRTL ? 'مسح الكل' : 'Clear All',
+                      loc.clearAll,
                       style: TextStyle(color: AppTheme.error, fontSize: 12),
                     ),
                   ),
@@ -2017,8 +1996,8 @@ class _FilterHistorySheet extends StatelessWidget {
                     unselectedLabelColor: Colors.grey,
                     indicatorColor: AppTheme.primary,
                     tabs: [
-                      Tab(text: isRTL ? 'السجل الأخير' : 'Recent'),
-                      Tab(text: isRTL ? 'المحفوظة' : 'Saved'),
+                      Tab(text: loc.recent),
+                      Tab(text: loc.savedTab),
                     ],
                   ),
                   SizedBox(
@@ -2038,9 +2017,7 @@ class _FilterHistorySheet extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      isRTL
-                                          ? 'لا يوجد سجل بحث بعد'
-                                          : 'No search history yet',
+                                      loc.noSearchHistoryYet,
                                       style: const TextStyle(
                                         color: Colors.grey,
                                       ),
@@ -2070,14 +2047,11 @@ class _FilterHistorySheet extends StatelessWidget {
                                     final dt = DateTime.parse(timestamp);
                                     final diff = DateTime.now().difference(dt);
                                     if (diff.inMinutes < 60) {
-                                      timeLabel =
-                                          '${diff.inMinutes}${isRTL ? ' دقيقة' : 'm ago'}';
+                                      timeLabel = loc.timeAgoMinutes(diff.inMinutes);
                                     } else if (diff.inHours < 24) {
-                                      timeLabel =
-                                          '${diff.inHours}${isRTL ? ' ساعة' : 'h ago'}';
+                                      timeLabel = loc.timeAgoHours(diff.inHours);
                                     } else {
-                                      timeLabel =
-                                          '${diff.inDays}${isRTL ? ' يوم' : 'd ago'}';
+                                      timeLabel = loc.timeAgoDays(diff.inDays);
                                     }
                                   } catch (_) {}
 
@@ -2120,7 +2094,7 @@ class _FilterHistorySheet extends StatelessWidget {
                                           ),
                                         ],
                                         Text(
-                                          '$count ${isRTL ? 'نتيجة' : 'results'}',
+                                          loc.resultsCount(count),
                                           style: TextStyle(
                                             fontSize: 11,
                                             color: AppTheme.primary,

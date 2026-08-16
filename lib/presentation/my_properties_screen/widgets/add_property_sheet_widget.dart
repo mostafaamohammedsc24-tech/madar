@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/app_export.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../widgets/property_type_icon.dart';
 import '../../../services/supabase_service.dart';
 
@@ -910,6 +911,7 @@ class _AddPropertySheetWidgetState extends State<AddPropertySheetWidget> {
   }
 
   Widget _buildContactStep(ThemeData theme) {
+    final loc = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1015,7 +1017,7 @@ class _AddPropertySheetWidgetState extends State<AddPropertySheetWidget> {
               ),
               _SummaryRow(
                 label: 'الصورة',
-                value: _pickedImage != null ? 'تم إرفاق صورة ✓' : 'بدون صورة',
+                value: _pickedImage != null ? loc.imageAttached : loc.noImage,
               ),
               const SizedBox(height: 12),
               Row(
