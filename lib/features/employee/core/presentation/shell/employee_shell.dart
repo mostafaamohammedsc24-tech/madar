@@ -56,6 +56,16 @@ class EmployeeShell extends StatelessWidget {
           return loc.empNavPhotography;
         case 'chats':
           return loc.empNavChats;
+        case 'requests':
+          return 'Requests';
+        case 'newRequest':
+          return 'New request';
+        case 'assigned':
+          return 'Assigned';
+        case 'shoots':
+          return 'Shoots';
+        case 'floorPlans':
+          return 'Floor plans';
         default:
           return item.labelKey;
       }

@@ -176,6 +176,129 @@ List<EmployeeNavItem> navItemsFor(EmployeeAccount employee) {
           selectedIcon: Icons.person,
         ),
       ];
+    case EmployeeDepartmentCode.publishing:
+      return const [
+        EmployeeNavItem(
+          route: '/employee/home',
+          labelKey: 'home',
+          icon: Icons.dashboard_outlined,
+          selectedIcon: Icons.dashboard,
+          requiredPermission: EmployeePermission.publishingView,
+        ),
+        EmployeeNavItem(
+          route: '/employee/publishing/requests',
+          labelKey: 'requests',
+          icon: Icons.assignment_outlined,
+          selectedIcon: Icons.assignment,
+          requiredPermission: EmployeePermission.publishingView,
+        ),
+        EmployeeNavItem(
+          route: '/employee/publishing/create',
+          labelKey: 'newRequest',
+          icon: Icons.add_box_outlined,
+          selectedIcon: Icons.add_box,
+          requiredPermission: EmployeePermission.publishingCreate,
+        ),
+        EmployeeNavItem(
+          route: '/employee/notifications',
+          labelKey: 'notifications',
+          icon: Icons.notifications_outlined,
+          selectedIcon: Icons.notifications,
+        ),
+        EmployeeNavItem(
+          route: '/employee/profile',
+          labelKey: 'profile',
+          icon: Icons.person_outline,
+          selectedIcon: Icons.person,
+        ),
+      ];
+    case EmployeeDepartmentCode.information:
+      return const [
+        EmployeeNavItem(
+          route: '/employee/home',
+          labelKey: 'home',
+          icon: Icons.dashboard_outlined,
+          selectedIcon: Icons.dashboard,
+          requiredPermission: EmployeePermission.informationView,
+        ),
+        EmployeeNavItem(
+          route: '/employee/information/assigned',
+          labelKey: 'assigned',
+          icon: Icons.home_work_outlined,
+          selectedIcon: Icons.home_work,
+          requiredPermission: EmployeePermission.informationView,
+        ),
+        EmployeeNavItem(
+          route: '/employee/notifications',
+          labelKey: 'notifications',
+          icon: Icons.notifications_outlined,
+          selectedIcon: Icons.notifications,
+        ),
+        EmployeeNavItem(
+          route: '/employee/profile',
+          labelKey: 'profile',
+          icon: Icons.person_outline,
+          selectedIcon: Icons.person,
+        ),
+      ];
+    case EmployeeDepartmentCode.photography:
+      return const [
+        EmployeeNavItem(
+          route: '/employee/home',
+          labelKey: 'home',
+          icon: Icons.dashboard_outlined,
+          selectedIcon: Icons.dashboard,
+          requiredPermission: EmployeePermission.mediaView,
+        ),
+        EmployeeNavItem(
+          route: '/employee/media/assigned',
+          labelKey: 'shoots',
+          icon: Icons.photo_camera_outlined,
+          selectedIcon: Icons.photo_camera,
+          requiredPermission: EmployeePermission.mediaView,
+        ),
+        EmployeeNavItem(
+          route: '/employee/notifications',
+          labelKey: 'notifications',
+          icon: Icons.notifications_outlined,
+          selectedIcon: Icons.notifications,
+        ),
+        EmployeeNavItem(
+          route: '/employee/profile',
+          labelKey: 'profile',
+          icon: Icons.person_outline,
+          selectedIcon: Icons.person,
+        ),
+      ];
+    case EmployeeDepartmentCode.engineering:
+      return const [
+        EmployeeNavItem(
+          route: '/employee/home',
+          labelKey: 'home',
+          icon: Icons.dashboard_outlined,
+          selectedIcon: Icons.dashboard,
+          requiredPermission: EmployeePermission.engineeringView,
+        ),
+        EmployeeNavItem(
+          route: '/employee/engineering/assigned',
+          labelKey: 'floorPlans',
+          icon: Icons.architecture_outlined,
+          selectedIcon: Icons.architecture,
+          requiredPermission: EmployeePermission.engineeringView,
+        ),
+        EmployeeNavItem(
+          route: '/employee/notifications',
+          labelKey: 'notifications',
+          icon: Icons.notifications_outlined,
+          selectedIcon: Icons.notifications,
+        ),
+        EmployeeNavItem(
+          route: '/employee/profile',
+          labelKey: 'profile',
+          icon: Icons.person_outline,
+          selectedIcon: Icons.person,
+        ),
+      ];
     case EmployeeDepartmentCode.unknown:
       return const [
         EmployeeNavItem(

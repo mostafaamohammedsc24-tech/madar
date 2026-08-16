@@ -6,6 +6,8 @@ import '../../domain/employee_permissions.dart';
 import '../../../finance/presentation/screens/finance_dashboard_screen.dart';
 import '../../../bank/presentation/screens/bank_dashboard_screen.dart';
 import '../../../office_management/presentation/screens/om_dashboard_screen.dart';
+import '../../../publishing/presentation/screens/publishing_dashboard_screen.dart';
+import '../../../publishing/presentation/screens/publishing_requests_screen.dart';
 
 /// Routes to the correct department workspace dashboard.
 class EmployeeHomeScreen extends StatelessWidget {
@@ -24,6 +26,12 @@ class EmployeeHomeScreen extends StatelessWidget {
         return const BankDashboardScreen();
       case EmployeeDepartmentCode.officeManagement:
         return const OmDashboardScreen();
+      case EmployeeDepartmentCode.publishing:
+        return const PublishingDashboardScreen();
+      case EmployeeDepartmentCode.information:
+      case EmployeeDepartmentCode.photography:
+      case EmployeeDepartmentCode.engineering:
+        return const PublishingRequestsScreen(assignedOnly: true);
       case EmployeeDepartmentCode.unknown:
         return const Center(child: Text('No workspace assigned'));
     }
