@@ -7,6 +7,7 @@ import '../features/authentication/presentation/screens/user_auth_flow_screen.da
 import '../features/authentication/routing/auth_globals.dart';
 import '../features/authentication/routing/auth_redirect.dart';
 import '../features/property/presentation/screens/property_report_screen.dart';
+import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
 import '../presentation/messages/messages_screen.dart';
@@ -17,7 +18,6 @@ import '../presentation/profile/edit_profile_screen.dart';
 import '../presentation/profile/profile_screen.dart';
 import '../presentation/profile/seller_commission_dashboard.dart';
 import '../presentation/search_map_screen/search_map_screen.dart';
-import '../presentation/transactions_screen/transactions_screen.dart';
 import '../presentation/transactions_screen/settlement_payout_receipt_screen.dart';
 import '../widgets/app_scaffold.dart';
 import '../presentation/auth/two_fa_verification_screen.dart';
@@ -302,7 +302,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: AppRoutes.transactionsScreen,
-              builder: (context, state) => const TransactionsScreen(),
+              builder: (context, state) => const TransactionCenterScreen(),
             ),
           ],
         ),

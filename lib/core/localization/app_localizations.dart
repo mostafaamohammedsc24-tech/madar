@@ -1372,6 +1372,114 @@ class AppLocalizations {
     ku: 'وەرگێڕانی تەواوی خانووبەرە',
   );
 
+  // ─── Digital Transaction Center ───────────────────────────────────────────
+  String get digitalTransactionCenter => _t(
+    en: 'Transaction Center',
+    ar: 'مركز العمليات',
+    ku: 'ناوەندی مامەڵەکان',
+  );
+  String get txTabActive => _t(en: 'Active', ar: 'نشطة', ku: 'چالاک');
+  String get txTabCompleted =>
+      _t(en: 'Completed', ar: 'مكتملة', ku: 'تەواوکراو');
+  String get txTabCancelled =>
+      _t(en: 'Cancelled', ar: 'ملغاة', ku: 'هەڵوەشێنراو');
+  String get txTabOnHold => _t(en: 'On Hold', ar: 'معلقة', ku: 'ڕاگیراو');
+  String get uploadTransactionBarcode => _t(
+    en: 'Upload transaction barcode',
+    ar: 'رفع رمز العملية',
+    ku: 'بارکۆدی مامەڵە بار بکە',
+  );
+  String get noTransactionsInTab => _t(
+    en: 'No transactions here yet. Upload a barcode from your Company Lawyer to join a deal.',
+    ar: 'لا توجد عمليات هنا بعد. ارفع رمز العملية من محامي الشركة للانضمام.',
+    ku: 'هێشتا مامەڵە لێرە نییە. بارکۆد لە پارێزەری کۆمپانیا بار بکە.',
+  );
+  String get barcodeNotFound => _t(
+    en: 'Barcode not found',
+    ar: 'الرمز غير موجود',
+    ku: 'بارکۆد نەدۆزرایەوە',
+  );
+  String get barcodeRedeemFailed => _t(
+    en: 'Could not verify barcode',
+    ar: 'تعذر التحقق من الرمز',
+    ku: 'نەتوانرا بارکۆد پشتڕاست بکرێتەوە',
+  );
+  String get bothPartiesVerified => _t(
+    en: 'Both parties verified — transaction activated',
+    ar: 'تم التحقق من الطرفين — تم تفعيل العملية',
+    ku: 'هەردوو لایەن پشتڕاستکرانەوە — مامەڵە چالاک کرا',
+  );
+  String get waitingForOtherParty => _t(
+    en: 'Waiting for the other party to upload the barcode',
+    ar: 'بانتظار رفع الطرف الآخر لرمز العملية',
+    ku: 'چاوەڕوانی لایەنی دیکە بۆ بارکردنی بارکۆد',
+  );
+  String barcodeProgress(int count) => _t(
+    en: '$count/2 participants verified',
+    ar: '$count/2 أطراف تم التحقق منهم',
+    ku: '$count/2 بەشدار پشتڕاستکراونەوە',
+  );
+  String get selectYourRole => _t(
+    en: 'Are you the buyer or the seller?',
+    ar: 'هل أنت المشتري أم البائع؟',
+    ku: 'تۆ کڕیاریت یان فرۆشیار؟',
+  );
+  String get roleBuyer => _t(en: 'Buyer', ar: 'المشتري', ku: 'کڕیار');
+  String get roleSeller => _t(en: 'Seller', ar: 'البائع', ku: 'فرۆشیار');
+  String get txCurrentStep =>
+      _t(en: 'Current step', ar: 'المرحلة الحالية', ku: 'هەنگاوی ئێستا');
+  String get txProgress =>
+      _t(en: 'Progress', ar: 'التقدم', ku: 'پێشکەوتن');
+  String get txAuditTimeline =>
+      _t(en: 'Activity', ar: 'النشاط', ku: 'چالاکی');
+  String get txNoAuditYet => _t(
+    en: 'No activity recorded yet',
+    ar: 'لا يوجد نشاط مسجل بعد',
+    ku: 'هێشتا چالاکی تۆمار نەکراوە',
+  );
+  String get txBackendEnforcedNote => _t(
+    en: 'Stage advances are enforced by the system after required checks — not by UI buttons alone.',
+    ar: 'انتقال المراحل يتم من النظام بعد التحقق — وليس عبر الأزرار فقط.',
+    ku: 'گواستنەوەی قۆناغەکان لەلایەن سیستەمەوە دوای پشکنین جێبەجێ دەکرێت.',
+  );
+  String get transactionNotFound => _t(
+    en: 'Transaction not found',
+    ar: 'العملية غير موجودة',
+    ku: 'مامەڵە نەدۆزرایەوە',
+  );
+  String get stepIdentity =>
+      _t(en: 'Identity', ar: 'التحقق من الهوية', ku: 'ناسنامە');
+  String get stepDocuments =>
+      _t(en: 'Documents', ar: 'المستمسكات', ku: 'بەڵگەنامەکان');
+  String get stepContract =>
+      _t(en: 'Contract', ar: 'عقد البيع', ku: 'گرێبەست');
+  String get stepEscrow =>
+      _t(en: 'Escrow deposit', ar: 'الإيداع الضماني', ku: 'پارەدانەی دڵنیایی');
+  String get stepDeed =>
+      _t(en: 'Ownership deed', ar: 'سند الملكية', ku: 'سەندی خاوەنداری');
+  String get stepAgriculturalTransfer => _t(
+    en: 'Agricultural transfer',
+    ar: 'نقل زراعي خاص',
+    ku: 'گواستنەوەی کشتوکاڵی',
+  );
+  String get stepSettlement =>
+      _t(en: 'Settlement', ar: 'التسوية', ku: 'یەکلاکردنەوە');
+  String get awaitingDepositConfirmation => _t(
+    en: 'Awaiting deposit confirmation',
+    ar: 'بانتظار تأكيد الإيداع',
+    ku: 'چاوەڕوانی پشتڕاستکردنەوەی پارەدان',
+  );
+  String get transactionCompleted => _t(
+    en: 'Transaction completed successfully',
+    ar: 'اكتملت العملية بنجاح',
+    ku: 'مامەڵە بە سەرکەوتوویی تەواو بوو',
+  );
+  String get companyLawyerLabel => _t(
+    en: 'Company Lawyer',
+    ar: 'محامي الشركة',
+    ku: 'پارێزەری کۆمپانیا',
+  );
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String en,
