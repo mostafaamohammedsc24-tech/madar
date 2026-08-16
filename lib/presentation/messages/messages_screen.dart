@@ -357,11 +357,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                loc.isRTL
-                    ? 'لم يتم منح إذن الموقع'
-                    : 'Location permission denied',
-              ),
+              content: Text(loc.locationPermissionDenied),
               backgroundColor: AppTheme.error,
               behavior: SnackBarBehavior.floating,
             ),
@@ -844,12 +840,8 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
           const SizedBox(height: 8),
           Text(
             conv['type'] == 'ai'
-                ? (loc.isRTL
-                      ? 'اسألني عن أي عقار أو صفقة'
-                      : 'Ask me about any property or deal')
-                : (loc.isRTL
-                      ? 'ابدأ محادثة مع ${_convTitle(context, conv)}'
-                      : 'Start a conversation with ${_convTitle(context, conv)}'),
+                ? loc.askAboutPropertyOrDeal
+                : loc.startConversationWith(_convTitle(context, conv)),
             style: const TextStyle(color: Colors.grey),
             textAlign: TextAlign.center,
           ),
@@ -860,19 +852,9 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
               runSpacing: 8,
               alignment: WrapAlignment.center,
               children: [
-                _buildSuggestionChip(
-                  loc.isRTL
-                      ? 'ابحث عن شقة في بغداد'
-                      : 'Find an apartment in Baghdad',
-                ),
-                _buildSuggestionChip(
-                  loc.isRTL
-                      ? 'ما هي أسعار العقارات؟'
-                      : 'What are property prices?',
-                ),
-                _buildSuggestionChip(
-                  loc.howDealsWork,
-                ),
+                _buildSuggestionChip(loc.findApartmentInBaghdad),
+                _buildSuggestionChip(loc.whatArePropertyPrices),
+                _buildSuggestionChip(loc.howDealsWork),
               ],
             ),
           ],

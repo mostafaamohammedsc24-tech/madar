@@ -958,7 +958,6 @@ class AppLocalizations {
     ku: '$count خانووبەرە',
   );
 
-<<<<<<< HEAD
   // ─── Property Intelligence Report ─────────────────────────────────────────
   String get propertyReport => _t(
     en: 'Property Report',
@@ -1180,8 +1179,6 @@ class AppLocalizations {
   String get garden => _t(en: 'Garden', ar: 'حديقة', ku: 'باخچە');
   String get pool => _t(en: 'Pool', ar: 'مسبح', ku: 'مەلەوانگە');
 
-=======
->>>>>>> 2b9175f (Replace remaining isRTL copy ternaries with AppLocalizations getters)
   // ─── Edit Profile / Messages / Profile copy ───────────────────────────────
   String get editProfileTitle => _t(
     en: 'Edit Profile',
@@ -1296,6 +1293,42 @@ class AppLocalizations {
       _t(en: '${h}h ago', ar: 'منذ ${h}س', ku: '$h کاتژمێر پێش ئێستا');
   String daysAgo(int d) =>
       _t(en: '${d}d ago', ar: 'منذ ${d}ي', ku: '$d ڕۆژ پێش ئێستا');
+  String get locationPermissionDenied => _t(
+    en: 'Location permission denied',
+    ar: 'لم يتم منح إذن الموقع',
+    ku: 'مۆڵەتی شوێن ڕەتکرایەوە',
+  );
+  String get askAboutPropertyOrDeal => _t(
+    en: 'Ask me about any property or deal',
+    ar: 'اسألني عن أي عقار أو صفقة',
+    ku: 'لێم بپرسە دەربارەی هەر خانووبەرە یان مامەڵەیەک',
+  );
+  String startConversationWith(String name) => _t(
+    en: 'Start a conversation with $name',
+    ar: 'ابدأ محادثة مع $name',
+    ku: 'گفتوگۆ دەست پێبکە لەگەڵ $name',
+  );
+  String get findApartmentInBaghdad => _t(
+    en: 'Find an apartment in Baghdad',
+    ar: 'ابحث عن شقة في بغداد',
+    ku: 'بگەڕێ بۆ شوقەیەک لە بەغدا',
+  );
+  String get whatArePropertyPrices => _t(
+    en: 'What are property prices?',
+    ar: 'ما هي أسعار العقارات؟',
+    ku: 'نرخی خانووبەرەکان چین؟',
+  );
+  String get filterPrices =>
+      _t(en: 'Prices', ar: 'الأسعار', ku: 'نرخەکان');
+  String get filterTransactions =>
+      _t(en: 'Transactions', ar: 'الصفقات', ku: 'مامەڵەکان');
+  String get filterAi =>
+      _t(en: 'AI', ar: 'الذكاء الاصطناعي', ku: 'ئەی ئای');
+  String get genericErrorOccurred => _t(
+    en: 'An error occurred',
+    ar: 'حدث خطأ',
+    ku: 'هەڵەیەک ڕوویدا',
+  );
 
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({

@@ -154,7 +154,6 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final isRTL = loc.isRTL;
 
     final filters = ['All', 'Prices', 'Transactions', 'Messages', 'AI'];
 
@@ -269,7 +268,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _localizeFilter(f, isRTL),
+                      _localizeFilter(f, loc),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -330,19 +329,18 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
     );
   }
 
-  String _localizeFilter(String filter, bool isRTL) {
-    if (!isRTL) return filter;
+  String _localizeFilter(String filter, AppLocalizations loc) {
     switch (filter) {
       case 'All':
-        return 'الكل';
+        return loc.all;
       case 'Prices':
-        return 'الأسعار';
+        return loc.filterPrices;
       case 'Transactions':
-        return 'الصفقات';
+        return loc.filterTransactions;
       case 'Messages':
-        return 'الرسائل';
+        return loc.navMessages;
       case 'AI':
-        return 'الذكاء الاصطناعي';
+        return loc.filterAi;
       default:
         return filter;
     }
