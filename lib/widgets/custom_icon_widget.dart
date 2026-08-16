@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../core/layout/directional_layout.dart';
+
 class CustomIconWidget extends StatelessWidget {
   final String iconName;
   final double size;
   final Color? color;
+  final bool? matchTextDirection;
 
   const CustomIconWidget({
     super.key,
     required this.iconName,
     this.size = 24,
     this.color,
+    this.matchTextDirection,
   });
 
   @override
@@ -9013,12 +9017,16 @@ class CustomIconWidget extends StatelessWidget {
 
     // Check if the icon exists
     if (iconMap.containsKey(iconName)) {
-      return Icon(
+      final icon = Icon(
         iconMap[iconName],
         size: size,
         color: color,
         semanticLabel: iconName,
       );
+      if (matchTextDirection ?? isDirectionalIconName(iconName)) {
+        return mirrorForDirection(context, icon);
+      }
+      return icon;
     } else {
       // Return a fallback icon
       return Icon(

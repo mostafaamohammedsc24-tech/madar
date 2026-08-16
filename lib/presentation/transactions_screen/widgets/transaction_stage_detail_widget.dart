@@ -1,4 +1,5 @@
 import '../../../core/app_export.dart';
+import '../../../core/layout/directional_layout.dart';
 import '../../../services/supabase_service.dart';
 import '../../transactions_screen/settlement_payout_receipt_screen.dart';
 import './escrow_bank_confirmation_widget.dart';
@@ -1577,7 +1578,7 @@ class _TransactionStageDetailWidgetState
                   color: Colors.white,
                 ),
               )
-            : Icon(icon),
+            : DirectionalIcon(icon: icon),
         label: Text(
           label,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),

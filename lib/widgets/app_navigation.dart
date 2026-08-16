@@ -118,7 +118,7 @@ class _AppNavigationState extends State<AppNavigation>
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
-        margin: EdgeInsets.fromLTRB(16, 0, 16, 16 + bottomPadding),
+        margin: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16 + bottomPadding),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,

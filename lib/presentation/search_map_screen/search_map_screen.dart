@@ -177,7 +177,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       builder: (_) => _FilterHistorySheet(
         filterHistory: _filterHistory,
         savedSearches: _savedSearches,
-        isRTL: loc.isRTL,
         onHistorySelected: (entry) {
           Navigator.pop(context);
           setState(() {
@@ -230,11 +229,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         _selectedCity == 'All') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            loc.isRTL
-                ? 'أدخل بحثاً أو فلتراً لحفظه'
-                : 'Enter a search or filter to save',
-          ),
+          content: Text(loc.enterSearchToSave),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -643,15 +638,12 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final isRTL = loc.isRTL;
     final isTablet = MediaQuery.of(context).size.width >= 600;
     const bottomNavHeight = 0.0;
 
-    return Directionality(
-      textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        body: Stack(
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Stack(
           children: [
             // Full-screen map
             PropertyMapWidget(
@@ -673,7 +665,12 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        16,
+                        12,
+                        16,
+                        0,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -772,18 +769,16 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 ),
               ),
 
-            // Map legend
-            Positioned(
-              left: isRTL ? null : 16,
-              right: isRTL ? 16 : null,
+            // Map legend — start side (left in LTR, right in RTL)
+            PositionedDirectional(
+              start: 16,
               bottom: bottomNavHeight + 200,
               child: _buildMapLegend(theme),
             ),
 
-            // Map type + My Location + Draw controls
-            Positioned(
-              right: isRTL ? null : 16,
-              left: isRTL ? 16 : null,
+            // Map controls — end side (right in LTR, left in RTL)
+            PositionedDirectional(
+              end: 16,
               bottom: bottomNavHeight + 180,
               child: Column(
                 children: [
@@ -850,9 +845,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          isRTL
-                              ? 'اضغط على الخريطة لرسم منطقة التحديد'
-                              : 'Tap on map to draw selection area',
+                          loc.drawAreaHint,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 13,
@@ -970,9 +963,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              isRTL
-                                  ? '${_filteredProperties.length} عقار'
-                                  : '${_filteredProperties.length} Properties',
+                              loc.propertyCountShort(_filteredProperties.length),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -1193,16 +1184,19 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildMapLegend(ThemeData theme) {
     final loc = AppLocalizations.of(context);
-    final isRTL = loc.isRTL;
-    final labels = isRTL
-        ? ['شقة', 'فيلا', 'أرض', 'تجاري', 'إيجار', 'رهن']
-        : ['Apartment', 'Villa', 'Land', 'Commercial', 'For Rent', 'Mortgage'];
+    final labels = [
+      loc.apartment,
+      loc.villaType,
+      loc.land,
+      loc.commercial,
+      loc.forRent,
+      loc.mortgage,
+    ];
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -1263,7 +1257,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         minBedrooms: _minBedrooms,
         selectedCity: _selectedCity,
         cities: _cities,
-        isRTL: loc.isRTL,
         onApply: (filter, price, area, beds, city) {
           setState(() {
             _selectedFilter = filter;
@@ -1392,7 +1385,6 @@ class _MapTypeSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final isRTL = loc.isRTL;
     final types = [
       {'id': 'normal', 'label': loc.mapTypeStandard, 'icon': 'map'},
       {
@@ -1480,7 +1472,6 @@ class _FullFilterSheet extends StatefulWidget {
   final int minBedrooms;
   final String selectedCity;
   final List<String> cities;
-  final bool isRTL;
   final Function(String, RangeValues, RangeValues, int, String) onApply;
   final VoidCallback onReset;
 
@@ -1491,7 +1482,6 @@ class _FullFilterSheet extends StatefulWidget {
     required this.minBedrooms,
     required this.selectedCity,
     required this.cities,
-    required this.isRTL,
     required this.onApply,
     required this.onReset,
   });
@@ -1808,7 +1798,6 @@ class _SavedSearchesSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final isRTL = loc.isRTL;
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.6,
@@ -1920,7 +1909,6 @@ class _SavedSearchesSheet extends StatelessWidget {
 class _FilterHistorySheet extends StatelessWidget {
   final List<Map<String, dynamic>> filterHistory;
   final List<Map<String, dynamic>> savedSearches;
-  final bool isRTL;
   final Function(Map<String, dynamic>) onHistorySelected;
   final Function(Map<String, dynamic>) onSavedSearchSelected;
   final Function(String) onDeleteSaved;
@@ -1929,7 +1917,6 @@ class _FilterHistorySheet extends StatelessWidget {
   const _FilterHistorySheet({
     required this.filterHistory,
     required this.savedSearches,
-    required this.isRTL,
     required this.onHistorySelected,
     required this.onSavedSearchSelected,
     required this.onDeleteSaved,
@@ -2128,9 +2115,7 @@ class _FilterHistorySheet extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      isRTL
-                                          ? 'لا توجد بحوث محفوظة'
-                                          : 'No saved searches',
+                                      loc.noSavedSearchesYet,
                                       style: const TextStyle(
                                         color: Colors.grey,
                                       ),

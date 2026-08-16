@@ -5,6 +5,7 @@ import '../../../../core/currency/currency_registry.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/locale_provider.dart';
 import '../../../../providers/country_context_provider.dart';
+import '../../../../core/layout/directional_layout.dart';
 import '../../../../widgets/country_flag_widget.dart';
 import '../../../../widgets/currency_selector_sheet.dart';
 import '../../../../widgets/madar_country_selector_sheet.dart';
@@ -239,6 +240,7 @@ class _RegionRow extends StatelessWidget {
             border: Border.all(color: theme.colorScheme.outline),
           ),
           child: Row(
+            textDirection: Directionality.of(context),
             children: [
               Icon(icon, size: 22, color: theme.colorScheme.primary),
               const SizedBox(width: AuthSpacing.md),
@@ -261,8 +263,7 @@ class _RegionRow extends StatelessWidget {
                 trailing!,
                 const SizedBox(width: AuthSpacing.sm),
               ],
-              Icon(
-                Icons.chevron_right,
+              DirectionalChevronIcon(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ],

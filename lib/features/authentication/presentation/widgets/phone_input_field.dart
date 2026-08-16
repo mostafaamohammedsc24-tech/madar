@@ -67,33 +67,36 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
       ),
       child: Row(
         children: [
-          InkWell(
-            onTap: widget.onCountryTap,
-            borderRadius: const BorderRadius.horizontal(
-              left: Radius.circular(AuthSpacing.radiusMd),
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadiusDirectional.horizontal(
+              start: const Radius.circular(AuthSpacing.radiusMd),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AuthSpacing.md),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CountryFlagWidget(
-                    countryCode: widget.country.isoCode,
-                    size: 18,
-                  ),
-                  const SizedBox(width: AuthSpacing.sm),
-                  Text(
-                    widget.country.dialCode,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+            child: InkWell(
+              onTap: widget.onCountryTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AuthSpacing.md),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CountryFlagWidget(
+                      countryCode: widget.country.isoCode,
+                      size: 18,
                     ),
-                  ),
-                  Icon(
-                    Icons.expand_more,
-                    size: 20,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ],
+                    const SizedBox(width: AuthSpacing.sm),
+                    Text(
+                      widget.country.dialCode,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Icon(
+                      Icons.expand_more,
+                      size: 20,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

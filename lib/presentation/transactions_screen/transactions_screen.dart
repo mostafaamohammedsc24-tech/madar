@@ -260,8 +260,8 @@ class _TransactionsScreenState extends State<TransactionsScreen>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppTheme.primaryDark, AppTheme.primary],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+            begin: AlignmentDirectional.centerStart,
+            end: AlignmentDirectional.centerEnd,
           ),
         ),
       ),

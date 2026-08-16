@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/app_export.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../core/layout/directional_layout.dart';
 import '../../providers/country_context_provider.dart';
 import '../../widgets/currency_selector_sheet.dart';
 import '../../widgets/language_selector_sheet.dart';
@@ -104,11 +105,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: AppBar(
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.primaryDark, AppTheme.primary],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
+        gradient: LinearGradient(
+          colors: [AppTheme.primaryDark, AppTheme.primary],
+          begin: AlignmentDirectional.centerStart,
+          end: AlignmentDirectional.centerEnd,
+        ),
             ),
           ),
           backgroundColor: Colors.transparent,
@@ -188,8 +189,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppTheme.primaryDark, AppTheme.primary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -559,8 +560,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       trailing:
-          trailing ??
-          Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+          trailing ?? const DirectionalListArrow(),
       onTap: onTap,
     );
   }
@@ -606,7 +606,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.arrow_forward, size: 14),
+                icon: DirectionalForwardIcon(size: 14),
                 label: Text(loc.viewAll, style: const TextStyle(fontSize: 13)),
                 style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
               ),
@@ -705,10 +705,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
+                  DirectionalListArrow(
                     color: AppTheme.primary,
+                    size: 14,
                   ),
                 ],
               ),

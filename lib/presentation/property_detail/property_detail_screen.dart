@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../core/app_export.dart';
+import '../../core/layout/directional_layout.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../providers/chat_notifier.dart';
 import '../../services/supabase_service.dart';
@@ -219,7 +220,7 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
                   color: Colors.black.withAlpha(120),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
+                child: const DirectionalBackIcon(color: Colors.white),
               ),
             ),
             actions: [

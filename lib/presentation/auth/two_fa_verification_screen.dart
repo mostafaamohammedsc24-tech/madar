@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/app_export.dart';
+import '../../core/layout/directional_layout.dart';
 
 class TwoFaVerificationScreen extends StatefulWidget {
   const TwoFaVerificationScreen({super.key});
@@ -136,8 +137,7 @@ class _TwoFaVerificationScreenState extends State<TwoFaVerificationScreen>
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.white.withAlpha(30)),
               ),
-              child: const Icon(
-                Icons.arrow_back,
+              child: const DirectionalBackIcon(
                 color: Colors.white,
                 size: 18,
               ),
@@ -408,7 +408,7 @@ class _TwoFaVerificationScreenState extends State<TwoFaVerificationScreen>
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward, size: 18),
+                  const DirectionalForwardIcon(size: 18),
                 ],
               ),
             ),
@@ -907,7 +907,7 @@ class _TwoFaVerificationScreenState extends State<TwoFaVerificationScreen>
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward, size: 18),
+                    const DirectionalForwardIcon(size: 18),
                   ],
                 ),
               ),
@@ -1176,7 +1176,7 @@ class _TwoFaVerificationScreenState extends State<TwoFaVerificationScreen>
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward, size: 18),
+                    const DirectionalForwardIcon(size: 18),
                   ],
                 ),
               ),

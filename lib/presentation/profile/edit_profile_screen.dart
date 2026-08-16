@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/app_export.dart';
+import '../../core/layout/directional_layout.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../services/supabase_service.dart';
 
@@ -161,7 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const DirectionalBackIcon(color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(

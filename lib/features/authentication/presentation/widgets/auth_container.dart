@@ -35,7 +35,7 @@ class AuthContainer extends StatelessWidget {
                   maxWidth: AuthSpacing.maxContentWidth,
                 ),
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(
+                  padding: EdgeInsetsDirectional.fromSTEB(
                     AuthSpacing.horizontalPadding,
                     AuthSpacing.lg,
                     AuthSpacing.horizontalPadding,

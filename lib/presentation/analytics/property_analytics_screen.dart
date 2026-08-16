@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/layout/directional_layout.dart';
+
 class PropertyAnalyticsScreen extends StatefulWidget {
   const PropertyAnalyticsScreen({super.key});
 
@@ -183,8 +185,8 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen>
             pinned: true,
             backgroundColor: const Color(0xFF0A0E1A),
             leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
+              icon: const DirectionalIcon(
+                icon: Icons.arrow_back_ios_new,
                 color: Colors.white,
                 size: 20,
               ),

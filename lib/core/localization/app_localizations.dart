@@ -83,6 +83,10 @@ class AppLocalizations {
   String get commercial => _t(en: 'Commercial', ar: 'تجاري', ku: 'بازرگانی');
   String get investment =>
       _t(en: 'Investment', ar: 'استثمار', ku: 'وەبەرهێنان');
+  String get apartment =>
+      _t(en: 'Apartment', ar: 'شقة', ku: 'شوقە');
+  String get villaType =>
+      _t(en: 'Villa', ar: 'فيلا', ku: 'ڤیلا');
   String get listingType =>
       _t(en: 'Listing Type', ar: 'نوع الإعلان', ku: 'جۆری لیستە');
   String get priceRange =>
@@ -931,6 +935,27 @@ class AppLocalizations {
     en: 'No search history yet',
     ar: 'لا يوجد سجل بحث بعد',
     ku: 'هێشتا مێژووی گەڕان نییە',
+  );
+  String get enterSearchToSave => _t(
+    en: 'Enter a search or filter to save',
+    ar: 'أدخل بحثاً أو فلتراً لحفظه',
+    ku: 'گەڕان یان فلتەر بنووسە بۆ پاشەکەوتکردن',
+  );
+  String get noSavedSearchesYet => _t(
+    en: 'No saved searches yet',
+    ar: 'لا توجد عمليات بحث محفوظة بعد',
+    ku: 'هێشتا گەڕانی پاشەکەوتکراو نییە',
+  );
+
+  String get drawAreaHint => _t(
+    en: 'Tap on map to draw selection area',
+    ar: 'اضغط على الخريطة لرسم منطقة التحديد',
+    ku: 'بۆ کێشانی ناوچە لەسەر نەخشە دەست لێبدە',
+  );
+  String propertyCountShort(int count) => _t(
+    en: '$count Properties',
+    ar: '$count عقار',
+    ku: '$count خانووبەرە',
   );
 
   // ─── Helper ───────────────────────────────────────────────────────────────
