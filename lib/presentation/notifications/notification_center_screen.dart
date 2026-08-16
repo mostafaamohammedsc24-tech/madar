@@ -183,7 +183,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
             TextButton(
               onPressed: _markAllRead,
               child: Text(
-                isRTL ? 'قراءة الكل' : 'Mark all read',
+                loc.markAllRead,
                 style: TextStyle(
                   color: AppTheme.primary,
                   fontSize: 12,
@@ -232,9 +232,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    isRTL
-                        ? '$_unreadCount إشعارات غير مقروءة'
-                        : '$_unreadCount unread notifications',
+                    loc.unreadCountLabel(_unreadCount),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -304,7 +302,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          isRTL ? 'لا توجد إشعارات' : 'No notifications',
+                          loc.noNotificationsYet,
                           style: TextStyle(
                             color: theme.colorScheme.onSurfaceVariant,
                             fontSize: 14,
@@ -322,7 +320,6 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
                       final notif = _filteredNotifs[i];
                       return _NotifTile(
                         notif: notif,
-                        isRTL: isRTL,
                         onTap: () => _markRead(notif.id),
                       );
                     },
@@ -355,19 +352,18 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
 // ─── Notification Tile ────────────────────────────────────────────────────────
 class _NotifTile extends StatelessWidget {
   final _NotifItem notif;
-  final bool isRTL;
   final VoidCallback onTap;
 
   const _NotifTile({
     required this.notif,
-    required this.isRTL,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final timeAgo = _formatTime(notif.time, isRTL);
+    final loc = AppLocalizations.of(context);
+    final timeAgo = _formatTime(notif.time, loc);
 
     return InkWell(
       onTap: onTap,
@@ -398,7 +394,9 @@ class _NotifTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          isRTL ? notif.titleAr : notif.title,
+                          loc.language == AppLanguage.english
+                              ? notif.title
+                              : notif.titleAr,
                           style: GoogleFonts.manrope(
                             fontSize: 13,
                             fontWeight: notif.isRead
@@ -422,7 +420,9 @@ class _NotifTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    isRTL ? notif.bodyAr : notif.body,
+                    loc.language == AppLanguage.english
+                        ? notif.body
+                        : notif.bodyAr,
                     style: TextStyle(
                       fontSize: 12,
                       color: theme.colorScheme.onSurfaceVariant,
@@ -452,14 +452,14 @@ class _NotifTile extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime time, bool isRTL) {
+  String _formatTime(DateTime time, AppLocalizations loc) {
     final diff = DateTime.now().difference(time);
     if (diff.inMinutes < 60) {
-      return isRTL ? 'منذ ${diff.inMinutes}د' : '${diff.inMinutes}m ago';
+      return loc.minutesAgo(diff.inMinutes);
     } else if (diff.inHours < 24) {
-      return isRTL ? 'منذ ${diff.inHours}س' : '${diff.inHours}h ago';
+      return loc.hoursAgo(diff.inHours);
     } else {
-      return isRTL ? 'منذ ${diff.inDays}ي' : '${diff.inDays}d ago';
+      return loc.daysAgo(diff.inDays);
     }
   }
 }

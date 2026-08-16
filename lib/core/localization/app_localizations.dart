@@ -958,6 +958,121 @@ class AppLocalizations {
     ku: '$count خانووبەرە',
   );
 
+  // ─── Edit Profile / Messages / Profile copy ───────────────────────────────
+  String get editProfileTitle => _t(
+    en: 'Edit Profile',
+    ar: 'تعديل الملف الشخصي',
+    ku: 'دەستکاری پرۆفایل',
+  );
+  String get tapToChangePhoto => _t(
+    en: 'Tap to change photo',
+    ar: 'اضغط لتغيير الصورة',
+    ku: 'دەست لێبدە بۆ گۆڕینی وێنە',
+  );
+  String get firstName =>
+      _t(en: 'First Name', ar: 'الاسم الأول', ku: 'ناوی یەکەم');
+  String get lastName =>
+      _t(en: 'Last Name', ar: 'اسم العائلة', ku: 'ناوی خێزان');
+  String get displayName =>
+      _t(en: 'Display Name', ar: 'الاسم المعروض', ku: 'ناوی پیشاندان');
+  String get contactInformation => _t(
+    en: 'Contact Information',
+    ar: 'معلومات التواصل',
+    ku: 'زانیاری پەیوەندی',
+  );
+  String get emailAddress => _t(
+    en: 'Email Address',
+    ar: 'البريد الإلكتروني',
+    ku: 'ناونیشانی ئیمەیل',
+  );
+  String get bio => _t(en: 'Bio', ar: 'نبذة شخصية', ku: 'کورتە');
+  String get bioHint => _t(
+    en: 'Write something about yourself...',
+    ar: 'اكتب نبذة عنك...',
+    ku: 'شتێک دەربارەی خۆت بنووسە...',
+  );
+  String get fieldRequired => _t(
+    en: 'This field is required',
+    ar: 'هذا الحقل مطلوب',
+    ku: 'ئەم خانەیە پێویستە',
+  );
+  String get failedSendImage => _t(
+    en: 'Failed to send image',
+    ar: 'فشل إرسال الصورة',
+    ku: 'ناردنی وێنە سەرکەوتوو نەبوو',
+  );
+  String get failedGetLocation => _t(
+    en: 'Failed to get location',
+    ar: 'فشل الحصول على الموقع',
+    ku: 'وەرگرتنی شوێن سەرکەوتوو نەبوو',
+  );
+  String get imageLabel => _t(en: 'Image', ar: 'صورة', ku: 'وێنە');
+  String get cameraLabel => _t(en: 'Camera', ar: 'كاميرا', ku: 'کامێرا');
+  String get locationLabel => _t(en: 'Location', ar: 'موقع', ku: 'شوێن');
+  String get howDealsWork => _t(
+    en: 'How do transactions work?',
+    ar: 'كيف تعمل الصفقات؟',
+    ku: 'مامەڵەکان چۆن کاردەکەن؟',
+  );
+  String get currentLocation => _t(
+    en: 'Current Location',
+    ar: 'الموقع الحالي',
+    ku: 'شوێنی ئێستا',
+  );
+  String get openInMaps =>
+      _t(en: 'Open in Maps', ar: 'فتح في الخريطة', ku: 'لە نەخشەدا بکەرەوە');
+  String get savingImage => _t(
+    en: 'Saving image...',
+    ar: 'جاري حفظ الصورة...',
+    ku: 'وێنە پاشەکەوت دەکرێت...',
+  );
+  String get typeYourMessage => _t(
+    en: 'Type your message...',
+    ar: 'اكتب رسالتك...',
+    ku: 'نامەکەت بنووسە...',
+  );
+  String get noFavoritePropertiesYet => _t(
+    en: 'No favorite properties yet',
+    ar: 'لا توجد عقارات مفضلة بعد',
+    ku: 'هێشتا خانووبەرەی دڵخواز نییە',
+  );
+  String get allDocumentsContractsDeeds => _t(
+    en: 'All Documents, Contracts & Title Deeds',
+    ar: 'جميع الوثائق والعقود والسندات',
+    ku: 'هەموو بەڵگەنامە و گرێبەست و سندەکان',
+  );
+  String get tapToViewTransactionDocs => _t(
+    en: 'Tap to view and download transaction documents',
+    ar: 'اضغط لعرض وتحميل وثائق صفقاتك',
+    ku: 'دەست لێبدە بۆ بینین و داگرتنی بەڵگەنامەکانی مامەڵە',
+  );
+  String get phoneChangeSupportNote => _t(
+    en: 'Our support team will contact you to change your phone number.',
+    ar: 'سيتم التواصل معك من فريق الدعم لتغيير رقم هاتفك',
+    ku: 'تیمی پشتگیری پەیوەندیت پێدەکات بۆ گۆڕینی ژمارەی تەلەفۆن.',
+  );
+  String get markAllRead => _t(
+    en: 'Mark all read',
+    ar: 'قراءة الكل',
+    ku: 'هەموو بخوێنەوە',
+  );
+  String unreadCountLabel(int n) => _t(
+    en: '$n unread notifications',
+    ar: '$n إشعارات غير مقروءة',
+    ku: '$n ئاگاداری نەخوێندراوە',
+  );
+  String get noNotificationsYet => _t(
+    en: 'No notifications',
+    ar: 'لا توجد إشعارات',
+    ku: 'ئاگاداری نییە',
+  );
+  String minutesAgo(int m) =>
+      _t(en: '${m}m ago', ar: 'منذ ${m}د', ku: '$m خولەک پێش ئێستا');
+  String hoursAgo(int h) =>
+      _t(en: '${h}h ago', ar: 'منذ ${h}س', ku: '$h کاتژمێر پێش ئێستا');
+  String daysAgo(int d) =>
+      _t(en: '${d}d ago', ar: 'منذ ${d}ي', ku: '$d ڕۆژ پێش ئێستا');
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String en,

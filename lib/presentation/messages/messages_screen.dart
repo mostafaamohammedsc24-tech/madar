@@ -331,7 +331,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              loc.isRTL ? 'فشل إرسال الصورة' : 'Failed to send image',
+              loc.failedSendImage,
             ),
             backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
@@ -403,7 +403,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              loc.isRTL ? 'فشل الحصول على الموقع' : 'Failed to get location',
+              loc.failedGetLocation,
             ),
             backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
@@ -443,7 +443,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
               children: [
                 _buildAttachOption(
                   icon: Icons.image,
-                  label: loc.isRTL ? 'صورة' : 'Image',
+                  label: loc.imageLabel,
                   color: AppTheme.primary,
                   onTap: () {
                     Navigator.pop(context);
@@ -452,7 +452,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                 ),
                 _buildAttachOption(
                   icon: Icons.camera_alt,
-                  label: loc.isRTL ? 'كاميرا' : 'Camera',
+                  label: loc.cameraLabel,
                   color: const Color(0xFF6C63FF),
                   onTap: () async {
                     Navigator.pop(context);
@@ -486,7 +486,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                 ),
                 _buildAttachOption(
                   icon: Icons.location_on,
-                  label: loc.isRTL ? 'موقع' : 'Location',
+                  label: loc.locationLabel,
                   color: AppTheme.error,
                   onTap: () {
                     Navigator.pop(context);
@@ -871,7 +871,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                       : 'What are property prices?',
                 ),
                 _buildSuggestionChip(
-                  loc.isRTL ? 'كيف تعمل الصفقات؟' : 'How do transactions work?',
+                  loc.howDealsWork,
                 ),
               ],
             ),
@@ -1061,7 +1061,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                       const Icon(Icons.download, color: Colors.white, size: 12),
                       const SizedBox(width: 3),
                       Text(
-                        loc.isRTL ? 'حفظ' : 'Save',
+                        loc.save,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -1129,7 +1129,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  loc.isRTL ? 'الموقع الحالي' : 'Current Location',
+                  loc.currentLocation,
                   style: TextStyle(
                     color: isUser
                         ? Colors.white
@@ -1158,7 +1158,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                loc.isRTL ? 'فتح في الخريطة' : 'Open in Maps',
+                loc.openInMaps,
                 style: TextStyle(
                   color: isUser ? Colors.white : AppTheme.primary,
                   fontSize: 11,
@@ -1211,7 +1211,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
   Future<void> _downloadImage(String imageUrl, AppLocalizations loc) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(loc.isRTL ? 'جاري حفظ الصورة...' : 'Saving image...'),
+        content: Text(loc.savingImage),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1339,9 +1339,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                 maxLines: 4,
                 minLines: 1,
                 decoration: InputDecoration(
-                  hintText: loc.isRTL
-                      ? 'اكتب رسالتك...'
-                      : 'Type your message...',
+                  hintText: loc.typeYourMessage,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
