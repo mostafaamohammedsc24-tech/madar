@@ -1,140 +1,93 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Country model used throughout the app
-class AppCountry {
-  final String code;
-  final String dialCode;
-  final String flag;
-  final String nameEn;
-  final String nameAr;
-  final String currency;
-  final String currencySymbol;
+import '../core/currency/currency_registry.dart';
+import '../core/geo/country_registry.dart';
+import '../core/geo/madar_country.dart';
 
-  const AppCountry({
-    required this.code,
-    required this.dialCode,
-    required this.flag,
-    required this.nameEn,
-    required this.nameAr,
-    required this.currency,
-    required this.currencySymbol,
-  });
-}
-
-/// All supported countries in Madar
-const List<AppCountry> kSupportedCountries = [
-  AppCountry(
-    code: 'IQ',
-    dialCode: '+964',
-    flag: '🇮🇶',
-    nameEn: 'Iraq',
-    nameAr: 'العراق',
-    currency: 'IQD',
-    currencySymbol: 'د.ع',
-  ),
-  AppCountry(
-    code: 'SA',
-    dialCode: '+966',
-    flag: '🇸🇦',
-    nameEn: 'Saudi Arabia',
-    nameAr: 'السعودية',
-    currency: 'SAR',
-    currencySymbol: 'ر.س',
-  ),
-  AppCountry(
-    code: 'AE',
-    dialCode: '+971',
-    flag: '🇦🇪',
-    nameEn: 'UAE',
-    nameAr: 'الإمارات',
-    currency: 'AED',
-    currencySymbol: 'د.إ',
-  ),
-  AppCountry(
-    code: 'JO',
-    dialCode: '+962',
-    flag: '🇯🇴',
-    nameEn: 'Jordan',
-    nameAr: 'الأردن',
-    currency: 'JOD',
-    currencySymbol: 'د.أ',
-  ),
-  AppCountry(
-    code: 'KW',
-    dialCode: '+965',
-    flag: '🇰🇼',
-    nameEn: 'Kuwait',
-    nameAr: 'الكويت',
-    currency: 'KWD',
-    currencySymbol: 'د.ك',
-  ),
-  AppCountry(
-    code: 'QA',
-    dialCode: '+974',
-    flag: '🇶🇦',
-    nameEn: 'Qatar',
-    nameAr: 'قطر',
-    currency: 'QAR',
-    currencySymbol: 'ر.ق',
-  ),
-  AppCountry(
-    code: 'BH',
-    dialCode: '+973',
-    flag: '🇧🇭',
-    nameEn: 'Bahrain',
-    nameAr: 'البحرين',
-    currency: 'BHD',
-    currencySymbol: 'د.ب',
-  ),
-  AppCountry(
-    code: 'OM',
-    dialCode: '+968',
-    flag: '🇴🇲',
-    nameEn: 'Oman',
-    nameAr: 'عُمان',
-    currency: 'OMR',
-    currencySymbol: 'ر.ع',
-  ),
-];
-
-/// CountryContextProvider — persists the active country context
-/// across the entire app via SharedPreferences.
+/// Active market country + preferred currency persisted across the app.
 class CountryContextProvider extends ChangeNotifier {
-  AppCountry _activeCountry = kSupportedCountries.first; // Iraq default
+  MadarCountry _activeCountry = CountryRegistry.fallback;
+  String _currencyCode = CountryRegistry.fallback.defaultCurrencyCode;
+  bool _currencyOverridden = false;
 
-  AppCountry get activeCountry => _activeCountry;
-  String get activeCountryCode => _activeCountry.code;
+  MadarCountry get activeCountry => _activeCountry;
+  String get activeCountryCode => _activeCountry.isoCode;
+  String get activeCurrency => _currencyCode;
+  String get activeCurrencySymbol =>
+      CurrencyRegistry.findByCode(_currencyCode)?.symbol ?? _currencyCode;
+
+  /// @deprecated Use [activeCountry] — kept for legacy call sites.
+  String get activeFlag => _activeCountry.isoCode;
   String get activeCountryName => _activeCountry.nameEn;
-  String get activeFlag => _activeCountry.flag;
-  String get activeCurrency => _activeCountry.currency;
-  String get activeCurrencySymbol => _activeCountry.currencySymbol;
+
+  bool get isCurrencyOverridden => _currencyOverridden;
 
   CountryContextProvider() {
-    _loadSavedCountry();
+    _loadSaved();
   }
 
-  Future<void> _loadSavedCountry() async {
+  Future<void> _loadSaved() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final savedCode = prefs.getString('active_country_code');
+      final currency = prefs.getString('user_currency_code');
+      final overridden = prefs.getBool('user_currency_overridden') ?? false;
+
       if (savedCode != null) {
-        final found = kSupportedCountries.where((c) => c.code == savedCode);
-        if (found.isNotEmpty) {
-          _activeCountry = found.first;
-          notifyListeners();
-        }
+        _activeCountry = CountryRegistry.findByIso(savedCode) ?? _activeCountry;
       }
+      if (currency != null) {
+        _currencyCode = currency;
+      } else {
+        _currencyCode = _activeCountry.defaultCurrencyCode;
+      }
+      _currencyOverridden = overridden;
+      notifyListeners();
     } catch (_) {}
   }
 
-  Future<void> setCountry(AppCountry country) async {
-    if (_activeCountry.code == country.code) return;
+  Future<void> setCountry(MadarCountry country, {bool updateCurrency = true}) async {
+    if (_activeCountry.isoCode == country.isoCode && !updateCurrency) return;
     _activeCountry = country;
+    if (!_currencyOverridden || updateCurrency) {
+      _currencyCode = country.defaultCurrencyCode;
+      if (updateCurrency) _currencyOverridden = false;
+    }
     notifyListeners();
+    await _persist();
+  }
+
+  /// Legacy adapter for code still passing [AppCountry]-shaped data.
+  Future<void> setCountryByCode(String isoCode, {bool updateCurrency = true}) async {
+    final country = CountryRegistry.findByIso(isoCode);
+    if (country != null) {
+      await setCountry(country, updateCurrency: updateCurrency);
+    }
+  }
+
+  Future<void> setCurrency(String code, {bool overridden = true}) async {
+    _currencyCode = code.toUpperCase();
+    _currencyOverridden = overridden;
+    notifyListeners();
+    await _persist();
+  }
+
+  Future<void> _persist() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('active_country_code', country.code);
+      await prefs.setString('active_country_code', _activeCountry.isoCode);
+      await prefs.setString('user_country_code', _activeCountry.isoCode);
+      await prefs.setString('user_currency_code', _currencyCode);
+      await prefs.setBool('user_currency_overridden', _currencyOverridden);
     } catch (_) {}
   }
 }
+
+/// @deprecated Use [MadarCountry] via [CountryContextProvider].
+typedef AppCountry = MadarCountry;
+
+/// @deprecated Use [CountryRegistry.all].
+List<MadarCountry> get kSupportedCountries => CountryRegistry.all
+    .where((c) => CountryRegistry.favoriteIsoCodes.contains(c.isoCode))
+    .toList();

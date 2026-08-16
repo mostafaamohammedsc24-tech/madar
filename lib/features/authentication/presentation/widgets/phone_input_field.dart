@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../widgets/country_flag_widget.dart';
 import '../../domain/models/auth_country.dart';
 import '../theme/auth_theme.dart';
 
@@ -76,7 +77,10 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _CountryBadge(isoCode: widget.country.isoCode),
+                  CountryFlagWidget(
+                    countryCode: widget.country.isoCode,
+                    size: 18,
+                  ),
                   const SizedBox(width: AuthSpacing.sm),
                   Text(
                     widget.country.dialCode,
@@ -130,35 +134,6 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CountryBadge extends StatelessWidget {
-  const _CountryBadge({required this.isoCode});
-
-  final String isoCode;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: 32,
-      height: 24,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: Text(
-        isoCode,
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
       ),
     );
   }

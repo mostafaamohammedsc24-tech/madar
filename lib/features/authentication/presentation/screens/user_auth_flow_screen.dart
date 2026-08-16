@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../domain/models/user_auth_state.dart';
 import '../providers/user_auth_notifier.dart';
+import 'region_setup_screen.dart';
 import 'auth_loading_screen.dart';
 import 'face_verification_setup_screen.dart';
 import 'location_permission_screen.dart';
@@ -45,9 +46,10 @@ class _UserAuthFlowScreenState extends State<UserAuthFlowScreen> {
       switchOutCurve: Curves.easeInCubic,
       child: switch (status) {
         UserAuthStatus.initializing => const AuthLoadingScreen(key: ValueKey('init')),
+        UserAuthStatus.awaitingLocationPermission => const LocationPermissionScreen(key: ValueKey('location')),
+        UserAuthStatus.awaitingRegionSetup => const RegionSetupScreen(key: ValueKey('region')),
         UserAuthStatus.unauthenticated => const PhoneNumberScreen(key: ValueKey('phone')),
         UserAuthStatus.awaitingOtpVerification => const OtpVerificationScreen(key: ValueKey('otp')),
-        UserAuthStatus.awaitingLocationPermission => const LocationPermissionScreen(key: ValueKey('location')),
         UserAuthStatus.awaitingFaceVerification => const FaceVerificationSetupScreen(key: ValueKey('face')),
         UserAuthStatus.failure => const PhoneNumberScreen(key: ValueKey('failure')),
         UserAuthStatus.authenticated => const AuthLoadingScreen(key: ValueKey('done')),

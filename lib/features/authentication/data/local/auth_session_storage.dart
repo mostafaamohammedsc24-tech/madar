@@ -2,13 +2,56 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/models/user_auth_state.dart';
 
-/// Persists onboarding progress per user so returning users skip completed steps.
+/// Persists onboarding progress per user and pre-auth setup.
 class AuthSessionStorage {
   static const _locationPrefix = 'auth_location_';
   static const _facePrefix = 'auth_face_';
   static const _onboardingPrefix = 'auth_onboarding_complete_';
   static const _lastCountryIso = 'auth_last_country_iso';
   static const _lastPhone = 'auth_last_phone';
+
+  static const _preAuthLocationHandled = 'pre_auth_location_handled';
+  static const _preAuthRegionComplete = 'pre_auth_region_complete';
+  static const _preAuthCountryIso = 'pre_auth_country_iso';
+  static const _preAuthLanguage = 'pre_auth_language';
+  static const _preAuthCurrency = 'pre_auth_currency';
+
+  Future<bool> isPreAuthLocationHandled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_preAuthLocationHandled) ?? false;
+  }
+
+  Future<void> markPreAuthLocationHandled() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_preAuthLocationHandled, true);
+  }
+
+  Future<bool> isPreAuthRegionComplete() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_preAuthRegionComplete) ?? false;
+  }
+
+  Future<void> savePreAuthRegion({
+    required String countryIso,
+    required String languageCode,
+    required String currencyCode,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_preAuthRegionComplete, true);
+    await prefs.setString(_preAuthCountryIso, countryIso);
+    await prefs.setString(_preAuthLanguage, languageCode);
+    await prefs.setString(_preAuthCurrency, currencyCode);
+  }
+
+  Future<({String? countryIso, String? language, String? currency})>
+  loadPreAuthRegion() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (
+      countryIso: prefs.getString(_preAuthCountryIso),
+      language: prefs.getString(_preAuthLanguage),
+      currency: prefs.getString(_preAuthCurrency),
+    );
+  }
 
   Future<bool> isOnboardingComplete(String userId) async {
     final prefs = await SharedPreferences.getInstance();

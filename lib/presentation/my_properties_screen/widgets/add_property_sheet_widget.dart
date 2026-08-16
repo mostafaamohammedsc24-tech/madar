@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/app_export.dart';
+import '../../../widgets/property_type_icon.dart';
 import '../../../services/supabase_service.dart';
 
 class AddPropertySheetWidget extends StatefulWidget {
@@ -34,19 +35,19 @@ class _AddPropertySheetWidgetState extends State<AddPropertySheetWidget> {
   String? _uploadedImageUrl;
 
   final List<Map<String, String>> _propertyTypes = [
-    {'key': 'apartment', 'label': 'شقة', 'icon': '🏢'},
-    {'key': 'villa', 'label': 'فيلا', 'icon': '🏡'},
-    {'key': 'land', 'label': 'أرض', 'icon': '🌿'},
-    {'key': 'commercial', 'label': 'تجاري', 'icon': '🏪'},
-    {'key': 'building', 'label': 'عمارة', 'icon': '🏗️'},
-    {'key': 'office', 'label': 'مكتب', 'icon': '🖥️'},
+    {'key': 'apartment', 'label': 'شقة'},
+    {'key': 'villa', 'label': 'فيلا'},
+    {'key': 'land', 'label': 'أرض'},
+    {'key': 'commercial', 'label': 'تجاري'},
+    {'key': 'building', 'label': 'عمارة'},
+    {'key': 'office', 'label': 'مكتب'},
   ];
 
   final List<Map<String, String>> _listingTypes = [
-    {'key': 'sale', 'label': 'للبيع', 'icon': '💰'},
-    {'key': 'rent', 'label': 'للإيجار', 'icon': '🔑'},
-    {'key': 'mortgage', 'label': 'رهن', 'icon': '🏦'},
-    {'key': 'investment', 'label': 'استثمار', 'icon': '📈'},
+    {'key': 'sale', 'label': 'للبيع'},
+    {'key': 'rent', 'label': 'للإيجار'},
+    {'key': 'mortgage', 'label': 'رهن'},
+    {'key': 'investment', 'label': 'استثمار'},
   ];
 
   @override
@@ -800,7 +801,11 @@ class _AddPropertySheetWidgetState extends State<AddPropertySheetWidget> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(t['icon']!, style: const TextStyle(fontSize: 20)),
+                    PropertyTypeIcon(
+                      type: t['key']!,
+                      size: 22,
+                      color: isSelected ? Colors.white : null,
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       t['label']!,
@@ -852,7 +857,11 @@ class _AddPropertySheetWidgetState extends State<AddPropertySheetWidget> {
                     ),
                     child: Column(
                       children: [
-                        Text(t['icon']!, style: const TextStyle(fontSize: 16)),
+                        PropertyTypeIcon(
+                          type: t['key']!,
+                          listingType: t['key'],
+                          size: 18,
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           t['label']!,

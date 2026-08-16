@@ -1,26 +1,19 @@
-import 'auth_country.dart';
+import '../../../../core/geo/country_registry.dart';
+import '../../../../core/geo/madar_country.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 /// Lifecycle status for user authentication.
 enum UserAuthStatus {
-  /// Initial session check in progress.
   initializing,
-
-  /// User is not signed in — show phone entry.
-  unauthenticated,
-
-  /// OTP has been sent — awaiting verification.
-  awaitingOtpVerification,
-
-  /// Phone verified — location onboarding pending.
+  /// First launch — request location before anything else.
   awaitingLocationPermission,
-
-  /// Location handled — face verification setup pending.
+  /// Confirm detected country, language, and currency.
+  awaitingRegionSetup,
+  /// Phone number entry.
+  unauthenticated,
+  awaitingOtpVerification,
   awaitingFaceVerification,
-
-  /// Fully authenticated and onboarding complete.
   authenticated,
-
-  /// Recoverable error state (network, invalid OTP, etc.).
   failure,
 }
 
@@ -32,7 +25,7 @@ enum LocationPermissionStatus { notRequested, granted, denied, skipped }
 class UserAuthState {
   UserAuthState({
     this.status = UserAuthStatus.initializing,
-    AuthCountry? selectedCountry,
+    MadarCountry? selectedCountry,
     this.phoneNumber = '',
     this.otpResendSeconds = 0,
     this.isBusy = false,
@@ -40,10 +33,14 @@ class UserAuthState {
     this.userId,
     this.locationStatus = LocationPermissionStatus.notRequested,
     this.faceVerificationStatus = FaceVerificationStatus.none,
-  }) : selectedCountry = selectedCountry ?? authCountries.first;
+    this.selectedLanguage = AppLanguage.english,
+    this.selectedCurrencyCode = 'USD',
+    this.detectedLatitude,
+    this.detectedLongitude,
+  }) : selectedCountry = selectedCountry ?? CountryRegistry.fallback;
 
   final UserAuthStatus status;
-  final AuthCountry selectedCountry;
+  final MadarCountry selectedCountry;
   final String phoneNumber;
   final int otpResendSeconds;
   final bool isBusy;
@@ -51,6 +48,10 @@ class UserAuthState {
   final String? userId;
   final LocationPermissionStatus locationStatus;
   final FaceVerificationStatus faceVerificationStatus;
+  final AppLanguage selectedLanguage;
+  final String selectedCurrencyCode;
+  final double? detectedLatitude;
+  final double? detectedLongitude;
 
   String get fullPhoneNumber {
     final digits = phoneNumber.replaceAll(RegExp(r'\D'), '');
@@ -68,7 +69,7 @@ class UserAuthState {
 
   UserAuthState copyWith({
     UserAuthStatus? status,
-    AuthCountry? selectedCountry,
+    MadarCountry? selectedCountry,
     String? phoneNumber,
     int? otpResendSeconds,
     bool? isBusy,
@@ -77,6 +78,10 @@ class UserAuthState {
     String? userId,
     LocationPermissionStatus? locationStatus,
     FaceVerificationStatus? faceVerificationStatus,
+    AppLanguage? selectedLanguage,
+    String? selectedCurrencyCode,
+    double? detectedLatitude,
+    double? detectedLongitude,
   }) {
     return UserAuthState(
       status: status ?? this.status,
@@ -89,6 +94,10 @@ class UserAuthState {
       locationStatus: locationStatus ?? this.locationStatus,
       faceVerificationStatus:
           faceVerificationStatus ?? this.faceVerificationStatus,
+      selectedLanguage: selectedLanguage ?? this.selectedLanguage,
+      selectedCurrencyCode: selectedCurrencyCode ?? this.selectedCurrencyCode,
+      detectedLatitude: detectedLatitude ?? this.detectedLatitude,
+      detectedLongitude: detectedLongitude ?? this.detectedLongitude,
     );
   }
 }

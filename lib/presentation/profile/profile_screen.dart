@@ -3,6 +3,10 @@ import 'package:provider/provider.dart';
 import '../../core/app_export.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../providers/country_context_provider.dart';
+import '../../widgets/currency_selector_sheet.dart';
+import '../../widgets/language_selector_sheet.dart';
+import '../../widgets/madar_country_selector_sheet.dart';
 import '../../features/authentication/presentation/providers/user_auth_notifier.dart';
 import '../../services/supabase_service.dart';
 import '../notifications/notification_center_screen.dart';
@@ -90,6 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localeProvider = context.watch<LocaleProvider>();
+    final countryProvider = context.watch<CountryContextProvider>();
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
@@ -145,7 +150,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 16),
                     _buildVerificationCard(theme, loc),
                     const SizedBox(height: 16),
-                    _buildSettingsSection(theme, localeProvider, loc),
+                    _buildSettingsSection(
+                      theme,
+                      localeProvider,
+                      countryProvider,
+                      loc,
+                    ),
                     const SizedBox(height: 16),
                     _buildArchiveSection(theme, loc),
                     const SizedBox(height: 16),
@@ -394,6 +404,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSettingsSection(
     ThemeData theme,
     LocaleProvider localeProvider,
+    CountryContextProvider countryProvider,
     AppLocalizations loc,
   ) {
     return Container(
@@ -421,21 +432,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
             theme: theme,
           ),
           const Divider(height: 1, indent: 56),
+          const Divider(height: 1, indent: 56),
           _buildSettingsTile(
-            icon: Icons.language,
-            label: loc.languageLabel,
+            icon: Icons.public,
+            label: loc.settingsCountry,
             trailing: Text(
-              localeProvider.language == AppLanguage.arabic
-                  ? 'العربية'
-                  : localeProvider.language == AppLanguage.kurdish
-                  ? 'کوردی'
-                  : 'English',
+              countryProvider.activeCountry.localizedName(loc.languageCode),
               style: TextStyle(
                 color: AppTheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            onTap: () => _showLanguageSheet(localeProvider, loc),
+            onTap: () async {
+              final selected = await MadarCountrySelectorSheet.show(
+                context,
+                selectedCountry: countryProvider.activeCountry,
+              );
+              if (selected != null && mounted) {
+                await countryProvider.setCountry(selected);
+                await SupabaseService.instance.updateUserProfile({
+                  'country_code': selected.isoCode,
+                  'preferred_currency': countryProvider.activeCurrency,
+                });
+              }
+            },
+            theme: theme,
+          ),
+          const Divider(height: 1, indent: 56),
+          _buildSettingsTile(
+            icon: Icons.payments_outlined,
+            label: loc.settingsCurrency,
+            trailing: Text(
+              '${countryProvider.activeCurrencySymbol} ${countryProvider.activeCurrency}',
+              style: TextStyle(
+                color: AppTheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onTap: () async {
+              final code = await CurrencySelectorSheet.show(
+                context,
+                selectedCode: countryProvider.activeCurrency,
+              );
+              if (code != null && mounted) {
+                await countryProvider.setCurrency(code);
+                await SupabaseService.instance.updateUserProfile({
+                  'preferred_currency': code,
+                });
+              }
+            },
+            theme: theme,
+          ),
+          const Divider(height: 1, indent: 56),
+          _buildSettingsTile(
+            icon: Icons.language,
+            label: loc.languageLabel,
+            trailing: Text(
+              localeProvider.language == AppLanguage.arabic
+                  ? loc.langArabic
+                  : localeProvider.language == AppLanguage.kurdish
+                  ? loc.langKurdish
+                  : loc.langEnglish,
+              style: TextStyle(
+                color: AppTheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onTap: () => LanguageSelectorSheet.show(context),
             theme: theme,
           ),
           const Divider(height: 1, indent: 56),
@@ -990,67 +1053,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           })),
         ],
-      ),
-    );
-  }
-
-  void _showLanguageSheet(LocaleProvider lp, AppLocalizations loc) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.withAlpha(80),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              loc.isRTL ? 'اختر اللغة' : 'Choose Language',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 16),
-            ...AppLanguage.values.map(
-              (lang) => ListTile(
-                leading: Text(
-                  lang == AppLanguage.arabic
-                      ? '🇮🇶'
-                      : lang == AppLanguage.kurdish
-                      ? '🏔️'
-                      : '🇬🇧',
-                  style: const TextStyle(fontSize: 24),
-                ),
-                title: Text(
-                  lang == AppLanguage.arabic
-                      ? 'العربية'
-                      : lang == AppLanguage.kurdish
-                      ? 'کوردی'
-                      : 'English',
-                ),
-                trailing: lp.language == lang
-                    ? Icon(Icons.check_circle, color: AppTheme.primary)
-                    : null,
-                onTap: () {
-                  lp.setLanguage(lang);
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -29,6 +29,7 @@ String? resolveUserAuthRedirect({
     case UserAuthStatus.unauthenticated:
     case UserAuthStatus.awaitingOtpVerification:
     case UserAuthStatus.awaitingLocationPermission:
+    case UserAuthStatus.awaitingRegionSetup:
     case UserAuthStatus.awaitingFaceVerification:
     case UserAuthStatus.failure:
       if (protectedShellRoutes.contains(matchedLocation) ||

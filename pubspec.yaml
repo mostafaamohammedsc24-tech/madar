@@ -36,6 +36,9 @@ dependencies:
   image_picker: ^1.1.2
   url_launcher: ^6.3.0
   mixpanel_flutter: ^2.13.0
+  circle_flags: ^5.0.1
+  country_picker: ^2.0.28
+  geocoding: ^5.0.0
 
 
 dev_dependencies:

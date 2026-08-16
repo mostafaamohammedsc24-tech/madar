@@ -738,7 +738,7 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader(theme, "What's Special ✨"),
+          _buildSectionHeader(theme, loc.whatsSpecial),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(14),
@@ -750,7 +750,7 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
             child: Text(_description, style: theme.textTheme.bodyMedium),
           ),
           const SizedBox(height: 20),
-          _buildSectionHeader(theme, '🏠 Lease to Own Option'),
+          _buildSectionHeader(theme, loc.leaseToOwn),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(14),

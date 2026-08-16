@@ -532,6 +532,95 @@ class AppLocalizations {
     ku: 'دڵنیایت دەتەوێت بچیتە دەرەوە؟',
   );
 
+  // ─── Region Setup ─────────────────────────────────────────────────────────
+  String get authRegionTitle => _t(
+    en: 'Set your region',
+    ar: 'حدد منطقتك',
+    ku: 'ناوچەکەت دیاری بکە',
+  );
+  String get authRegionSubtitle => _t(
+    en: 'We detected your location. Confirm or adjust country, language, and currency.',
+    ar: 'حددنا موقعك. أكد أو عدّل الدولة واللغة والعملة.',
+    ku: 'شوێنەکەت دیاریکرا. وڵات و زمان و دراو پشتڕاست بکەرەوە یان بیگۆڕە.',
+  );
+  String get authRegionCountry => _t(
+    en: 'Country',
+    ar: 'الدولة',
+    ku: 'وڵات',
+  );
+  String get authRegionLanguage => _t(
+    en: 'Language',
+    ar: 'اللغة',
+    ku: 'زمان',
+  );
+  String get authRegionCurrency => _t(
+    en: 'Currency',
+    ar: 'العملة',
+    ku: 'دراو',
+  );
+  String get authRegionConfirm => _t(
+    en: 'Continue',
+    ar: 'متابعة',
+    ku: 'بەردەوامبوون',
+  );
+  String get authRegionDetectedHint => _t(
+    en: 'You can change these anytime from Profile settings.',
+    ar: 'يمكنك تغييرها في أي وقت من إعدادات الملف الشخصي.',
+    ku: 'دەتوانیت لە هەر کاتێک لە ڕێکخستنەکانی پرۆفایل بیگۆڕیت.',
+  );
+
+  // ─── Profile Settings ─────────────────────────────────────────────────────
+  String get settingsCountry => _t(
+    en: 'Country',
+    ar: 'الدولة',
+    ku: 'وڵات',
+  );
+  String get settingsCurrency => _t(
+    en: 'Currency',
+    ar: 'العملة',
+    ku: 'دراو',
+  );
+  String get settingsChangeCountry => _t(
+    en: 'Change country',
+    ar: 'تغيير الدولة',
+    ku: 'گۆڕینی وڵات',
+  );
+  String get settingsChangeCurrency => _t(
+    en: 'Change currency',
+    ar: 'تغيير العملة',
+    ku: 'گۆڕینی دراو',
+  );
+  String get activeCountryTitle => _t(
+    en: 'Active Country',
+    ar: 'الدولة النشطة',
+    ku: 'وڵاتی چالاک',
+  );
+  String get switchMarketContext => _t(
+    en: 'Switch your market context',
+    ar: 'بدّل سياق السوق',
+    ku: 'ناوچەی بازاڕ بگۆڕە',
+  );
+  String get mapType => _t(
+    en: 'Map Type',
+    ar: 'نوع الخريطة',
+    ku: 'جۆری نەخشە',
+  );
+  String get drawArea => _t(
+    en: 'Draw Area',
+    ar: 'رسم منطقة',
+    ku: 'کێشانی ناوچە',
+  );
+  String get cancelDraw => _t(
+    en: 'Cancel Draw',
+    ar: 'إلغاء الرسم',
+    ku: 'هەڵوەشاندنەوەی کێشان',
+  );
+  String areaLabel(String label, int count) => _t(
+    en: 'Area: $label — $count properties',
+    ar: 'منطقة: $label — $count عقار',
+    ku: 'ناوچە: $label — $count خانووبەرە',
+  );
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String en,

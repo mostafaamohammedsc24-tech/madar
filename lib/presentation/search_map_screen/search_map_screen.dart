@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/app_export.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../providers/country_context_provider.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/country_context_switcher.dart';
 import '../notifications/notification_center_screen.dart';
@@ -26,6 +29,9 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     with TickerProviderStateMixin {
   final DraggableScrollableController _draggableController =
       DraggableScrollableController();
+  final GlobalKey<PropertyMapWidgetState> _mapKey =
+      GlobalKey<PropertyMapWidgetState>();
+  String? _loadedCountryCode;
   bool _isSheetExpanded = false;
   bool _isFullScreenList = false;
   String _selectedFilter = 'All';
@@ -99,7 +105,12 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   Future<void> _loadProperties() async {
     setState(() => _isLoading = true);
     try {
-      final data = await SupabaseService.instance.getProperties(limit: 50);
+      final countryCode = context.read<CountryContextProvider>().activeCountryCode;
+      _loadedCountryCode = countryCode;
+      final data = await SupabaseService.instance.getProperties(
+        limit: 50,
+        countryCode: countryCode,
+      );
       if (data.isNotEmpty) {
         final props = data
             .map((d) => PropertyData.fromSupabase(d))
@@ -600,8 +611,36 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     );
   }
 
+  Future<void> _goToMyLocation() async {
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+      _mapKey.currentState?.moveToLocation(
+        LatLng(position.latitude, position.longitude),
+      );
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
+    final countryCode =
+        context.watch<CountryContextProvider>().activeCountryCode;
+    if (_loadedCountryCode != null && _loadedCountryCode != countryCode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadProperties());
+    }
+
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final isRTL = loc.isRTL;
@@ -616,6 +655,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
           children: [
             // Full-screen map
             PropertyMapWidget(
+              key: _mapKey,
               properties: _filteredProperties,
               onPropertyTap: _onPropertySelected,
               mapType: _mapType,
@@ -749,8 +789,8 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 children: [
                   _MapControlButton(
                     iconName: 'my_location',
-                    onTap: () {},
-                    tooltip: isRTL ? 'موقعي' : 'My Location',
+                    onTap: _goToMyLocation,
+                    tooltip: loc.nearMe,
                   ),
                   const SizedBox(height: 8),
                   _MapControlButton(

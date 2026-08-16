@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:typed_data';
 
@@ -66,6 +67,51 @@ class SupabaseService {
     final userId = currentUser?.id;
     if (userId == null) return;
     await client.from('user_profiles').upsert({'id': userId, ...data});
+  }
+
+  /// Creates or updates profile after phone OTP verification.
+  Future<void> upsertUserProfileFromAuth({
+    required String userId,
+    required String phone,
+    required String phoneCountryCode,
+    required String countryCode,
+    required String preferredLanguage,
+    required String preferredCurrency,
+    double? latitude,
+    double? longitude,
+    String locationPermission = 'not_requested',
+  }) async {
+    await client.from('user_profiles').upsert({
+      'id': userId,
+      'phone': phone,
+      'phone_country_code': phoneCountryCode,
+      'phone_verified': true,
+      'country_code': countryCode,
+      'preferred_language': preferredLanguage,
+      'preferred_currency': preferredCurrency,
+      'status': 'active',
+      'last_login_at': DateTime.now().toIso8601String(),
+    });
+
+    await client.from('user_preferences').upsert({
+      'user_id': userId,
+    });
+
+    if (latitude != null && longitude != null) {
+      try {
+        await client.from('user_locations').insert({
+          'user_id': userId,
+          'latitude': latitude,
+          'longitude': longitude,
+          'permission_status': locationPermission,
+          'source': 'gps',
+          'is_primary': true,
+        });
+      } catch (e) {
+        // Table may not exist until migration is applied.
+        debugPrint('[Supabase] user_locations insert failed: $e');
+      }
+    }
   }
 
   Future<void> updateIdentityVerification({
