@@ -8,6 +8,13 @@ String? resolveUserAuthRedirect({
   const authRoute = '/auth';
   const mainRoute = '/search-map-screen';
 
+  // Partner / office / employee entry — not part of user OTP shell.
+  if (matchedLocation.startsWith('/office') ||
+      matchedLocation == '/office-login' ||
+      matchedLocation == '/employee-portal') {
+    return null;
+  }
+
   const protectedShellRoutes = {
     '/search-map-screen',
     '/transactions-screen',

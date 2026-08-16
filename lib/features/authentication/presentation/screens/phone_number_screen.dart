@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../widgets/language_selector_sheet.dart';
+import '../../../office/presentation/widgets/partner_entry_section.dart';
 import '../../domain/models/auth_country.dart';
 import '../providers/user_auth_notifier.dart';
 import '../theme/auth_theme.dart';
@@ -65,6 +66,7 @@ class PhoneNumberScreen extends StatelessWidget {
               enabled: canContinue,
               onPressed: auth.sendOtp,
             ),
+            const PartnerEntrySection(),
           ],
         ),
       ),

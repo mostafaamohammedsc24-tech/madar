@@ -1,11 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart' as provider;
 
 import '../features/authentication/domain/models/user_auth_state.dart';
 import '../features/authentication/presentation/screens/user_auth_flow_screen.dart';
 import '../features/authentication/routing/auth_globals.dart';
 import '../features/authentication/routing/auth_redirect.dart';
+import '../features/office/presentation/screens/employee_portal_placeholder_screen.dart';
+import '../features/office/presentation/screens/office_chat_screen.dart';
+import '../features/office/presentation/screens/office_conversations_screen.dart';
+import '../features/office/presentation/screens/office_create_transaction_screen.dart';
+import '../features/office/presentation/screens/office_documents_screen.dart';
+import '../features/office/presentation/screens/office_history_screen.dart';
+import '../features/office/presentation/screens/office_home_screen.dart';
+import '../features/office/presentation/screens/office_leads_screen.dart';
+import '../features/office/presentation/screens/office_login_screen.dart';
+import '../features/office/presentation/screens/office_more_screen.dart';
+import '../features/office/presentation/screens/office_notifications_screen.dart';
+import '../features/office/presentation/screens/office_performance_screen.dart';
+import '../features/office/presentation/screens/office_profile_screen.dart';
+import '../features/office/presentation/screens/office_properties_screen.dart';
+import '../features/office/presentation/screens/office_report_property_screen.dart';
+import '../features/office/presentation/screens/office_support_screen.dart';
+import '../features/office/presentation/screens/office_transaction_monitor_screen.dart';
+import '../features/office/presentation/screens/office_transactions_screen.dart';
+import '../features/office/presentation/shell/office_scaffold.dart';
+import '../features/office/routing/office_globals.dart';
+import '../features/office/routing/office_redirect.dart';
 import '../features/property/presentation/screens/property_report_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
@@ -39,18 +61,42 @@ class AppRoutes {
   static const String settlementReceipt = '/settlement-receipt';
   static const String propertyAnalytics = '/property-analytics';
   static const String ratingsReviews = '/ratings-reviews';
+  static const String officeLogin = '/office-login';
+  static const String employeePortal = '/employee-portal';
+  static const String officeHome = '/office/home';
 }
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.auth,
   refreshListenable: authRouterRefresh,
   redirect: (context, state) {
+    final location = state.matchedLocation;
+
+    final officeRedirect = resolveOfficeAuthRedirect(
+      status: officeAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (officeRedirect != null) return officeRedirect;
+
+    // Office session owns its shell — do not bounce to user OTP auth.
+    if (officeAuthNotifier.isAuthenticated &&
+        (location.startsWith('/office') || location == AppRoutes.officeLogin)) {
+      return null;
+    }
+
+    // Public partner entry points
+    if (location == AppRoutes.officeLogin ||
+        location == AppRoutes.employeePortal) {
+      return null;
+    }
+
     final authRedirect = resolveUserAuthRedirect(
       state: authRouterRefresh.notifier.state,
-      matchedLocation: state.matchedLocation,
+      matchedLocation: location,
     );
     if (authRedirect != null) return authRedirect;
-    if (state.matchedLocation == '/') {
+    if (location == '/') {
+      if (officeAuthNotifier.isAuthenticated) return AppRoutes.officeHome;
       return authRouterRefresh.notifier.state.status ==
               UserAuthStatus.authenticated
           ? AppRoutes.searchMapScreen
@@ -74,6 +120,151 @@ final GoRouter appRouter = GoRouter(
             ),
         transitionDuration: const Duration(milliseconds: 280),
       ),
+    ),
+    GoRoute(
+      path: AppRoutes.officeLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.employeePortal,
+      builder: (context, state) => const EmployeePortalPlaceholderScreen(),
+    ),
+    GoRoute(
+      path: '/office/create-transaction',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeCreateTransactionScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/office/transaction/:id',
+      builder: (context, state) {
+        final tx = state.extra as Map<String, dynamic>? ??
+            {'id': state.pathParameters['id']};
+        return provider.ChangeNotifierProvider.value(
+          value: officeAuthNotifier,
+          child: OfficeTransactionMonitorScreen(transaction: tx),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/office/chat/:id',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: OfficeChatScreen(
+          conversationId: state.pathParameters['id'] ?? '',
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/office/report-property',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeReportPropertyScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/office/notifications',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeNotificationsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/office/performance',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficePerformanceScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/office/profile',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeProfileScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/office/documents',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeDocumentsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/office/support',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeSupportScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/office/history',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeHistoryScreen(),
+      ),
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.ChangeNotifierProvider.value(
+          value: officeAuthNotifier,
+          child: OfficeScaffold(navigationShell: navigationShell),
+        );
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/office/home',
+              builder: (context, state) => const OfficeHomeScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/office/properties',
+              builder: (context, state) => const OfficePropertiesScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/office/transactions',
+              builder: (context, state) => const OfficeTransactionsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/office/leads',
+              builder: (context, state) => const OfficeLeadsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/office/conversations',
+              builder: (context, state) => const OfficeConversationsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/office/more',
+              builder: (context, state) => const OfficeMoreScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: AppRoutes.propertyDetail,
