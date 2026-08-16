@@ -5,6 +5,7 @@ import '../../domain/models/property_areas.dart';
 import '../../domain/models/property_documents.dart';
 import '../../domain/models/property_features.dart';
 import '../../domain/models/property_finance.dart';
+import '../../domain/models/property_language.dart';
 import '../../domain/models/property_location.dart';
 import '../../domain/models/property_media.dart';
 import '../../domain/models/property_pricing.dart';
@@ -214,8 +215,60 @@ class PropertyReportMapper {
       isVerified: d['is_verified'] as bool? ?? false,
       isFeatured: d['is_featured'] as bool? ?? false,
       isSaved: isSaved,
+      originalLanguage: _resolveOriginalLanguage(d, intel),
+      contentVersion: _resolveContentVersion(d, intel),
       rawSource: d,
     );
+  }
+
+  ContentLanguage _resolveOriginalLanguage(
+    Map<String, dynamic> d,
+    Map<String, dynamic> intel,
+  ) {
+    final explicit = d['original_language'] as String? ??
+        intel['original_language'] as String? ??
+        d['content_language'] as String?;
+    if (explicit != null && explicit.isNotEmpty) {
+      return ContentLanguage.parse(explicit);
+    }
+    // Lightweight heuristic when publisher did not set language.
+    return _detectLanguageHeuristic(
+      [
+        d['title'] as String? ?? '',
+        d['description'] as String? ?? '',
+      ].join(' '),
+    );
+  }
+
+  String _resolveContentVersion(
+    Map<String, dynamic> d,
+    Map<String, dynamic> intel,
+  ) {
+    final v = d['content_version'] ??
+        intel['content_version'] ??
+        d['updated_at'] ??
+        d['created_at'] ??
+        '1';
+    return v.toString();
+  }
+
+  ContentLanguage _detectLanguageHeuristic(String sample) {
+    final text = sample.trim();
+    if (text.isEmpty) return ContentLanguage.unknown;
+
+    final arabic = RegExp(r'[\u0600-\u06FF]');
+    final matches = arabic.allMatches(text).length;
+    if (matches > text.length * 0.15) {
+      // Kurdish (Sorani) also uses Arabic script — prefer ku if common letters.
+      if (text.contains('ە') || text.contains('ڵ') || text.contains('ڕ')) {
+        return ContentLanguage.kurdish;
+      }
+      return ContentLanguage.arabic;
+    }
+
+    final latin = RegExp(r'[A-Za-z]');
+    if (latin.hasMatch(text)) return ContentLanguage.english;
+    return ContentLanguage.unknown;
   }
 
   Map<String, dynamic>? _asMap(dynamic v) {

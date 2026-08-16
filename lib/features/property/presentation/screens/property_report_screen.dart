@@ -6,19 +6,25 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/layout/directional_layout.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/locale_provider.dart';
 import '../../../../providers/chat_notifier.dart';
 import '../../../../services/supabase_service.dart';
 import '../../data/repositories/property_report_repository.dart';
+import '../../data/services/property_translation_service.dart';
 import '../../domain/enums/data_provenance.dart';
 import '../../domain/models/property_documents.dart';
 import '../../domain/models/property_finance.dart';
+import '../../domain/models/property_language.dart';
 import '../../domain/models/property_report.dart';
 import '../../domain/models/property_surroundings.dart';
+import '../../domain/models/property_translation.dart';
 import '../widgets/property_media_gallery.dart';
 import '../widgets/property_status_badge.dart';
 import '../widgets/property_sticky_action_bar.dart';
+import '../widgets/property_translation_bar.dart';
 import '../widgets/provenance_chip.dart';
 import '../widgets/report_section.dart';
+import 'package:provider/provider.dart' as provider;
 
 /// Comprehensive Property Intelligence Report.
 /// Sections render only when the [PropertyReport] has real data.
@@ -34,8 +40,13 @@ class PropertyReportScreen extends ConsumerStatefulWidget {
 
 class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
   final _repo = PropertyReportRepository();
+  final _translationService = PropertyTranslationService();
   PropertyReport? _report;
   bool _loading = true;
+
+  PropertyTranslationBundle? _translation;
+  bool _showTranslated = false;
+  bool _isTranslating = false;
 
   static const _aiConfig = ChatConfig(
     provider: 'GEMINI',
@@ -62,6 +73,73 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
       _report = report;
       _loading = false;
     });
+    if (report != null) {
+      await _warmTranslationCache(report);
+    }
+  }
+
+  ContentLanguage get _userLanguage {
+    final lang = provider.Provider.of<LocaleProvider>(
+      context,
+      listen: false,
+    ).language;
+    switch (lang) {
+      case AppLanguage.arabic:
+        return ContentLanguage.arabic;
+      case AppLanguage.kurdish:
+        return ContentLanguage.kurdish;
+      case AppLanguage.english:
+        return ContentLanguage.english;
+    }
+  }
+
+  Future<void> _warmTranslationCache(PropertyReport report) async {
+    final userLang = _userLanguage;
+    if (!report.needsTranslationFor(userLang)) return;
+    final cached = await _translationService.getCached(
+      propertyId: report.id,
+      targetLanguage: userLang,
+      contentVersion: report.contentVersion,
+    );
+    if (cached != null && mounted) {
+      setState(() {
+        _translation = cached;
+        _showTranslated = true;
+      });
+    }
+  }
+
+  Future<void> _translateEntireProperty() async {
+    final report = _report;
+    if (report == null || _isTranslating) return;
+    setState(() => _isTranslating = true);
+    try {
+      final bundle = await _translationService.translateProperty(
+        report: report,
+        targetLanguage: _userLanguage,
+      );
+      if (!mounted) return;
+      setState(() {
+        _translation = bundle;
+        _showTranslated = true;
+        _isTranslating = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isTranslating = false);
+      Fluttertoast.showToast(
+        msg: AppLocalizations.of(context).translationFailed,
+      );
+    }
+  }
+
+  PropertyLocalizedTexts get _texts {
+    final report = _report!;
+    return PropertyLocalizedTexts.fromReport(
+      report,
+      bundle: _translation,
+      showTranslated: _showTranslated && _translation != null,
+    );
   }
 
   @override
@@ -132,13 +210,31 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 ),
                 SliverToBoxAdapter(child: _buildHeader(report, loc, theme)),
+                if (report.needsTranslationFor(_userLanguage))
+                  SliverToBoxAdapter(
+                    child: PropertyTranslationBar(
+                      propertyLanguage: report.originalLanguage ==
+                              ContentLanguage.unknown
+                          ? ContentLanguage.unknown
+                          : report.originalLanguage,
+                      userLanguage: _userLanguage,
+                      showTranslated: _showTranslated,
+                      isTranslating: _isTranslating,
+                      hasTranslation: _translation != null,
+                      onTranslate: _translateEntireProperty,
+                      onShowOriginal: () =>
+                          setState(() => _showTranslated = false),
+                      onShowTranslated: () =>
+                          setState(() => _showTranslated = true),
+                    ),
+                  ),
                 SliverToBoxAdapter(child: _buildActionRow(report, loc)),
                 if (report.showWhatsSpecial)
                   SliverToBoxAdapter(
                     child: ReportSection(
                       title: loc.whatsSpecial,
                       icon: Icons.auto_awesome,
-                      child: _buildWhatsSpecial(report, theme),
+                      child: _buildWhatsSpecial(theme),
                     ),
                   ),
                 if (report.showFacts)
@@ -156,7 +252,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                       icon: Icons.notes_outlined,
                       initiallyExpanded: false,
                       child: Text(
-                        report.description!,
+                        _texts.description ?? report.description!,
                         style: theme.textTheme.bodyMedium,
                       ),
                     ),
@@ -454,6 +550,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     final price = report.pricing.currentPrice;
     final perSqm = report.pricing.pricePerSqm;
     final hierarchy = report.location.hierarchy;
+    final texts = _texts;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -471,7 +568,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            report.title,
+            texts.title,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800,
             ),
@@ -553,31 +650,35 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     );
   }
 
-  Widget _buildWhatsSpecial(PropertyReport report, ThemeData theme) {
-    final ws = report.whatsSpecial!;
+  Widget _buildWhatsSpecial(ThemeData theme) {
+    final texts = _texts;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (ws.headline != null)
+        if (texts.whatsSpecialHeadline != null)
           Text(
-            ws.headline!,
+            texts.whatsSpecialHeadline!,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
-        if (ws.body != null) ...[
+        if (texts.whatsSpecialBody != null) ...[
           const SizedBox(height: 8),
-          Text(ws.body!),
+          Text(texts.whatsSpecialBody!),
         ],
-        if (ws.highlights.isNotEmpty) ...[
+        if (texts.whatsSpecialHighlights.isNotEmpty) ...[
           const SizedBox(height: 12),
-          ...ws.highlights.map(
+          ...texts.whatsSpecialHighlights.map(
             (h) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.star_outline, size: 16, color: theme.colorScheme.primary),
+                  Icon(
+                    Icons.star_outline,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(child: Text(h)),
                 ],
@@ -585,9 +686,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
             ),
           ),
         ],
-        if (ws.investmentNotes.isNotEmpty) ...[
+        if (texts.whatsSpecialInvestmentNotes.isNotEmpty) ...[
           const SizedBox(height: 8),
-          ...ws.investmentNotes.map(
+          ...texts.whatsSpecialInvestmentNotes.map(
             (n) => Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Text('• $n'),
@@ -658,8 +759,13 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: report.features.amenityTags
-                .map((t) => Chip(label: Text(t), visualDensity: VisualDensity.compact))
+            children: _texts.amenityTags
+                .map(
+                  (t) => Chip(
+                    label: Text(t),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                )
                 .toList(),
           ),
         ],
@@ -811,17 +917,18 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
       items.add((loc.remainingBalance, t.remainingAmount!.format()));
     }
 
+    final texts = _texts;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FactGrid(items: items),
-        if (t.eligibilityNotes != null) ...[
+        if ((texts.rentToOwnEligibility ?? t.eligibilityNotes) != null) ...[
           const SizedBox(height: 12),
-          Text(t.eligibilityNotes!),
+          Text(texts.rentToOwnEligibility ?? t.eligibilityNotes!),
         ],
-        if (t.ownershipConditions != null) ...[
+        if ((texts.rentToOwnConditions ?? t.ownershipConditions) != null) ...[
           const SizedBox(height: 8),
-          Text(t.ownershipConditions!),
+          Text(texts.rentToOwnConditions ?? t.ownershipConditions!),
         ],
         if (t.calculationRules.isNotEmpty) ...[
           const SizedBox(height: 8),
@@ -909,13 +1016,14 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     ThemeData theme,
   ) {
     final n = report.surroundings.neighborhood!;
+    final summary = _texts.neighborhoodSummary ?? n.summary;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ProvenanceChip(provenance: n.provenance),
-        if (n.summary != null) ...[
+        if (summary != null) ...[
           const SizedBox(height: 8),
-          Text(n.summary!),
+          Text(summary),
         ],
         const SizedBox(height: 8),
         FactGrid(
@@ -1059,35 +1167,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     if (report == null) return;
     final saved = await _repo.toggleSave(report.id);
     if (!mounted) return;
-    setState(() {
-      _report = PropertyReport(
-        id: report.id,
-        title: report.title,
-        status: report.status,
-        location: report.location,
-        pricing: report.pricing,
-        areas: report.areas,
-        facts: report.facts,
-        media: report.media,
-        features: report.features,
-        history: report.history,
-        surroundings: report.surroundings,
-        description: report.description,
-        whatsSpecial: report.whatsSpecial,
-        rentToOwn: report.rentToOwn,
-        investment: report.investment,
-        rental: report.rental,
-        mortgageDefaults: report.mortgageDefaults,
-        documents: report.documents,
-        publisher: report.publisher,
-        insights: report.insights,
-        lastUpdatedAt: report.lastUpdatedAt,
-        isVerified: report.isVerified,
-        isFeatured: report.isFeatured,
-        isSaved: saved,
-        rawSource: report.rawSource,
-      );
-    });
+    setState(() => _report = report.copyWith(isSaved: saved));
   }
 
   Future<void> _share() async {
@@ -1283,7 +1363,13 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                                   final q = controller.text.trim();
                                   if (q.isEmpty) return;
                                   controller.clear();
-                                  final contextBlock = _aiContext(report);
+                                  final system =
+                                      PropertyTranslationService
+                                          .buildPropertyAiSystemPrompt(
+                                    report: report,
+                                    translation: _translation,
+                                    replyLanguage: _userLanguage,
+                                  );
                                   ref
                                       .read(
                                         chatNotifierProvider(_aiConfig)
@@ -1293,13 +1379,11 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                                         [
                                           {
                                             'role': 'system',
-                                            'content':
-                                                'You are a property advisor. Answer only from the provided property data. If data is missing, say so clearly. Never invent numbers.',
+                                            'content': system,
                                           },
                                           {
                                             'role': 'user',
-                                            'content':
-                                                '$contextBlock\n\nUser question: $q',
+                                            'content': q,
                                           },
                                         ],
                                         parameters: {
@@ -1320,25 +1404,6 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
         );
       },
     );
-  }
-
-  String _aiContext(PropertyReport report) {
-    return '''
-Property Intelligence Context (grounded facts only):
-- Title: ${report.title}
-- Status: ${report.status.wireValue}
-- Price: ${report.pricing.currentPrice?.format() ?? 'n/a'}
-- Price/m²: ${report.pricing.pricePerSqm?.format() ?? 'n/a'}
-- Area: ${report.areas.primary?.format() ?? 'n/a'}
-- Beds/Baths: ${report.facts.bedrooms ?? '-'}/${report.facts.bathrooms ?? '-'}
-- Type: ${report.facts.propertyType ?? 'n/a'}
-- Location: ${report.location.displayLine}
-- Description: ${report.description ?? 'n/a'}
-- What's Special: ${report.whatsSpecial?.body ?? 'n/a'}
-- Amenities: ${report.features.amenityTags.join(', ')}
-- Rent-to-Own available: ${report.rentToOwn?.isAvailable == true}
-- Verified: ${report.isVerified}
-''';
   }
 
   Future<void> _openExternalMedia(String? url) async {

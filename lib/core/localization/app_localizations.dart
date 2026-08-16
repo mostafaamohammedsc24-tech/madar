@@ -1330,6 +1330,48 @@ class AppLocalizations {
     ku: 'هەڵەیەک ڕوویدا',
   );
 
+  // ─── Property AI Translation ──────────────────────────────────────────────
+  String get languageArabic =>
+      _t(en: 'Arabic', ar: 'العربية', ku: 'عەرەبی');
+  String get languageEnglish =>
+      _t(en: 'English', ar: 'الإنجليزية', ku: 'ئینگلیزی');
+  String get languageKurdish =>
+      _t(en: 'Kurdish', ar: 'الكردية', ku: 'کوردی');
+  String propertyWrittenIn(String languageName) => _t(
+    en: 'Property information is in $languageName',
+    ar: 'معلومات العقار مكتوبة بـ$languageName',
+    ku: 'زانیاری خانووبەرە بە $languageName نووسراوە',
+  );
+  String translateTo(String languageName) => _t(
+    en: 'Translate to $languageName',
+    ar: 'ترجمة إلى $languageName',
+    ku: 'وەرگێڕان بۆ $languageName',
+  );
+  String get translatingPropertyInfo => _t(
+    en: 'Translating property information...',
+    ar: 'جاري ترجمة معلومات العقار...',
+    ku: 'زانیاری خانووبەرە وەردەگێڕدرێت...',
+  );
+  String get originalContent =>
+      _t(en: 'Original', ar: 'الأصل', ku: 'ڕەسەن');
+  String get translatedContent =>
+      _t(en: 'Translated', ar: 'المترجم', ku: 'وەرگێڕدراو');
+  String get aiGeneratedTranslation => _t(
+    en: 'AI-generated translation',
+    ar: 'ترجمة مولدة بالذكاء الاصطناعي',
+    ku: 'وەرگێڕانی دروستکراو بە ئەی ئای',
+  );
+  String get translationFailed => _t(
+    en: 'Translation unavailable right now',
+    ar: 'الترجمة غير متاحة حالياً',
+    ku: 'وەرگێڕان ئێستا بەردەست نییە',
+  );
+  String get translateEntireProperty => _t(
+    en: 'Translate entire property',
+    ar: 'ترجمة العقار بالكامل',
+    ku: 'وەرگێڕانی تەواوی خانووبەرە',
+  );
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String en,

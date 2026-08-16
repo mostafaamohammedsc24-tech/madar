@@ -3,6 +3,7 @@ import 'property_areas.dart';
 import 'property_documents.dart';
 import 'property_features.dart';
 import 'property_finance.dart';
+import 'property_language.dart';
 import 'property_location.dart';
 import 'property_media.dart';
 import 'property_pricing.dart';
@@ -36,6 +37,8 @@ class PropertyReport {
     this.isVerified = false,
     this.isFeatured = false,
     this.isSaved = false,
+    this.originalLanguage = ContentLanguage.unknown,
+    this.contentVersion = '1',
     this.rawSource = const {},
   });
 
@@ -63,7 +66,57 @@ class PropertyReport {
   final bool isVerified;
   final bool isFeatured;
   final bool isSaved;
+  /// Language the publisher wrote human-readable content in.
+  final ContentLanguage originalLanguage;
+  /// Bumps when publisher edits translatable content — invalidates translations.
+  final String contentVersion;
   final Map<String, dynamic> rawSource;
+
+  /// Show translate CTA when property language differs from the user's UI language.
+  bool needsTranslationFor(ContentLanguage userLanguage) {
+    if (originalLanguage == ContentLanguage.unknown) {
+      return (description?.trim().isNotEmpty == true) ||
+          (whatsSpecial?.hasContent == true) ||
+          title.trim().isNotEmpty;
+    }
+    return !originalLanguage.matches(userLanguage);
+  }
+
+  PropertyReport copyWith({
+    bool? isSaved,
+    ContentLanguage? originalLanguage,
+    String? contentVersion,
+  }) {
+    return PropertyReport(
+      id: id,
+      title: title,
+      status: status,
+      location: location,
+      pricing: pricing,
+      areas: areas,
+      facts: facts,
+      media: media,
+      features: features,
+      history: history,
+      surroundings: surroundings,
+      description: description,
+      whatsSpecial: whatsSpecial,
+      rentToOwn: rentToOwn,
+      investment: investment,
+      rental: rental,
+      mortgageDefaults: mortgageDefaults,
+      documents: documents,
+      publisher: publisher,
+      insights: insights,
+      lastUpdatedAt: lastUpdatedAt,
+      isVerified: isVerified,
+      isFeatured: isFeatured,
+      isSaved: isSaved ?? this.isSaved,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
+      contentVersion: contentVersion ?? this.contentVersion,
+      rawSource: rawSource,
+    );
+  }
 
   // ── Section visibility (progressive disclosure) ──────────────────────────
 

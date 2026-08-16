@@ -124,11 +124,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final loc = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              loc.isRTL
-                  ? 'حدث خطأ، حاول مجدداً'
-                  : 'An error occurred, please try again',
-            ),
+            content: Text(loc.genericErrorOccurred),
             backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
