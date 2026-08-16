@@ -11,7 +11,6 @@ import '../presentation/reviews/ratings_reviews_screen.dart';
 import '../presentation/messages/messages_screen.dart';
 import '../presentation/my_properties_screen/my_properties_screen.dart';
 import '../presentation/notifications/notification_center_screen.dart';
-import '../presentation/office/office_screens.dart';
 import '../presentation/profile/documents_archive_screen.dart';
 import '../presentation/profile/edit_profile_screen.dart';
 import '../presentation/profile/profile_screen.dart';
@@ -21,13 +20,7 @@ import '../presentation/search_map_screen/search_map_screen.dart';
 import '../presentation/transactions_screen/transactions_screen.dart';
 import '../presentation/transactions_screen/settlement_payout_receipt_screen.dart';
 import '../widgets/app_scaffold.dart';
-import '../presentation/agent/agent_dashboard_screen.dart';
 import '../presentation/auth/two_fa_verification_screen.dart';
-import '../presentation/admin/country_config_panel.dart';
-import '../presentation/admin/staff_assignment_screen.dart';
-import '../presentation/employee/employee_dashboard_screen.dart';
-import '../presentation/employee/employee_onboarding_screen.dart';
-import '../presentation/employee/org_hierarchy_screen.dart';
 
 class AppRoutes {
   static const String initial = '/';
@@ -38,21 +31,14 @@ class AppRoutes {
   static const String messagesScreen = '/messages-screen';
   static const String profileScreen = '/profile-screen';
   static const String propertyDetail = '/property-detail';
-  static const String employeeDashboard = '/employee-dashboard';
-  static const String employeeOnboarding = '/employee-onboarding';
-  static const String officeDashboard = '/office-dashboard';
   static const String notificationCenter = '/notifications';
   static const String editProfile = '/edit-profile';
   static const String sellerCommission = '/seller-commission';
   static const String documentsArchive = '/documents-archive';
-  static const String agentDashboard = '/agent-dashboard';
   static const String twoFaVerification = '/two-fa-verification';
   static const String settlementReceipt = '/settlement-receipt';
-  static const String orgHierarchy = '/org-hierarchy';
   static const String propertyAnalytics = '/property-analytics';
   static const String ratingsReviews = '/ratings-reviews';
-  static const String countryConfig = '/country-config';
-  static const String staffAssignment = '/staff-assignment';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -78,63 +64,6 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         child: const UserAuthFlowScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(
-              opacity: CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              ),
-              child: child,
-            ),
-        transitionDuration: const Duration(milliseconds: 280),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.employeeOnboarding,
-      pageBuilder: (context, state) {
-        final employeeData = state.extra as Map<String, dynamic>?;
-        return CustomTransitionPage(
-          key: state.pageKey,
-          child: EmployeeOnboardingScreen(employeeData: employeeData),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-              SlideTransition(
-                position:
-                    Tween<Offset>(
-                      begin: const Offset(0, 1),
-                      end: Offset.zero,
-                    ).animate(
-                      CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOutCubic,
-                      ),
-                    ),
-                child: child,
-              ),
-          transitionDuration: const Duration(milliseconds: 350),
-        );
-      },
-    ),
-    GoRoute(
-      path: AppRoutes.employeeDashboard,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const ProviderScope(child: EmployeeDashboardScreen()),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(
-              opacity: CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              ),
-              child: child,
-            ),
-        transitionDuration: const Duration(milliseconds: 280),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.officeDashboard,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const OfficeDashboardScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(
               opacity: CurvedAnimation(
@@ -263,22 +192,6 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: AppRoutes.agentDashboard,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const ProviderScope(child: AgentDashboardScreen()),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(
-              opacity: CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              ),
-              child: child,
-            ),
-        transitionDuration: const Duration(milliseconds: 280),
-      ),
-    ),
-    GoRoute(
       path: AppRoutes.twoFaVerification,
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
@@ -326,28 +239,6 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: AppRoutes.orgHierarchy,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const OrgHierarchyScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            SlideTransition(
-              position:
-                  Tween<Offset>(
-                    begin: const Offset(1, 0),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutCubic,
-                    ),
-                  ),
-              child: child,
-            ),
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
-    ),
-    GoRoute(
       path: AppRoutes.propertyAnalytics,
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
@@ -393,50 +284,6 @@ final GoRouter appRouter = GoRouter(
           transitionDuration: const Duration(milliseconds: 350),
         );
       },
-    ),
-    GoRoute(
-      path: AppRoutes.countryConfig,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const CountryConfigPanel(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            SlideTransition(
-              position:
-                  Tween<Offset>(
-                    begin: const Offset(1, 0),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutCubic,
-                    ),
-                  ),
-              child: child,
-            ),
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.staffAssignment,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const StaffAssignmentScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            SlideTransition(
-              position:
-                  Tween<Offset>(
-                    begin: const Offset(1, 0),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutCubic,
-                    ),
-                  ),
-              child: child,
-            ),
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {

@@ -81,7 +81,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     if (confirmed == true) {
       await context.read<UserAuthNotifier>().signOut();
-      if (mounted) context.go('/auth');
+      if (!mounted) return;
+      context.go('/auth');
     }
   }
 
