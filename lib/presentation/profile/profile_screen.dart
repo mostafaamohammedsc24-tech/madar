@@ -686,18 +686,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          loc.isRTL
-                              ? 'جميع الوثائق والعقود والسندات'
-                              : 'All Documents, Contracts & Title Deeds',
+                          loc.allDocumentsContractsDeeds,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: AppTheme.primary,
                           ),
                         ),
                         Text(
-                          loc.isRTL
-                              ? 'اضغط لعرض وتحميل وثائق صفقاتك'
-                              : 'Tap to view and download transaction documents',
+                          loc.tapToViewTransactionDocs,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.grey,
                           ),
@@ -846,9 +842,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      loc.isRTL
-                          ? 'لا توجد عقارات مفضلة بعد'
-                          : 'No favorite properties yet',
+                      loc.noFavoritePropertiesYet,
                       style: const TextStyle(color: Colors.grey, fontSize: 13),
                     ),
                   ],
@@ -1099,9 +1093,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              loc.isRTL
-                                  ? 'لا توجد إشعارات'
-                                  : 'No notifications',
+                              loc.noNotificationsYet,
                               style: const TextStyle(color: Colors.grey),
                             ),
                           ],
@@ -1153,9 +1145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (_) => AlertDialog(
         title: Text(loc.changePhone),
         content: Text(
-          loc.isRTL
-              ? 'سيتم التواصل معك من فريق الدعم لتغيير رقم هاتفك'
-              : 'Our support team will contact you to change your phone number.',
+          loc.phoneChangeSupportNote,
         ),
         actions: [
           TextButton(

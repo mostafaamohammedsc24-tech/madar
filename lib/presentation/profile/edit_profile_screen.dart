@@ -166,7 +166,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          loc.isRTL ? 'تعديل الملف الشخصي' : 'Edit Profile',
+          loc.editProfileTitle,
           style: theme.textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w700,
@@ -185,7 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   )
                 : Text(
-                    loc.isRTL ? 'حفظ' : 'Save',
+                    loc.save,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -270,7 +270,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                loc.isRTL ? 'اضغط لتغيير الصورة' : 'Tap to change photo',
+                loc.tapToChangePhoto,
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
               const SizedBox(height: 28),
@@ -278,25 +278,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               // Form fields
               _buildSection(
                 theme,
-                loc.isRTL ? 'المعلومات الشخصية' : 'Personal Information',
+                loc.personalInfo,
                 [
                   _buildTextField(
                     controller: _firstNameCtrl,
-                    label: loc.isRTL ? 'الاسم الأول' : 'First Name',
+                    label: loc.firstName,
                     icon: Icons.person_outline,
                     theme: theme,
                   ),
                   const SizedBox(height: 14),
                   _buildTextField(
                     controller: _lastNameCtrl,
-                    label: loc.isRTL ? 'اسم العائلة' : 'Last Name',
+                    label: loc.lastName,
                     icon: Icons.person_outline,
                     theme: theme,
                   ),
                   const SizedBox(height: 14),
                   _buildTextField(
                     controller: _displayNameCtrl,
-                    label: loc.isRTL ? 'الاسم المعروض' : 'Display Name',
+                    label: loc.displayName,
                     icon: Icons.badge_outlined,
                     theme: theme,
                   ),
@@ -306,11 +306,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               _buildSection(
                 theme,
-                loc.isRTL ? 'معلومات التواصل' : 'Contact Information',
+                loc.contactInformation,
                 [
                   _buildTextField(
                     controller: _emailCtrl,
-                    label: loc.isRTL ? 'البريد الإلكتروني' : 'Email Address',
+                    label: loc.emailAddress,
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     theme: theme,
@@ -319,12 +319,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 20),
 
-              _buildSection(theme, loc.isRTL ? 'نبذة شخصية' : 'Bio', [
+              _buildSection(theme, loc.bio, [
                 _buildTextField(
                   controller: _bioCtrl,
-                  label: loc.isRTL
-                      ? 'اكتب نبذة عنك...'
-                      : 'Write something about yourself...',
+                  label: loc.bioHint,
                   icon: Icons.info_outline,
                   maxLines: 4,
                   theme: theme,
@@ -407,9 +405,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       validator: required
           ? (v) {
               if (v == null || v.trim().isEmpty) {
-                return AppLocalizations.of(context).isRTL
-                    ? 'هذا الحقل مطلوب'
-                    : 'This field is required';
+                return AppLocalizations.of(context).fieldRequired;
               }
               return null;
             }

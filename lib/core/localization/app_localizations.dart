@@ -958,6 +958,7 @@ class AppLocalizations {
     ku: '$count خانووبەرە',
   );
 
+<<<<<<< HEAD
   // ─── Property Intelligence Report ─────────────────────────────────────────
   String get propertyReport => _t(
     en: 'Property Report',
@@ -1179,6 +1180,8 @@ class AppLocalizations {
   String get garden => _t(en: 'Garden', ar: 'حديقة', ku: 'باخچە');
   String get pool => _t(en: 'Pool', ar: 'مسبح', ku: 'مەلەوانگە');
 
+=======
+>>>>>>> 2b9175f (Replace remaining isRTL copy ternaries with AppLocalizations getters)
   // ─── Edit Profile / Messages / Profile copy ───────────────────────────────
   String get editProfileTitle => _t(
     en: 'Edit Profile',
