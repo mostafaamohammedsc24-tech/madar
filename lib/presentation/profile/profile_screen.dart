@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/app_export.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../features/authentication/presentation/providers/user_auth_notifier.dart';
 import '../../services/supabase_service.dart';
 import '../notifications/notification_center_screen.dart';
 import './documents_archive_screen.dart';
@@ -61,15 +62,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(loc.logout),
-        content: Text(
-          loc.isRTL
-              ? 'هل تريد تسجيل الخروج؟'
-              : 'Are you sure you want to logout?',
-        ),
+        content: Text(loc.authLogoutConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(loc.isRTL ? 'إلغاء' : 'Cancel'),
+            child: Text(loc.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -83,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     if (confirmed == true) {
-      await SupabaseService.instance.signOut();
+      await context.read<UserAuthNotifier>().signOut();
       if (mounted) context.go('/auth');
     }
   }

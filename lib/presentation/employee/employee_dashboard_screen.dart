@@ -373,7 +373,7 @@ class _EmployeeDashboardScreenState
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => context.go('/employee-login'),
+            onTap: () => context.go('/auth'),
             child: Container(
               width: 40,
               height: 40,
@@ -1888,7 +1888,7 @@ class _EmployeeDashboardScreenState
           ),
           const SizedBox(height: 8),
           GestureDetector(
-            onTap: () => context.go('/employee-login'),
+            onTap: () => context.go('/auth'),
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),

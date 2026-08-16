@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../presentation/auth/auth_screen.dart';
-import '../presentation/employee/employee_login_screen.dart';
-import '../presentation/employee/employee_dashboard_screen.dart';
-import '../presentation/employee/employee_onboarding_screen.dart';
-import '../presentation/employee/org_hierarchy_screen.dart';
+import '../features/authentication/domain/models/user_auth_state.dart';
+import '../features/authentication/presentation/screens/user_auth_flow_screen.dart';
+import '../features/authentication/routing/auth_globals.dart';
+import '../features/authentication/routing/auth_redirect.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
 import '../presentation/messages/messages_screen.dart';
@@ -26,6 +25,9 @@ import '../presentation/agent/agent_dashboard_screen.dart';
 import '../presentation/auth/two_fa_verification_screen.dart';
 import '../presentation/admin/country_config_panel.dart';
 import '../presentation/admin/staff_assignment_screen.dart';
+import '../presentation/employee/employee_dashboard_screen.dart';
+import '../presentation/employee/employee_onboarding_screen.dart';
+import '../presentation/employee/org_hierarchy_screen.dart';
 
 class AppRoutes {
   static const String initial = '/';
@@ -36,10 +38,8 @@ class AppRoutes {
   static const String messagesScreen = '/messages-screen';
   static const String profileScreen = '/profile-screen';
   static const String propertyDetail = '/property-detail';
-  static const String employeeLogin = '/employee-login';
   static const String employeeDashboard = '/employee-dashboard';
   static const String employeeOnboarding = '/employee-onboarding';
-  static const String officeLogin = '/office-login';
   static const String officeDashboard = '/office-dashboard';
   static const String notificationCenter = '/notifications';
   static const String editProfile = '/edit-profile';
@@ -57,9 +57,18 @@ class AppRoutes {
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.auth,
+  refreshListenable: authRouterRefresh,
   redirect: (context, state) {
+    final authRedirect = resolveUserAuthRedirect(
+      state: authRouterRefresh.notifier.state,
+      matchedLocation: state.matchedLocation,
+    );
+    if (authRedirect != null) return authRedirect;
     if (state.matchedLocation == '/') {
-      return AppRoutes.auth;
+      return authRouterRefresh.notifier.state.status ==
+              UserAuthStatus.authenticated
+          ? AppRoutes.searchMapScreen
+          : AppRoutes.auth;
     }
     return null;
   },
@@ -68,23 +77,7 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.auth,
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
-        child: const AuthScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(
-              opacity: CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              ),
-              child: child,
-            ),
-        transitionDuration: const Duration(milliseconds: 280),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.employeeLogin,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const EmployeeLoginScreen(),
+        child: const UserAuthFlowScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(
               opacity: CurvedAnimation(
@@ -126,22 +119,6 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         child: const ProviderScope(child: EmployeeDashboardScreen()),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(
-              opacity: CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              ),
-              child: child,
-            ),
-        transitionDuration: const Duration(milliseconds: 280),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.officeLogin,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const OfficeLoginScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(
               opacity: CurvedAnimation(
@@ -461,7 +438,6 @@ final GoRouter appRouter = GoRouter(
         transitionDuration: const Duration(milliseconds: 300),
       ),
     ),
-    // Main shell with bottom nav — all 5 tabs
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppScaffold(navigationShell: navigationShell);

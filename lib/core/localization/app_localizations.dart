@@ -423,6 +423,115 @@ class AppLocalizations {
   String get draft => _t(en: 'Draft', ar: 'مسودة', ku: 'پێشنووس');
   String get final_ => _t(en: 'Final', ar: 'نهائي', ku: 'کۆتایی');
 
+  // ─── User Authentication ──────────────────────────────────────────────────
+  String get authPhoneTitle => _t(
+    en: 'Enter your phone number',
+    ar: 'أدخل رقم هاتفك',
+    ku: 'ژمارەی تەلەفۆنەکەت بنووسە',
+  );
+  String get authPhoneSubtitle => _t(
+    en: 'We will send you a verification code to confirm your number.',
+    ar: 'سنرسل لك رمز تحقق لتأكيد رقمك.',
+    ku: 'کۆدێکی پشتڕاستکردنەوە دەنێرین بۆ ژمارەکەت.',
+  );
+  String get authContinue => _t(en: 'Continue', ar: 'متابعة', ku: 'بەردەوامبوون');
+  String get authSelectCountry => _t(
+    en: 'Select country',
+    ar: 'اختر الدولة',
+    ku: 'وڵات هەڵبژێرە',
+  );
+  String get authOtpTitle => _t(
+    en: 'Verify your phone',
+    ar: 'تحقق من هاتفك',
+    ku: 'تەلەفۆنەکەت پشتڕاست بکەرەوە',
+  );
+  String authOtpSubtitle(String phone) => _t(
+    en: 'Enter the 6-digit code sent to $phone',
+    ar: 'أدخل الرمز المكون من 6 أرقام المرسل إلى $phone',
+    ku: 'کۆدی 6 ژمارەیی بنووسە کە نێردراوە بۆ $phone',
+  );
+  String get authVerifyContinue => _t(
+    en: 'Continue',
+    ar: 'متابعة',
+    ku: 'بەردەوامبوون',
+  );
+  String get authResendOtp => _t(
+    en: 'Resend code',
+    ar: 'إعادة إرسال الرمز',
+    ku: 'دووبارە ناردنی کۆد',
+  );
+  String authResendIn(int seconds) => _t(
+    en: 'Resend in ${seconds}s',
+    ar: 'إعادة الإرسال خلال ${seconds} ث',
+    ku: 'دووبارە ناردن لە ${seconds} چ',
+  );
+  String get authChangePhone => _t(
+    en: 'Change number',
+    ar: 'تغيير الرقم',
+    ku: 'گۆڕینی ژمارە',
+  );
+  String get authLocationTitle => _t(
+    en: 'Find properties around you',
+    ar: 'اعثر على عقارات حولك',
+    ku: 'خانووبەرە بدۆزەرەوە لە دەوروبەرت',
+  );
+  String get authLocationSubtitle => _t(
+    en: 'Allow location access to discover properties near your current location.',
+    ar: 'اسمح بالوصول إلى موقعك لاكتشاف العقارات القريبة منك.',
+    ku: 'ڕێگە بدە بە شوێن بۆ دۆزینەوەی خانووبەرە لە نزیکت.',
+  );
+  String get authLocationCardTitle => _t(
+    en: 'Nearby properties',
+    ar: 'عقارات قريبة',
+    ku: 'خانووبەرەی نزیک',
+  );
+  String get authLocationCardDescription => _t(
+    en: 'Your location helps us show relevant listings, map results, and distance-based search.',
+    ar: 'موقعك يساعدنا في عرض الإعلانات المناسبة ونتائج الخريطة والبحث حسب المسافة.',
+    ku: 'شوێنەکەت یارمەتیمان دەدات لیست و نەخشە و گەڕان بەپێی دووری پیشان بدەین.',
+  );
+  String get authAllowLocation => _t(
+    en: 'Allow location',
+    ar: 'السماح بالموقع',
+    ku: 'ڕێگەدان بە شوێن',
+  );
+  String get authNotNow => _t(en: 'Not now', ar: 'ليس الآن', ku: 'ئێستا نا');
+  String get authFaceTitle => _t(
+    en: 'Secure your account',
+    ar: 'أمّن حسابك',
+    ku: 'هەژمارەکەت بپارێزە',
+  );
+  String get authFaceSubtitle => _t(
+    en: 'Add an extra layer of security to protect your account.',
+    ar: 'أضف طبقة أمان إضافية لحماية حسابك.',
+    ku: 'چینێکی زیادەی پاراستن زیاد بکە بۆ هەژمارەکەت.',
+  );
+  String get authFaceCardTitle => _t(
+    en: 'Face verification',
+    ar: 'التحقق بالوجه',
+    ku: 'پشتڕاستکردنەوەی ڕووخسار',
+  );
+  String get authFaceCardDescription => _t(
+    en: 'Use face verification as two-factor authentication for sensitive actions like transactions.',
+    ar: 'استخدم التحقق بالوجه كمصادقة ثنائية للإجراءات الحساسة مثل المعاملات.',
+    ku: 'پشتڕاستکردنەوەی ڕووخسار وەک 2FA بۆ کردارە هەستیارەکان وەک مامەڵەکان.',
+  );
+  String get authSetupFaceVerification => _t(
+    en: 'Set up face verification',
+    ar: 'إعداد التحقق بالوجه',
+    ku: 'ڕێکخستنی پشتڕاستکردنەوەی ڕووخسار',
+  );
+  String get authSkipForNow => _t(
+    en: 'Skip for now',
+    ar: 'تخطي الآن',
+    ku: 'فعلاً بەجێبهێڵە',
+  );
+  String get authLogoutConfirm => _t(
+    en: 'Are you sure you want to logout?',
+    ar: 'هل تريد تسجيل الخروج؟',
+    ku: 'دڵنیایت دەتەوێت بچیتە دەرەوە؟',
+  );
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String en,
