@@ -55,7 +55,7 @@ class PartnerEntrySection extends StatelessWidget {
             const SizedBox(width: AuthSpacing.md),
             Expanded(
               child: OutlinedButton(
-                onPressed: () => context.push('/employee-portal'),
+                onPressed: () => context.push('/employee-login'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                   side: BorderSide(color: theme.colorScheme.outline),

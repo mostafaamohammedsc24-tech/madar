@@ -11,6 +11,8 @@ String? resolveUserAuthRedirect({
   // Partner / office / employee entry — not part of user OTP shell.
   if (matchedLocation.startsWith('/office') ||
       matchedLocation == '/office-login' ||
+      matchedLocation.startsWith('/employee') ||
+      matchedLocation == '/employee-login' ||
       matchedLocation == '/employee-portal') {
     return null;
   }

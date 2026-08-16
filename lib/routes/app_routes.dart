@@ -7,7 +7,9 @@ import '../features/authentication/domain/models/user_auth_state.dart';
 import '../features/authentication/presentation/screens/user_auth_flow_screen.dart';
 import '../features/authentication/routing/auth_globals.dart';
 import '../features/authentication/routing/auth_redirect.dart';
-import '../features/office/presentation/screens/employee_portal_placeholder_screen.dart';
+import '../features/employee/core/routing/employee_globals.dart';
+import '../features/employee/core/routing/employee_redirect.dart';
+import '../features/employee/core/routing/employee_routes.dart';
 import '../features/office/presentation/screens/office_chat_screen.dart';
 import '../features/office/presentation/screens/office_conversations_screen.dart';
 import '../features/office/presentation/screens/office_create_transaction_screen.dart';
@@ -63,7 +65,9 @@ class AppRoutes {
   static const String ratingsReviews = '/ratings-reviews';
   static const String officeLogin = '/office-login';
   static const String employeePortal = '/employee-portal';
+  static const String employeeLogin = '/employee-login';
   static const String officeHome = '/office/home';
+  static const String employeeHome = '/employee/home';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -71,6 +75,19 @@ final GoRouter appRouter = GoRouter(
   refreshListenable: authRouterRefresh,
   redirect: (context, state) {
     final location = state.matchedLocation;
+
+    final employeeRedirect = resolveEmployeeAuthRedirect(
+      status: employeeAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (employeeRedirect != null) return employeeRedirect;
+
+    if (employeeAuthNotifier.isAuthenticated &&
+        (location.startsWith('/employee') ||
+            location == AppRoutes.employeeLogin ||
+            location == AppRoutes.employeePortal)) {
+      return null;
+    }
 
     final officeRedirect = resolveOfficeAuthRedirect(
       status: officeAuthNotifier.status,
@@ -86,6 +103,7 @@ final GoRouter appRouter = GoRouter(
 
     // Public partner entry points
     if (location == AppRoutes.officeLogin ||
+        location == AppRoutes.employeeLogin ||
         location == AppRoutes.employeePortal) {
       return null;
     }
@@ -96,6 +114,7 @@ final GoRouter appRouter = GoRouter(
     );
     if (authRedirect != null) return authRedirect;
     if (location == '/') {
+      if (employeeAuthNotifier.isAuthenticated) return AppRoutes.employeeHome;
       if (officeAuthNotifier.isAuthenticated) return AppRoutes.officeHome;
       return authRouterRefresh.notifier.state.status ==
               UserAuthStatus.authenticated
@@ -128,10 +147,7 @@ final GoRouter appRouter = GoRouter(
         child: const OfficeLoginScreen(),
       ),
     ),
-    GoRoute(
-      path: AppRoutes.employeePortal,
-      builder: (context, state) => const EmployeePortalPlaceholderScreen(),
-    ),
+    ...buildEmployeeRoutes(),
     GoRoute(
       path: '/office/create-transaction',
       builder: (context, state) => provider.ChangeNotifierProvider.value(
