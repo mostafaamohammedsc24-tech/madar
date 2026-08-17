@@ -30,6 +30,18 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
   bool _obscure = true;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final auth = context.read<EmployeeAuthNotifier>();
+      await auth.ensureInitialized();
+      if (!mounted) return;
+      if (auth.isAuthenticated) context.go('/employee/home');
+    });
+  }
+
+  @override
   void dispose() {
     _idCtrl.dispose();
     _secretCtrl.dispose();

@@ -11,9 +11,10 @@ class OfficeAuthNotifier extends ChangeNotifier {
 
   final OfficeRepository _repo;
 
-  OfficeAuthStatus _status = OfficeAuthStatus.initializing;
+  OfficeAuthStatus _status = OfficeAuthStatus.unauthenticated;
   String? _message;
   bool _busy = false;
+  bool _sessionChecked = false;
 
   OfficeAuthStatus get status => _status;
   String? get message => _message;
@@ -22,6 +23,13 @@ class OfficeAuthNotifier extends ChangeNotifier {
       _status == OfficeAuthStatus.authenticated && _repo.isAuthenticated;
   OfficeAccount? get office => _repo.currentOffice;
   OfficeRepository get repository => _repo;
+
+  /// Restores persisted session once per app launch (lazy — not at startup).
+  Future<void> ensureInitialized() async {
+    if (_sessionChecked) return;
+    _sessionChecked = true;
+    await initialize();
+  }
 
   Future<void> initialize() async {
     _busy = true;

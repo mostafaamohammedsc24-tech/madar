@@ -14,9 +14,12 @@ import '../../core/geo/region_detection_service.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
 import '../../providers/country_context_provider.dart';
+import '../../core/performance/performance_monitor.dart';
 import '../../services/places_service.dart';
 import '../../services/property_ai_service.dart';
 import '../../services/property_catalog_demo.dart';
+import '../../core/maps/map_bounds.dart';
+import '../../services/property_map_repository.dart';
 import '../../services/supabase_service.dart';
 import './models/property_data.dart';
 import './widgets/ai_recommendations_sheet.dart';
@@ -99,7 +102,9 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   List<PropertyData> _allProperties = [];
   List<PropertyData> _filteredProperties = [];
   final PropertyAiService _propertyAi = PropertyAiService();
+  final PropertyMapRepository _mapRepo = PropertyMapRepository();
   Timer? _aiSearchDebounce;
+  Timer? _boundsDebounce;
   String? _aiSearchInsight;
   int _aiSearchToken = 0;
 
@@ -119,6 +124,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   void dispose() {
     _aiSearchDebounce?.cancel();
     _placesDebounce?.cancel();
+    _boundsDebounce?.cancel();
     _draggableController.removeListener(_onSheetExtentChanged);
     _draggableController.dispose();
     super.dispose();
@@ -126,36 +132,53 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 
   Future<void> _loadProperties() async {
     setState(() => _isLoading = true);
+    // Initial viewport fetch (Baghdad default) — refined on first map idle.
+    const bootstrap = MapBounds(
+      southwest: LatLng(33.20, 44.25),
+      northeast: LatLng(33.45, 44.55),
+    );
+    await _fetchPropertiesForBounds(bootstrap, showLoading: true);
+  }
+
+  void _onMapBoundsChanged(MapBounds bounds) {
+    _boundsDebounce?.cancel();
+    _boundsDebounce = Timer(const Duration(milliseconds: 450), () {
+      _fetchPropertiesForBounds(bounds.padded());
+    });
+  }
+
+  Future<void> _fetchPropertiesForBounds(
+    MapBounds bounds, {
+    bool showLoading = false,
+  }) async {
+    if (showLoading) setState(() => _isLoading = true);
+    PerformanceMonitor.instance.mark('map_bounds_fetch');
     try {
-      final countryCode = context.read<CountryContextProvider>().activeCountryCode;
+      final countryCode =
+          context.read<CountryContextProvider>().activeCountryCode;
       _loadedCountryCode = countryCode;
-      final data = await SupabaseService.instance.getProperties(
-        limit: 50,
+      final filter = _selectedFilter == 'All' ? null : _selectedFilter;
+      final props = await _mapRepo.fetchInBounds(
+        bounds: bounds,
         countryCode: countryCode,
+        listingFilter: filter,
+        limit: 150,
       );
-      if (data.isNotEmpty) {
-        final props = data
-            .map((d) => PropertyData.fromSupabase(d))
-            .where((p) => p.lat != 0 && p.lng != 0)
-            .toList();
-        if (props.isNotEmpty) {
-          if (mounted) {
-            setState(() {
-              _allProperties = props;
-              _filteredProperties = List.from(props);
-            });
-          }
-        } else {
-          _loadMockData();
-        }
-      } else {
+      if (!mounted) return;
+      PerformanceMonitor.instance.measure('map_bounds_ready', 'map_bounds_fetch');
+      setState(() {
+        _allProperties = props;
+        _filteredProperties = List.from(props);
+        _isLoading = false;
+      });
+      _applySortLocked();
+      _maybePlayDemoCardFlow();
+    } catch (_) {
+      if (mounted) {
         _loadMockData();
+        setState(() => _isLoading = false);
       }
-    } catch (e) {
-      _loadMockData();
     }
-    if (mounted) setState(() => _isLoading = false);
-    _maybePlayDemoCardFlow();
   }
 
   Future<void> _applyGpsContext() async {
@@ -1022,6 +1045,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 }
               },
               onBackgroundTap: _closePreview,
+              onBoundsChanged: _onMapBoundsChanged,
             ),
 
             // Top overlay: search bar + filter chips

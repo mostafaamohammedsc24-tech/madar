@@ -658,6 +658,31 @@ class AppLocalizations {
   // ─── User Authentication ──────────────────────────────────────────────────
   String get authBrandName => _t(en: 'مدار', ar: 'مدار', ku: 'مدار');
   String get authBrandTagline => _t(en: 'عقارات', ar: 'عقارات', ku: 'عقارات');
+  String get authDesktopTagline => _t(
+    en: 'Discover, compare, and close property deals with confidence.',
+    ar: 'اكتشف العقارات وقارنها وأتمم صفقاتك بثقة.',
+    ku: 'خانووبەرە بدۆزەرەوە، بەراورد بکە و مامەڵەکانت بە متمانە تەواو بکە.',
+  );
+  String get authDesktopFeatureMap => _t(
+    en: 'Interactive maps with smart search and area filters',
+    ar: 'خرائط تفاعلية مع بحث ذكي وتصفية حسب المنطقة',
+    ku: 'نەخشەی کارلێکدار لەگەڵ گەڕانی زیرەک و فلتەری ناوچە',
+  );
+  String get authDesktopFeatureVerified => _t(
+    en: 'Verified listings and secure transactions',
+    ar: 'إعلانات موثقة ومعاملات آمنة',
+    ku: 'لیستی پشتڕاستکراو و مامەڵەی پارێزراو',
+  );
+  String get authDesktopFeatureLanguages => _t(
+    en: 'Arabic, English, and Kurdish — built for Iraq',
+    ar: 'العربية والإنجليزية والكردية — مصمم للعراق',
+    ku: 'عەرەبی، ئینگلیزی و کوردی — دروستکراو بۆ عێراق',
+  );
+  String get authDesktopFooter => _t(
+    en: 'Premium real estate platform for buyers, sellers, and professionals.',
+    ar: 'منصة عقارية متميزة للمشترين والبائعين والمحترفين.',
+    ku: 'پلاتفۆرمی خانووبەرەی پریمیۆم بۆ کڕیار، فرۆشیار و پیشەییەکان.',
+  );
   String get authWelcome => _t(en: 'Welcome', ar: 'مرحباً بك', ku: 'بەخێربێیت');
   String get authPhoneTitle =>
       _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');

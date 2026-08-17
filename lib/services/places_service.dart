@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../core/cache/request_cache.dart';
+
 /// One smart-search suggestion: free text, an area/district, or a landmark.
 class PlaceSuggestion {
   const PlaceSuggestion({
@@ -77,6 +79,19 @@ class PlacesService {
     final trimmed = query.trim();
     if (trimmed.length < 2) return const [];
 
+    final cacheKey =
+        'suggest:${trimmed.toLowerCase()}:${near?.latitude}:${near?.longitude}';
+    return placesRequestCache.getOrLoad<List<PlaceSuggestion>>(
+      cacheKey,
+      () => _suggestUncached(trimmed, near),
+      ttl: const Duration(minutes: 5),
+    );
+  }
+
+  Future<List<PlaceSuggestion>> _suggestUncached(
+    String trimmed,
+    LatLng? near,
+  ) async {
     final local = _localSuggestions(trimmed);
     if (_apiKey.isEmpty) return local;
 
@@ -134,6 +149,15 @@ class PlacesService {
     if (registryArea != null) return registryArea;
     if (suggestion.placeId == null || _apiKey.isEmpty) return null;
 
+    final cacheKey = 'area:${suggestion.placeId}';
+    return placesRequestCache.getOrLoad<AreaResult?>(
+      cacheKey,
+      () => _resolveAreaRemote(suggestion),
+      ttl: const Duration(hours: 1),
+    );
+  }
+
+  Future<AreaResult?> _resolveAreaRemote(PlaceSuggestion suggestion) async {
     try {
       final response = await _dio.get(
         _detailsUrl,
@@ -185,6 +209,17 @@ class PlacesService {
     if (registry != null) return registry;
     if (suggestion.placeId == null || _apiKey.isEmpty) return null;
 
+    final cacheKey = 'landmark:${suggestion.placeId}';
+    return placesRequestCache.getOrLoad<LandmarkResult?>(
+      cacheKey,
+      () => _resolveLandmarkRemote(suggestion),
+      ttl: const Duration(hours: 1),
+    );
+  }
+
+  Future<LandmarkResult?> _resolveLandmarkRemote(
+    PlaceSuggestion suggestion,
+  ) async {
     try {
       final response = await _dio.get(
         _detailsUrl,
@@ -213,6 +248,19 @@ class PlacesService {
 
   /// Landmarks near a point by category (school, university, mall, gas…).
   Future<List<LandmarkResult>> nearbyLandmarks({
+    required LatLng near,
+    required String category,
+  }) async {
+    final cacheKey =
+        'nearby:${near.latitude.toStringAsFixed(3)}:${near.longitude.toStringAsFixed(3)}:$category';
+    return placesRequestCache.getOrLoad<List<LandmarkResult>>(
+      cacheKey,
+      () => _nearbyLandmarksUncached(near: near, category: category),
+      ttl: const Duration(minutes: 30),
+    );
+  }
+
+  Future<List<LandmarkResult>> _nearbyLandmarksUncached({
     required LatLng near,
     required String category,
   }) async {

@@ -5,6 +5,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../../../core/app_export.dart';
+import '../../../core/maps/map_bounds.dart';
+import '../../../core/maps/marker_cluster_engine.dart';
 import '../../../core/theme/listing_filter_theme.dart';
 import '../search_map_screen.dart';
 
@@ -19,6 +21,7 @@ class PropertyMapWidget extends StatefulWidget {
   final String? selectedPropertyId;
   final ValueChanged<double>? onZoomChanged;
   final VoidCallback? onBackgroundTap;
+  final ValueChanged<MapBounds>? onBoundsChanged;
 
   /// Highlighted area boundary (blue stroke + light fill).
   final List<LatLng>? areaPolygon;
@@ -36,6 +39,7 @@ class PropertyMapWidget extends StatefulWidget {
     this.selectedPropertyId,
     this.onZoomChanged,
     this.onBackgroundTap,
+    this.onBoundsChanged,
     this.areaPolygon,
     this.landmarkLocation,
     this.landmarkLabel,
@@ -55,6 +59,8 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   double _currentZoom = 12.5;
   DateTime? _lastPinSelectAt;
   DateTime? _lastDrawAt;
+  double _lastMarkerZoom = 0;
+  final _clusterEngine = MarkerClusterEngine();
   static const bool _useWebMapFallback = false;
 
   static const String _cleanMapStyle = '''
@@ -231,9 +237,72 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     return descriptor;
   }
 
+  Future<MapBounds?> visibleBounds({double pad = 0.08}) async {
+    final controller = _mapController;
+    if (controller == null) return null;
+    try {
+      final region = await controller.getVisibleRegion();
+      return MapBounds.fromLatLngBounds(region)?.padded(pad);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _buildMarkers() async {
     final size = _markerSizeForZoom(_currentZoom);
-    final markerFutures = widget.properties.map((p) async {
+    final propsById = {for (final p in widget.properties) p.id: p};
+
+    if (widget.properties.isEmpty) {
+      if (mounted) setState(() => _markers = {});
+      return;
+    }
+
+    // Cluster when many pins at low zoom
+    MapBounds? bounds = await visibleBounds(pad: 0.15);
+    bounds ??= MapBounds(
+      southwest: const LatLng(33.20, 44.25),
+      northeast: const LatLng(33.45, 44.55),
+    );
+
+    final points = widget.properties
+        .map(
+          (p) => ClusterPoint(
+            id: p.id,
+            position: LatLng(p.lat, p.lng),
+          ),
+        )
+        .toList();
+
+    final clusters = _clusterEngine.cluster(
+      points: points,
+      zoom: _currentZoom,
+      bounds: bounds,
+    );
+
+    final markerFutures = clusters.map((cluster) async {
+      if (cluster.isCluster) {
+        final icon = await _createClusterMarker(cluster.count, size);
+        return Marker(
+          markerId: MarkerId('cluster_${cluster.position.latitude}_${cluster.position.longitude}'),
+          position: cluster.position,
+          icon: icon,
+          anchor: const Offset(0.5, 0.5),
+          zIndexInt: 5,
+          consumeTapEvents: true,
+          onTap: () {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLngZoom(
+                cluster.position,
+                (_currentZoom + 1.2).clamp(8, 18),
+              ),
+            );
+          },
+        );
+      }
+
+      final id = cluster.members.first.id;
+      final p = propsById[id];
+      if (p == null) return null;
       final selected = p.id == widget.selectedPropertyId;
       final icon = await _createCustomMarker(
         p.type,
@@ -252,7 +321,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
       );
     });
 
-    final markers = await Future.wait(markerFutures);
+    final markers = (await Future.wait(markerFutures)).whereType<Marker>();
     final all = markers.toSet();
 
     final landmark = widget.landmarkLocation;
@@ -273,6 +342,46 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     }
 
     if (mounted) setState(() => _markers = all);
+  }
+
+  Future<BitmapDescriptor> _createClusterMarker(int count, double size) async {
+    final cacheKey = 'cluster_${count}_${size.toInt()}';
+    if (_markerCache.containsKey(cacheKey)) return _markerCache[cacheKey]!;
+
+    final canvasSize = size * 2.0;
+    final center = Offset(canvasSize / 2, canvasSize / 2);
+    final radius = size * 0.44;
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    canvas.drawCircle(center, radius + 3, Paint()..color = Colors.white);
+    canvas.drawCircle(center, radius, Paint()..color = AppTheme.primary);
+    final label = count > 999 ? '999+' : '$count';
+    final tp = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: radius * 0.85,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(
+      canvas,
+      Offset(center.dx - tp.width / 2, center.dy - tp.height / 2),
+    );
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(canvasSize.toInt(), canvasSize.toInt());
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final descriptor = BitmapDescriptor.bytes(
+      byteData!.buffer.asUint8List(),
+      width: size,
+      height: size,
+    );
+    _markerCache[cacheKey] = descriptor;
+    return descriptor;
   }
 
   Future<BitmapDescriptor> _createLandmarkMarker(double size) async {
@@ -398,7 +507,18 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
 
   void _onCameraIdle() {
     widget.onZoomChanged?.call(_currentZoom);
-    _buildMarkers();
+    final zoomDelta = (_currentZoom - _lastMarkerZoom).abs();
+    if (zoomDelta > 0.35 || _markers.isEmpty) {
+      _lastMarkerZoom = _currentZoom;
+      _buildMarkers();
+    }
+    _emitBoundsChanged();
+  }
+
+  Future<void> _emitBoundsChanged() async {
+    if (widget.onBoundsChanged == null) return;
+    final bounds = await visibleBounds();
+    if (bounds != null) widget.onBoundsChanged!(bounds);
   }
 
   void completeDrawing() {

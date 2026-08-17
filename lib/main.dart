@@ -33,10 +33,7 @@ void main() async {
 
   wireOfficeAuthIntoRouter();
   wireEmployeeAuthIntoRouter();
-  await Future.wait([
-    officeAuthNotifier.initialize(),
-    employeeAuthNotifier.initialize(),
-  ]);
+  // Partner sessions restore lazily when visiting office/employee routes.
 
   const demoEnterUserUi = bool.fromEnvironment(
     'DEMO_ENTER_USER_UI',

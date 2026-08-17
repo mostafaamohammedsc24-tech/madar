@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart' as provider;
 
@@ -31,11 +30,8 @@ import '../features/office/presentation/screens/office_transactions_screen.dart'
 import '../features/office/presentation/shell/office_scaffold.dart';
 import '../features/office/routing/office_globals.dart';
 import '../features/office/routing/office_redirect.dart';
-import '../features/property/presentation/screens/property_report_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
-import '../presentation/analytics/property_analytics_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
-import '../presentation/messages/messages_screen.dart';
 import '../presentation/my_properties_screen/my_properties_screen.dart';
 import '../presentation/notifications/notification_center_screen.dart';
 import '../presentation/profile/documents_archive_screen.dart';
@@ -46,6 +42,7 @@ import '../presentation/search_map_screen/search_map_screen.dart';
 import '../presentation/transactions_screen/settlement_payout_receipt_screen.dart';
 import '../widgets/app_scaffold.dart';
 import '../presentation/auth/two_fa_verification_screen.dart';
+import 'deferred_screens.dart';
 
 class AppRoutes {
   static const String initial = '/';
@@ -296,7 +293,7 @@ final GoRouter appRouter = GoRouter(
         final property = state.extra as Map<String, dynamic>? ?? {};
         return CustomTransitionPage(
           key: state.pageKey,
-          child: ProviderScope(child: PropertyReportScreen(property: property)),
+          child: buildDeferredPropertyReport(property),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               SlideTransition(
                 position:
@@ -457,7 +454,7 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.propertyAnalytics,
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
-        child: const PropertyAnalyticsScreen(),
+        child: buildDeferredAnalyticsScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             SlideTransition(
               position:
@@ -533,8 +530,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: AppRoutes.messagesScreen,
-              builder: (context, state) =>
-                  const ProviderScope(child: MessagesScreen()),
+              builder: (context, state) => buildDeferredMessagesScreen(),
             ),
           ],
         ),
