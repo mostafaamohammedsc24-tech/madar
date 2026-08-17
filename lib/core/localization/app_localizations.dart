@@ -1560,9 +1560,34 @@ class AppLocalizations {
       _t(en: 'Chats', ar: 'المحادثات', ku: 'گفتوگۆکان');
   String get officeNavMore => _t(en: 'More', ar: 'المزيد', ku: 'زیاتر');
   String get officeSearchHint => _t(
-    en: 'Search property, location, type…',
-    ar: 'ابحث عن عقار، موقع، نوع…',
-    ku: 'گەڕان بۆ موڵک، شوێن، جۆر…',
+    en: 'Search by area, price, schools, features…',
+    ar: 'ابحث بالمنطقة أو السعر أو المدارس أو المواصفات…',
+    ku: 'گەڕان بە ناوچە، نرخ، قوتابخانە، تایبەتمەندی…',
+  );
+  String get officeAiAssistantTitle => _t(
+    en: 'Madar AI for Offices',
+    ar: 'مدار AI للمكاتب',
+    ku: 'مەدار AI بۆ ئۆفیسەکان',
+  );
+  String get officeAiSearchHint => _t(
+    en: 'Describe the client need (budget, district, schools…)',
+    ar: 'صف احتياج العميل (ميزانية، حي، مدارس…)',
+    ku: 'پێداویستی کڕیار بنووسە (بودجە، ناوچە، قوتابخانە…)',
+  );
+  String get officeAiPinnedSubtitle => _t(
+    en: 'Faster inventory search with suggestion cards',
+    ar: 'بحث أسرع في المخزون مع بطاقات اقتراح',
+    ku: 'گەڕانی خێراتر لە کۆگا لەگەڵ کارتی پێشنیار',
+  );
+  String get officeShowOnMap => _t(
+    en: 'Show on map',
+    ar: 'عرض على الخريطة',
+    ku: 'پیشاندان لەسەر نەخشە',
+  );
+  String get officeAiFabLabel => _t(
+    en: 'AI search',
+    ar: 'بحث ذكي',
+    ku: 'گەڕانی زیر',
   );
   String get officeFilterAll => _t(en: 'All', ar: 'الكل', ku: 'هەموو');
   String get officeFilterSale => _t(en: 'Sale', ar: 'بيع', ku: 'فرۆشتن');

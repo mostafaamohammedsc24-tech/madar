@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/app_export.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../services/property_ai_service.dart';
+import '../../services/property_catalog_demo.dart';
 import '../../services/supabase_service.dart';
 import '../search_map_screen/models/property_data.dart';
 import '../search_map_screen/widgets/ai_property_suggestion_card.dart';
@@ -142,106 +143,8 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
       }
     } catch (_) {}
     if (_aiCatalog.isEmpty) {
-      _aiCatalog = _demoCatalog();
+      _aiCatalog = PropertyCatalogDemo.listings();
     }
-  }
-
-  List<PropertyData> _demoCatalog() {
-    return [
-      {
-        'id': 'prop_001',
-        'title': 'Modern Apartment — Karrada',
-        'address': '14 Al-Nidhal St, Karrada, Baghdad',
-        'price': 185000,
-        'currency': 'USD',
-        'area': 180,
-        'bedrooms': 3,
-        'bathrooms': 2,
-        'type': 'apartment',
-        'listingType': 'sale',
-        'lat': 33.3152,
-        'lng': 44.3932,
-        'imageUrl':
-            'https://images.unsplash.com/photo-1723709125265-889b7d62dcba',
-        'semanticLabel': 'Modern apartment',
-        'isVerified': true,
-        'isFeatured': true,
-        'tags': ['Furnished', 'Central AC', 'Parking'],
-        'description':
-            'شقة عصرية مفروشة في الكرادة قرب الجامعات والمدارس.',
-        'nearbySchools': ['Baghdad College', 'International School of Baghdad'],
-        'nearbyAmenities': ['Family Mall', 'Al-Nahrain Hospital'],
-      },
-      {
-        'id': 'prop_002',
-        'title': 'Villa — Mansour District',
-        'address': '7 Prince Rd, Mansour, Baghdad',
-        'price': 420000,
-        'currency': 'USD',
-        'area': 350,
-        'bedrooms': 5,
-        'bathrooms': 4,
-        'type': 'villa',
-        'listingType': 'sale',
-        'lat': 33.3351,
-        'lng': 44.3601,
-        'imageUrl':
-            'https://img.rocket.new/generatedImages/rocket_gen_img_15d2727d0-1784505971937.png',
-        'semanticLabel': 'Villa Mansour',
-        'isVerified': true,
-        'isFeatured': false,
-        'tags': ['Garden', 'Pool', 'Generator'],
-        'description': 'فيلا واسعة في المنصور مع مسبح وحديقة.',
-        'nearbySchools': ['Mansour Private School'],
-        'nearbyAmenities': ['Al-Mansour Mall'],
-      },
-      {
-        'id': 'prop_005',
-        'title': 'Townhouse — Jadriya',
-        'address': '9 River View St, Jadriya, Baghdad',
-        'price': 260000,
-        'currency': 'USD',
-        'area': 240,
-        'bedrooms': 4,
-        'bathrooms': 3,
-        'type': 'villa',
-        'listingType': 'mortgage',
-        'lat': 33.2981,
-        'lng': 44.3821,
-        'imageUrl':
-            'https://img.rocket.new/generatedImages/rocket_gen_img_151ea03e2-1786738383786.png',
-        'semanticLabel': 'Townhouse Jadriya',
-        'isVerified': true,
-        'isFeatured': true,
-        'tags': ['River View', 'Smart Home'],
-        'description': 'تاون هاوس بإطلالة نهر في الجادرية.',
-        'nearbySchools': ['Jadriya International School'],
-        'nearbyAmenities': ['Tigris promenade'],
-      },
-      {
-        'id': 'prop_006',
-        'title': 'Apartment — Kadhimiya',
-        'address': '33 Al-Kadhim St, Kadhimiya, Baghdad',
-        'price': 75000,
-        'currency': 'USD',
-        'area': 110,
-        'bedrooms': 2,
-        'bathrooms': 1,
-        'type': 'apartment',
-        'listingType': 'sale',
-        'lat': 33.3822,
-        'lng': 44.3411,
-        'imageUrl':
-            'https://img.rocket.new/generatedImages/rocket_gen_img_1cbf890d9-1781368726031.png',
-        'semanticLabel': 'Apartment Kadhimiya',
-        'isVerified': false,
-        'isFeatured': false,
-        'tags': ['Near Metro', 'Quiet Area'],
-        'description': 'شقة اقتصادية في الكاظمية.',
-        'nearbySchools': ['Kadhimiya Primary School'],
-        'nearbyAmenities': ['Metro stop'],
-      },
-    ].map(PropertyData.fromMap).toList();
   }
 
   @override

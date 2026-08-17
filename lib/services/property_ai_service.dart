@@ -44,39 +44,61 @@ class PropertyAiService {
   final DirectLlmClient _client;
 
   static const _systemPrompt = '''
-You are Madar AI — the property search brain for a real-estate app in Iraq, Saudi Arabia, and the UAE.
+You are Madar AI — the full property intelligence brain for end users AND real-estate offices.
 You understand Arabic, English, and Kurdish. Always reply in the user's language.
 
-You can search and reason over EVERY field of each listing: title, description, address, district/area, city, price, currency, area m², bedrooms, bathrooms, type, listing type (sale/rent/mortgage), tags/features, nearby schools, hospitals, markets, transit, and map coordinates.
+Search and reason over EVERYTHING available for each listing — do not ignore any field:
+title, full description, address, district, city, neighborhood nicknames, price, currency,
+monthly/annual cost implications, area m², bedrooms, bathrooms, property type,
+listing type (sale/rent/mortgage/investment), tags/features (furnished, pool, parking,
+generator, elevator, balcony, smart home, financing, compound, security, etc.),
+nearby schools, hospitals, malls, transit/metro, markets, mosques, parks, cafes,
+coordinates, verified/featured flags, and any extra raw metadata.
 
-Capabilities you MUST use when asked:
-- Find matches by price ("أرخص", "أغلى", under 200k, cheaper than X, budget...).
-- Find by area/district/neighborhood, schools nearby, furnished, pool, parking, river view, etc.
-- Compare options and explain trade-offs.
-- Suggest multiple listings (typically 3–6) with short reasons.
-- Guide the user to open a card / see it on the map.
+You help:
+- Buyers/renters finding homes fast
+- Offices finding inventory for clients faster (budgets, districts, schools, ROI, footfall)
 
-OUTPUT RULES — return ONLY a single JSON object (no markdown fences):
+Capabilities (use ALL of them when relevant):
+- Price: أرخص، أغلى، ميزانية، under/over X, cheaper than listing Y, best value
+- Location: districts, cities, river view, quiet street, main road, compound
+- Specs: beds/baths/area/type/listing mode
+- Lifestyle: schools, hospitals, metro, malls, parks, cafes
+- Commercial: shops, offices, land, investment, footfall, street front
+- Compare multiple options and explain trade-offs clearly
+- Suggest MANY matching listings (aim for 6–12 when inventory allows), not just 1–2
+- Guide opening a card and focusing the map
+
+OUTPUT — ONLY one JSON object (no markdown fences):
 {
-  "reply": "Natural helpful answer that mentions key specs of each suggested home",
+  "reply": "Helpful answer covering specs of EACH suggested listing (price, area, beds, district, schools/amenities when relevant)",
   "suggestions": [
-    {"id": "prop_id", "reason": "Why this fits", "highlight": "cheaper|pricier|best_value|near_schools|spacious|null"}
+    {"id": "prop_id", "reason": "Why it fits", "highlight": "cheaper|pricier|best_value|near_schools|spacious|commercial|investment|rent|null"}
   ],
   "matched_ids": ["prop_id", "..."],
   "sort": "price_asc|price_desc|area_desc|relevance|null",
-  "map_focus": {"lat": 33.3, "lng": 44.4, "label": "Karrada"} | null
+  "map_focus": {"lat": 33.3, "lng": 44.4, "label": "District"} | null
 }
 
 Rules:
-- suggestions.id MUST be real ids from the catalog.
-- If the user asks for cheaper/more expensive, sort and explain relative to their budget or the previously discussed homes.
-- If nothing matches, say so honestly and suggest the closest alternatives.
-- When discussing a home, include price, area, bedrooms, district, and nearby schools if available.
+- suggestions.id and matched_ids MUST be real catalog ids.
+- Prefer returning MORE good matches over fewer.
+- If user asks cheaper/more expensive, sort and explain relative to budget or prior homes.
+- If nothing exact matches, say so and return closest alternatives across the WHOLE catalog.
+- Never invent listings that are not in the catalog.
 ''';
 
-  String buildCatalog(List<PropertyData> properties, {int limit = 40}) {
+  String buildCatalog(List<PropertyData> properties, {int limit = 80}) {
     final buffer = StringBuffer();
     for (final p in properties.take(limit)) {
+      final extra = <String>[];
+      p.rawData.forEach((key, value) {
+        if (value == null) return;
+        if (value is Map || value is List) return;
+        final text = value.toString().trim();
+        if (text.isEmpty) return;
+        extra.add('$key=$text');
+      });
       buffer.writeln(
         [
           'ID=${p.id}',
@@ -96,6 +118,7 @@ Rules:
           'lng=${p.lng}',
           'verified=${p.isVerified}',
           'featured=${p.isFeatured}',
+          if (extra.isNotEmpty) 'extra=${extra.join("|")}',
         ].join(' · '),
       );
     }
@@ -132,7 +155,7 @@ Rules:
     if (parsed == null) {
       return PropertyAiResult(
         reply: raw.trim(),
-        suggestions: _rankLocally(userMessage, catalog).take(4).toList(),
+        suggestions: _rankLocally(userMessage, catalog).take(12).toList(),
         matchedIds: _rankLocally(
           userMessage,
           catalog,
@@ -226,7 +249,7 @@ Rules:
       matched.addAll(suggestions.map((s) => s.property.id));
     }
     if (suggestions.isEmpty && matched.isNotEmpty) {
-      for (final id in matched.take(6)) {
+      for (final id in matched.take(12)) {
         suggestions.add(
           PropertyAiSuggestion(
             property: byId[id]!,
@@ -276,7 +299,7 @@ Rules:
 
     return PropertyAiResult(
       reply: reply,
-      suggestions: ranked.take(6).toList(),
+      suggestions: ranked.take(12).toList(),
       matchedIds: ranked.map((s) => s.property.id).toList(),
       sortHint: _inferSort(query),
       mapFocusLat: ranked.isNotEmpty ? ranked.first.property.lat : null,
@@ -293,7 +316,8 @@ Rules:
         q.contains('cheap') ||
         q.contains('أقل سعر') ||
         q.contains('اقل سعر') ||
-        q.contains('budget')) {
+        q.contains('budget') ||
+        q.contains('ميزانية')) {
       return 'price_asc';
     }
     if (q.contains('أغلى') ||
@@ -303,7 +327,10 @@ Rules:
         q.contains('فاخر')) {
       return 'price_desc';
     }
-    if (q.contains('أوسع') || q.contains('اوسع') || q.contains('spacious')) {
+    if (q.contains('أوسع') ||
+        q.contains('اوسع') ||
+        q.contains('spacious') ||
+        q.contains('مساحة')) {
       return 'area_desc';
     }
     return 'relevance';
@@ -329,32 +356,67 @@ Rules:
     final wantCheaper = q.contains('أرخص') ||
         q.contains('ارخص') ||
         q.contains('cheap') ||
-        q.contains('أقل');
+        q.contains('أقل') ||
+        q.contains('ميزانية') ||
+        q.contains('budget');
     final wantPricier = q.contains('أغلى') ||
         q.contains('اغلى') ||
         q.contains('expensive') ||
-        q.contains('luxury');
+        q.contains('luxury') ||
+        q.contains('فاخر');
     final wantSchools = q.contains('مدرس') ||
         q.contains('school') ||
         q.contains('تعليم');
+    final wantRent = q.contains('ايجار') ||
+        q.contains('إيجار') ||
+        q.contains('rent');
+    final wantSale = q.contains('بيع') || q.contains('sale') || q.contains('شراء');
+    final wantCommercial = q.contains('تجار') ||
+        q.contains('مكتب') ||
+        q.contains('محل') ||
+        q.contains('commercial') ||
+        q.contains('office') ||
+        q.contains('shop');
+    final wantLand = q.contains('ارض') || q.contains('أرض') || q.contains('land');
+    final wantHospital = q.contains('مستشفى') ||
+        q.contains('hospital') ||
+        q.contains('عياد');
+    final wantMetro = q.contains('مترو') ||
+        q.contains('نقل') ||
+        q.contains('metro') ||
+        q.contains('transit');
+    final wantFurnished = q.contains('مفروش') || q.contains('furnished');
+    final wantPool = q.contains('مسبح') || q.contains('pool');
+    final wantMortgage =
+        q.contains('تمويل') || q.contains('mortgage') || q.contains('قرض');
 
     final scored = <({PropertyData p, double score, String reason})>[];
     for (final p in catalog) {
       var score = 0.0;
+      final extraBits = <String>[];
+      p.rawData.forEach((key, value) {
+        if (value == null || value is Map || value is List) return;
+        extraBits.add(value.toString());
+      });
       final hay = [
         p.title,
         p.address,
         p.description,
         p.type,
         p.listingType,
+        p.currency,
+        p.formattedPrice,
         p.tags.join(' '),
         p.nearbySchools.join(' '),
         p.nearbyAmenities.join(' '),
         p.price.toString(),
         p.area.toString(),
         '${p.bedrooms}',
+        '${p.bathrooms}',
+        ...extraBits,
       ].join(' ').toLowerCase();
 
+      if (hay.contains(q)) score += 10;
       for (final token in q.split(RegExp(r'\s+'))) {
         if (token.length < 2) continue;
         if (hay.contains(token)) score += 3;
@@ -363,7 +425,37 @@ Rules:
       if (priceMax != null && p.price <= priceMax) score += 8;
       if (wantCheaper) score += (1_000_000 - p.price) / 100000;
       if (wantPricier) score += p.price / 100000;
-      if (wantSchools && p.nearbySchools.isNotEmpty) score += 5;
+      if (wantSchools && p.nearbySchools.isNotEmpty) score += 6;
+      if (wantHospital &&
+          p.nearbyAmenities.any(
+            (a) =>
+                a.toLowerCase().contains('hospital') ||
+                a.contains('مستشفى') ||
+                a.contains('عياد'),
+          )) {
+        score += 5;
+      }
+      if (wantMetro &&
+          (hay.contains('metro') ||
+              hay.contains('مترو') ||
+              hay.contains('نقل'))) {
+        score += 5;
+      }
+      if (wantFurnished &&
+          (hay.contains('furnish') || hay.contains('مفروش'))) {
+        score += 4;
+      }
+      if (wantPool && (hay.contains('pool') || hay.contains('مسبح'))) {
+        score += 4;
+      }
+      if (wantRent && p.listingType == 'rent') score += 6;
+      if (wantSale && p.listingType == 'sale') score += 6;
+      if (wantMortgage && p.listingType == 'mortgage') score += 6;
+      if (wantCommercial &&
+          (p.type == 'commercial' || p.listingType == 'investment')) {
+        score += 6;
+      }
+      if (wantLand && p.type == 'land') score += 6;
       if (p.isFeatured) score += 1;
       if (p.isVerified) score += 1;
 
@@ -383,15 +475,14 @@ Rules:
     }
 
     if (scored.isEmpty) {
-      // Soft fallback: return cheapest / featured when no token match
       final soft = List<PropertyData>.from(catalog)
         ..sort((a, b) => a.price.compareTo(b.price));
       return soft
-          .take(4)
+          .take(12)
           .map(
             (p) => PropertyAiSuggestion(
               property: p,
-              reason: 'Closest available option',
+              reason: 'Closest available option across the catalog',
               highlight: 'best_value',
             ),
           )
@@ -409,6 +500,10 @@ Rules:
                 ? 'pricier'
                 : wantSchools
                 ? 'near_schools'
+                : wantCommercial
+                ? 'commercial'
+                : wantRent
+                ? 'rent'
                 : null,
           ),
         )

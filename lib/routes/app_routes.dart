@@ -11,6 +11,7 @@ import '../features/employee/core/routing/employee_globals.dart';
 import '../features/employee/core/routing/employee_redirect.dart';
 import '../features/employee/core/routing/employee_routes.dart';
 import '../features/office/presentation/screens/office_chat_screen.dart';
+import '../features/office/presentation/screens/office_ai_assistant_screen.dart';
 import '../features/office/presentation/screens/office_conversations_screen.dart';
 import '../features/office/presentation/screens/office_create_transaction_screen.dart';
 import '../features/office/presentation/screens/office_documents_screen.dart';
@@ -178,6 +179,13 @@ final GoRouter appRouter = GoRouter(
         child: OfficeChatScreen(
           conversationId: state.pathParameters['id'] ?? '',
         ),
+      ),
+    ),
+    GoRoute(
+      path: '/office/ai',
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: officeAuthNotifier,
+        child: const OfficeAiAssistantScreen(),
       ),
     ),
     GoRoute(
