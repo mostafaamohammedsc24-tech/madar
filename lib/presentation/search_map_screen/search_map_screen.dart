@@ -957,7 +957,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               minChildSize: 0.12,
               maxChildSize: isTablet ? 0.5 : 0.65,
               snap: true,
-              snapSizes: const [0.12, 0.22, 0.65],
+              snapSizes: [0.12, 0.22, isTablet ? 0.5 : 0.65],
               builder: (context, scrollController) {
                 return Container(
                   decoration: BoxDecoration(
