@@ -36,8 +36,10 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
       switch (emp.department.departmentCode) {
         case EmployeeDepartmentCode.sales:
           counts = await SalesRepository(auth.repository).homeCounts();
+          break;
         case EmployeeDepartmentCode.hr:
           counts = await HrRepository(auth.repository).directoryCounts();
+          break;
         default:
           counts = const {};
       }
