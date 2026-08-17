@@ -7,6 +7,7 @@ import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/auth_error_banner.dart';
 import '../widgets/auth_header.dart';
+import '../widgets/demo_auto_advance.dart';
 import '../widgets/primary_auth_button.dart';
 import '../widgets/secondary_auth_button.dart';
 import '../widgets/security_setup_card.dart';
@@ -20,7 +21,12 @@ class FaceVerificationSetupScreen extends StatelessWidget {
     final auth = context.watch<UserAuthNotifier>();
     final state = auth.state;
 
-    return AuthContainer(
+    return DemoAutoAdvance(
+      delay: const Duration(milliseconds: 2000),
+      onAdvance: () {
+        if (!state.isBusy) auth.skipFaceVerification();
+      },
+      child: AuthContainer(
       showLanguageAction: false,
       child: SingleChildScrollView(
         child: Column(
@@ -62,6 +68,7 @@ class FaceVerificationSetupScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

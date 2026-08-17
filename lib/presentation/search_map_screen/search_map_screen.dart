@@ -16,6 +16,7 @@ import './models/property_data.dart';
 import './widgets/ai_recommendations_sheet.dart';
 import './widgets/map_filter_chips_widget.dart';
 import './widgets/map_preview_carousel.dart';
+import '../../features/authentication/presentation/widgets/demo_auto_advance.dart';
 import './widgets/map_search_bar_widget.dart';
 import './widgets/property_detail_sheet_widget.dart';
 import './widgets/property_map_widget.dart';
@@ -36,6 +37,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       DraggableScrollableController();
   final GlobalKey<PropertyMapWidgetState> _mapKey =
       GlobalKey<PropertyMapWidgetState>();
+  bool _demoCardFlowStarted = false;
   String? _loadedCountryCode;
   String _selectedFilter = 'All';
   PropertyData? _selectedProperty;
@@ -129,6 +131,21 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       _loadMockData();
     }
     if (mounted) setState(() => _isLoading = false);
+    _maybePlayDemoCardFlow();
+  }
+
+  void _maybePlayDemoCardFlow() {
+    if (!DemoAutoAdvance.enabled || _demoCardFlowStarted) return;
+    if (_filteredProperties.isEmpty) return;
+    _demoCardFlowStarted = true;
+    Future<void>(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 2200));
+      if (!mounted) return;
+      _onPropertySelected(_filteredProperties.first);
+      await Future<void>.delayed(const Duration(milliseconds: 2800));
+      if (!mounted || _selectedProperty == null) return;
+      _openPropertyDetail(_selectedProperty!);
+    });
   }
 
   Future<void> _loadSavedSearches() async {
@@ -305,6 +322,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       _allProperties = props;
       _filteredProperties = List.from(props);
     });
+    _maybePlayDemoCardFlow();
   }
 
   void _applyFilters() {

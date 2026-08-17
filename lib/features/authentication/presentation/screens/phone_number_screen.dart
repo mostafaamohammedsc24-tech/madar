@@ -11,6 +11,7 @@ import '../widgets/auth_container.dart';
 import '../widgets/auth_error_banner.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/country_selector_sheet.dart';
+import '../widgets/demo_auto_advance.dart';
 import '../widgets/phone_input_field.dart';
 import '../widgets/primary_auth_button.dart';
 
@@ -26,7 +27,12 @@ class PhoneNumberScreen extends StatelessWidget {
     final canContinue =
         digits.length >= state.selectedCountry.minPhoneLength && !state.isBusy;
 
-    return AuthContainer(
+    return DemoAutoAdvance(
+      delay: const Duration(milliseconds: 2000),
+      onAdvance: () {
+        if (canContinue) auth.sendOtp();
+      },
+      child: AuthContainer(
       onLanguageTap: () => LanguageSelectorSheet.show(context),
       child: SingleChildScrollView(
         child: Column(
@@ -79,6 +85,7 @@ class PhoneNumberScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

@@ -11,6 +11,7 @@ import '../providers/user_auth_notifier.dart';
 import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/auth_header.dart';
+import '../widgets/demo_auto_advance.dart';
 import '../widgets/primary_auth_button.dart';
 
 /// First signup step: country only. Language and currency live in Profile.
@@ -33,7 +34,9 @@ class RegionSetupScreen extends StatelessWidget {
     final state = auth.state;
     final theme = Theme.of(context);
 
-    return AuthContainer(
+    return DemoAutoAdvance(
+      onAdvance: () => _confirm(context, auth),
+      child: AuthContainer(
       showLanguageAction: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -125,6 +128,7 @@ class RegionSetupScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
