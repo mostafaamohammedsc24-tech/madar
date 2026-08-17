@@ -7,6 +7,7 @@ class PropertyStickyActionBar extends StatelessWidget {
     super.key,
     required this.isSaved,
     required this.onSave,
+    required this.onShare,
     required this.onContact,
     required this.onAskAi,
     required this.onScheduleTour,
@@ -14,6 +15,7 @@ class PropertyStickyActionBar extends StatelessWidget {
 
   final bool isSaved;
   final VoidCallback onSave;
+  final VoidCallback onShare;
   final VoidCallback onContact;
   final VoidCallback onAskAi;
   final VoidCallback onScheduleTour;
@@ -28,7 +30,7 @@ class PropertyStickyActionBar extends StatelessWidget {
       elevation: 8,
       color: theme.colorScheme.surface,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(12, 10, 12, 10 + bottom),
+        padding: EdgeInsets.fromLTRB(8, 10, 8, 10 + bottom),
         child: Row(
           children: [
             IconButton(
@@ -41,23 +43,36 @@ class PropertyStickyActionBar extends StatelessWidget {
                     : theme.colorScheme.onSurfaceVariant,
               ),
             ),
+            IconButton(
+              onPressed: onShare,
+              tooltip: loc.shareProperty,
+              icon: Icon(
+                Icons.share_outlined,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
             Expanded(
               child: FilledButton(
                 onPressed: onContact,
-                child: Text(loc.contactConnect),
+                child: Text(
+                  loc.contactSalesTeam,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: onAskAi,
-                child: Text(loc.askAi),
+            const SizedBox(width: 6),
+            IconButton(
+              onPressed: onAskAi,
+              tooltip: loc.askAi,
+              icon: Icon(
+                Icons.psychology_outlined,
+                color: theme.colorScheme.primary,
               ),
             ),
-            const SizedBox(width: 4),
             IconButton(
               onPressed: onScheduleTour,
-              tooltip: loc.scheduleTour,
+              tooltip: loc.scheduleVisit,
               icon: Icon(
                 Icons.calendar_month_outlined,
                 color: theme.colorScheme.primary,

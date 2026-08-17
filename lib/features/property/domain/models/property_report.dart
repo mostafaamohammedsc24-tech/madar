@@ -1,6 +1,7 @@
 import '../enums/property_status.dart';
 import 'property_areas.dart';
 import 'property_documents.dart';
+import 'property_extended.dart';
 import 'property_features.dart';
 import 'property_finance.dart';
 import 'property_language.dart';
@@ -40,6 +41,13 @@ class PropertyReport {
     this.originalLanguage = ContentLanguage.unknown,
     this.contentVersion = '1',
     this.rawSource = const {},
+    this.dimensions,
+    this.construction,
+    this.builder,
+    this.listingMeta,
+    this.verification = const PropertyVerificationFlags(),
+    this.tags = const [],
+    this.marketAnalytics,
   });
 
   final String id;
@@ -71,6 +79,13 @@ class PropertyReport {
   /// Bumps when publisher edits translatable content — invalidates translations.
   final String contentVersion;
   final Map<String, dynamic> rawSource;
+  final PropertyDimensions? dimensions;
+  final PropertyConstruction? construction;
+  final PropertyBuilderInfo? builder;
+  final PropertyListingMeta? listingMeta;
+  final PropertyVerificationFlags verification;
+  final List<String> tags;
+  final PropertyMarketAnalytics? marketAnalytics;
 
   /// Show translate CTA when property language differs from the user's UI language.
   bool needsTranslationFor(ContentLanguage userLanguage) {
@@ -115,6 +130,13 @@ class PropertyReport {
       originalLanguage: originalLanguage ?? this.originalLanguage,
       contentVersion: contentVersion ?? this.contentVersion,
       rawSource: rawSource,
+      dimensions: dimensions,
+      construction: construction,
+      builder: builder,
+      listingMeta: listingMeta,
+      verification: verification,
+      tags: tags,
+      marketAnalytics: marketAnalytics,
     );
   }
 
@@ -160,4 +182,15 @@ class PropertyReport {
   bool get showTour3d => media.has3dTour;
   bool get showTour360 => media.has360Tour;
   bool get showFloorPlan => media.hasFloorPlan;
+  bool get showDimensions => dimensions?.hasAny == true;
+  bool get showConstruction => construction?.hasAny == true;
+  bool get showBuilder => builder?.hasAny == true;
+  bool get showListingMeta => listingMeta?.hasAny == true;
+  bool get showVerification => verification.hasAny;
+  bool get showTags => tags.isNotEmpty;
+  bool get showMarketAnalytics => marketAnalytics?.hasAny == true;
+  bool get showLocationIntelligence =>
+      location.hasCoordinates ||
+      (location.elevationM != null) ||
+      location.hierarchy.isNotEmpty;
 }

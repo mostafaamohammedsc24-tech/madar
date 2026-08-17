@@ -18,6 +18,10 @@ import '../../domain/models/property_language.dart';
 import '../../domain/models/property_report.dart';
 import '../../domain/models/property_surroundings.dart';
 import '../../domain/models/property_translation.dart';
+import '../widgets/property_extended_sections.dart';
+import '../widgets/property_map_section.dart';
+import '../widgets/property_price_chart.dart';
+import '../widgets/property_report_nav.dart';
 import '../widgets/property_media_gallery.dart';
 import '../widgets/property_status_badge.dart';
 import '../widgets/property_sticky_action_bar.dart';
@@ -41,6 +45,8 @@ class PropertyReportScreen extends ConsumerStatefulWidget {
 class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
   final _repo = PropertyReportRepository();
   final _translationService = PropertyTranslationService();
+  final _scrollController = ScrollController();
+  final _sectionKeys = <String, GlobalKey>{};
   PropertyReport? _report;
   bool _loading = true;
 
@@ -58,6 +64,25 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
   void initState() {
     super.initState();
     _bootstrap();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  GlobalKey _keyFor(String id) =>
+      _sectionKeys.putIfAbsent(id, GlobalKey.new);
+
+  void _scrollToSection(String id) {
+    final ctx = _sectionKeys[id]?.currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+    );
   }
 
   Future<void> _bootstrap() async {
@@ -162,6 +187,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
         children: [
           Expanded(
             child: CustomScrollView(
+              controller: _scrollController,
               slivers: [
                 SliverAppBar(
                   expandedHeight: report.showMedia ? 320 : 120,
@@ -209,7 +235,16 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                           ),
                   ),
                 ),
-                SliverToBoxAdapter(child: _buildHeader(report, loc, theme)),
+                SliverToBoxAdapter(
+                  key: _keyFor('overview'),
+                  child: _buildHeader(report, loc, theme),
+                ),
+                SliverToBoxAdapter(
+                  child: PropertyReportNav(
+                    sections: buildReportNavItems(loc, report),
+                    onTap: _scrollToSection,
+                  ),
+                ),
                 if (report.needsTranslationFor(_userLanguage))
                   SliverToBoxAdapter(
                     child: PropertyTranslationBar(
@@ -231,6 +266,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                 SliverToBoxAdapter(child: _buildActionRow(report, loc)),
                 if (report.showWhatsSpecial)
                   SliverToBoxAdapter(
+                    key: _keyFor('details'),
                     child: ReportSection(
                       title: loc.whatsSpecial,
                       icon: Icons.auto_awesome,
@@ -239,14 +275,28 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showFacts)
                   SliverToBoxAdapter(
+                    key: _keyFor('facts'),
                     child: ReportSection(
                       title: loc.factsAndFeatures,
                       icon: Icons.grid_view_rounded,
                       child: _buildFacts(report, loc),
                     ),
                   ),
+                if (report.showDimensions && report.dimensions != null)
+                  SliverToBoxAdapter(
+                    key: _keyFor('dimensions'),
+                    child: ReportSection(
+                      title: loc.dimensionsSection,
+                      icon: Icons.straighten,
+                      initiallyExpanded: false,
+                      child: PropertyDimensionsSection(
+                        dimensions: report.dimensions!,
+                      ),
+                    ),
+                  ),
                 if (report.showDescription)
                   SliverToBoxAdapter(
+                    key: _keyFor('details'),
                     child: ReportSection(
                       title: loc.description,
                       icon: Icons.notes_outlined,
@@ -258,6 +308,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                     ),
                   ),
                 SliverToBoxAdapter(
+                  key: _keyFor('financial'),
                   child: ReportSection(
                     title: loc.priceAndValuation,
                     icon: Icons.payments_outlined,
@@ -266,6 +317,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                 ),
                 if (report.showPriceHistory)
                   SliverToBoxAdapter(
+                    key: _keyFor('history'),
                     child: ReportSection(
                       title: loc.priceHistory,
                       icon: Icons.timeline,
@@ -284,6 +336,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showSalesHistory)
                   SliverToBoxAdapter(
+                    key: _keyFor('history'),
                     child: ReportSection(
                       title: loc.salesHistory,
                       icon: Icons.history,
@@ -403,8 +456,42 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                       ),
                     ),
                   ),
+                if (report.showConstruction && report.construction != null)
+                  SliverToBoxAdapter(
+                    key: _keyFor('construction'),
+                    child: ReportSection(
+                      title: loc.constructionSection,
+                      icon: Icons.foundation_outlined,
+                      initiallyExpanded: false,
+                      child: PropertyConstructionSection(
+                        construction: report.construction!,
+                      ),
+                    ),
+                  ),
+                if (report.showBuilder && report.builder != null)
+                  SliverToBoxAdapter(
+                    key: _keyFor('construction'),
+                    child: ReportSection(
+                      title: loc.builderSection,
+                      icon: Icons.engineering_outlined,
+                      initiallyExpanded: false,
+                      child: PropertyBuilderSection(builder: report.builder!),
+                    ),
+                  ),
+                if (report.showVerification)
+                  SliverToBoxAdapter(
+                    child: ReportSection(
+                      title: loc.verificationSection,
+                      icon: Icons.verified_user_outlined,
+                      initiallyExpanded: false,
+                      child: PropertyVerificationSection(
+                        verification: report.verification,
+                      ),
+                    ),
+                  ),
                 if (report.showNeighborhood)
                   SliverToBoxAdapter(
+                    key: _keyFor('location'),
                     child: ReportSection(
                       title: loc.neighborhood,
                       icon: Icons.location_city_outlined,
@@ -421,6 +508,29 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                       child: _buildNearby(report, theme),
                     ),
                   ),
+                if (report.showMap)
+                  SliverToBoxAdapter(
+                    key: _keyFor('location'),
+                    child: ReportSection(
+                      title: loc.mapSection,
+                      icon: Icons.map_outlined,
+                      initiallyExpanded: false,
+                      child: PropertyMapSection(
+                        location: report.location,
+                        nearby: report.surroundings.nearbyPlaces,
+                      ),
+                    ),
+                  ),
+                if (report.showLocationIntelligence)
+                  SliverToBoxAdapter(
+                    key: _keyFor('location'),
+                    child: ReportSection(
+                      title: loc.locationIntelligence,
+                      icon: Icons.my_location_outlined,
+                      initiallyExpanded: false,
+                      child: PropertyLocationIntelSection(report: report),
+                    ),
+                  ),
                 if (report.showTransportation)
                   SliverToBoxAdapter(
                     child: ReportSection(
@@ -432,6 +542,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showFutureProjects)
                   SliverToBoxAdapter(
+                    key: _keyFor('future'),
                     child: ReportSection(
                       title: loc.futureOfArea,
                       icon: Icons.upcoming_outlined,
@@ -483,6 +594,21 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                       ),
                     ),
                   ),
+                if (report.showMarketAnalytics && report.marketAnalytics != null)
+                  SliverToBoxAdapter(
+                    key: _keyFor('investment'),
+                    child: ReportSection(
+                      title: loc.marketAnalyticsSection,
+                      icon: Icons.analytics_outlined,
+                      initiallyExpanded: false,
+                      trailing: const ProvenanceChip(
+                        provenance: DataProvenance.estimated,
+                      ),
+                      child: PropertyMarketAnalyticsSection(
+                        analytics: report.marketAnalytics!,
+                      ),
+                    ),
+                  ),
                 if (report.showClimateRisk)
                   SliverToBoxAdapter(
                     child: ReportSection(
@@ -498,6 +624,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showDocuments)
                   SliverToBoxAdapter(
+                    key: _keyFor('documents'),
                     child: ReportSection(
                       title: loc.documents,
                       icon: Icons.folder_outlined,
@@ -512,6 +639,19 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                       icon: Icons.badge_outlined,
                       initiallyExpanded: false,
                       child: _buildPublisher(report, theme),
+                    ),
+                  ),
+                if (report.showListingMeta && report.listingMeta != null)
+                  SliverToBoxAdapter(
+                    key: _keyFor('contact'),
+                    child: ReportSection(
+                      title: loc.listingInfoSection,
+                      icon: Icons.info_outline,
+                      initiallyExpanded: false,
+                      child: PropertyListingInfoSection(
+                        meta: report.listingMeta!,
+                        report: report,
+                      ),
                     ),
                   ),
                 if (report.lastUpdatedAt != null)
@@ -533,6 +673,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
           PropertyStickyActionBar(
             isSaved: report.isSaved,
             onSave: _toggleSave,
+            onShare: _share,
             onContact: _contactSales,
             onAskAi: () => _openAiAdvisor(report),
             onScheduleTour: () => _scheduleTour(report),
@@ -560,12 +701,38 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
           Row(
             children: [
               PropertyStatusBadge(status: report.status),
-              if (report.isVerified) ...[
+              if (report.isVerified || report.verification.propertyVerified) ...[
                 const SizedBox(width: 8),
                 const ProvenanceChip(provenance: DataProvenance.verified),
               ],
             ],
           ),
+          if (report.listingMeta?.propertyNumberId?.isNotEmpty == true) ...[
+            const SizedBox(height: 8),
+            Text(
+              '${loc.propertyIdLabel}: ${report.listingMeta!.propertyNumberId}',
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          if (report.showTags) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: report.tags
+                  .map(
+                    (t) => Chip(
+                      label: Text(t),
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
           const SizedBox(height: 12),
           Text(
             texts.title,
@@ -633,17 +800,26 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
           FilledButton.tonalIcon(
             onPressed: _contactSales,
             icon: const Icon(Icons.support_agent, size: 18),
-            label: Text(loc.contactConnect),
+            label: Text(loc.contactSalesTeam),
           ),
           OutlinedButton.icon(
             onPressed: () => _openAiAdvisor(report),
             icon: const Icon(Icons.psychology_outlined, size: 18),
-            label: Text(loc.askAi),
+            label: Text(loc.askAiAboutProperty),
+          ),
+          OutlinedButton.icon(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(loc.compareComingSoon)),
+              );
+            },
+            icon: const Icon(Icons.compare_arrows, size: 18),
+            label: Text(loc.compareProperty),
           ),
           OutlinedButton.icon(
             onPressed: () => _scheduleTour(report),
             icon: const Icon(Icons.calendar_month_outlined, size: 18),
-            label: Text(loc.scheduleTour),
+            label: Text(loc.scheduleVisit),
           ),
         ],
       ),
@@ -829,26 +1005,31 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
 
   Widget _buildPriceHistory(PropertyReport report, ThemeData theme) {
     return Column(
-      children: report.history.priceHistory.map((e) {
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(e.price.format()),
-          subtitle: Text(
-            '${_formatDate(e.effectiveDate)}${e.reason != null ? ' · ${e.reason}' : ''}',
-          ),
-          trailing: e.changePercent != null
-              ? Text(
-                  '${e.changePercent!.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    color: e.changePercent! >= 0
-                        ? Colors.green.shade700
-                        : Colors.red.shade700,
-                    fontWeight: FontWeight.w700,
-                  ),
-                )
-              : ProvenanceChip(provenance: e.provenance),
-        );
-      }).toList(),
+      children: [
+        if (report.history.priceHistory.length >= 2)
+          PropertyPriceChart(history: report.history.priceHistory),
+        if (report.history.priceHistory.length >= 2) const SizedBox(height: 12),
+        ...report.history.priceHistory.map((e) {
+          return ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(e.price.format()),
+            subtitle: Text(
+              '${_formatDate(e.effectiveDate)}${e.reason != null ? ' · ${e.reason}' : ''}',
+            ),
+            trailing: e.changePercent != null
+                ? Text(
+                    '${e.changePercent!.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      color: e.changePercent! >= 0
+                          ? Colors.green.shade700
+                          : Colors.red.shade700,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  )
+                : ProvenanceChip(provenance: e.provenance),
+          );
+        }),
+      ],
     );
   }
 
@@ -951,13 +1132,13 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     final r = report.rental!;
     final items = <(String, String)>[];
     if (r.monthlyRent != null) {
-      items.add(('${loc.forRent}${loc.perMonth}', r.monthlyRent!.format()));
+      items.add((loc.monthlyRentLabel, r.monthlyRent!.format()));
     }
     if (r.annualRent != null) {
-      items.add((loc.rentAnalysis, r.annualRent!.format()));
+      items.add((loc.annualRentLabel, r.annualRent!.format()));
     }
     if (r.rentalYield != null) {
-      items.add(('Yield', '${r.rentalYield!.toStringAsFixed(1)}%'));
+      items.add((loc.grossRentalYield, '${r.rentalYield!.toStringAsFixed(1)}%'));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -973,19 +1154,19 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     final i = report.investment!;
     final items = <(String, String)>[];
     if (i.expectedRentalYield != null) {
-      items.add(('Yield', '${i.expectedRentalYield!.toStringAsFixed(1)}%'));
+      items.add((loc.rentalYieldLabel, '${i.expectedRentalYield!.toStringAsFixed(1)}%'));
     }
     if (i.grossYield != null) {
-      items.add(('Gross', '${i.grossYield!.toStringAsFixed(1)}%'));
+      items.add((loc.grossRentalYield, '${i.grossYield!.toStringAsFixed(1)}%'));
     }
     if (i.netYield != null) {
-      items.add(('Net', '${i.netYield!.toStringAsFixed(1)}%'));
+      items.add(('Net ${loc.rentalYieldLabel}', '${i.netYield!.toStringAsFixed(1)}%'));
     }
     if (i.roi != null) {
-      items.add(('ROI', '${i.roi!.toStringAsFixed(1)}%'));
+      items.add((loc.roiLabel, '${i.roi!.toStringAsFixed(1)}%'));
     }
     if (i.estimatedAnnualRent != null) {
-      items.add(('Annual rent', i.estimatedAnnualRent!.format()));
+      items.add((loc.annualRentLabel, i.estimatedAnnualRent!.format()));
     }
     return FactGrid(items: items);
   }
@@ -1120,13 +1301,14 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
   }
 
   Widget _buildClimate(PropertyReport report, ThemeData theme) {
+    final loc = AppLocalizations.of(context);
     final c = report.surroundings.climateRisk!;
     return FactGrid(
       items: [
-        if (c.floodRisk != null) ('Flood', c.floodRisk!),
-        if (c.extremeHeat != null) ('Heat', c.extremeHeat!),
-        if (c.wildfire != null) ('Wildfire', c.wildfire!),
-        if (c.waterRisk != null) ('Water', c.waterRisk!),
+        if (c.floodRisk != null) (loc.floodRiskLabel, c.floodRisk!),
+        if (c.extremeHeat != null) (loc.heatRiskLabel, c.extremeHeat!),
+        if (c.wildfire != null) (loc.wildfireRiskLabel, c.wildfire!),
+        if (c.waterRisk != null) (loc.waterRiskLabel, c.waterRisk!),
       ],
     );
   }
@@ -1179,7 +1361,7 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
     final loc = AppLocalizations.of(context);
-    Fluttertoast.showToast(msg: '${loc.shareProperty}: copied');
+    Fluttertoast.showToast(msg: loc.linkCopied);
   }
 
   Future<void> _contactSales() async {

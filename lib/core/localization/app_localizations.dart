@@ -1510,6 +1510,10 @@ class AppLocalizations {
   );
   String get locationHierarchy => _t(en: 'Location', ar: 'الموقع', ku: 'شوێن');
   String get mapSection => _t(en: 'Map', ar: 'الخريطة', ku: 'نەخشە');
+  String get mapStreet => _t(en: 'Street', ar: 'شارع', ku: 'شەقام');
+  String get mapSatellite =>
+      _t(en: 'Satellite', ar: 'قمر صناعي', ku: 'مانگی دەستکرد');
+  String get mapTerrain => _t(en: 'Terrain', ar: 'تضاريس', ku: 'ڕەق');
   String get yesLabel => _t(en: 'Yes', ar: 'نعم', ku: 'بەڵێ');
   String get noLabel => _t(en: 'No', ar: 'لا', ku: 'نەخێر');
   String get elevator => _t(en: 'Elevator', ar: 'مصعد', ku: 'ئاسانسۆر');
@@ -1517,6 +1521,245 @@ class AppLocalizations {
   String get balcony => _t(en: 'Balcony', ar: 'شرفة', ku: 'باڵکۆن');
   String get garden => _t(en: 'Garden', ar: 'حديقة', ku: 'باخچە');
   String get pool => _t(en: 'Pool', ar: 'مسبح', ku: 'مەلەوانگە');
+
+  // ─── Property report extended ─────────────────────────────────────────────
+  String get moreDetails =>
+      _t(en: 'More details', ar: 'المزيد من التفاصيل', ku: 'وردەکاری زیاتر');
+  String get viewDetails =>
+      _t(en: 'View report', ar: 'عرض التقرير', ku: 'بینینی ڕاپۆرت');
+  String get propertyIdLabel =>
+      _t(en: 'Property ID', ar: 'رقم العقار', ku: 'ژمارەی خانووبەرە');
+  String get listingIdLabel =>
+      _t(en: 'Listing ID', ar: 'رقم الإعلان', ku: 'ژمارەی ڕێکلام');
+  String get dimensionsSection =>
+      _t(en: 'Dimensions', ar: 'الأبعاد', ku: 'قەبارەکان');
+  String get constructionSection => _t(
+    en: 'Construction',
+    ar: 'معلومات البناء',
+    ku: 'زانیاری دروستکردن',
+  );
+  String get builderSection => _t(
+    en: 'Builder & Developer',
+    ar: 'المقاول والمطور',
+    ku: 'بیناس و گەشەپێدەر',
+  );
+  String get listingInfoSection => _t(
+    en: 'Listing Information',
+    ar: 'معلومات الإعلان',
+    ku: 'زانیاری ڕێکلام',
+  );
+  String get verificationSection => _t(
+    en: 'Verification',
+    ar: 'التحقق',
+    ku: 'پشتڕاستکردنەوە',
+  );
+  String get marketAnalyticsSection => _t(
+    en: 'Market Analytics',
+    ar: 'تحليلات السوق',
+    ku: 'شیکاری بازاڕ',
+  );
+  String get locationIntelligence => _t(
+    en: 'Location Intelligence',
+    ar: 'ذكاء الموقع',
+    ku: 'زیرەکی شوێن',
+  );
+  String get reportOverview => _t(
+    en: 'Property Overview',
+    ar: 'نظرة عامة',
+    ku: 'پێشبینی گشتی',
+  );
+  String get compareProperty => _t(
+    en: 'Compare',
+    ar: 'مقارنة',
+    ku: 'بەراورد',
+  );
+  String get informationUnavailable => _t(
+    en: 'Information unavailable',
+    ar: 'المعلومات غير متوفرة',
+    ku: 'زانیاری بەردەست نییە',
+  );
+  String get favoriteAdded => _t(
+    en: 'Added to favorites',
+    ar: 'تمت الإضافة إلى المفضلة',
+    ku: 'زیادکرا بۆ دڵخوازەکان',
+  );
+  String get favoriteRemoved => _t(
+    en: 'Removed from favorites',
+    ar: 'تمت الإزالة من المفضلة',
+    ku: 'لابرا لە دڵخوازەکان',
+  );
+  String get livingRoom =>
+      _t(en: 'Living Room', ar: 'الصالة', ku: 'ژووری دانیشتن');
+  String get propertyAreaShort =>
+      _t(en: 'Area', ar: 'المساحة', ku: 'ڕووبەر');
+  String get kitchen => _t(en: 'Kitchen', ar: 'المطبخ', ku: 'چێشتخانە');
+  String get bedroom => _t(en: 'Bedroom', ar: 'غرفة نوم', ku: 'ژووری نوستن');
+  String get masterBedroom =>
+      _t(en: 'Master Bedroom', ar: 'غرفة النوم الرئيسية', ku: 'ژووری سەرەکی');
+  String get garage => _t(en: 'Garage', ar: 'كراج', ku: 'گاراج');
+  String get roof => _t(en: 'Roof', ar: 'السطح', ku: 'سەقف');
+  String get viewLabel => _t(en: 'View', ar: 'الإطلالة', ku: 'دیمەن');
+  String get street => _t(en: 'Street', ar: 'الشارع', ku: 'شەقام');
+  String get commercialArea =>
+      _t(en: 'Commercial Area', ar: 'منطقة تجارية', ku: 'ناوچەی بازرگانی');
+  String get renovationBefore =>
+      _t(en: 'Before Renovation', ar: 'قبل التجديد', ku: 'پێش نوێکردنەوە');
+  String get renovationAfter =>
+      _t(en: 'After Renovation', ar: 'بعد التجديد', ku: 'دوای نوێکردنەوە');
+  String get otherLabel => _t(en: 'Other', ar: 'أخرى', ku: 'هیتر');
+  String get entrance =>
+      _t(en: 'Entrance', ar: 'المدخل', ku: 'دەرگا');
+  String get landLength =>
+      _t(en: 'Land Length', ar: 'طول الأرض', ku: 'درێژی زەوی');
+  String get landWidth =>
+      _t(en: 'Land Width', ar: 'عرض الأرض', ku: 'پانی زەوی');
+  String get buildingLength =>
+      _t(en: 'Building Length', ar: 'طول المبنى', ku: 'درێژی بینا');
+  String get buildingWidth =>
+      _t(en: 'Building Width', ar: 'عرض المبنى', ku: 'پانی بینا');
+  String get frontage =>
+      _t(en: 'Frontage', ar: 'واجهة الشارع', ku: 'ڕووی شەقام');
+  String get rearWidth =>
+      _t(en: 'Rear Width', ar: 'عرض الخلف', ku: 'پانی پشتەوە');
+  String get sideLength =>
+      _t(en: 'Side Length', ar: 'طول الجانب', ku: 'درێژی لateral');
+  String get streetWidth =>
+      _t(en: 'Street Width', ar: 'عرض الشارع', ku: 'پانی شەقام');
+  String get setback =>
+      _t(en: 'Setback', ar: 'ارتداد', ku: 'دوورکەوتن');
+  String get buildingHeight =>
+      _t(en: 'Building Height', ar: 'ارتفاع المبنى', ku: 'بەرزی بینا');
+  String get ceilingHeight =>
+      _t(en: 'Ceiling Height', ar: 'ارتفاع السقف', ku: 'بەرزی سقف');
+  String get roomArea =>
+      _t(en: 'Room Area', ar: 'مساحة الغرفة', ku: 'ڕووبەری ژوور');
+  String get latitudeLabel =>
+      _t(en: 'Latitude', ar: 'خط العرض', ku: 'پانی');
+  String get longitudeLabel =>
+      _t(en: 'Longitude', ar: 'خط الطول', ku: 'درێژی');
+  String get elevationLabel =>
+      _t(en: 'Elevation', ar: 'الارتفاع', ku: 'بەرزی');
+  String get provinceLabel =>
+      _t(en: 'Province', ar: 'المحافظة', ku: 'پارێزگا');
+  String get propertyVerifiedLabel => _t(
+    en: 'Property Verified',
+    ar: 'العقار موثق',
+    ku: 'خانووبەرە پشتڕاستکراوە',
+  );
+  String get locationVerifiedLabel => _t(
+    en: 'Location Verified',
+    ar: 'الموقع موثق',
+    ku: 'شوێن پشتڕاستکراوە',
+  );
+  String get informationVerifiedLabel => _t(
+    en: 'Information Verified',
+    ar: 'المعلومات موثقة',
+    ku: 'زانیاری پشتڕاستکراوە',
+  );
+  String get documentsVerifiedLabel => _t(
+    en: 'Documents Verified',
+    ar: 'المستندات موثقة',
+    ku: 'بەڵگە پشتڕاستکراوە',
+  );
+  String get photosVerifiedLabel => _t(
+    en: 'Photos Verified',
+    ar: 'الصور موثقة',
+    ku: 'وێنەکان پشتڕاستکراون',
+  );
+  String get viewsLabel => _t(en: 'Views', ar: 'المشاهدات', ku: 'بینین');
+  String get savesLabel => _t(en: 'Saves', ar: 'الحفظ', ku: 'پاشەکەوت');
+  String get sharesLabel => _t(en: 'Shares', ar: 'المشاركات', ku: 'هاوبەشکردن');
+  String get publishedDateLabel =>
+      _t(en: 'Published', ar: 'تاريخ النشر', ku: 'بڵاوکراوەتەوە');
+  String get grossRentalYield => _t(
+    en: 'Gross Rental Yield',
+    ar: 'العائد الإيجاري الإجمالي',
+    ku: 'داهاتی کرێی گشتی',
+  );
+  String get rentalYieldLabel =>
+      _t(en: 'Rental Yield', ar: 'العائد الإيجاري', ku: 'داهاتی کرێ');
+  String get monthlyRentLabel =>
+      _t(en: 'Monthly Rent', ar: 'الإيجار الشهري', ku: 'کرێی مانگانە');
+  String get annualRentLabel =>
+      _t(en: 'Annual Rent', ar: 'الإيجار السنوي', ku: 'کرێی ساڵانە');
+  String get roiLabel => _t(en: 'ROI', ar: 'العائد على الاستثمار', ku: 'ROI');
+  String get compareComingSoon => _t(
+    en: 'Property comparison will be available soon.',
+    ar: 'مقارنة العقارات ستتوفر قريباً.',
+    ku: 'بەراوردکردنی خانووبەرە بەم زووانە بەردەست دەبێت.',
+  );
+  String get linkCopied => _t(
+    en: 'Link copied',
+    ar: 'تم نسخ الرابط',
+    ku: 'بەستەر کۆپی کرا',
+  );
+  String get companyNameLabel =>
+      _t(en: 'Company', ar: 'الشركة', ku: 'کۆمپانیا');
+  String get contractorLabel =>
+      _t(en: 'Contractor', ar: 'المقاول', ku: 'بیناس');
+  String get architectLabel =>
+      _t(en: 'Architect', ar: 'المهندس المعماري', ku: 'ئەندازیاری بیناسازی');
+  String get developerLabel =>
+      _t(en: 'Developer', ar: 'المطور', ku: 'گەشەپێدەر');
+  String get projectNameLabel =>
+      _t(en: 'Project', ar: 'المشروع', ku: 'پڕۆژە');
+  String get constructionStatusLabel => _t(
+    en: 'Construction Status',
+    ar: 'حالة البناء',
+    ku: 'دۆخی دروستکردن',
+  );
+  String get structureTypeLabel =>
+      _t(en: 'Structure Type', ar: 'نوع الهيكل', ku: 'جۆری پێکهاتە');
+  String get foundationTypeLabel =>
+      _t(en: 'Foundation', ar: 'الأساس', ku: 'بناغە');
+  String get roofTypeLabel =>
+      _t(en: 'Roof Type', ar: 'نوع السقف', ku: 'جۆری سەقف');
+  String get materialLabel =>
+      _t(en: 'Material', ar: 'المادة', ku: 'ماددە');
+  String get lastMaintenanceLabel => _t(
+    en: 'Last Maintenance',
+    ar: 'آخر صيانة',
+    ku: 'دوایین چاککردنەوە',
+  );
+  String get lastRenovationLabel => _t(
+    en: 'Last Renovation',
+    ar: 'آخر تجديد',
+    ku: 'دوایین نوێکردنەوە',
+  );
+  String get averagePriceArea => _t(
+    en: 'Average Price in Area',
+    ar: 'متوسط السعر في المنطقة',
+    ku: 'ناوەندی نرخ لە ناوچە',
+  );
+  String get daysOnMarketLabel =>
+      _t(en: 'Days on Market', ar: 'أيام في السوق', ku: 'ڕۆژ لە بازاڕ');
+  String get demandLabel => _t(en: 'Demand', ar: 'الطلب', ku: 'داواکاری');
+  String get priceTrendLabel =>
+      _t(en: 'Price Trend', ar: 'اتجاه السعر', ku: 'ڕەوتی نرخ');
+  String get floodRiskLabel =>
+      _t(en: 'Flood Risk', ar: 'خطر الفيضان', ku: 'مەترسی لافتن');
+  String get heatRiskLabel =>
+      _t(en: 'Heat Risk', ar: 'خطر الحرارة', ku: 'مەترسی گەرمی');
+  String get wildfireRiskLabel =>
+      _t(en: 'Wildfire Risk', ar: 'خطر الحرائق', ku: 'مەترسی ئاگر');
+  String get waterRiskLabel =>
+      _t(en: 'Water Risk', ar: 'خطر المياه', ku: 'مەترسی ئاو');
+  String get scheduleVisit =>
+      _t(en: 'Schedule a Visit', ar: 'حجز زيارة', ku: 'سەردان پلان بکە');
+  String get contactSalesTeam => _t(
+    en: 'Contact Sales Team',
+    ar: 'تواصل مع فريق المبيعات',
+    ku: 'پەیوەندی بە تیمی فرۆشتن',
+  );
+  String get engineeringOfficeLabel => _t(
+    en: 'Engineering Office',
+    ar: 'المكتب الهندسي',
+    ku: 'ئۆفیسی ئەندازیاری',
+  );
+  String get districtLabel =>
+      _t(en: 'District', ar: 'المنطقة', ku: 'ناوچە');
+  String get propertyCount =>
+      _t(en: 'Listings', ar: 'الإعلانات', ku: 'ڕێکلامەکان');
 
   // ─── Edit Profile / Messages / Profile copy ───────────────────────────────
   String get editProfileTitle =>
