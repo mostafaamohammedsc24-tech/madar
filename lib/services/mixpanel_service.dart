@@ -207,46 +207,4 @@ class MixpanelService {
       },
     );
   }
-
-  // ── Employee Onboarding Events ────────────────────────────────────────────────
-
-  void trackOnboardingStarted({
-    required String employeeId,
-    required String role,
-  }) {
-    track(
-      'Employee Onboarding Started',
-      properties: {'employee_id': employeeId, 'role': role},
-    );
-  }
-
-  void trackOnboardingStepCompleted({
-    required String employeeId,
-    required int step,
-    required String stepName,
-  }) {
-    track(
-      'Onboarding Step Completed',
-      properties: {
-        'employee_id': employeeId,
-        'step': step,
-        'step_name': stepName,
-      },
-    );
-  }
-
-  void trackOnboardingCompleted({
-    required String employeeId,
-    required String role,
-    required String country,
-  }) {
-    track(
-      'Employee Onboarding Completed',
-      properties: {'employee_id': employeeId, 'role': role, 'country': country},
-    );
-    try {
-      _mixpanel?.getPeople().set('onboarding_completed', true);
-      _mixpanel?.getPeople().set('employee_role', role);
-    } catch (_) {}
-  }
 }

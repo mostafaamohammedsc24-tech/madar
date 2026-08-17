@@ -5,6 +5,7 @@ import 'package:provider/provider.dart' as provider;
 import './core/localization/app_localizations.dart';
 import './core/localization/locale_provider.dart';
 import './providers/country_context_provider.dart';
+import './features/authentication/routing/auth_globals.dart';
 import './services/mixpanel_service.dart';
 import './services/supabase_service.dart';
 import './widgets/custom_error_widget.dart';
@@ -55,6 +56,7 @@ void main() async {
             provider.ChangeNotifierProvider(
               create: (_) => CountryContextProvider(),
             ),
+            provider.ChangeNotifierProvider.value(value: userAuthNotifier),
           ],
           child: const MyApp(),
         ),
