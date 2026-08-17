@@ -40,9 +40,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   Set<Polyline> _polylines = {};
   final List<LatLng> _drawingPoints = [];
   double _currentZoom = 12.5;
-  bool _overlayReady = false;
-  bool _syncingOverlay = false;
-  List<_OverlayPin> _overlayPins = [];
+  DateTime? _lastPinSelectAt;
   static const bool _useWebMapFallback = false;
 
   static const String _cleanMapStyle = '''
@@ -80,7 +78,6 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     if (old.properties != widget.properties ||
         old.selectedPropertyId != widget.selectedPropertyId) {
       _buildMarkers();
-      _scheduleOverlaySync();
     }
     if (!widget.isDrawingMode && old.isDrawingMode) {
       _clearDrawing();
@@ -235,7 +232,8 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
         icon: icon,
         anchor: const Offset(0.5, 0.5),
         zIndexInt: selected ? 10 : 1,
-        onTap: () => widget.onPropertyTap(p),
+        consumeTapEvents: true,
+        onTap: () => _emitPinTap(p),
       );
     });
 
@@ -264,56 +262,57 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
       });
       return;
     }
+    _selectNearestPin(position);
+  }
+
+  Future<void> _selectNearestPin(LatLng position) async {
+    final controller = _mapController;
+    if (controller == null || widget.properties.isEmpty) {
+      widget.onBackgroundTap?.call();
+      return;
+    }
+
+    try {
+      final tap = await controller.getScreenCoordinate(position);
+      PropertyData? nearest;
+      var best = 70.0 * 70.0;
+      for (final property in widget.properties) {
+        final coord = await controller.getScreenCoordinate(
+          LatLng(property.lat, property.lng),
+        );
+        final dx = (coord.x - tap.x).toDouble();
+        final dy = (coord.y - tap.y).toDouble();
+        final dist = dx * dx + dy * dy;
+        if (dist < best) {
+          best = dist;
+          nearest = property;
+        }
+      }
+      if (nearest != null) {
+        _emitPinTap(nearest);
+        return;
+      }
+    } catch (_) {}
+    if (_lastPinSelectAt != null &&
+        DateTime.now().difference(_lastPinSelectAt!) <
+            const Duration(milliseconds: 400)) {
+      return;
+    }
     widget.onBackgroundTap?.call();
+  }
+
+  void _emitPinTap(PropertyData property) {
+    _lastPinSelectAt = DateTime.now();
+    widget.onPropertyTap(property);
   }
 
   void _onCameraMove(CameraPosition position) {
     _currentZoom = position.zoom;
-    _scheduleOverlaySync();
   }
 
   void _onCameraIdle() {
     widget.onZoomChanged?.call(_currentZoom);
     _buildMarkers();
-    _scheduleOverlaySync();
-  }
-
-  void _scheduleOverlaySync() {
-    if (_useWebMapFallback || _syncingOverlay) return;
-    _syncingOverlay = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _syncOverlayPins();
-      _syncingOverlay = false;
-    });
-  }
-
-  Future<void> _syncOverlayPins() async {
-    final controller = _mapController;
-    if (controller == null || !mounted) return;
-    final dpr = MediaQuery.devicePixelRatioOf(context);
-    final size = MediaQuery.sizeOf(context);
-    final pins = <_OverlayPin>[];
-    for (final p in widget.properties) {
-      try {
-        final coord = await controller.getScreenCoordinate(
-          LatLng(p.lat, p.lng),
-        );
-        final dx = coord.x / dpr;
-        final dy = coord.y / dpr;
-        if (dx < -90 ||
-            dy < -90 ||
-            dx > size.width + 90 ||
-            dy > size.height + 90) {
-          continue;
-        }
-        pins.add(_OverlayPin(property: p, offset: Offset(dx, dy)));
-      } catch (_) {}
-    }
-    if (!mounted) return;
-    setState(() {
-      _overlayPins = pins;
-      _overlayReady = true;
-    });
   }
 
   void completeDrawing() {
@@ -356,7 +355,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
           initialCameraPosition: _baghdadCenter,
           mapType: _getMapType(),
           style: _cleanMapStyle,
-          markers: _overlayReady ? {} : _markers,
+          markers: _markers,
           polygons: _polygons,
           polylines: _polylines,
           myLocationButtonEnabled: false,
@@ -369,27 +368,11 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
           onMapCreated: (controller) {
             _mapController = controller;
             _buildMarkers();
-            _scheduleOverlaySync();
           },
           onTap: _onMapTap,
           onCameraMove: _onCameraMove,
           onCameraIdle: _onCameraIdle,
         ),
-        if (_overlayReady)
-          ..._overlayPins.map((pin) {
-            final selected = pin.property.id == widget.selectedPropertyId;
-            final diameter = selected ? 78.0 : 64.0;
-            return Positioned(
-              left: pin.offset.dx - diameter / 2,
-              top: pin.offset.dy - diameter / 2,
-              child: _CircularPropertyPin(
-                property: pin.property,
-                selected: selected,
-                diameter: diameter,
-                onTap: () => widget.onPropertyTap(pin.property),
-              ),
-            );
-          }),
       ],
     );
   }
@@ -433,13 +416,6 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     _mapController?.dispose();
     super.dispose();
   }
-}
-
-class _OverlayPin {
-  const _OverlayPin({required this.property, required this.offset});
-
-  final PropertyData property;
-  final Offset offset;
 }
 
 class _CircularPropertyPin extends StatelessWidget {

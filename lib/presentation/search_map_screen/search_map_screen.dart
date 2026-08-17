@@ -900,7 +900,9 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                   ),
                   child: ListView(
                     controller: scrollController,
-                    physics: const ClampingScrollPhysics(),
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: ClampingScrollPhysics(),
+                    ),
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
                     children: [
                       Center(
@@ -926,6 +928,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
+                      const SizedBox(height: 160),
                     ],
                   ),
                 );
