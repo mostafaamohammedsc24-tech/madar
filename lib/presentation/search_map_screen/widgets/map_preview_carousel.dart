@@ -1,3 +1,5 @@
+import 'package:pointer_interceptor/pointer_interceptor.dart';
+
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../models/property_data.dart';
@@ -31,7 +33,7 @@ class _MapPreviewCarouselState extends State<MapPreviewCarousel> {
   void initState() {
     super.initState();
     _index = widget.initialIndex.clamp(0, widget.properties.length - 1);
-    _controller = PageController(viewportFraction: 0.92, initialPage: _index);
+    _controller = PageController(viewportFraction: 0.84, initialPage: _index);
   }
 
   @override
@@ -59,7 +61,8 @@ class _MapPreviewCarouselState extends State<MapPreviewCarousel> {
   Widget build(BuildContext context) {
     if (widget.properties.isEmpty) return const SizedBox.shrink();
 
-    return Column(
+    return PointerInterceptor(
+      child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Align(
@@ -74,7 +77,7 @@ class _MapPreviewCarouselState extends State<MapPreviewCarousel> {
           ),
         ),
         SizedBox(
-          height: 286,
+          height: 318,
           child: PageView.builder(
             controller: _controller,
             itemCount: widget.properties.length,
@@ -84,7 +87,7 @@ class _MapPreviewCarouselState extends State<MapPreviewCarousel> {
             },
             itemBuilder: (context, i) {
               return Padding(
-                padding: const EdgeInsetsDirectional.only(end: 8),
+                padding: const EdgeInsetsDirectional.only(end: 10),
                 child: _PreviewCard(
                   property: widget.properties[i],
                   onOpen: () => widget.onOpen(widget.properties[i]),
@@ -93,7 +96,21 @@ class _MapPreviewCarouselState extends State<MapPreviewCarousel> {
             },
           ),
         ),
+        if (widget.properties.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              AppLocalizations.of(context).swipeForMore,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+              ),
+            ),
+          ),
       ],
+    ),
     );
   }
 }
@@ -276,6 +293,22 @@ class _PreviewCardState extends State<_PreviewCard> {
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 36,
+                    child: FilledButton(
+                      onPressed: widget.onOpen,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF1565C0),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(loc.openListing),
                     ),
                   ),
                 ],

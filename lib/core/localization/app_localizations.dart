@@ -65,6 +65,16 @@ class AppLocalizations {
     ar: '$count عقار موجود',
     ku: '$count خانووبەرە دۆزرایەوە',
   );
+  String get swipeForMore => _t(
+    en: 'Swipe for more listings',
+    ar: 'اسحب لعرض المزيد',
+    ku: 'ڕابکێشە بۆ زیاتر',
+  );
+  String get openListing => _t(
+    en: 'View listing',
+    ar: 'عرض العقار',
+    ku: 'بینینی خانووبەرە',
+  );
   String get suggested => _t(en: 'Suggested', ar: 'مقترح', ku: 'پێشنیار');
   String get featured => _t(en: 'Featured', ar: 'مميز', ku: 'تایبەت');
   String get mostPopular =>

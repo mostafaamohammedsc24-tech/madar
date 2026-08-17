@@ -15,6 +15,7 @@ class PropertyDetailSheetWidget extends StatefulWidget {
 class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
   bool _isFavorited = false;
   bool _isTogglingFavorite = false;
+  int _galleryIndex = 0;
 
   @override
   void initState() {
@@ -91,16 +92,47 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                 children: [
                   Stack(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(0),
-                        child: CustomImageWidget(
-                          imageUrl: p.imageUrl,
-                          width: double.infinity,
-                          height: 220,
-                          fit: BoxFit.cover,
-                          semanticLabel: p.semanticLabel,
+                      SizedBox(
+                        height: 220,
+                        width: double.infinity,
+                        child: PageView.builder(
+                          itemCount: p.gallery.length,
+                          onPageChanged: (i) =>
+                              setState(() => _galleryIndex = i),
+                          itemBuilder: (_, i) => CustomImageWidget(
+                            imageUrl: p.gallery[i],
+                            width: double.infinity,
+                            height: 220,
+                            fit: BoxFit.cover,
+                            semanticLabel: p.semanticLabel,
+                          ),
                         ),
                       ),
+                      if (p.gallery.length > 1)
+                        Positioned(
+                          bottom: 10,
+                          left: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(p.gallery.length, (i) {
+                              final active = i == _galleryIndex;
+                              return Container(
+                                width: active ? 8 : 6,
+                                height: 6,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(
+                                    alpha: active ? 1 : 0.5,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
                       Positioned(
                         top: 12,
                         right: 16,

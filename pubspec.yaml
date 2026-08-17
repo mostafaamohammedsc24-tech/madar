@@ -39,6 +39,7 @@ dependencies:
   circle_flags: ^5.0.1
   country_picker: ^2.0.28
   geocoding: ^5.0.0
+  pointer_interceptor: ^0.10.1+2
 
 
 dev_dependencies:

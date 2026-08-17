@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_export.dart';
@@ -940,7 +941,8 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 left: 12,
                 right: 12,
                 bottom: (MediaQuery.sizeOf(context).height * _sheetExtent) + 8,
-                child: AnimatedSwitcher(
+                child: PointerInterceptor(
+                  child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
                   switchInCurve: Curves.easeOutCubic,
                   switchOutCurve: Curves.easeInCubic,
@@ -955,6 +957,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                     onPageChanged: _onPreviewPageChanged,
                     onOpen: _openPropertyDetail,
                     onClose: _closePreview,
+                  ),
                   ),
                 ),
               ),

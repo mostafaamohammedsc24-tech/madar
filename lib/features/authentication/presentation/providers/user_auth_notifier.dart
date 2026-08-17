@@ -39,18 +39,18 @@ class UserAuthNotifier extends ChangeNotifier {
 
   UserAuthState get state => _state;
 
-  /// Local preview only: enter the consumer shell without Supabase OTP.
+  bool get _isDemoUi => const bool.fromEnvironment(
+        'DEMO_ENTER_USER_UI',
+        defaultValue: false,
+      );
+
+  /// Local preview only: walk the real auth screens, then enter the user shell.
   /// Enabled with `--dart-define=DEMO_ENTER_USER_UI=true`.
   Future<void> enterDemoUserInterface() async {
-    const enabled = bool.fromEnvironment(
-      'DEMO_ENTER_USER_UI',
-      defaultValue: false,
-    );
-    if (!enabled) return;
+    if (!_isDemoUi) return;
     _setState(
       _state.copyWith(
-        status: UserAuthStatus.authenticated,
-        userId: 'demo-user-local',
+        status: UserAuthStatus.awaitingRegionSetup,
         selectedCountry: authCountryByIso('IQ'),
         selectedLanguage: AppLanguage.arabic,
         selectedCurrencyCode: 'IQD',
@@ -61,11 +61,7 @@ class UserAuthNotifier extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
-    const demo = bool.fromEnvironment(
-      'DEMO_ENTER_USER_UI',
-      defaultValue: false,
-    );
-    if (demo) {
+    if (_isDemoUi) {
       await enterDemoUserInterface();
       return;
     }
@@ -288,6 +284,18 @@ class UserAuthNotifier extends ChangeNotifier {
         countryCode: _state.selectedCountry.dialCode,
       );
 
+      if (_isDemoUi) {
+        _startResendCountdown();
+        _setState(
+          _state.copyWith(
+            status: UserAuthStatus.awaitingOtpVerification,
+            isBusy: false,
+            clearMessage: true,
+          ),
+        );
+        return;
+      }
+
       await _repository.sendPhoneOtp(_state.fullPhoneNumber);
 
       MixpanelService.instance.trackOtpSent(
@@ -326,6 +334,20 @@ class UserAuthNotifier extends ChangeNotifier {
     _setState(_state.copyWith(isBusy: true, clearMessage: true));
 
     try {
+      if (_isDemoUi) {
+        const userId = 'demo-user-local';
+        _stopResendCountdown();
+        _setState(
+          _state.copyWith(
+            status: UserAuthStatus.awaitingFaceVerification,
+            userId: userId,
+            isBusy: false,
+            clearMessage: true,
+          ),
+        );
+        return;
+      }
+
       final userId = await _repository.verifyPhoneOtp(
         fullPhoneNumber: _state.fullPhoneNumber,
         otp: otp,
