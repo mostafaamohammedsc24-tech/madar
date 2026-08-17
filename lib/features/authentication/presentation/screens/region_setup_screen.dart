@@ -11,6 +11,7 @@ import '../providers/user_auth_notifier.dart';
 import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/auth_header.dart';
+import '../widgets/auth_welcome_chip.dart';
 import '../widgets/demo_auto_advance.dart';
 import '../widgets/primary_auth_button.dart';
 
@@ -41,15 +42,8 @@ class RegionSetupScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            loc.authWelcome,
-            style: const TextStyle(
-              color: Color(0xFF1565C0),
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: AuthSpacing.sm),
+          AuthWelcomeChip(label: loc.authWelcome),
+          const SizedBox(height: AuthSpacing.lg),
           AuthHeader(
             title: loc.authRegionTitle,
             subtitle: loc.authRegionSubtitle,
@@ -74,8 +68,8 @@ class RegionSetupScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AuthSpacing.md,
-                  vertical: AuthSpacing.md,
+                  horizontal: AuthSpacing.lg,
+                  vertical: 18,
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
@@ -85,7 +79,7 @@ class RegionSetupScreen extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.public_outlined,
-                      size: 22,
+                      size: 28,
                       color: Color(0xFF1565C0),
                     ),
                     const SizedBox(width: AuthSpacing.md),
@@ -100,8 +94,9 @@ class RegionSetupScreen extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             state.selectedCountry.localizedNameFromLoc(loc),
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
                             ),
                           ),
                         ],
@@ -109,7 +104,7 @@ class RegionSetupScreen extends StatelessWidget {
                     ),
                     CountryFlagWidget(
                       countryCode: state.selectedCountry.isoCode,
-                      size: 22,
+                      size: 28,
                     ),
                     const SizedBox(width: AuthSpacing.sm),
                     DirectionalChevronIcon(

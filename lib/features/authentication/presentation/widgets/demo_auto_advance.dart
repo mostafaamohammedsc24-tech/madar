@@ -13,8 +13,9 @@ class DemoAutoAdvance extends StatefulWidget {
   final Widget child;
   final Duration delay;
 
+  /// Recording-only. Keep off so people can inspect login screens themselves.
   static const bool enabled = bool.fromEnvironment(
-    'DEMO_ENTER_USER_UI',
+    'DEMO_AUTO_ADVANCE',
     defaultValue: false,
   );
 

@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/demo/demo_mode.dart';
+import '../../../../services/app_demo_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../../domain/models/office_models.dart';
 
@@ -106,6 +108,16 @@ class OfficeRepository {
     required String officeCode,
     required String secretCode,
   }) async {
+    if (DemoMode.enabled &&
+        officeCode.trim().toUpperCase() == DemoMode.officeCode &&
+        secretCode == DemoMode.secret) {
+      final session = OfficeSession(
+        token: 'demo-office-token',
+        office: AppDemoSeed.officeAccount(),
+      );
+      await _persistSession(session);
+      return (success: true, message: null, session: session);
+    }
     try {
       final result = await _supabase.client.rpc(
         'office_login',
@@ -150,6 +162,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> loadOfficeAssignedProperties() async {
+    if (DemoMode.enabled) return AppDemoSeed.officeAssignedProperties();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -263,6 +276,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeReferral>> listReferrals() async {
+    if (DemoMode.enabled) return AppDemoSeed.officeReferrals();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -280,6 +294,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficePropertyReport>> listReports() async {
+    if (DemoMode.enabled) return AppDemoSeed.officeReports();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -299,6 +314,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeConversation>> listConversations() async {
+    if (DemoMode.enabled) return AppDemoSeed.officeConversations();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -316,6 +332,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeMessage>> listMessages(String conversationId) async {
+    if (DemoMode.enabled) return AppDemoSeed.officeMessages(conversationId);
     try {
       final rows = await _supabase.client
           .from('office_messages')
@@ -356,6 +373,7 @@ class OfficeRepository {
   }
 
   Future<OfficeSalesSummary> salesSummaryThisMonth() async {
+    if (DemoMode.enabled) return AppDemoSeed.officeSalesSummary();
     if (_office == null) {
       return const OfficeSalesSummary(
         salesThisMonth: 0,
@@ -406,6 +424,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listOfficeTransactions() async {
+    if (DemoMode.enabled) return AppDemoSeed.officeTransactions();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -475,6 +494,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listNotifications() async {
+    if (DemoMode.enabled) return AppDemoSeed.officeNotifications();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -502,6 +522,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listDocuments() async {
+    if (DemoMode.enabled) return AppDemoSeed.officeDocuments();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client

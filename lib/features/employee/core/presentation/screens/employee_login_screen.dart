@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../core/demo/demo_mode.dart';
 import '../../../../../core/localization/app_localizations.dart';
 import '../../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../../authentication/presentation/widgets/auth_container.dart';
 import '../../../../authentication/presentation/widgets/auth_error_banner.dart';
 import '../../../../authentication/presentation/widgets/auth_header.dart';
+import '../../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../../authentication/presentation/widgets/auth_welcome_chip.dart';
 import '../../../../authentication/presentation/widgets/primary_auth_button.dart';
 import '../../../../../widgets/language_selector_sheet.dart';
 import '../providers/employee_auth_notifier.dart';
@@ -19,8 +22,12 @@ class EmployeeLoginScreen extends StatefulWidget {
 }
 
 class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
-  final _idCtrl = TextEditingController();
-  final _secretCtrl = TextEditingController();
+  final _idCtrl = TextEditingController(
+    text: DemoMode.enabled ? DemoMode.employeeCode : '',
+  );
+  final _secretCtrl = TextEditingController(
+    text: DemoMode.enabled ? DemoMode.secret : '',
+  );
   bool _obscure = true;
 
   @override
@@ -65,15 +72,8 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              loc.empWelcome,
-              style: const TextStyle(
-                color: Color(0xFF1565C0),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: AuthSpacing.sm),
+            AuthWelcomeChip(label: loc.empWelcome),
+            const SizedBox(height: AuthSpacing.lg),
             AuthHeader(
               title: loc.empLoginTitle,
               subtitle: loc.empLoginSubtitle,
@@ -81,40 +81,39 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
             const SizedBox(height: AuthSpacing.xl),
             Text(loc.empIdLabel, style: AuthTypography.caption(context)),
             const SizedBox(height: AuthSpacing.sm),
-            TextField(
+            AuthTextField(
               controller: _idCtrl,
+              hintText: loc.empIdHint,
               textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                hintText: loc.empIdHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                ),
-              ),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: AuthSpacing.lg),
             Text(loc.empSecretLabel, style: AuthTypography.caption(context)),
             const SizedBox(height: AuthSpacing.sm),
-            TextField(
+            AuthTextField(
               controller: _secretCtrl,
+              hintText: loc.empSecretHint,
               obscureText: _obscure,
-              decoration: InputDecoration(
-                hintText: loc.empSecretHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                ),
-                suffixIcon: IconButton(
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                  icon: Icon(
-                    _obscure
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                  ),
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _obscure = !_obscure),
+                icon: Icon(
+                  _obscure
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                 ),
               ),
               onChanged: (_) => setState(() {}),
               onSubmitted: canSubmit ? (_) => _submit(auth) : null,
             ),
+            if (DemoMode.enabled) ...[
+              const SizedBox(height: AuthSpacing.md),
+              Text(
+                '${DemoMode.employeeCode} / ${DemoMode.secret}',
+                style: AuthTypography.caption(context).copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
             if (auth.message != null) ...[
               const SizedBox(height: AuthSpacing.md),
               AuthErrorBanner(message: _error(loc, auth.message)),

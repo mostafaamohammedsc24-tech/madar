@@ -61,7 +61,7 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
     return Container(
       height: AuthSpacing.inputHeight,
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: const Color(0xFFF7F9FC),
         borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
         border: Border.all(color: theme.colorScheme.outline),
       ),
@@ -81,7 +81,7 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
                   children: [
                     CountryFlagWidget(
                       countryCode: widget.country.isoCode,
-                      size: 18,
+                      size: 22,
                     ),
                     const SizedBox(width: AuthSpacing.sm),
                     Text(
@@ -117,8 +117,9 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
                 LengthLimitingTextInputFormatter(widget.country.maxPhoneLength),
               ],
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.5,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                letterSpacing: 0.6,
               ),
               decoration: InputDecoration(
                 hintText: widget.country.phonePlaceholder,

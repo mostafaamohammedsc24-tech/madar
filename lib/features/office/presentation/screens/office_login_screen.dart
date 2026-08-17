@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/demo/demo_mode.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../widgets/language_selector_sheet.dart';
 import '../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../authentication/presentation/widgets/auth_container.dart';
 import '../../../authentication/presentation/widgets/auth_error_banner.dart';
 import '../../../authentication/presentation/widgets/auth_header.dart';
+import '../../../authentication/presentation/widgets/auth_text_field.dart';
+import '../../../authentication/presentation/widgets/auth_welcome_chip.dart';
 import '../../../authentication/presentation/widgets/primary_auth_button.dart';
 import '../providers/office_auth_notifier.dart';
 
@@ -19,8 +22,12 @@ class OfficeLoginScreen extends StatefulWidget {
 }
 
 class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
-  final _codeCtrl = TextEditingController();
-  final _secretCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController(
+    text: DemoMode.enabled ? DemoMode.officeCode : '',
+  );
+  final _secretCtrl = TextEditingController(
+    text: DemoMode.enabled ? DemoMode.secret : '',
+  );
   bool _obscure = true;
 
   @override
@@ -68,15 +75,8 @@ class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              loc.officeWelcome,
-              style: const TextStyle(
-                color: Color(0xFF1565C0),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: AuthSpacing.sm),
+            AuthWelcomeChip(label: loc.officeWelcome),
+            const SizedBox(height: AuthSpacing.lg),
             AuthHeader(
               title: loc.officeLoginTitle,
               subtitle: loc.officeLoginSubtitle,
@@ -84,38 +84,39 @@ class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
             const SizedBox(height: AuthSpacing.xl),
             Text(loc.officeCodeLabel, style: AuthTypography.caption(context)),
             const SizedBox(height: AuthSpacing.sm),
-            TextField(
+            AuthTextField(
               controller: _codeCtrl,
+              hintText: loc.officeCodeHint,
               textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                hintText: loc.officeCodeHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                ),
-              ),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: AuthSpacing.lg),
             Text(loc.officeSecretLabel, style: AuthTypography.caption(context)),
             const SizedBox(height: AuthSpacing.sm),
-            TextField(
+            AuthTextField(
               controller: _secretCtrl,
+              hintText: loc.officeSecretHint,
               obscureText: _obscure,
-              decoration: InputDecoration(
-                hintText: loc.officeSecretHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                ),
-                suffixIcon: IconButton(
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                  icon: Icon(
-                    _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  ),
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _obscure = !_obscure),
+                icon: Icon(
+                  _obscure
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                 ),
               ),
               onChanged: (_) => setState(() {}),
               onSubmitted: canSubmit ? (_) => _submit(auth) : null,
             ),
+            if (DemoMode.enabled) ...[
+              const SizedBox(height: AuthSpacing.md),
+              Text(
+                '${DemoMode.officeCode} / ${DemoMode.secret}',
+                style: AuthTypography.caption(context).copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
             if (auth.message != null) ...[
               const SizedBox(height: AuthSpacing.md),
               AuthErrorBanner(message: _friendlyError(loc, auth.message)),

@@ -35,6 +35,7 @@ class PrimaryAuthButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
           ),
           elevation: 0,
+          shadowColor: Colors.transparent,
         ),
         child: isLoading
             ? SizedBox(

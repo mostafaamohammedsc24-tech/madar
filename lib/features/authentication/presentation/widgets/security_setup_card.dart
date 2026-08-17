@@ -30,13 +30,13 @@ class SecuritySetupCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.45),
-              borderRadius: BorderRadius.circular(AuthSpacing.radiusSm),
+              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
             ),
-            child: Icon(icon, color: theme.colorScheme.primary),
+            child: Icon(icon, color: theme.colorScheme.primary, size: 32),
           ),
           const SizedBox(height: AuthSpacing.md),
           Text(title, style: AuthTypography.heading(context)),

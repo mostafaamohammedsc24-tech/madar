@@ -38,9 +38,9 @@ class PartnerEntrySection extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => context.push('/office-login'),
                 style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
+                  minimumSize: const Size.fromHeight(52),
                   foregroundColor: const Color(0xFF1565C0),
-                  side: const BorderSide(color: Color(0xFF1565C0)),
+                  side: const BorderSide(color: Color(0xFF1565C0), width: 1.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
                   ),
@@ -49,6 +49,7 @@ class PartnerEntrySection extends StatelessWidget {
                   loc.officeEntryCta,
                   style: AuthTypography.button(context).copyWith(
                     color: const Color(0xFF1565C0),
+                    fontSize: 15,
                   ),
                 ),
               ),
@@ -58,9 +59,9 @@ class PartnerEntrySection extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => context.push('/employee-login'),
                 style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
+                  minimumSize: const Size.fromHeight(52),
                   foregroundColor: const Color(0xFF1565C0),
-                  side: const BorderSide(color: Color(0xFF1565C0)),
+                  side: const BorderSide(color: Color(0xFF1565C0), width: 1.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
                   ),
@@ -69,6 +70,7 @@ class PartnerEntrySection extends StatelessWidget {
                   loc.employeeEntryCta,
                   style: AuthTypography.button(context).copyWith(
                     color: const Color(0xFF1565C0),
+                    fontSize: 15,
                   ),
                 ),
               ),

@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/demo/demo_mode.dart';
+import '../../../../services/app_demo_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../domain/employee_models.dart';
 import '../domain/employee_permissions.dart';
@@ -120,6 +122,16 @@ class EmployeeRepository {
     required String employeeCode,
     required String secretCode,
   }) async {
+    if (DemoMode.enabled &&
+        employeeCode.trim().toUpperCase() == DemoMode.employeeCode &&
+        secretCode == DemoMode.secret) {
+      final session = EmployeeSession(
+        token: 'demo-employee-token',
+        employee: AppDemoSeed.employeeAccount(),
+      );
+      await _persist(session);
+      return (success: true, message: null, session: session);
+    }
     try {
       final result = await _supabase.client.rpc(
         'employee_login',
@@ -188,13 +200,18 @@ class EmployeeRepository {
       }
       final rows =
           await built.order('updated_at', ascending: false).limit(limit);
-      return List<Map<String, dynamic>>.from(rows);
+      final list = List<Map<String, dynamic>>.from(rows);
+      if (list.isEmpty && DemoMode.enabled) {
+        return AppDemoSeed.officeTransactions();
+      }
+      return list;
     } catch (_) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.officeTransactions() : [];
     }
   }
 
   Future<List<Map<String, dynamic>>> listNotifications() async {
+    if (DemoMode.enabled) return AppDemoSeed.employeeNotifications();
     if (_employee == null) return [];
     try {
       final rows = await _supabase.client

@@ -2,6 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:typed_data';
 
+import '../core/demo/demo_mode.dart';
+import 'app_demo_seed.dart';
+import 'property_catalog_demo.dart';
+
 class SupabaseService {
   static SupabaseService? _instance;
   static SupabaseService get instance => _instance ??= SupabaseService._();
@@ -49,6 +53,7 @@ class SupabaseService {
   // ─── USER PROFILE ────────────────────────────────────────────────────────
 
   Future<Map<String, dynamic>?> getUserProfile() async {
+    if (DemoMode.enabled) return AppDemoSeed.userProfile();
     final userId = currentUser?.id;
     if (userId == null) return null;
     try {
@@ -57,9 +62,9 @@ class SupabaseService {
           .select()
           .eq('id', userId)
           .maybeSingle();
-      return response;
+      return response ?? (DemoMode.enabled ? AppDemoSeed.userProfile() : null);
     } catch (e) {
-      return null;
+      return DemoMode.enabled ? AppDemoSeed.userProfile() : null;
     }
   }
 
@@ -132,6 +137,7 @@ class SupabaseService {
   // ─── TRANSACTIONS ─────────────────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> getUserTransactions() async {
+    if (DemoMode.enabled) return AppDemoSeed.userTransactions();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -140,9 +146,10 @@ class SupabaseService {
           .select('*, transaction_stages(*), transaction_barcodes(*)')
           .or('buyer_user_id.eq.$userId,seller_user_id.eq.$userId')
           .order('created_at', ascending: false);
-      return List<Map<String, dynamic>>.from(response);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.isEmpty ? AppDemoSeed.userTransactions() : rows;
     } catch (e) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.userTransactions() : [];
     }
   }
 
@@ -237,9 +244,11 @@ class SupabaseService {
       final response = await query
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
-      return List<Map<String, dynamic>>.from(response);
+      final rows = List<Map<String, dynamic>>.from(response);
+      if (rows.isNotEmpty) return rows;
+      return PropertyCatalogDemo.listings().map((p) => p.rawData).toList();
     } catch (e) {
-      return [];
+      return PropertyCatalogDemo.listings().map((p) => p.rawData).toList();
     }
   }
 
@@ -250,24 +259,28 @@ class SupabaseService {
           .select('*, property_media_v3(*), property_features_v3(*)')
           .eq('id', id)
           .maybeSingle();
-      return response;
+      return response ?? AppDemoSeed.propertyById(id);
     } catch (e) {
-      return null;
+      return AppDemoSeed.propertyById(id);
     }
   }
 
   Future<List<Map<String, dynamic>>> getUserProperties() async {
+    if (DemoMode.enabled) return AppDemoSeed.userProperties();
     final userId = currentUser?.id;
-    if (userId == null) return [];
+    if (userId == null) return DemoMode.enabled ? AppDemoSeed.userProperties() : [];
     try {
       final response = await client
           .from('properties_v3')
           .select('*, property_media_v3(*)')
           .eq('owner_user_id', userId)
           .order('created_at', ascending: false);
-      return List<Map<String, dynamic>>.from(response);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.isEmpty && DemoMode.enabled
+          ? AppDemoSeed.userProperties()
+          : rows;
     } catch (e) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.userProperties() : [];
     }
   }
 
@@ -330,6 +343,7 @@ class SupabaseService {
   }
 
   Future<List<Map<String, dynamic>>> getPropertySubmissions() async {
+    if (DemoMode.enabled) return AppDemoSeed.propertySubmissions();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -338,9 +352,12 @@ class SupabaseService {
           .select()
           .eq('user_id', userId)
           .order('created_at', ascending: false);
-      return List<Map<String, dynamic>>.from(response);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.isEmpty && DemoMode.enabled
+          ? AppDemoSeed.propertySubmissions()
+          : rows;
     } catch (e) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.propertySubmissions() : [];
     }
   }
 
@@ -362,15 +379,19 @@ class SupabaseService {
   }
 
   Future<List<Map<String, dynamic>>> getMessages(String conversationId) async {
+    if (DemoMode.enabled) return AppDemoSeed.messagesFor(conversationId);
     try {
       final response = await client
           .from('messages')
           .select()
           .eq('conversation_id', conversationId)
           .order('created_at', ascending: true);
-      return List<Map<String, dynamic>>.from(response);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.isEmpty && DemoMode.enabled
+          ? AppDemoSeed.messagesFor(conversationId)
+          : rows;
     } catch (e) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.messagesFor(conversationId) : [];
     }
   }
 
@@ -398,6 +419,7 @@ class SupabaseService {
   // ─── NOTIFICATIONS ────────────────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> getNotifications() async {
+    if (DemoMode.enabled) return AppDemoSeed.userNotifications();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -407,9 +429,12 @@ class SupabaseService {
           .eq('user_id', userId)
           .order('created_at', ascending: false)
           .limit(30);
-      return List<Map<String, dynamic>>.from(response);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.isEmpty && DemoMode.enabled
+          ? AppDemoSeed.userNotifications()
+          : rows;
     } catch (e) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.userNotifications() : [];
     }
   }
 
@@ -475,6 +500,11 @@ class SupabaseService {
   }
 
   Future<Set<String>> getFavoritePropertyIds() async {
+    if (DemoMode.enabled) {
+      return AppDemoSeed.favoriteProperties()
+          .map((e) => e['property_id'] as String)
+          .toSet();
+    }
     final userId = currentUser?.id;
     if (userId == null) return {};
     try {
@@ -491,6 +521,7 @@ class SupabaseService {
   }
 
   Future<List<Map<String, dynamic>>> getFavoriteProperties() async {
+    if (DemoMode.enabled) return AppDemoSeed.favoriteProperties();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -499,9 +530,12 @@ class SupabaseService {
           .select('property_id, properties_v3(*, property_media_v3(*))')
           .eq('user_id', userId)
           .order('created_at', ascending: false);
-      return List<Map<String, dynamic>>.from(response);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.isEmpty && DemoMode.enabled
+          ? AppDemoSeed.favoriteProperties()
+          : rows;
     } catch (_) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.favoriteProperties() : [];
     }
   }
 
@@ -522,6 +556,7 @@ class SupabaseService {
   }
 
   Future<List<Map<String, dynamic>>> getSavedSearches() async {
+    if (DemoMode.enabled) return AppDemoSeed.savedSearches();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -531,9 +566,12 @@ class SupabaseService {
           .eq('user_id', userId)
           .order('saved_at', ascending: false)
           .limit(20);
-      return List<Map<String, dynamic>>.from(response);
+      final rows = List<Map<String, dynamic>>.from(response);
+      return rows.isEmpty && DemoMode.enabled
+          ? AppDemoSeed.savedSearches()
+          : rows;
     } catch (_) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.savedSearches() : [];
     }
   }
 

@@ -1,3 +1,5 @@
+import '../../../../core/demo/demo_mode.dart';
+import '../../../../services/app_demo_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../../core/data/employee_repository.dart';
 import '../../core/domain/employee_permissions.dart';
@@ -20,6 +22,13 @@ class PublishingRepository {
     bool assignedOnly = false,
     int limit = 80,
   }) async {
+    if (DemoMode.enabled) {
+      var all = AppDemoSeed.publishingAssets();
+      if (status != null) {
+        all = all.where((a) => a.pipelineStatus == status).toList();
+      }
+      return all.take(limit).toList();
+    }
     try {
       if (assignedOnly && _employeeId != null) {
         final assigns = await _supabase.client
@@ -57,7 +66,7 @@ class PublishingRepository {
           .map(PropertyAsset.fromMap)
           .toList();
     } catch (_) {
-      return [];
+      return DemoMode.enabled ? AppDemoSeed.publishingAssets() : [];
     }
   }
 
@@ -114,6 +123,9 @@ class PublishingRepository {
   }
 
   Future<List<Map<String, dynamic>>> listTimeline(String propertyAssetId) async {
+    if (DemoMode.enabled) {
+      return AppDemoSeed.publishingTimeline(propertyAssetId);
+    }
     try {
       final rows = await _supabase.client
           .from('property_pipeline_events')
