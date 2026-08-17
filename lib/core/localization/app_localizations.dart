@@ -886,20 +886,45 @@ class AppLocalizations {
   }
 
   String propertyTypeName(String key) {
-    switch (key.toLowerCase()) {
+    final normalized = key.trim().toLowerCase().replaceAll('-', '_');
+    switch (normalized) {
       case 'apartment':
+      case 'flat':
+      case 'residential':
+      case 'condo':
+      case 'condominium':
         return apartment;
       case 'villa':
+      case 'house':
+      case 'detached':
         return villaType;
       case 'land':
+      case 'plot':
         return land;
       case 'commercial':
+      case 'office':
+      case 'retail':
+      case 'shop':
+      case 'store':
         return commercial;
       case 'building':
+      case 'multi_family':
+      case 'multifamily':
         return buildingType;
       case 'agricultural':
+      case 'farm':
         return agriculturalType;
+      case 'sale':
+        return forSale;
+      case 'rent':
+        return forRent;
+      case 'mortgage':
+        return mortgage;
+      case 'investment':
+        return investment;
       default:
+        // Title-case English leftovers from legacy data
+        if (RegExp(r'^[a-z_]+$').hasMatch(normalized)) return key;
         return key;
     }
   }

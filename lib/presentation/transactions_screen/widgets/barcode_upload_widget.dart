@@ -5,20 +5,23 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../theme/app_theme.dart';
+import '../../../theme/theme_extensions.dart';
 import '../../../widgets/madar_drag_handle.dart';
 
-/// Static, scrollable deal-barcode sheet with a single primary action.
+/// Scrollable deal-barcode sheet — drag down to dismiss.
 class BarcodeUploadWidget extends StatefulWidget {
   const BarcodeUploadWidget({
     super.key,
     required this.onUpload,
     this.onBarcodeScanned,
     this.showDragHandle = true,
+    this.scrollController,
   });
 
   final VoidCallback onUpload;
   final ValueChanged<String>? onBarcodeScanned;
   final bool showDragHandle;
+  final ScrollController? scrollController;
 
   static Future<void> show(
     BuildContext context, {
@@ -28,21 +31,34 @@ class BarcodeUploadWidget extends StatefulWidget {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.45),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
-        child: BarcodeUploadWidget(
-          onUpload: () {
-            Navigator.of(ctx).pop();
-            onUpload();
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.72,
+          minChildSize: 0.38,
+          maxChildSize: 0.92,
+          expand: false,
+          snap: true,
+          snapSizes: const [0.38, 0.72, 0.92],
+          builder: (context, scrollController) {
+            return BarcodeUploadWidget(
+              scrollController: scrollController,
+              onUpload: () {
+                Navigator.of(ctx).pop();
+                onUpload();
+              },
+              onBarcodeScanned: (code) {
+                Navigator.of(ctx).pop();
+                onBarcodeScanned?.call(code);
+              },
+            );
           },
-          onBarcodeScanned: (code) {
-            Navigator.of(ctx).pop();
-            onBarcodeScanned?.call(code);
-          },
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -96,94 +112,96 @@ class _BarcodeUploadWidgetState extends State<BarcodeUploadWidget> {
     final bottom = MediaQuery.paddingOf(context).bottom;
 
     return Material(
-      color: Colors.white,
+      color: theme.colorScheme.surface,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       clipBehavior: Clip.antiAlias,
       child: SafeArea(
         top: false,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * 0.86,
-          ),
-          child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(24, 10, 24, 20 + bottom),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.showDragHandle) ...[
-                  const MadarDragHandle(),
-                  const SizedBox(height: 28),
-                ],
-                const _BarcodeHeroIcon(),
-                const SizedBox(height: 20),
-                Text(
-                  loc.barcodeScanTitle,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 22,
-                    color: const Color(0xFF101828),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  loc.barcodeScanSubtitle,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    height: 1.55,
-                    color: Color(0xFF667085),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: FilledButton.icon(
-                    onPressed: _busy ? null : _pickBarcodeImage,
-                    icon: _busy
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.photo_library_outlined, size: 20),
-                    label: Text(
-                      loc.barcodeUploadImage,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+        child: CustomScrollView(
+          controller: widget.scrollController,
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(24, 10, 24, 20 + bottom),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.showDragHandle) ...[
+                      const MadarDragHandle(),
+                      const SizedBox(height: 28),
+                    ],
+                    _BarcodeHeroIcon(theme: theme),
+                    const SizedBox(height: 20),
+                    Text(
+                      loc.barcodeScanTitle,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 22,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: AppTheme.primary.withValues(
-                        alpha: 0.5,
+                    const SizedBox(height: 10),
+                    Text(
+                      loc.barcodeScanSubtitle,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        height: 1.55,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 28),
-                _HowItWorksCard(
-                  title: loc.barcodeHowItWorks,
-                  steps: [
-                    loc.barcodeHowStep1,
-                    loc.barcodeHowStep2,
-                    loc.barcodeHowStep3,
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: FilledButton.icon(
+                        onPressed: _busy ? null : _pickBarcodeImage,
+                        icon: _busy
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: theme.colorScheme.onPrimary,
+                                ),
+                              )
+                            : const Icon(Icons.photo_library_outlined, size: 20),
+                        label: Text(
+                          loc.barcodeUploadImage,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: AppTheme.primary.withValues(
+                            alpha: 0.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    _HowItWorksCard(
+                      theme: theme,
+                      title: loc.barcodeHowItWorks,
+                      steps: [
+                        loc.barcodeHowStep1,
+                        loc.barcodeHowStep2,
+                        loc.barcodeHowStep3,
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -191,29 +209,38 @@ class _BarcodeUploadWidgetState extends State<BarcodeUploadWidget> {
 }
 
 class _BarcodeHeroIcon extends StatelessWidget {
-  const _BarcodeHeroIcon();
+  const _BarcodeHeroIcon({required this.theme});
+
+  final ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 88,
       height: 88,
-      decoration: const BoxDecoration(
-        color: Color(0xFFE3F2FD),
+      decoration: BoxDecoration(
+        color: theme.isDarkMode
+            ? AppTheme.primary.withValues(alpha: 0.22)
+            : const Color(0xFFE3F2FD),
         shape: BoxShape.circle,
       ),
-      child: const Icon(
+      child: Icon(
         Icons.qr_code_2_rounded,
         size: 44,
-        color: AppTheme.primary,
+        color: theme.isDarkMode ? AppTheme.primaryLight : AppTheme.primary,
       ),
     );
   }
 }
 
 class _HowItWorksCard extends StatelessWidget {
-  const _HowItWorksCard({required this.title, required this.steps});
+  const _HowItWorksCard({
+    required this.theme,
+    required this.title,
+    required this.steps,
+  });
 
+  final ThemeData theme;
   final String title;
   final List<String> steps;
 
@@ -223,24 +250,23 @@ class _HowItWorksCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: theme.surfaceVariantColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEEF2F6)),
+        border: Border.all(color: theme.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 14,
+            style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w800,
-              color: Color(0xFF101828),
+              color: theme.colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 12),
           for (var i = 0; i < steps.length; i++)
-            _HowStep(index: '${i + 1}', text: steps[i]),
+            _HowStep(theme: theme, index: '${i + 1}', text: steps[i]),
         ],
       ),
     );
@@ -248,8 +274,13 @@ class _HowItWorksCard extends StatelessWidget {
 }
 
 class _HowStep extends StatelessWidget {
-  const _HowStep({required this.index, required this.text});
+  const _HowStep({
+    required this.theme,
+    required this.index,
+    required this.text,
+  });
 
+  final ThemeData theme;
   final String index;
   final String text;
 
@@ -281,10 +312,9 @@ class _HowStep extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                fontSize: 13,
+              style: theme.textTheme.bodySmall?.copyWith(
                 height: 1.45,
-                color: Color(0xFF475467),
+                color: theme.colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),

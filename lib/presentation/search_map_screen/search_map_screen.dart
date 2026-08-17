@@ -2100,10 +2100,11 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
             decoration: BoxDecoration(
               color: selected
                   ? AppTheme.primary
-                  : AppTheme.surfaceVariantLight,
+                  : theme.surfaceVariantColor,
               borderRadius: BorderRadius.circular(20),
-              border:
-                  selected ? null : Border.all(color: AppTheme.borderLight),
+              border: selected
+                  ? null
+                  : Border.all(color: theme.borderColor),
             ),
             child: Text(
               label != null ? label(option) : option,
@@ -2188,11 +2189,11 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? AppTheme.primary
-                                    : AppTheme.surfaceVariantLight,
+                                    : theme.surfaceVariantColor,
                                 borderRadius: BorderRadius.circular(20),
                                 border: isSelected
                                     ? null
-                                    : Border.all(color: AppTheme.borderLight),
+                                    : Border.all(color: theme.borderColor),
                               ),
                               child: Text(
                                 label,
@@ -2233,11 +2234,11 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppTheme.primaryLight
-                                : AppTheme.surfaceVariantLight,
+                                : theme.surfaceVariantColor,
                             borderRadius: BorderRadius.circular(20),
                             border: isSelected
                                 ? null
-                                : Border.all(color: AppTheme.borderLight),
+                                : Border.all(color: theme.borderColor),
                           ),
                           child: Text(
                             label,

@@ -41,7 +41,7 @@ class ChatInputField extends StatelessWidget {
         : loc.typeYourMessage;
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       elevation: 8,
       shadowColor: Colors.black.withValues(alpha: 0.06),
       child: SafeArea(

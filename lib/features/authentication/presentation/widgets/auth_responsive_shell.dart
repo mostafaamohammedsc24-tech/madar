@@ -239,8 +239,9 @@ class _AuthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Material(
-      color: Colors.white,
+      color: theme.colorScheme.surface,
       elevation: elevation,
       shadowColor: Colors.black26,
       borderRadius: BorderRadius.circular(24),

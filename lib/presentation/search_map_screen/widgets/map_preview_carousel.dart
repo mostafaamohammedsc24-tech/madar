@@ -62,6 +62,9 @@ class _MapPreviewCarouselState extends State<MapPreviewCarousel> {
   Widget build(BuildContext context) {
     if (widget.properties.isEmpty) return const SizedBox.shrink();
 
+    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
     return PointerInterceptor(
       child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -72,8 +75,8 @@ class _MapPreviewCarouselState extends State<MapPreviewCarousel> {
             onPressed: widget.onClose,
             icon: const Icon(Icons.close_rounded),
             style: IconButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF212121),
+              backgroundColor: theme.colorScheme.surface,
+              foregroundColor: theme.colorScheme.onSurface,
             ),
           ),
         ),
@@ -149,8 +152,9 @@ class _PreviewCardState extends State<_PreviewCard> {
       onTap: widget.onOpen,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.12),
@@ -254,7 +258,7 @@ class _PreviewCardState extends State<_PreviewCard> {
                     PropertyCardCopy.price(context, p),
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF1565C0),
+                      color: AppTheme.primary,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -301,7 +305,7 @@ class _PreviewCardState extends State<_PreviewCard> {
                     child: FilledButton(
                       onPressed: widget.onOpen,
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF1565C0),
+                        backgroundColor: AppTheme.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
