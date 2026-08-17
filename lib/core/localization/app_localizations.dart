@@ -382,7 +382,6 @@ class AppLocalizations {
     ar: 'رسوم إدارة الشركة الثابتة',
     ku: 'کرێی جێگیری بەڕێوەبردنی کۆمپانیا',
   );
-  String get perMonth => _t(en: '/ month', ar: '/ شهر', ku: '/ مانگ');
   String get statusActiveLabel => _t(en: 'Active', ar: 'نشط', ku: 'چالاک');
   String get statusPendingLabel =>
       _t(en: 'Pending', ar: 'معلق', ku: 'چاوەڕوان');
