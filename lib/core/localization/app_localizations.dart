@@ -1372,6 +1372,466 @@ class AppLocalizations {
     ku: 'وەرگێڕانی تەواوی خانووبەرە',
   );
 
+  // ─── Digital Transaction Center ───────────────────────────────────────────
+  String get digitalTransactionCenter => _t(
+    en: 'Transaction Center',
+    ar: 'مركز العمليات',
+    ku: 'ناوەندی مامەڵەکان',
+  );
+  String get txTabActive => _t(en: 'Active', ar: 'نشطة', ku: 'چالاک');
+  String get txTabCompleted =>
+      _t(en: 'Completed', ar: 'مكتملة', ku: 'تەواوکراو');
+  String get txTabCancelled =>
+      _t(en: 'Cancelled', ar: 'ملغاة', ku: 'هەڵوەشێنراو');
+  String get txTabOnHold => _t(en: 'On Hold', ar: 'معلقة', ku: 'ڕاگیراو');
+  String get uploadTransactionBarcode => _t(
+    en: 'Upload transaction barcode',
+    ar: 'رفع رمز العملية',
+    ku: 'بارکۆدی مامەڵە بار بکە',
+  );
+  String get noTransactionsInTab => _t(
+    en: 'No transactions here yet. Upload a barcode from your Company Lawyer to join a deal.',
+    ar: 'لا توجد عمليات هنا بعد. ارفع رمز العملية من محامي الشركة للانضمام.',
+    ku: 'هێشتا مامەڵە لێرە نییە. بارکۆد لە پارێزەری کۆمپانیا بار بکە.',
+  );
+  String get barcodeNotFound => _t(
+    en: 'Barcode not found',
+    ar: 'الرمز غير موجود',
+    ku: 'بارکۆد نەدۆزرایەوە',
+  );
+  String get barcodeRedeemFailed => _t(
+    en: 'Could not verify barcode',
+    ar: 'تعذر التحقق من الرمز',
+    ku: 'نەتوانرا بارکۆد پشتڕاست بکرێتەوە',
+  );
+  String get bothPartiesVerified => _t(
+    en: 'Both parties verified — transaction activated',
+    ar: 'تم التحقق من الطرفين — تم تفعيل العملية',
+    ku: 'هەردوو لایەن پشتڕاستکرانەوە — مامەڵە چالاک کرا',
+  );
+  String get waitingForOtherParty => _t(
+    en: 'Waiting for the other party to upload the barcode',
+    ar: 'بانتظار رفع الطرف الآخر لرمز العملية',
+    ku: 'چاوەڕوانی لایەنی دیکە بۆ بارکردنی بارکۆد',
+  );
+  String barcodeProgress(int count) => _t(
+    en: '$count/2 participants verified',
+    ar: '$count/2 أطراف تم التحقق منهم',
+    ku: '$count/2 بەشدار پشتڕاستکراونەوە',
+  );
+  String get selectYourRole => _t(
+    en: 'Are you the buyer or the seller?',
+    ar: 'هل أنت المشتري أم البائع؟',
+    ku: 'تۆ کڕیاریت یان فرۆشیار؟',
+  );
+  String get roleBuyer => _t(en: 'Buyer', ar: 'المشتري', ku: 'کڕیار');
+  String get roleSeller => _t(en: 'Seller', ar: 'البائع', ku: 'فرۆشیار');
+  String get txCurrentStep =>
+      _t(en: 'Current step', ar: 'المرحلة الحالية', ku: 'هەنگاوی ئێستا');
+  String get txProgress =>
+      _t(en: 'Progress', ar: 'التقدم', ku: 'پێشکەوتن');
+  String get txAuditTimeline =>
+      _t(en: 'Activity', ar: 'النشاط', ku: 'چالاکی');
+  String get txNoAuditYet => _t(
+    en: 'No activity recorded yet',
+    ar: 'لا يوجد نشاط مسجل بعد',
+    ku: 'هێشتا چالاکی تۆمار نەکراوە',
+  );
+  String get txBackendEnforcedNote => _t(
+    en: 'Stage advances are enforced by the system after required checks — not by UI buttons alone.',
+    ar: 'انتقال المراحل يتم من النظام بعد التحقق — وليس عبر الأزرار فقط.',
+    ku: 'گواستنەوەی قۆناغەکان لەلایەن سیستەمەوە دوای پشکنین جێبەجێ دەکرێت.',
+  );
+  String get transactionNotFound => _t(
+    en: 'Transaction not found',
+    ar: 'العملية غير موجودة',
+    ku: 'مامەڵە نەدۆزرایەوە',
+  );
+  String get stepIdentity =>
+      _t(en: 'Identity', ar: 'التحقق من الهوية', ku: 'ناسنامە');
+  String get stepDocuments =>
+      _t(en: 'Documents', ar: 'المستمسكات', ku: 'بەڵگەنامەکان');
+  String get stepContract =>
+      _t(en: 'Contract', ar: 'عقد البيع', ku: 'گرێبەست');
+  String get stepEscrow =>
+      _t(en: 'Escrow deposit', ar: 'الإيداع الضماني', ku: 'پارەدانەی دڵنیایی');
+  String get stepDeed =>
+      _t(en: 'Ownership deed', ar: 'سند الملكية', ku: 'سەندی خاوەنداری');
+  String get stepAgriculturalTransfer => _t(
+    en: 'Agricultural transfer',
+    ar: 'نقل زراعي خاص',
+    ku: 'گواستنەوەی کشتوکاڵی',
+  );
+  String get stepSettlement =>
+      _t(en: 'Settlement', ar: 'التسوية', ku: 'یەکلاکردنەوە');
+  String get awaitingDepositConfirmation => _t(
+    en: 'Awaiting deposit confirmation',
+    ar: 'بانتظار تأكيد الإيداع',
+    ku: 'چاوەڕوانی پشتڕاستکردنەوەی پارەدان',
+  );
+  String get transactionCompleted => _t(
+    en: 'Transaction completed successfully',
+    ar: 'اكتملت العملية بنجاح',
+    ku: 'مامەڵە بە سەرکەوتوویی تەواو بوو',
+  );
+  String get companyLawyerLabel => _t(
+    en: 'Company Lawyer',
+    ar: 'محامي الشركة',
+    ku: 'پارێزەری کۆمپانیا',
+  );
+
+  // ─── Office Portal ────────────────────────────────────────────────────────
+  String get partnerEntryPrompt => _t(
+    en: 'Partner or team member?',
+    ar: 'هل أنت من شركائنا أو فريق العمل؟',
+    ku: 'هاوبەش یان ئەندامی تیمیت؟',
+  );
+  String get officeEntryCta =>
+      _t(en: 'Office login', ar: 'دخول المكاتب', ku: 'چوونەژوورەوەی ئۆفیس');
+  String get employeeEntryCta =>
+      _t(en: 'Staff login', ar: 'دخول الموظفين', ku: 'چوونەژوورەوەی کارمەند');
+  String get officeLoginTitle =>
+      _t(en: 'Office Login', ar: 'دخول المكتب', ku: 'چوونەژوورەوەی ئۆفیس');
+  String get officeLoginSubtitle => _t(
+    en: 'Sign in with your office credentials. This is not the user phone login.',
+    ar: 'سجّل الدخول ببيانات المكتب. هذا ليس تسجيل دخول المستخدم برقم الهاتف.',
+    ku: 'بە ناسنامەی ئۆفیس بچۆ ژوورەوە. ئەمە چوونەژوورەوەی ژمارەی تەلەفۆنی بەکارهێنەر نییە.',
+  );
+  String get officeCodeLabel =>
+      _t(en: 'Office Code', ar: 'رمز المكتب', ku: 'کۆدی ئۆفیس');
+  String get officeCodeHint =>
+      _t(en: 'e.g. NHR-001', ar: 'مثال: NHR-001', ku: 'نموونە: NHR-001');
+  String get officeSecretLabel =>
+      _t(en: 'Secret Code', ar: 'الرمز السري', ku: 'کۆدی نهێنی');
+  String get officeSecretHint =>
+      _t(en: 'Enter secret code', ar: 'أدخل الرمز السري', ku: 'کۆدی نهێنی بنووسە');
+  String get officeSignIn =>
+      _t(en: 'Sign in', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
+  String get officeForgotCredentials => _t(
+    en: 'Forgot credentials?',
+    ar: 'نسيت بيانات الدخول؟',
+    ku: 'زانیاریەکانت لەبیرچوو؟',
+  );
+  String get officeForgotCredentialsHint => _t(
+    en: 'Contact Office Management to reset credentials.',
+    ar: 'تواصل مع إدارة المكاتب لإعادة تعيين البيانات.',
+    ku: 'پەیوەندی بە بەڕێوەبردنی ئۆفیس بکە بۆ نوێکردنەوە.',
+  );
+  String get officeBackToUserLogin => _t(
+    en: 'Back to user login',
+    ar: 'العودة لتسجيل دخول المستخدم',
+    ku: 'گەڕانەوە بۆ چوونەژوورەوەی بەکارهێنەر',
+  );
+  String get officeLoginInvalid => _t(
+    en: 'Invalid office code or secret.',
+    ar: 'رمز المكتب أو الرمز السري غير صحيح.',
+    ku: 'کۆدی ئۆفیس یان نهێنی هەڵەیە.',
+  );
+  String get officeLoginRateLimited => _t(
+    en: 'Too many attempts. Try again later.',
+    ar: 'محاولات كثيرة. حاول لاحقاً.',
+    ku: 'هەوڵی زۆر. دواتر هەوڵ بدەوە.',
+  );
+  String get officeLoginUnavailable => _t(
+    en: 'Login unavailable. Check connection.',
+    ar: 'تسجيل الدخول غير متاح. تحقق من الاتصال.',
+    ku: 'چوونەژوورەوە بەردەست نییە. پەیوەندی بپشکنە.',
+  );
+  String get employeePortalTitle =>
+      _t(en: 'Staff Portal', ar: 'بوابة الموظفين', ku: 'دەروازەی کارمەندان');
+  String get employeePortalSubtitle => _t(
+    en: 'Company staff access will be configured separately.',
+    ar: 'صلاحيات الموظفين ستُحدد بشكل مستقل لاحقاً.',
+    ku: 'دەسەڵاتی کارمەندان دواتر بە جیا ڕێکدەخرێت.',
+  );
+  String get employeePortalBody => _t(
+    en: 'This entry is reserved for Madar employees (lawyers, finance, operations). The staff domain is not available yet.',
+    ar: 'هذه النقطة مخصصة لموظفي مدار (المحامون، المالية، العمليات). نظام الموظفين غير متاح بعد.',
+    ku: 'ئەم خاڵە بۆ کارمەندانی مەدارە. سیستەمی کارمەندان هێشتا ئامادە نییە.',
+  );
+  String get officeNavHome => _t(en: 'Home', ar: 'الرئيسية', ku: 'سەرەکی');
+  String get officeNavProperties =>
+      _t(en: 'Properties', ar: 'العقارات', ku: 'موڵکەکان');
+  String get officeNavTransactions =>
+      _t(en: 'Deals', ar: 'العمليات', ku: 'مامەڵەکان');
+  String get officeNavLeads =>
+      _t(en: 'Leads', ar: 'الفرص', ku: 'دەرفەتەکان');
+  String get officeNavConversations =>
+      _t(en: 'Chats', ar: 'المحادثات', ku: 'گفتوگۆکان');
+  String get officeNavMore => _t(en: 'More', ar: 'المزيد', ku: 'زیاتر');
+  String get officeSearchHint => _t(
+    en: 'Search property, location, type…',
+    ar: 'ابحث عن عقار، موقع، نوع…',
+    ku: 'گەڕان بۆ موڵک، شوێن، جۆر…',
+  );
+  String get officeFilterAll => _t(en: 'All', ar: 'الكل', ku: 'هەموو');
+  String get officeFilterSale => _t(en: 'Sale', ar: 'بيع', ku: 'فرۆشتن');
+  String get officeFilterRent => _t(en: 'Rent', ar: 'إيجار', ku: 'کرێ');
+  String get officeFilterMortgage =>
+      _t(en: 'Mortgage', ar: 'رهن', ku: 'ڕەهن');
+  String get officeSalesThisMonth => _t(
+    en: 'Sales this month',
+    ar: 'مبيعات هذا الشهر',
+    ku: 'فرۆشتنی ئەم مانگە',
+  );
+  String get officeStatTotal => _t(en: 'Total', ar: 'الإجمالي', ku: 'کۆ');
+  String get officeStatCompleted =>
+      _t(en: 'Completed', ar: 'مكتملة', ku: 'تەواو');
+  String get officeStatInProgress =>
+      _t(en: 'In progress', ar: 'قيد التنفيذ', ku: 'لە جێبەجێکردن');
+  String get officeStatAwaiting =>
+      _t(en: 'Awaiting', ar: 'بانتظار الأطراف', ku: 'چاوەڕوان');
+  String get officeFoundBuyerCta => _t(
+    en: 'I found a buyer',
+    ar: 'وجدت مشتريًا لهذا العقار',
+    ku: 'کڕیارم بۆ ئەم موڵکە دۆزیەوە',
+  );
+  String get officeFoundBuyerDefaultMessage => _t(
+    en: 'I have a buyer interested in this property.',
+    ar: 'لدي مشتري مهتم بهذا العقار.',
+    ku: 'کڕیارێکم هەیە گرنگی بەم موڵکە دەدات.',
+  );
+  String get officeViewProperty =>
+      _t(en: 'View property', ar: 'عرض العقار', ku: 'بینینی موڵک');
+  String get officeLabel => _t(en: 'Office', ar: 'المكتب', ku: 'ئۆفیس');
+  String get officeReportProperty => _t(
+    en: 'Report a property',
+    ar: 'إبلاغ عن عقار جديد',
+    ku: 'ڕاپۆرتی موڵکی نوێ',
+  );
+  String get officeActionFailed => _t(
+    en: 'Action failed. Try again.',
+    ar: 'فشل الإجراء. حاول مرة أخرى.',
+    ku: 'کردار سەرکەوتوو نەبوو. دووبارە هەوڵ بدە.',
+  );
+  String get officeReferralCreated => _t(
+    en: 'Buyer referral created.',
+    ar: 'تم إنشاء إحالة المشتري.',
+    ku: 'ئاماژەی کڕیار دروستکرا.',
+  );
+  String get officeNoAssignedProperties => _t(
+    en: 'No assigned office properties yet.',
+    ar: 'لا توجد عقارات مخصصة للمكتب بعد.',
+    ku: 'هێشتا موڵکی تایبەت بە ئۆفیس نییە.',
+  );
+  String get officePropertyFallback =>
+      _t(en: 'Property', ar: 'عقار', ku: 'موڵک');
+  String get officeStatus => _t(en: 'Status', ar: 'الحالة', ku: 'دۆخ');
+  String get officeBuyerLeads =>
+      _t(en: 'Buyer leads', ar: 'عملاء مشترين', ku: 'کڕیارەکان');
+  String get officePropertyReports =>
+      _t(en: 'Property reports', ar: 'بلاغات العقارات', ku: 'ڕاپۆرتی موڵک');
+  String get officeBuyerLead =>
+      _t(en: 'Buyer lead', ar: 'فرصة مشتري', ku: 'دەرفەتی کڕیار');
+  String get officeNoLeads =>
+      _t(en: 'No buyer leads yet.', ar: 'لا توجد فرص مشترين بعد.', ku: 'هێشتا دەرفەتی کڕیار نییە.');
+  String get officeNoReports =>
+      _t(en: 'No property reports yet.', ar: 'لا توجد بلاغات بعد.', ku: 'هێشتا ڕاپۆرت نییە.');
+  String get officeLeadNew => _t(en: 'New', ar: 'جديد', ku: 'نوێ');
+  String get officeLeadContacting =>
+      _t(en: 'Contacting', ar: 'جارٍ التواصل', ku: 'پەیوەندیکردن');
+  String get officeLeadQualified =>
+      _t(en: 'Qualified', ar: 'مؤهل', ku: 'شایستە');
+  String get officeLeadNegotiating =>
+      _t(en: 'Negotiating', ar: 'تفاوض', ku: 'گفتوگۆ');
+  String get officeLeadTxCreated => _t(
+    en: 'Transaction created',
+    ar: 'تم إنشاء عملية',
+    ku: 'مامەڵە دروستکرا',
+  );
+  String get officeLeadCompleted =>
+      _t(en: 'Completed', ar: 'مكتمل', ku: 'تەواو');
+  String get officeLeadRejected =>
+      _t(en: 'Rejected', ar: 'مرفوض', ku: 'ڕەتکراوە');
+  String get officeLeadExpired =>
+      _t(en: 'Expired', ar: 'منتهي', ku: 'بەسەرچوو');
+  String get officeReportUnderReview =>
+      _t(en: 'Under review', ar: 'قيد المراجعة', ku: 'لە پێداچوونەوە');
+  String get officeReportContactingOwner => _t(
+    en: 'Contacting owner',
+    ar: 'جارٍ التواصل مع المالك',
+    ku: 'پەیوەندی لەگەڵ خاوەن',
+  );
+  String get officeReportOwnerApproved =>
+      _t(en: 'Owner approved', ar: 'وافق المالك', ku: 'خاوەن ڕازی بوو');
+  String get officeReportOwnerDeclined =>
+      _t(en: 'Owner declined', ar: 'رفض المالك', ku: 'خاوەن ڕەتیکردەوە');
+  String get officeNoConversations => _t(
+    en: 'No conversations yet. Use “I found a buyer” to start one.',
+    ar: 'لا محادثات بعد. استخدم «وجدت مشتريًا» لبدء محادثة.',
+    ku: 'هێشتا گفتوگۆ نییە. «کڕیارم دۆزیەوە» بەکاربهێنە.',
+  );
+  String get officeManagementTeam => _t(
+    en: 'Office Management Team',
+    ar: 'فريق إدارة المكاتب',
+    ku: 'تیمی بەڕێوەبردنی ئۆفیس',
+  );
+  String get officeMessageHint =>
+      _t(en: 'Write a message…', ar: 'اكتب رسالة…', ku: 'نامە بنووسە…');
+  String get officeRead => _t(en: 'Read', ar: 'مقروء', ku: 'خوێندراوەتەوە');
+  String get officeCreateTransaction => _t(
+    en: 'Create transaction',
+    ar: 'إنشاء عملية',
+    ku: 'دروستکردنی مامەڵە',
+  );
+  String get officeNoTransactions => _t(
+    en: 'No office transactions yet.',
+    ar: 'لا توجد عمليات للمكتب بعد.',
+    ku: 'هێشتا مامەڵەی ئۆفیس نییە.',
+  );
+  String get officeSalesHistory =>
+      _t(en: 'Sales history', ar: 'سجل العمليات', ku: 'مێژووی مامەڵەکان');
+  String get officeTransactionType =>
+      _t(en: 'Transaction type', ar: 'نوع العملية', ku: 'جۆری مامەڵە');
+  String get officeSellerPhone =>
+      _t(en: 'Seller phone', ar: 'هاتف البائع', ku: 'تەلەفۆنی فرۆشیار');
+  String get officeBuyerPhone =>
+      _t(en: 'Buyer phone', ar: 'هاتف المشتري', ku: 'تەلەفۆنی کڕیار');
+  String get officeTransactionValue =>
+      _t(en: 'Transaction value', ar: 'قيمة العملية', ku: 'بەهای مامەڵە');
+  String get officeGenerateBarcode => _t(
+    en: 'Generate barcode',
+    ar: 'إنشاء الباركود',
+    ku: 'دروستکردنی بارکۆد',
+  );
+  String get officeTransactionNumber =>
+      _t(en: 'Transaction', ar: 'رقم العملية', ku: 'ژمارەی مامەڵە');
+  String get officeBarcodesDelivered => _t(
+    en: 'Buyer and seller barcodes were sent automatically in Madar.',
+    ar: 'تم إرسال باركود المشتري والبائع تلقائياً داخل مدار.',
+    ku: 'بارکۆدی کڕیار و فرۆشیار خۆکارانە نێردران.',
+  );
+  String get officeBuyerBarcode =>
+      _t(en: 'Buyer barcode', ar: 'باركود المشتري', ku: 'بارکۆدی کڕیار');
+  String get officeSellerBarcode =>
+      _t(en: 'Seller barcode', ar: 'باركود البائع', ku: 'بارکۆدی فرۆشیار');
+  String get officeBackToTransactions => _t(
+    en: 'Back to deals',
+    ar: 'العودة للعمليات',
+    ku: 'گەڕانەوە بۆ مامەڵەکان',
+  );
+  String get officeStepBarcode =>
+      _t(en: 'Barcode', ar: 'الباركود', ku: 'بارکۆد');
+  String get officeLastUpdated =>
+      _t(en: 'Last updated', ar: 'آخر تحديث', ku: 'دوایین نوێکردنەوە');
+  String get officeCurrentResponsibility => _t(
+    en: 'Current responsibility',
+    ar: 'المسؤولية الحالية',
+    ku: 'بەرپرسیاری ئێستا',
+  );
+  String get officeProgress =>
+      _t(en: 'Progress', ar: 'التقدم', ku: 'پێشکەوتن');
+  String get officeMonitorReadOnlyNote => _t(
+    en: 'Monitoring only. Lawyer, finance, and bank stages cannot be changed by the office.',
+    ar: 'مراقبة فقط. لا يمكن للمكتب تعديل مراحل المحامي أو المالية أو المصرف.',
+    ku: 'تەنها چاودێری. ئۆفیس ناتوانێت قۆناغەکانی پارێزەر/ دارایی/ بانک بگۆڕێت.',
+  );
+  String get officeExpectedCommission => _t(
+    en: 'Expected commission',
+    ar: 'العمولة المتوقعة',
+    ku: 'کۆمیسیۆنی چاوەڕوانکراو',
+  );
+  String get officeCommissionHint => _t(
+    en: 'Share is calculated from company commission rules — not a full internal ledger.',
+    ar: 'تُحسب الحصة من قواعد عمولة الشركة — وليست كشفاً محاسبياً داخلياً كاملاً.',
+    ku: 'بەشکردن لە ڕێساکانی کۆمپانیا دێت — نەک هەژماری ناوخۆیی تەواو.',
+  );
+  String get officeFilterThisMonth =>
+      _t(en: 'This month', ar: 'هذا الشهر', ku: 'ئەم مانگە');
+  String get officeFilterLastMonth =>
+      _t(en: 'Last month', ar: 'الشهر الماضي', ku: 'مانگی پێشوو');
+  String get officeFilterThisYear =>
+      _t(en: 'This year', ar: 'هذه السنة', ku: 'ئەمساڵ');
+  String get officeCancelled =>
+      _t(en: 'Cancelled', ar: 'ملغاة', ku: 'هەڵوەشاوە');
+  String get officePropertyType =>
+      _t(en: 'Property type', ar: 'نوع العقار', ku: 'جۆری موڵک');
+  String get officeListingType =>
+      _t(en: 'Sale / Rent', ar: 'بيع / إيجار', ku: 'فرۆشتن / کرێ');
+  String get officeLocation =>
+      _t(en: 'Location', ar: 'الموقع', ku: 'شوێن');
+  String get officeOwnerPhone =>
+      _t(en: 'Phone number', ar: 'رقم الهاتف', ku: 'ژمارەی تەلەفۆن');
+  String get officeEstimatedPrice =>
+      _t(en: 'Estimated price', ar: 'السعر التقديري', ku: 'نرخی خەمڵێنراو');
+  String get officeAdditionalInfo => _t(
+    en: 'Additional information',
+    ar: 'معلومات إضافية',
+    ku: 'زانیاری زیاتر',
+  );
+  String get officeSendReport =>
+      _t(en: 'Send report', ar: 'إرسال البلاغ', ku: 'ناردنی ڕاپۆرت');
+  String get officeReportSubmitted => _t(
+    en: 'Report submitted — under review.',
+    ar: 'تم إرسال البلاغ — قيد المراجعة.',
+    ku: 'ڕاپۆرت نێردرا — لە پێداچوونەوەدایە.',
+  );
+  String get officePerformance =>
+      _t(en: 'Office performance', ar: 'أداء المكتب', ku: 'ئەدای ئۆفیس');
+  String get officeNotifications =>
+      _t(en: 'Notifications', ar: 'الإشعارات', ku: 'ئاگادارییەکان');
+  String get officeProfile =>
+      _t(en: 'Office profile', ar: 'بيانات المكتب', ku: 'زانیاری ئۆفیس');
+  String get officeDocuments =>
+      _t(en: 'Documents', ar: 'مستندات المكتب', ku: 'بەڵگەنامەکان');
+  String get officeSupport => _t(en: 'Support', ar: 'الدعم', ku: 'پشتگیری');
+  String get officeSignOut =>
+      _t(en: 'Sign out', ar: 'تسجيل الخروج', ku: 'دەرچوون');
+  String get officeNoNotifications => _t(
+    en: 'No notifications yet.',
+    ar: 'لا إشعارات بعد.',
+    ku: 'هێشتا ئاگاداری نییە.',
+  );
+  String get officePerfProperties =>
+      _t(en: 'Properties added', ar: 'عقارات مضافة', ku: 'موڵکی زیادکراو');
+  String get officePerfBuyers =>
+      _t(en: 'Buyers referred', ar: 'مشترون أحضرهم المكتب', ku: 'کڕیاری هێنراو');
+  String get officePerfTransactions =>
+      _t(en: 'Transactions', ar: 'العمليات', ku: 'مامەڵەکان');
+  String get officePerfCompletion =>
+      _t(en: 'Completion rate', ar: 'نسبة الإتمام', ku: 'ڕێژەی تەواوبوون');
+  String get officePerfActive =>
+      _t(en: 'Active listings', ar: 'عقارات نشطة', ku: 'موڵکی چالاک');
+  String get officePerfLeads =>
+      _t(en: 'Reports / leads', ar: 'بلاغات / فرص', ku: 'ڕاپۆرت / دەرفەت');
+  String get officeName =>
+      _t(en: 'Office name', ar: 'اسم المكتب', ku: 'ناوی ئۆفیس');
+  String get officeAddress =>
+      _t(en: 'Address', ar: 'العنوان', ku: 'ناونیشان');
+  String get officePhone => _t(en: 'Phone', ar: 'الهاتف', ku: 'تەلەفۆن');
+  String get officeManager =>
+      _t(en: 'Manager', ar: 'المدير', ku: 'بەڕێوەبەر');
+  String get officeLicense =>
+      _t(en: 'License', ar: 'الرخصة', ku: 'مۆڵەت');
+  String get officeCountry =>
+      _t(en: 'Country', ar: 'الدولة', ku: 'وڵات');
+  String get officeCurrency =>
+      _t(en: 'Currency', ar: 'العملة', ku: 'دراو');
+  String get officeJoined =>
+      _t(en: 'Joined', ar: 'تاريخ الانضمام', ku: 'بەرواری بەشداری');
+  String get officeProfileReadOnlyNote => _t(
+    en: 'Sensitive fields are managed by the company and cannot be edited here.',
+    ar: 'البيانات الحساسة تُدار من الشركة ولا يمكن تعديلها من هنا.',
+    ku: 'زانیاری هەستیار لەلایەن کۆمپانیا بەڕێوەدەبرێت و لێرە ناگۆڕدرێت.',
+  );
+  String get officeNoDocuments => _t(
+    en: 'No documents shared yet.',
+    ar: 'لا مستندات مشاركة بعد.',
+    ku: 'هێشتا بەڵگەنامە هاوبەش نەکراوە.',
+  );
+  String get officeOpenTicket =>
+      _t(en: 'Open a support ticket', ar: 'فتح طلب دعم', ku: 'کردنەوەی داوای پشتگیری');
+  String get officeTicketSubject =>
+      _t(en: 'Subject', ar: 'الموضوع', ku: 'بابەت');
+  String get officeTicketBody =>
+      _t(en: 'Details', ar: 'التفاصيل', ku: 'وردەکاری');
+  String get officeSubmitTicket =>
+      _t(en: 'Submit ticket', ar: 'إرسال الطلب', ku: 'ناردنی داوا');
+  String get officeYourTickets =>
+      _t(en: 'Your tickets', ar: 'طلباتك', ku: 'داواکانت');
+  String get officeNoTickets =>
+      _t(en: 'No support tickets yet.', ar: 'لا طلبات دعم بعد.', ku: 'هێشتا داوای پشتگیری نییە.');
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String en,

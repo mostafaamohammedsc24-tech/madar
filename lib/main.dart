@@ -6,6 +6,7 @@ import './core/localization/app_localizations.dart';
 import './core/localization/locale_provider.dart';
 import './providers/country_context_provider.dart';
 import './features/authentication/routing/auth_globals.dart';
+import './features/office/routing/office_globals.dart';
 import './services/mixpanel_service.dart';
 import './services/supabase_service.dart';
 import './widgets/custom_error_widget.dart';
@@ -28,6 +29,9 @@ void main() async {
   } catch (e) {
     debugPrint('Failed to initialize Mixpanel: $e');
   }
+
+  wireOfficeAuthIntoRouter();
+  await officeAuthNotifier.initialize();
 
   bool hasShownError = false;
 
@@ -57,6 +61,7 @@ void main() async {
               create: (_) => CountryContextProvider(),
             ),
             provider.ChangeNotifierProvider.value(value: userAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: officeAuthNotifier),
           ],
           child: const MyApp(),
         ),
