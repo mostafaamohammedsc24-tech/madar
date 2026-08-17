@@ -874,9 +874,10 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
               runSpacing: 8,
               alignment: WrapAlignment.center,
               children: [
-                _buildSuggestionChip(loc.findApartmentInBaghdad),
-                _buildSuggestionChip(loc.whatArePropertyPrices),
-                _buildSuggestionChip(loc.howDealsWork),
+                _buildSuggestionChip('أرخص شقة قريبة من مدارس'),
+                _buildSuggestionChip('فيلا في المنصور مع مسبح'),
+                _buildSuggestionChip('إيجار مكتب في بغداد'),
+                _buildSuggestionChip('أفضل قيمة تحت 200 ألف'),
               ],
             ),
           ],
