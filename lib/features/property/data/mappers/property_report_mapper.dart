@@ -3,6 +3,7 @@ import '../../domain/enums/media_category.dart';
 import '../../domain/enums/property_status.dart';
 import '../../domain/models/property_areas.dart';
 import '../../domain/models/property_documents.dart';
+import '../../domain/models/property_extended.dart';
 import '../../domain/models/property_features.dart';
 import '../../domain/models/property_finance.dart';
 import '../../domain/models/property_language.dart';
@@ -140,6 +141,9 @@ class PropertyReportMapper {
         neighborhood: d['neighborhood'] as String?,
         street: d['street'] as String?,
         postalCode: d['postal_code'] as String?,
+        elevationM: (d['elevation_m'] as num?)?.toDouble() ??
+            (intel['elevation_m'] as num?)?.toDouble(),
+        province: d['province'] as String? ?? intel['province'] as String?,
       ),
       pricing: PropertyPricing(
         currentPrice: current,
@@ -218,6 +222,23 @@ class PropertyReportMapper {
       originalLanguage: _resolveOriginalLanguage(d, intel),
       contentVersion: _resolveContentVersion(d, intel),
       rawSource: d,
+      dimensions: _mapDimensions(
+        _asMap(intel['dimensions']) ?? _asMap(d['dimensions']),
+      ),
+      construction: _mapConstruction(
+        _asMap(intel['construction']) ?? _asMap(d['construction']),
+        d,
+      ),
+      builder: _mapBuilder(
+        _asMap(intel['builder']) ?? _asMap(d['builder']),
+        d,
+      ),
+      listingMeta: _mapListingMeta(d),
+      verification: _mapVerification(d, intel),
+      tags: _mapTags(d, intel),
+      marketAnalytics: _mapMarketAnalytics(
+        _asMap(intel['market_analytics']),
+      ),
     );
   }
 
@@ -712,5 +733,144 @@ class PropertyReportMapper {
       phone: p['phone'] as String?,
       isVerified: p['is_verified'] as bool? ?? false,
     );
+  }
+
+  PropertyDimensions? _mapDimensions(Map<String, dynamic>? json) {
+    if (json == null) return null;
+    final roomsRaw = json['rooms'] as List?;
+    final rooms = <RoomDimensions>[];
+    if (roomsRaw != null) {
+      for (final r in roomsRaw) {
+        if (r is! Map) continue;
+        final m = Map<String, dynamic>.from(r);
+        final room = RoomDimensions(
+          name: m['name'] as String? ?? m['room'] as String? ?? '',
+          lengthM: (m['length_m'] as num?)?.toDouble(),
+          widthM: (m['width_m'] as num?)?.toDouble(),
+          areaSqm: (m['area_sqm'] as num?)?.toDouble(),
+          ceilingHeightM: (m['ceiling_height_m'] as num?)?.toDouble(),
+          roomKey: m['room_key'] as String?,
+          linked3dPointId: m['linked_3d_point_id'] as String?,
+          linkedMediaIds: (m['linked_media_ids'] as List?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              const [],
+        );
+        if (room.name.isNotEmpty && room.hasAny) rooms.add(room);
+      }
+    }
+    final dims = PropertyDimensions(
+      landLengthM: (json['land_length_m'] as num?)?.toDouble(),
+      landWidthM: (json['land_width_m'] as num?)?.toDouble(),
+      buildingLengthM: (json['building_length_m'] as num?)?.toDouble(),
+      buildingWidthM: (json['building_width_m'] as num?)?.toDouble(),
+      frontageM: (json['frontage_m'] as num?)?.toDouble(),
+      rearWidthM: (json['rear_width_m'] as num?)?.toDouble(),
+      sideLengthM: (json['side_length_m'] as num?)?.toDouble(),
+      streetWidthM: (json['street_width_m'] as num?)?.toDouble(),
+      setbackM: (json['setback_m'] as num?)?.toDouble(),
+      buildingHeightM: (json['building_height_m'] as num?)?.toDouble(),
+      ceilingHeightM: (json['ceiling_height_m'] as num?)?.toDouble(),
+      rooms: rooms,
+    );
+    return dims.hasAny ? dims : null;
+  }
+
+  PropertyConstruction? _mapConstruction(
+    Map<String, dynamic>? json,
+    Map<String, dynamic> d,
+  ) {
+    final c = PropertyConstruction(
+      yearBuilt: (json?['year_built'] as num?)?.toInt() ??
+          (d['year_built'] as num?)?.toInt(),
+      constructionStatus: json?['construction_status'] as String?,
+      lastRenovation: json?['last_renovation'] as String?,
+      lastMaintenance: json?['last_maintenance'] as String?,
+      constructionMaterial: json?['construction_material'] as String?,
+      structureType: json?['structure_type'] as String?,
+      foundationType: json?['foundation_type'] as String?,
+      roofType: json?['roof_type'] as String?,
+      exteriorMaterial: json?['exterior_material'] as String?,
+      interiorMaterial: json?['interior_material'] as String?,
+    );
+    return c.hasAny ? c : null;
+  }
+
+  PropertyBuilderInfo? _mapBuilder(
+    Map<String, dynamic>? json,
+    Map<String, dynamic> d,
+  ) {
+    final b = PropertyBuilderInfo(
+      companyName: json?['company_name'] as String? ??
+          d['builder_company'] as String? ??
+          d['builder'] as String?,
+      companyId: json?['company_id'] as String?,
+      contractorName: json?['contractor_name'] as String?,
+      projectName: json?['project_name'] as String?,
+      developer: json?['developer'] as String?,
+      constructionCompany: json?['construction_company'] as String?,
+      architect: json?['architect'] as String?,
+      engineeringOffice: json?['engineering_office'] as String?,
+    );
+    return b.hasAny ? b : null;
+  }
+
+  PropertyListingMeta? _mapListingMeta(Map<String, dynamic> d) {
+    final propertyNumberId = d['property_number_id']?.toString() ??
+        d['propertyNumberId']?.toString();
+    final listingId =
+        d['listing_id']?.toString() ?? d['listingId']?.toString();
+    final meta = PropertyListingMeta(
+      listingId: listingId,
+      propertyNumberId: propertyNumberId,
+      publisherName: d['publisher_name'] as String?,
+      publishedAt: _parseDate(d['published_at']) ?? _parseDate(d['created_at']),
+      views: (d['views_count'] as num?)?.toInt() ?? (d['views'] as num?)?.toInt(),
+      saves: (d['saves_count'] as num?)?.toInt() ?? (d['saves'] as num?)?.toInt(),
+      shares: (d['shares_count'] as num?)?.toInt(),
+      statusLabel: d['listing_status'] as String?,
+    );
+    return meta.hasAny ? meta : null;
+  }
+
+  PropertyVerificationFlags _mapVerification(
+    Map<String, dynamic> d,
+    Map<String, dynamic> intel,
+  ) {
+    final v = _asMap(d['verification']) ?? _asMap(intel['verification']);
+    if (v == null) {
+      final verified = d['is_verified'] as bool? ?? false;
+      return PropertyVerificationFlags(propertyVerified: verified);
+    }
+    return PropertyVerificationFlags(
+      propertyVerified: v['property_verified'] as bool? ?? false,
+      locationVerified: v['location_verified'] as bool? ?? false,
+      informationVerified: v['information_verified'] as bool? ?? false,
+      documentsVerified: v['documents_verified'] as bool? ?? false,
+      photosVerified: v['photos_verified'] as bool? ?? false,
+    );
+  }
+
+  List<String> _mapTags(Map<String, dynamic> d, Map<String, dynamic> intel) {
+    final raw = d['tags'] ?? intel['tags'];
+    if (raw is List) {
+      return raw.map((e) => e.toString()).where((s) => s.isNotEmpty).toList();
+    }
+    return const [];
+  }
+
+  PropertyMarketAnalytics? _mapMarketAnalytics(Map<String, dynamic>? json) {
+    if (json == null) return null;
+    final m = PropertyMarketAnalytics(
+      averagePriceInArea: json['average_price_in_area']?.toString(),
+      averagePricePerSqm: json['average_price_per_sqm']?.toString(),
+      averageRent: json['average_rent']?.toString(),
+      averageRentalYield: (json['average_rental_yield'] as num?)?.toDouble(),
+      priceTrend: json['price_trend'] as String?,
+      demand: json['demand'] as String?,
+      listingsCount: (json['listings_count'] as num?)?.toInt(),
+      daysOnMarket: (json['days_on_market'] as num?)?.toInt(),
+    );
+    return m.hasAny ? m : null;
   }
 }

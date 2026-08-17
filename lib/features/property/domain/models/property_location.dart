@@ -10,6 +10,8 @@ class PropertyLocation {
     this.neighborhood,
     this.street,
     this.postalCode,
+    this.elevationM,
+    this.province,
   });
 
   final double? latitude;
@@ -22,6 +24,8 @@ class PropertyLocation {
   final String? neighborhood;
   final String? street;
   final String? postalCode;
+  final double? elevationM;
+  final String? province;
 
   bool get hasCoordinates =>
       latitude != null &&

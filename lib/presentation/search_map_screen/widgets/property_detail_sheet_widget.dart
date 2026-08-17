@@ -1,5 +1,6 @@
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../features/property/presentation/navigation/open_property_report.dart';
 import '../../../services/supabase_service.dart';
 import '../search_map_screen.dart';
 import 'property_card_copy.dart';
@@ -48,12 +49,11 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
       if (mounted) setState(() => _isTogglingFavorite = false);
     }
     if (mounted) {
+      final loc = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            _isFavorited
-                ? 'تمت الإضافة إلى المفضلة ❤️'
-                : 'تمت الإزالة من المفضلة',
+            _isFavorited ? loc.favoriteAdded : loc.favoriteRemoved,
           ),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
@@ -63,6 +63,19 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
         ),
       );
     }
+  }
+
+  void _openFullReport() {
+    openPropertyReport(
+      context,
+      propertyMap: widget.property.toDetailMap(),
+      popSheetFirst: true,
+    );
+  }
+
+  void _contactSales() {
+    Navigator.pop(context);
+    context.push('/messages');
   }
 
   @override
@@ -136,9 +149,9 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                             }),
                           ),
                         ),
-                      Positioned(
+                      PositionedDirectional(
                         top: 12,
-                        right: 16,
+                        end: 16,
                         child: GestureDetector(
                           onTap: _toggleFavorite,
                           child: AnimatedContainer(
@@ -181,9 +194,9 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                           ),
                         ),
                       ),
-                      Positioned(
+                      PositionedDirectional(
                         top: 12,
-                        left: 16,
+                        start: 16,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
@@ -262,6 +275,13 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                                     color: AppTheme.primary,
                                   ),
                                 ),
+                                if (p.area > 0)
+                                  Text(
+                                    '${loc.sqmPrice}: ${(p.price / p.area).toStringAsFixed(0)} ${p.currency}/m²',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
                                 if (p.isVerified)
                                   Row(
                                     children: [
@@ -317,7 +337,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                             Expanded(
                               child: _StatCard(
                                 icon: 'square_foot',
-                                label: 'Area',
+                                label: loc.propertyAreaShort,
                                 value: '${p.area.toInt()} m²',
                               ),
                             ),
@@ -325,8 +345,10 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                             Expanded(
                               child: _StatCard(
                                 icon: 'bed',
-                                label: 'Bedrooms',
-                                value: p.bedrooms > 0 ? '${p.bedrooms}' : 'N/A',
+                                label: loc.bedrooms,
+                                value: p.bedrooms > 0
+                                    ? '${p.bedrooms}'
+                                    : loc.informationUnavailable,
                               ),
                             ),
                           ],
@@ -337,18 +359,18 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                             Expanded(
                               child: _StatCard(
                                 icon: 'bathtub',
-                                label: 'Bathrooms',
+                                label: loc.bathrooms,
                                 value: p.bathrooms > 0
                                     ? '${p.bathrooms}'
-                                    : 'N/A',
+                                    : loc.informationUnavailable,
                               ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: _StatCard(
                                 icon: 'category',
-                                label: 'Type',
-                                value: p.type.toUpperCase(),
+                                label: loc.propertyTypeLabel,
+                                value: PropertyCardCopy.type(context, p),
                               ),
                             ),
                           ],
@@ -358,7 +380,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                           children: [
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: () {},
+                                onPressed: _contactSales,
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppTheme.primary,
                                   side: const BorderSide(
@@ -376,9 +398,9 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                                   color: AppTheme.primary,
                                   size: 16,
                                 ),
-                                label: const Text(
-                                  'Contact',
-                                  style: TextStyle(
+                                label: Text(
+                                  loc.contactSalesTeam,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -388,13 +410,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  context.push(
-                                    '/property-detail',
-                                    extra: widget.property.toDetailMap(),
-                                  );
-                                },
+                                onPressed: _openFullReport,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.primary,
                                   foregroundColor: Colors.white,
@@ -410,9 +426,9 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                                   color: Colors.white,
                                   size: 16,
                                 ),
-                                label: const Text(
-                                  'View Details',
-                                  style: TextStyle(
+                                label: Text(
+                                  loc.moreDetails,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                   ),

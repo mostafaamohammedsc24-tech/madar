@@ -58,13 +58,15 @@ class PropertyCatalogDemo {
   static const List<Map<String, dynamic>> _maps = [
     {
       'id': 'prop_001',
+      'property_number_id': '48271635',
+      'listing_id': 'LST-2024-8841',
       'district': 'الكرادة',
       'builder_company': 'شركة الرشيد للإعمار',
       'year_built': 2019,
       'title': 'Modern Apartment — Karrada',
       'address': '14 Al-Nidhal St, Karrada, Baghdad',
-      'price': 185000,
-      'currency': 'USD',
+      'price': 250000000,
+      'currency': 'IQD',
       'area': 180,
       'bedrooms': 3,
       'bathrooms': 2,
@@ -72,14 +74,198 @@ class PropertyCatalogDemo {
       'listingType': 'sale',
       'lat': 33.3152,
       'lng': 44.3932,
+      'elevation_m': 34,
+      'province': 'Baghdad',
+      'country_name': 'Iraq',
+      'views_count': 1240,
+      'saves_count': 86,
+      'original_language': 'ar',
       'imageUrl':
           'https://images.unsplash.com/photo-1723709125265-889b7d62dcba',
       'semanticLabel': 'Modern apartment Karrada',
       'isVerified': true,
       'isFeatured': true,
-      'tags': ['Furnished', 'Central AC', 'Parking', 'Elevator', 'Balcony'],
+      'tags': ['Verified', 'Great Value', 'Near School', 'Family Friendly'],
       'description':
           'شقة عصرية مفروشة في الكرادة قرب الجامعات والمستشفيات. موقف سيارة، تكييف مركزي، إطلالة شارع، مناسبة للعوائل الصغيرة والموظفين.',
+      'media': [
+        {
+          'url': 'https://images.unsplash.com/photo-1723709125265-889b7d62dcba',
+          'category': 'exterior',
+        },
+        {
+          'url': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
+          'category': 'living_room',
+        },
+        {
+          'url': 'https://images.unsplash.com/photo-1556912173-46c336c0fd55?w=800',
+          'category': 'kitchen',
+        },
+        {
+          'url': 'https://images.unsplash.com/photo-1616594039964-4089a9147672?w=800',
+          'category': 'master_bedroom',
+        },
+      ],
+      'intelligence': {
+        'whats_special': {
+          'headline': 'موقع استثنائي في قلب الكرادة',
+          'body':
+              'شقة مفروشة بالكامل بإطلالة شارع واسعة، قريبة من المدارس والمستشفيات وكورniche.',
+          'highlights': [
+            'تصميم عصري وتشطيبات عالية',
+            'سعر أقل من متوسط المنطقة',
+            'مناسبة للعائلات والاستثمار',
+          ],
+        },
+        'areas': {'built_up': 180, 'land': 220},
+        'dimensions': {
+          'building_length_m': 12.5,
+          'building_width_m': 14.4,
+          'frontage_m': 12.5,
+          'street_width_m': 18,
+          'ceiling_height_m': 3.2,
+          'rooms': [
+            {
+              'name': 'Master Bedroom',
+              'length_m': 5.2,
+              'width_m': 4.5,
+              'area_sqm': 23.4,
+            },
+            {
+              'name': 'Living Room',
+              'length_m': 7,
+              'width_m': 5,
+              'area_sqm': 35,
+            },
+          ],
+        },
+        'construction': {
+          'year_built': 2019,
+          'construction_status': 'Completed',
+          'construction_material': 'Reinforced concrete',
+          'structure_type': 'Frame',
+          'roof_type': 'Flat',
+        },
+        'builder': {
+          'company_name': 'شركة الرشيد للإعمار',
+          'developer': 'Al-Rashid Development',
+          'architect': 'Baghdad Design Studio',
+        },
+        'rental': {
+          'monthly_rent': 1500000,
+          'annual_rent': 18000000,
+          'rental_yield': 7.2,
+        },
+        'investment': {
+          'expected_rental_yield': 7.2,
+          'demand': 'High',
+          'price_trend': 'Rising',
+        },
+        'market_analytics': {
+          'average_price_in_area': '280,000,000 IQD',
+          'average_price_per_sqm': '1,400,000 IQD/m²',
+          'average_rental_yield': 6.8,
+          'days_on_market': 42,
+        },
+        'history': {
+          'price_history': [
+            {
+              'price': 180000000,
+              'effective_date': '2020-06-01',
+              'reason': 'Listed',
+            },
+            {
+              'price': 220000000,
+              'effective_date': '2022-03-15',
+              'change_percent': 22.2,
+            },
+            {
+              'price': 250000000,
+              'effective_date': '2024-01-10',
+              'change_percent': 13.6,
+            },
+          ],
+          'sales_history': [
+            {
+              'sale_price': 120000000,
+              'sold_at': '2015-08-20',
+              'transaction_type': 'Sold',
+            },
+            {
+              'sale_price': 180000000,
+              'sold_at': '2020-06-01',
+              'transaction_type': 'Sold',
+            },
+          ],
+          'tax_history': [
+            {
+              'tax_year': 2024,
+              'assessed_value': 200000000,
+              'tax_amount': 2500000,
+            },
+          ],
+        },
+        'surroundings': {
+          'neighborhood': {
+            'summary': 'حي سكني راقٍ قريب من نهر دجلة',
+            'demand_level': 'High',
+            'walk_score': 72,
+          },
+          'nearby_places': [
+            {
+              'name': 'Baghdad College',
+              'category': 'education',
+              'distance_meters': 1200,
+              'travel_time_minutes': 4,
+            },
+            {
+              'name': 'Al-Nahrain Hospital',
+              'category': 'healthcare',
+              'distance_meters': 2400,
+              'travel_time_minutes': 8,
+            },
+            {
+              'name': 'Family Mall',
+              'category': 'shopping',
+              'distance_meters': 900,
+              'travel_time_minutes': 3,
+            },
+          ],
+          'future_projects': [
+            {
+              'name': 'Karrada Riverside Park',
+              'type': 'Infrastructure',
+              'status': 'Planned',
+              'developer': 'Baghdad Municipality',
+              'estimated_impact': 'positive',
+            },
+          ],
+          'climate_risk': {
+            'flood_risk': 'Low',
+            'extreme_heat': 'Moderate',
+          },
+        },
+        'interior': {
+          'Flooring': 'Marble',
+          'Kitchen': 'Fully equipped',
+          'Central AC': true,
+          'Smart Home': false,
+        },
+        'exterior': {
+          'Balcony': true,
+          'Parking': 'Dedicated spot',
+        },
+        'utilities': {
+          'Electricity': 'Grid',
+          'Water': 'Municipal',
+          'Internet': 'Fiber ready',
+        },
+        'verification': {
+          'property_verified': true,
+          'location_verified': true,
+          'photos_verified': true,
+        },
+      },
       'nearbySchools': [
         'Baghdad College',
         'Al-Mansour Primary',

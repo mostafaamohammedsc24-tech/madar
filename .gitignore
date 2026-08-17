@@ -51,3 +51,4 @@ android/app/.cxx
 env.local.json
 .env
 .env.*
+.metadata

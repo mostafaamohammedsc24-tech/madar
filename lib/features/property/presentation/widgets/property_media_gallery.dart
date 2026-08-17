@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../domain/enums/media_category.dart';
 import '../../domain/models/property_media.dart';
+import 'media_category_labels.dart';
+import 'property_fullscreen_gallery.dart';
 
 class PropertyMediaGalleryView extends StatefulWidget {
   const PropertyMediaGalleryView({
@@ -78,13 +80,20 @@ class _PropertyMediaGalleryViewState extends State<PropertyMediaGalleryView> {
                 itemCount: items.length,
                 onPageChanged: (i) => setState(() => _index = i),
                 itemBuilder: (_, i) {
-                  return Image.network(
-                    items[i].url,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.broken_image_outlined),
+                  return GestureDetector(
+                    onTap: () => PropertyFullscreenGallery.open(
+                      context,
+                      items: items,
+                      initialIndex: i,
+                    ),
+                    child: Image.network(
+                      items[i].url,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.broken_image_outlined),
+                      ),
                     ),
                   );
                 },
@@ -179,25 +188,7 @@ class _PropertyMediaGalleryViewState extends State<PropertyMediaGalleryView> {
   }
 
   String _categoryLabel(AppLocalizations loc, MediaCategory c) {
-    // Labels stay English keys mapped lightly; publisher categories are codes.
-    switch (c) {
-      case MediaCategory.exterior:
-        return loc.exterior;
-      case MediaCategory.kitchen:
-        return 'Kitchen';
-      case MediaCategory.bedroom:
-        return 'Bedroom';
-      case MediaCategory.bathroom:
-        return loc.bathrooms;
-      case MediaCategory.garden:
-        return loc.garden;
-      case MediaCategory.pool:
-        return loc.pool;
-      case MediaCategory.floorPlan:
-        return loc.floorPlan;
-      default:
-        return c.name;
-    }
+    return loc.labelForMediaCategory(c);
   }
 }
 
