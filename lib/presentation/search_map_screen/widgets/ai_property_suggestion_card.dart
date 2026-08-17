@@ -23,6 +23,7 @@ class AiPropertySuggestionCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 260,
+        height: 228,
         margin: const EdgeInsetsDirectional.only(end: 10),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
@@ -42,15 +43,16 @@ class AiPropertySuggestionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
+            SizedBox(
+              height: 118,
+              width: double.infinity,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   Image.network(
                     p.imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: theme.colorScheme.surfaceContainerHighest,
                       child: const Icon(Icons.home_work_outlined),
                     ),
@@ -83,64 +85,70 @@ class AiPropertySuggestionCard extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    PropertyCardCopy.title(context, p),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      PropertyCardCopy.title(context, p),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${PropertyCardCopy.price(context, p)} · ${p.area.toStringAsFixed(0)} m²'
-                    '${p.bedrooms > 0 ? ' · ${p.bedrooms}' : ''}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppTheme.primary,
-                      fontWeight: FontWeight.w600,
+                    const SizedBox(height: 2),
+                    Text(
+                      '${PropertyCardCopy.price(context, p)} · ${p.area.toStringAsFixed(0)} m²'
+                      '${p.bedrooms > 0 ? ' · ${p.bedrooms}' : ''}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    suggestion.reason.isNotEmpty
-                        ? suggestion.reason
-                        : p.address,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                      height: 1.3,
-                    ),
-                  ),
-                  if (p.nearbySchools.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.school_outlined,
-                          size: 14,
+                    const SizedBox(height: 2),
+                    Expanded(
+                      child: Text(
+                        suggestion.reason.isNotEmpty
+                            ? suggestion.reason
+                            : p.address,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.55,
+                            alpha: 0.7,
                           ),
+                          height: 1.3,
                         ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            p.nearbySchools.first,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.labelSmall,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
+                    if (p.nearbySchools.isNotEmpty)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.school_outlined,
+                            size: 14,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.55,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              p.nearbySchools.first,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.labelSmall,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
-                ],
+                ),
               ),
             ),
           ],

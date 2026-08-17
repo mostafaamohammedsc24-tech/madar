@@ -1198,7 +1198,7 @@ class AppLocalizations {
     ku: 'تیمی داخستنی مامەڵە',
   );
   String get msgAgentLawyer =>
-      _t(en: 'Agent / Lawyer', ar: 'الوكيل / المحامي', ku: 'نوێنەر / پارێزەر');
+      _t(en: 'Private agent', ar: 'الوكيل الخاص', ku: 'بریکاری تایبەت');
   String get msgAiSub => _t(
     en: 'Powered by AI',
     ar: 'مدعوم بالذكاء الاصطناعي',
@@ -1214,9 +1214,31 @@ class AppLocalizations {
   String get msgClosingSub =>
       _t(en: 'Close your deals', ar: 'لإتمام صفقاتك', ku: 'مامەڵەکانت دابخە');
   String get msgAgentSub => _t(
-    en: 'Receive transaction code',
-    ar: 'لاستلام رمز الصفقة',
-    ku: 'وەرگرتنی کۆدی مامەڵە',
+    en: 'Send and receive deal barcodes only',
+    ar: 'مخصص لاستقبال وإرسال الباركود فقط',
+    ku: 'تەنها بۆ ناردن و وەرگرتنی بارکۆد',
+  );
+  String get voiceNote =>
+      _t(en: 'Voice note', ar: 'رسالة صوتية', ku: 'نامەی دەنگی');
+  String get recording =>
+      _t(en: 'Recording…', ar: 'جاري التسجيل…', ku: 'تۆمارکردن…');
+  String get videoLabel => _t(en: 'Video', ar: 'فيديو', ku: 'ڤیدیۆ');
+  String get sendBarcode =>
+      _t(en: 'Deal barcode', ar: 'باركود الصفقة', ku: 'بارکۆدی مامەڵە');
+  String get callsComingSoon => _t(
+    en: 'Calls will be available soon',
+    ar: 'المكالمات ستكون متاحة قريباً',
+    ku: 'پەیوەندییەکان بەم زووانە بەردەست دەبن',
+  );
+  String get tapToOpenChat => _t(
+    en: 'Tap to open chat',
+    ar: 'اضغط لفتح المحادثة',
+    ku: 'بۆ کردنەوەی گفتوگۆ لێبدە',
+  );
+  String get agentInputHint => _t(
+    en: 'Send a barcode image or code…',
+    ar: 'أرسل صورة الباركود أو الرمز…',
+    ku: 'وێنەی بارکۆد یان کۆد بنێرە…',
   );
 
   // ─── Deals / Transactions ───────────────────────────────────────────────────
