@@ -222,7 +222,7 @@ class AppLocalizations {
   String get myProperties =>
       _t(en: 'My Properties', ar: 'أملاكي', ku: 'خانووبەرەکانم');
   String get addProperty =>
-      _t(en: '+ Add Property', ar: '+ إضافة عقار', ku: '+ زیادکردنی خانووبەرە');
+      _t(en: 'Add property +', ar: 'إضافة عقار +', ku: 'زیادکردنی خانووبەرە +');
   String get underReview =>
       _t(en: 'Under Review', ar: 'قيد التدقيق', ku: 'لەژێر پێداچوونەوەدایە');
   String get submittedRequests => _t(
@@ -230,6 +230,166 @@ class AppLocalizations {
     ar: 'الطلبات المقدمة',
     ku: 'داواکاری نێردراوەکان',
   );
+  String get partnerAdTag =>
+      _t(en: 'Madar Partner', ar: 'شريك مدار', ku: 'هاوبەشی مەدار');
+  String get adMovingTitle => _t(
+    en: 'Furniture moving',
+    ar: 'خدمة نقل الأثاث',
+    ku: 'گواستنەوەی کەلوپەل',
+  );
+  String get adMovingSubtitle => _t(
+    en: 'Safe professional relocation for your home or office.',
+    ar: 'نقل احترافي وآمن لمنزلك أو مكتبك.',
+    ku: 'گواستنەوەی پیشەیی و سەلامەت بۆ ماڵ یان ئۆفیس.',
+  );
+  String get adStagingTitle => _t(
+    en: 'Property styling & fit-out',
+    ar: 'تجميل وتجهيز عقاري',
+    ku: 'جوانکردن و ئامادەکردنی خانووبەرە',
+  );
+  String get adStagingSubtitle => _t(
+    en: 'Interior finishing that lifts listing value before photos.',
+    ar: 'تشطيبات داخلية ترفع قيمة إعلانك قبل التصوير.',
+    ku: 'تەواوکاری ناوەوە کە نرخی لیستەکەت بەرز دەکاتەوە.',
+  );
+  String get adWarrantyTitle => _t(
+    en: 'Warranty & maintenance',
+    ar: 'ضمان وصيانة',
+    ku: 'گەرەنتی و چاککردنەوە',
+  );
+  String get adWarrantySubtitle => _t(
+    en: 'Coverage and upkeep so your asset stays protected.',
+    ar: 'تغطية وصيانة تحمي أصلَك على مدار السنة.',
+    ku: 'پاراستن و چاککردنەوە بۆ ئەوەی موڵکەکەت بمێنێت.',
+  );
+  String get addPropertySheetTitle =>
+      _t(en: 'Add a property', ar: 'إضافة عقار', ku: 'زیادکردنی خانووبەرە');
+  String get addPropertySheetHint => _t(
+    en: 'Share location, a photo, and a contact number. Sales will call you.',
+    ar: 'أرسل الموقع والصورة ورقم التواصل، وسيتصل بك فريق المبيعات.',
+    ku: 'شوێن، وێنە و ژمارەی پەیوەندی بنێرە، فرۆشتن پەیوەندیت پێوە دەکات.',
+  );
+  String get propertyLocationLabel =>
+      _t(en: 'Property location', ar: 'موقع العقار', ku: 'شوێنی خانووبەرە');
+  String get useCurrentLocation => _t(
+    en: 'Use my current location',
+    ar: 'استخدام موقعي الحالي',
+    ku: 'شوێنی ئێستام بەکاربهێنە',
+  );
+  String get locationCaptured =>
+      _t(en: 'Location captured', ar: 'تم تحديد الموقع', ku: 'شوێن تۆمارکرا');
+  String get enterAddressManually => _t(
+    en: 'Or enter the address',
+    ar: 'أو أدخل العنوان يدوياً',
+    ku: 'یان ناونیشان بنووسە',
+  );
+  String get addressHint => _t(
+    en: 'e.g. Karrada, near Al-Nidhal Street',
+    ar: 'مثال: الكرادة، بالقرب من شارع النضال',
+    ku: 'نموونە: کەرادە، نزیک شەقامی نیدال',
+  );
+  String get propertyPhotoLabel =>
+      _t(en: 'Property photo', ar: 'صورة العقار', ku: 'وێنەی خانووبەرە');
+  String get addPropertyPhoto =>
+      _t(en: 'Add a photo', ar: 'إضافة صورة للعقار', ku: 'وێنەیەک زیاد بکە');
+  String get takePhoto =>
+      _t(en: 'Take photo', ar: 'التقاط صورة', ku: 'وێنە بگرە');
+  String get chooseFromGallery => _t(
+    en: 'Choose from gallery',
+    ar: 'اختيار من المعرض',
+    ku: 'لە گەلەری هەڵبژێرە',
+  );
+  String get contactNumberLabel =>
+      _t(en: 'Contact number', ar: 'رقم للتواصل', ku: 'ژمارەی پەیوەندی');
+  String get submitPropertyRequest =>
+      _t(en: 'Submit', ar: 'إرسال', ku: 'ناردن');
+  String get propertyRequestSent => _t(
+    en: 'Submitted. Your listing is under review.',
+    ar: 'تم الإرسال. عقارك الآن قيد التدقيق.',
+    ku: 'نێردرا. لیستەکەت لەژێر پێداچوونەوەدایە.',
+  );
+  String get locationRequired => _t(
+    en: 'Add a location or address',
+    ar: 'يرجى تحديد الموقع أو إدخال العنوان',
+    ku: 'شوێن یان ناونیشان زیاد بکە',
+  );
+  String get photoRequired => _t(
+    en: 'Add a property photo',
+    ar: 'يرجى إضافة صورة للعقار',
+    ku: 'وێنەی خانووبەرە زیاد بکە',
+  );
+  String get phoneRequired => _t(
+    en: 'Enter a valid phone number',
+    ar: 'أدخل رقم هاتف صحيح',
+    ku: 'ژمارەیەکی دروست بنووسە',
+  );
+  String get locationDisabled => _t(
+    en: 'Location services are off',
+    ar: 'خدمة الموقع غير مفعّلة',
+    ku: 'خزمەتگوزاری شوێن ناکارایە',
+  );
+  String get locationDenied => _t(
+    en: 'Location permission denied',
+    ar: 'تم رفض إذن الموقع',
+    ku: 'مۆڵەتی شوێن ڕەتکرایەوە',
+  );
+  String get locationFailed => _t(
+    en: 'Could not read location',
+    ar: 'تعذّر الحصول على الموقع',
+    ku: 'نەتوانرا شوێن بخوێنرێتەوە',
+  );
+  String get noPropertiesYet => _t(
+    en: 'No properties yet',
+    ar: 'لا توجد عقارات بعد',
+    ku: 'هێشتا خانووبەرە نییە',
+  );
+  String get noPropertiesHint => _t(
+    en: 'Add your first property and our sales team will follow up.',
+    ar: 'أضف عقارك الأول وسيتواصل معك فريق المبيعات.',
+    ku: 'یەکەم خانووبەرە زیاد بکە و تیمی فرۆشتن پەیوەندیت پێوە دەکات.',
+  );
+  String get marketValue =>
+      _t(en: 'Market value', ar: 'القيمة السوقية', ku: 'نرخی بازاڕ');
+  String get priceInsightsTitle => _t(
+    en: 'What could raise your price',
+    ar: 'ماذا يمكن أن يزيد من سعر عقارك',
+    ku: 'چی دەتوانێت نرخی خانووبەرەکەت بەرز بکاتەوە',
+  );
+  String get priceInsightPhotos => _t(
+    en: 'Pro photography can lift offers by up to 8%.',
+    ar: 'التصوير الاحترافي يمكن أن يرفع العروض حتى 8٪.',
+    ku: 'وێنەگرتنی پیشەیی دەتوانێت ئۆفەر تا 8٪ بەرز بکاتەوە.',
+  );
+  String get priceInsightKitchen => _t(
+    en: 'A kitchen and facade refresh increases local demand.',
+    ar: 'تجديد المطبخ والواجهة يزيد الطلب في منطقتك.',
+    ku: 'نوێکردنەوەی چێشتخانە و ڕوکار داواکاری ناوچەکە زیاد دەکات.',
+  );
+  String get priceInsightDeed => _t(
+    en: 'A complete title deed speeds the sale and supports a higher price.',
+    ar: 'توثيق سند الملكية الكامل يسرّع البيع ويدعم سعراً أعلى.',
+    ku: 'سەندی خاوەنداری تەواو فرۆشتن خێراتر دەکات و نرخ بەرزتر دەکات.',
+  );
+  String get managedByCompany => _t(
+    en: 'Managed by Madar',
+    ar: 'يُدار بواسطة مدار',
+    ku: 'لەلایەن مەدارەوە بەڕێوەدەبرێت',
+  );
+  String get monthlyIncome =>
+      _t(en: 'Your monthly income', ar: 'المكسب الشهري', ku: 'داهاتی مانگانە');
+  String get managementFee => _t(
+    en: 'Fixed company management fee',
+    ar: 'رسوم إدارة الشركة الثابتة',
+    ku: 'کرێی جێگیری بەڕێوەبردنی کۆمپانیا',
+  );
+  String get perMonth => _t(en: '/ month', ar: '/ شهر', ku: '/ مانگ');
+  String get statusActiveLabel => _t(en: 'Active', ar: 'نشط', ku: 'چالاک');
+  String get statusPendingLabel =>
+      _t(en: 'Pending', ar: 'معلق', ku: 'چاوەڕوان');
+  String get ownedListingCount =>
+      _t(en: 'Your listings', ar: 'عقاراتك', ku: 'لیستەکانت');
+  String get gpsLocationFallback =>
+      _t(en: 'GPS location', ar: 'موقع GPS', ku: 'شوێنی GPS');
 
   // ─── Transactions ─────────────────────────────────────────────────────────
   String get transactions =>

@@ -108,19 +108,25 @@ abstract final class AppDemoSeed {
         'id': 'ss-1',
         'query': 'شقق في الكرادة',
         'filters': {'city': 'بغداد', 'type': 'apartment'},
-        'saved_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+        'saved_at': DateTime.now()
+            .subtract(const Duration(days: 1))
+            .toIso8601String(),
       },
       {
         'id': 'ss-2',
         'query': 'فيلا المنصور',
         'filters': {'city': 'بغداد', 'type': 'villa'},
-        'saved_at': DateTime.now().subtract(const Duration(days: 4)).toIso8601String(),
+        'saved_at': DateTime.now()
+            .subtract(const Duration(days: 4))
+            .toIso8601String(),
       },
       {
         'id': 'ss-3',
         'query': 'إيجار قرب جامعة بغداد',
         'filters': {'city': 'بغداد', 'listingType': 'rent'},
-        'saved_at': DateTime.now().subtract(const Duration(days: 8)).toIso8601String(),
+        'saved_at': DateTime.now()
+            .subtract(const Duration(days: 8))
+            .toIso8601String(),
       },
     ];
   }
@@ -131,21 +137,27 @@ abstract final class AppDemoSeed {
         'id': 'un-1',
         'title': 'انخفاض سعر في المنصور',
         'body': 'فيلا في المنصور انخفض سعرها — الآن 405,000\$',
-        'created_at': DateTime.now().subtract(const Duration(minutes: 20)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(minutes: 20))
+            .toIso8601String(),
         'is_read': false,
       },
       {
         'id': 'un-2',
         'title': 'تطابق جديد لبحثك',
         'body': '3 شقق في الكرادة تطابق بحثك المحفوظ',
-        'created_at': DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(hours: 2))
+            .toIso8601String(),
         'is_read': false,
       },
       {
         'id': 'un-3',
         'title': 'تحديث الصفقة',
         'body': 'الصفقة MADAR-IQ-2026-001 في مرحلة الإيداع الضماني',
-        'created_at': DateTime.now().subtract(const Duration(hours: 6)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(hours: 6))
+            .toIso8601String(),
         'is_read': true,
       },
     ];
@@ -166,7 +178,9 @@ abstract final class AppDemoSeed {
         'lifecycle_state': 'escrow_pending',
         'status': 'escrow_pending',
         'current_step_key': 'escrow',
-        'created_at': DateTime.now().subtract(const Duration(days: 16)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(days: 16))
+            .toIso8601String(),
         'buyer_name': 'أحمد الراشدي',
         'seller_name': 'مريم خليل',
         'buyer_phone': '+9647901234567',
@@ -191,7 +205,9 @@ abstract final class AppDemoSeed {
         'lifecycle_state': 'waiting_for_parties',
         'status': 'waiting_for_parties',
         'current_step_key': 'identity',
-        'created_at': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(days: 3))
+            .toIso8601String(),
         'buyer_name': 'ليث المنصور',
         'seller_name': 'شركة الرافدين',
         'buyer_phone': '+9647701112233',
@@ -213,7 +229,9 @@ abstract final class AppDemoSeed {
         'lifecycle_state': 'parties_verified',
         'status': 'parties_verified',
         'current_step_key': 'identity',
-        'created_at': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(days: 5))
+            .toIso8601String(),
         'buyer_name': 'حسين العبودي',
         'seller_name': 'فلاح اليوسفية',
         'buyer_phone': '+9647502223344',
@@ -228,7 +246,9 @@ abstract final class AppDemoSeed {
   static Map<String, dynamic>? demoBarcode(String code) {
     final normalized = code.trim().toUpperCase();
     for (final tx in userTransactions()) {
-      final bc = (tx['barcode_code'] ?? tx['transaction_number']).toString().toUpperCase();
+      final bc = (tx['barcode_code'] ?? tx['transaction_number'])
+          .toString()
+          .toUpperCase();
       if (bc == normalized) {
         return {
           'id': 'barcode-${tx['id']}',
@@ -252,16 +272,43 @@ abstract final class AppDemoSeed {
       {
         'id': 'mine-1',
         'title': 'شقتي في الجادرية',
+        'title_ar': 'شقتي في الجادرية',
+        'title_en': 'My apartment in Jadiriya',
+        'title_ku': 'شوقەکەم لە جادریە',
         'address': 'الجادرية، بغداد',
+        'address_ar': 'الجادرية، بغداد',
+        'address_en': 'Jadiriya, Baghdad',
+        'address_ku': 'جادریە، بەغدا',
         'asking_price_usd': 210000,
         'status': 'active',
+        'listing_type': 'sale',
+        'area': 145,
+        'bedrooms': 3,
+        'property_type': 'apartment',
+        'insights': ['photos', 'kitchen'],
+        'imageUrl':
+            'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800',
       },
       {
         'id': 'mine-2',
         'title': 'محل تجاري — زيونة',
+        'title_ar': 'محل تجاري — زيونة',
+        'title_en': 'Retail unit — Zayouna',
+        'title_ku': 'فرۆشگای بازرگانی — زیوونە',
         'address': 'زيونة، بغداد',
+        'address_ar': 'زيونة، بغداد',
+        'address_en': 'Zayouna, Baghdad',
+        'address_ku': 'زیوونە، بەغدا',
         'asking_price_usd': 160000,
-        'status': 'pending',
+        'status': 'active',
+        'listing_type': 'managed',
+        'monthly_income_usd': 850,
+        'management_fee_usd': 120,
+        'area': 86,
+        'bedrooms': 0,
+        'property_type': 'commercial',
+        'imageUrl':
+            'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800',
       },
     ];
   }
@@ -270,15 +317,23 @@ abstract final class AppDemoSeed {
     return [
       {
         'id': 'sub-1',
+        'title': 'فيلا الحارثية',
+        'title_ar': 'فيلا الحارثية',
+        'title_en': 'Harthiya villa',
+        'title_ku': 'ڤێلای حارسیە',
         'address': 'الحارثية، بغداد',
+        'address_ar': 'الحارثية، بغداد',
+        'address_en': 'Harthiya, Baghdad',
+        'address_ku': 'حارسیە، بەغدا',
         'property_type': 'villa',
-        'status': 'pending',
-      },
-      {
-        'id': 'sub-2',
-        'address': 'الكرادة داخل، بغداد',
-        'property_type': 'apartment',
-        'status': 'review',
+        'status': 'under_review',
+        'listing_type': 'sale',
+        'asking_price_usd': 380000,
+        'area': 320,
+        'bedrooms': 5,
+        'insights': ['deed'],
+        'imageUrl':
+            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
       },
     ];
   }
@@ -290,17 +345,24 @@ abstract final class AppDemoSeed {
           {
             'content': 'مرحباً، كيف يمكنني مساعدتك اليوم؟',
             'sender_type': 'support',
-            'created_at': DateTime.now().subtract(const Duration(hours: 5)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(hours: 5))
+                .toIso8601String(),
           },
           {
             'content': 'أريد معرفة حالة طلبي لنشر العقار.',
             'sender_type': 'user',
-            'created_at': DateTime.now().subtract(const Duration(hours: 4)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(hours: 4))
+                .toIso8601String(),
           },
           {
-            'content': 'طلبك قيد المراجعة من فريق المعلومات. سنخبرك خلال 24 ساعة.',
+            'content':
+                'طلبك قيد المراجعة من فريق المعلومات. سنخبرك خلال 24 ساعة.',
             'sender_type': 'support',
-            'created_at': DateTime.now().subtract(const Duration(hours: 3)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(hours: 3))
+                .toIso8601String(),
           },
         ];
       case 'sales':
@@ -308,12 +370,16 @@ abstract final class AppDemoSeed {
           {
             'content': 'شاهدنا اهتمامك بشقة الكرادة. هل تفضّل معاينة غداً؟',
             'sender_type': 'sales',
-            'created_at': DateTime.now().subtract(const Duration(hours: 8)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(hours: 8))
+                .toIso8601String(),
           },
           {
             'content': 'نعم، بعد العصر مناسب.',
             'sender_type': 'user',
-            'created_at': DateTime.now().subtract(const Duration(hours: 7)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(hours: 7))
+                .toIso8601String(),
           },
         ];
       case 'closing':
@@ -321,7 +387,9 @@ abstract final class AppDemoSeed {
           {
             'content': 'تم تجهيز مسودة العقد. راجعها قبل التوقيع.',
             'sender_type': 'closing',
-            'created_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(days: 1))
+                .toIso8601String(),
           },
         ];
       case 'agent':
@@ -329,7 +397,9 @@ abstract final class AppDemoSeed {
           {
             'content': 'المستمسكات جاهزة للنقل بعد تأكيد الإيداع.',
             'sender_type': 'agent',
-            'created_at': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(days: 2))
+                .toIso8601String(),
           },
         ];
       default:
@@ -495,15 +565,21 @@ abstract final class AppDemoSeed {
         'id': 'on-1',
         'title': 'إحالة جديدة',
         'body': 'مشتري مهتم بشقة الكرادة',
-        'created_at': DateTime.now().subtract(const Duration(minutes: 25)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(minutes: 25))
+            .toIso8601String(),
         'read_at': null,
       },
       {
         'id': 'on-2',
         'title': 'تحديث صفقة',
         'body': 'MADAR-IQ-2026-001 بانتظار الإيداع',
-        'created_at': DateTime.now().subtract(const Duration(hours: 4)).toIso8601String(),
-        'read_at': DateTime.now().subtract(const Duration(hours: 3)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(hours: 4))
+            .toIso8601String(),
+        'read_at': DateTime.now()
+            .subtract(const Duration(hours: 3))
+            .toIso8601String(),
       },
     ];
   }
@@ -534,21 +610,27 @@ abstract final class AppDemoSeed {
         'id': 'en-1',
         'title': 'متابعة اليوم',
         'body': 'لديك 3 متابعات مع عملاء الكرادة',
-        'created_at': DateTime.now().subtract(const Duration(minutes: 15)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(minutes: 15))
+            .toIso8601String(),
         'read_at': null,
       },
       {
         'id': 'en-2',
         'title': 'عميل جاهز للإغلاق',
         'body': 'ليث المنصور أكمل المستمسكات',
-        'created_at': DateTime.now().subtract(const Duration(hours: 3)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(hours: 3))
+            .toIso8601String(),
         'read_at': null,
       },
       {
         'id': 'en-3',
         'title': 'طلب نشر جديد',
         'body': 'مكتب الكرادة أرسل عقاراً جديداً',
-        'created_at': DateTime.now().subtract(const Duration(hours: 9)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(hours: 9))
+            .toIso8601String(),
         'read_at': DateTime.now().toIso8601String(),
       },
     ];
@@ -561,14 +643,18 @@ abstract final class AppDemoSeed {
         'title': 'فريق المبيعات — بغداد',
         'department_code': 'sales',
         'created_by_employee_id': employeeId,
-        'last_message_at': DateTime.now().subtract(const Duration(minutes: 50)).toIso8601String(),
+        'last_message_at': DateTime.now()
+            .subtract(const Duration(minutes: 50))
+            .toIso8601String(),
       },
       {
         'id': 'ec-2',
         'title': 'إغلاق صفقة الكرادة',
         'department_code': 'closing',
         'created_by_employee_id': employeeId,
-        'last_message_at': DateTime.now().subtract(const Duration(hours: 6)).toIso8601String(),
+        'last_message_at': DateTime.now()
+            .subtract(const Duration(hours: 6))
+            .toIso8601String(),
       },
     ];
   }
@@ -593,7 +679,9 @@ abstract final class AppDemoSeed {
         'lead_type': 'buyer',
         'preferred_area': 'المنصور',
         'budget_text': '350-450 ألف دولار',
-        'updated_at': DateTime.now().subtract(const Duration(hours: 5)).toIso8601String(),
+        'updated_at': DateTime.now()
+            .subtract(const Duration(hours: 5))
+            .toIso8601String(),
       },
       {
         'id': 'lead-3',
@@ -603,7 +691,9 @@ abstract final class AppDemoSeed {
         'lead_type': 'tenant',
         'preferred_area': 'زيونة',
         'budget_text': '2,500\$ / شهر',
-        'updated_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+        'updated_at': DateTime.now()
+            .subtract(const Duration(days: 1))
+            .toIso8601String(),
       },
       {
         'id': 'lead-4',
@@ -613,7 +703,9 @@ abstract final class AppDemoSeed {
         'lead_type': 'buyer',
         'preferred_area': 'الجادرية',
         'budget_text': 'حتى 280 ألف',
-        'updated_at': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+        'updated_at': DateTime.now()
+            .subtract(const Duration(days: 2))
+            .toIso8601String(),
       },
     ];
   }
@@ -622,13 +714,17 @@ abstract final class AppDemoSeed {
     return [
       {
         'id': 'fu-1',
-        'due_at': DateTime.now().add(const Duration(hours: 2)).toIso8601String(),
+        'due_at': DateTime.now()
+            .add(const Duration(hours: 2))
+            .toIso8601String(),
         'note': 'اتصال لمعاينة الكرادة',
         'sales_leads': {'full_name': 'ليث المنصور'},
       },
       {
         'id': 'fu-2',
-        'due_at': DateTime.now().add(const Duration(hours: 5)).toIso8601String(),
+        'due_at': DateTime.now()
+            .add(const Duration(hours: 5))
+            .toIso8601String(),
         'note': 'إرسال صور فيلا المنصور',
         'sales_leads': {'full_name': 'هدى الجبوري'},
       },
@@ -667,7 +763,9 @@ abstract final class AppDemoSeed {
         'three_d_pct': 20,
         'floor_plan_pct': 0,
         'is_published': false,
-        'updated_at': DateTime.now().subtract(const Duration(hours: 8)).toIso8601String(),
+        'updated_at': DateTime.now()
+            .subtract(const Duration(hours: 8))
+            .toIso8601String(),
       }),
       PropertyAsset.fromMap({
         'id': 'pa-3',
@@ -683,7 +781,9 @@ abstract final class AppDemoSeed {
         'three_d_pct': 100,
         'floor_plan_pct': 100,
         'is_published': false,
-        'updated_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+        'updated_at': DateTime.now()
+            .subtract(const Duration(days: 1))
+            .toIso8601String(),
       }),
       PropertyAsset.fromMap({
         'id': 'pa-4',
@@ -699,7 +799,9 @@ abstract final class AppDemoSeed {
         'three_d_pct': 100,
         'floor_plan_pct': 100,
         'is_published': true,
-        'published_at': DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
+        'published_at': DateTime.now()
+            .subtract(const Duration(hours: 2))
+            .toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
       }),
     ];
@@ -712,14 +814,18 @@ abstract final class AppDemoSeed {
         'property_asset_id': assetId,
         'event_type': 'request_created',
         'note': 'تم إنشاء طلب النشر',
-        'created_at': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(days: 3))
+            .toIso8601String(),
       },
       {
         'id': 'ev-2',
         'property_asset_id': assetId,
         'event_type': 'information_started',
         'note': 'بدأ جمع المعلومات الميدانية',
-        'created_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+        'created_at': DateTime.now()
+            .subtract(const Duration(days: 1))
+            .toIso8601String(),
       },
     ];
   }
