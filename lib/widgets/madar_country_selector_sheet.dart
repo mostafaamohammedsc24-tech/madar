@@ -1,22 +1,43 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/geo/country_registry.dart';
-import '../../../../core/localization/app_localizations.dart';
-import '../../../../widgets/country_flag_widget.dart';
-import '../../domain/models/auth_country.dart';
-import '../theme/auth_theme.dart';
+import '../core/geo/country_registry.dart';
+import '../core/geo/madar_country.dart';
+import '../core/localization/app_localizations.dart';
+import 'country_flag_widget.dart';
 
-/// Auth-specific wrapper around the shared country selector pattern.
-class CountrySelectorSheet extends StatefulWidget {
-  const CountrySelectorSheet({super.key, required this.selectedCountry});
+/// Searchable country selector backed by ISO 3166 data.
+class MadarCountrySelectorSheet extends StatefulWidget {
+  const MadarCountrySelectorSheet({
+    super.key,
+    required this.selectedCountry,
+    this.showFavoritesFirst = true,
+  });
 
-  final AuthCountry selectedCountry;
+  final MadarCountry selectedCountry;
+  final bool showFavoritesFirst;
+
+  static Future<MadarCountry?> show(
+    BuildContext context, {
+    required MadarCountry selectedCountry,
+    bool showFavoritesFirst = true,
+  }) {
+    return showModalBottomSheet<MadarCountry>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => MadarCountrySelectorSheet(
+        selectedCountry: selectedCountry,
+        showFavoritesFirst: showFavoritesFirst,
+      ),
+    );
+  }
 
   @override
-  State<CountrySelectorSheet> createState() => _CountrySelectorSheetState();
+  State<MadarCountrySelectorSheet> createState() =>
+      _MadarCountrySelectorSheetState();
 }
 
-class _CountrySelectorSheetState extends State<CountrySelectorSheet> {
+class _MadarCountrySelectorSheetState extends State<MadarCountrySelectorSheet> {
   final _searchController = TextEditingController();
   String _query = '';
 
@@ -26,11 +47,20 @@ class _CountrySelectorSheetState extends State<CountrySelectorSheet> {
     super.dispose();
   }
 
-  List<MadarCountry> get _filtered {
-    return CountryRegistry.search(
+  List<MadarCountry> get _countries {
+    final results = CountryRegistry.search(
       _query,
       languageCode: AppLocalizations.of(context).languageCode,
     );
+    if (_query.isNotEmpty || !widget.showFavoritesFirst) return results;
+
+    final favorites = CountryRegistry.favoriteIsoCodes
+        .map(CountryRegistry.findByIso)
+        .whereType<MadarCountry>()
+        .toList();
+    final favoriteSet = favorites.map((c) => c.isoCode).toSet();
+    final rest = results.where((c) => !favoriteSet.contains(c.isoCode)).toList();
+    return [...favorites, ...rest];
   }
 
   @override
@@ -38,20 +68,18 @@ class _CountrySelectorSheetState extends State<CountrySelectorSheet> {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final languageCode = loc.languageCode;
-    final maxHeight = MediaQuery.sizeOf(context).height * 0.75;
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.82;
 
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AuthSpacing.radiusLg),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: AuthSpacing.sm),
+          const SizedBox(height: 12),
           Container(
             width: 40,
             height: 4,
@@ -61,15 +89,17 @@ class _CountrySelectorSheetState extends State<CountrySelectorSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AuthSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   loc.authSelectCountry,
-                  style: AuthTypography.heading(context),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                const SizedBox(height: AuthSpacing.md),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _searchController,
                   onChanged: (v) => setState(() => _query = v.trim()),
@@ -79,12 +109,12 @@ class _CountrySelectorSheetState extends State<CountrySelectorSheet> {
                     filled: true,
                     fillColor: theme.colorScheme.surfaceContainerHighest,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AuthSpacing.radiusSm),
+                      borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AuthSpacing.md,
-                      vertical: AuthSpacing.sm,
+                      horizontal: 16,
+                      vertical: 12,
                     ),
                   ),
                 ),
@@ -94,31 +124,28 @@ class _CountrySelectorSheetState extends State<CountrySelectorSheet> {
           Flexible(
             child: ListView.separated(
               shrinkWrap: true,
-              padding: const EdgeInsets.fromLTRB(
-                AuthSpacing.lg,
-                0,
-                AuthSpacing.lg,
-                AuthSpacing.lg,
-              ),
-              itemCount: _filtered.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AuthSpacing.sm),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              itemCount: _countries.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                final country = _filtered[index];
+                final country = _countries[index];
                 final isSelected =
                     country.isoCode == widget.selectedCountry.isoCode;
 
                 return Material(
                   color: isSelected
-                      ? theme.colorScheme.primaryContainer.withValues(alpha: 0.35)
+                      ? theme.colorScheme.primaryContainer.withValues(
+                          alpha: 0.35,
+                        )
                       : theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(AuthSpacing.radiusSm),
+                  borderRadius: BorderRadius.circular(12),
                   child: InkWell(
                     onTap: () => Navigator.pop(context, country),
-                    borderRadius: BorderRadius.circular(AuthSpacing.radiusSm),
+                    borderRadius: BorderRadius.circular(12),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AuthSpacing.md,
-                        vertical: AuthSpacing.md,
+                        horizontal: 14,
+                        vertical: 12,
                       ),
                       child: Row(
                         children: [
@@ -126,7 +153,7 @@ class _CountrySelectorSheetState extends State<CountrySelectorSheet> {
                             countryCode: country.isoCode,
                             size: 22,
                           ),
-                          const SizedBox(width: AuthSpacing.md),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               country.localizedName(languageCode),
@@ -145,7 +172,7 @@ class _CountrySelectorSheetState extends State<CountrySelectorSheet> {
                             ),
                           ),
                           if (isSelected) ...[
-                            const SizedBox(width: AuthSpacing.sm),
+                            const SizedBox(width: 8),
                             Icon(
                               Icons.check_circle,
                               color: theme.colorScheme.primary,

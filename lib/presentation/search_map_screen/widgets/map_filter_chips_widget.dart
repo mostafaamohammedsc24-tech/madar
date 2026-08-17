@@ -1,4 +1,5 @@
 import '../../../core/app_export.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class MapFilterChipsWidget extends StatelessWidget {
   final List<String> options;
@@ -34,6 +35,8 @@ class MapFilterChipsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
+
     return SizedBox(
       height: 36,
       child: ListView.separated(
@@ -44,6 +47,8 @@ class MapFilterChipsWidget extends StatelessWidget {
         itemBuilder: (context, i) {
           final option = options[i];
           final isSelected = option == selected;
+          final label = loc.filterLabel(option);
+
           return GestureDetector(
             onTap: () => onChanged(option),
             child: AnimatedContainer(
@@ -77,7 +82,7 @@ class MapFilterChipsWidget extends StatelessWidget {
                     const SizedBox(width: 5),
                   ],
                   Text(
-                    option,
+                    label,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: isSelected

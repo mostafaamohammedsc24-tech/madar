@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../widgets/language_selector_sheet.dart';
+import '../../domain/models/auth_country.dart';
 import '../providers/user_auth_notifier.dart';
 import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';

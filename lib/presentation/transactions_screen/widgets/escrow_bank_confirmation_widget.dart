@@ -1,4 +1,5 @@
 import '../../../core/app_export.dart';
+import '../../../core/layout/directional_layout.dart';
 import '../../../services/supabase_service.dart';
 
 /// Full escrow bank confirmation flow for Stage 4
@@ -861,7 +862,7 @@ class _EscrowBankConfirmationWidgetState
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: widget.onConfirmed,
-                        icon: const Icon(Icons.arrow_forward, size: 16),
+                        icon: const DirectionalForwardIcon(size: 16),
                         label: const Text(
                           'المتابعة',
                           style: TextStyle(fontSize: 12),

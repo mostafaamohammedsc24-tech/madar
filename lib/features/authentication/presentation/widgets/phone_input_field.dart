@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../widgets/country_flag_widget.dart';
 import '../../domain/models/auth_country.dart';
 import '../theme/auth_theme.dart';
 
@@ -66,30 +67,36 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
       ),
       child: Row(
         children: [
-          InkWell(
-            onTap: widget.onCountryTap,
-            borderRadius: const BorderRadius.horizontal(
-              left: Radius.circular(AuthSpacing.radiusMd),
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadiusDirectional.horizontal(
+              start: const Radius.circular(AuthSpacing.radiusMd),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AuthSpacing.md),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _CountryBadge(isoCode: widget.country.isoCode),
-                  const SizedBox(width: AuthSpacing.sm),
-                  Text(
-                    widget.country.dialCode,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+            child: InkWell(
+              onTap: widget.onCountryTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AuthSpacing.md),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CountryFlagWidget(
+                      countryCode: widget.country.isoCode,
+                      size: 18,
                     ),
-                  ),
-                  Icon(
-                    Icons.expand_more,
-                    size: 20,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ],
+                    const SizedBox(width: AuthSpacing.sm),
+                    Text(
+                      widget.country.dialCode,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Icon(
+                      Icons.expand_more,
+                      size: 20,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -130,35 +137,6 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CountryBadge extends StatelessWidget {
-  const _CountryBadge({required this.isoCode});
-
-  final String isoCode;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: 32,
-      height: 24,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: Text(
-        isoCode,
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
       ),
     );
   }

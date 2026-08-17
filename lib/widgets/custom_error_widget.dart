@@ -1,6 +1,7 @@
 import 'package:flutter_svg/svg.dart';
 
 import '../core/app_export.dart';
+import '../core/layout/directional_layout.dart';
 import '../routes/app_routes.dart';
 
 // custom_error_widget.dart
@@ -59,8 +60,7 @@ class CustomErrorWidget extends StatelessWidget {
                       context.goNamed(AppRoutes.initial);
                     }
                   },
-                  icon: const Icon(
-                    Icons.arrow_back,
+                  icon: const DirectionalBackIcon(
                     size: 18,
                     color: Colors.white,
                   ),

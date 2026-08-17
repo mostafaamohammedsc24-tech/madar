@@ -1,6 +1,7 @@
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_export.dart';
+import '../../core/layout/directional_layout.dart';
 import '../../core/localization/app_localizations.dart';
 
 class NotificationCenterScreen extends StatefulWidget {
@@ -163,15 +164,14 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            isRTL ? Icons.arrow_forward_ios : Icons.arrow_back_ios,
-            size: 18,
+          icon: DirectionalBackIcon(
             color: theme.colorScheme.onSurface,
+            size: 18,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          isRTL ? 'مركز الإشعارات' : 'Notifications',
+          loc.notifications,
           style: GoogleFonts.manrope(
             fontSize: 18,
             fontWeight: FontWeight.w700,

@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/app_export.dart';
+import '../../core/localization/app_localizations.dart';
 import '../../services/supabase_service.dart';
 import '../../services/transaction_notification_service.dart';
 import './widgets/barcode_upload_widget.dart';
@@ -231,18 +232,19 @@ class _TransactionsScreenState extends State<TransactionsScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final isTablet = MediaQuery.of(context).size.width >= 600;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
-        child: _buildAppBar(theme),
+        child: _buildAppBar(theme, loc),
       ),
       body: SafeArea(
         top: false,
         child: _isLoading || _isLoadingTransactions
-            ? _buildLoadingState()
+            ? _buildLoadingState(loc)
             : _activeTransaction == null
             ? _buildEmptyState()
             : isTablet
@@ -252,21 +254,21 @@ class _TransactionsScreenState extends State<TransactionsScreen>
     );
   }
 
-  Widget _buildAppBar(ThemeData theme) {
+  Widget _buildAppBar(ThemeData theme, AppLocalizations loc) {
     return AppBar(
       flexibleSpace: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppTheme.primaryDark, AppTheme.primary],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+            begin: AlignmentDirectional.centerStart,
+            end: AlignmentDirectional.centerEnd,
           ),
         ),
       ),
       backgroundColor: Colors.transparent,
       elevation: 0,
       title: Text(
-        'صفقاتي',
+        loc.navDeals,
         style: theme.textTheme.titleMedium?.copyWith(
           color: Colors.white,
           fontWeight: FontWeight.w700,
@@ -277,13 +279,13 @@ class _TransactionsScreenState extends State<TransactionsScreen>
           IconButton(
             icon: const Icon(Icons.list, color: Colors.white),
             onPressed: _showTransactionsList,
-            tooltip: 'كل الصفقات',
+            tooltip: loc.allDealsTitle,
           ),
         if (_activeTransaction != null)
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: _loadTransactions,
-            tooltip: 'تحديث',
+            tooltip: loc.refresh,
           ),
         // Real-time notification bell
         Padding(
@@ -334,7 +336,7 @@ class _TransactionsScreenState extends State<TransactionsScreen>
                 );
               }
             },
-            tooltip: 'الإشعارات',
+            tooltip: loc.notifications,
           ),
         ),
         IconButton(
@@ -353,14 +355,14 @@ class _TransactionsScreenState extends State<TransactionsScreen>
               ),
             );
           },
-          tooltip: 'مسح الباركود',
+          tooltip: loc.scanBarcode,
         ),
         const SizedBox(width: 4),
       ],
     );
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(AppLocalizations loc) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -375,7 +377,7 @@ class _TransactionsScreenState extends State<TransactionsScreen>
           ),
           const SizedBox(height: 20),
           Text(
-            'جاري التحقق...',
+            loc.verifying,
             style: TextStyle(
               fontSize: 14,
               color: AppTheme.primary,

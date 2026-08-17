@@ -4,7 +4,7 @@ import '../core/app_export.dart';
 import '../core/localization/app_localizations.dart';
 import '../core/localization/locale_provider.dart';
 
-/// Language selector bottom sheet — call from Profile or Settings
+/// Language selector bottom sheet — call from Profile or Settings.
 class LanguageSelectorSheet extends StatelessWidget {
   const LanguageSelectorSheet({super.key});
 
@@ -29,9 +29,9 @@ class LanguageSelectorSheet extends StatelessWidget {
     final provider = Provider.of<LocaleProvider>(context);
 
     final langs = [
-      (AppLanguage.english, loc.langEnglish, '🇬🇧', 'English'),
-      (AppLanguage.arabic, loc.langArabic, '🇸🇦', 'العربية'),
-      (AppLanguage.kurdish, loc.langKurdish, '🏳️', 'کوردی'),
+      (AppLanguage.english, loc.langEnglish, Icons.language),
+      (AppLanguage.arabic, loc.langArabic, Icons.translate),
+      (AppLanguage.kurdish, loc.langKurdish, Icons.record_voice_over_outlined),
     ];
 
     return Padding(
@@ -54,7 +54,7 @@ class LanguageSelectorSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            loc.language.toString(),
+            loc.languageLabel,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -85,30 +85,24 @@ class LanguageSelectorSheet extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(item.$3, style: const TextStyle(fontSize: 22)),
+                    Icon(
+                      item.$3,
+                      size: 22,
+                      color: isSelected
+                          ? AppTheme.primary
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.$2,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: isSelected
-                                  ? AppTheme.primary
-                                  : theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          Text(
-                            item.$4,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        item.$2,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? AppTheme.primary
+                              : theme.colorScheme.onSurface,
+                        ),
                       ),
                     ),
                     if (isSelected)

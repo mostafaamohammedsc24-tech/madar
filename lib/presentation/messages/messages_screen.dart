@@ -93,15 +93,15 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
     final loc = AppLocalizations.of(context);
     switch (conv['titleKey'] as String) {
       case 'ai':
-        return loc.isRTL ? 'مساعد مدار الذكي' : 'Madar AI Assistant';
+        return loc.msgAiAssistant;
       case 'support':
-        return loc.isRTL ? 'خدمة العملاء' : 'Customer Service';
+        return loc.msgCustomerSupport;
       case 'sales':
-        return loc.isRTL ? 'فريق المبيعات' : 'Sales Team';
+        return loc.msgSalesTeam;
       case 'closing':
-        return loc.isRTL ? 'فريق إغلاق الصفقات' : 'Closing Team';
+        return loc.msgClosingTeam;
       case 'agent':
-        return loc.isRTL ? 'الوكيل / المحامي' : 'Agent / Lawyer';
+        return loc.msgAgentLawyer;
       default:
         return conv['titleKey'] as String;
     }
@@ -111,15 +111,15 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
     final loc = AppLocalizations.of(context);
     switch (conv['subtitleKey'] as String) {
       case 'ai_sub':
-        return loc.isRTL ? 'مدعوم بالذكاء الاصطناعي' : 'Powered by AI';
+        return loc.msgAiSub;
       case 'support_sub':
-        return loc.isRTL ? 'متاح 24/7' : 'Available 24/7';
+        return loc.msgSupportSub;
       case 'sales_sub':
-        return loc.isRTL ? 'للاستفسار عن العقارات' : 'Property inquiries';
+        return loc.msgSalesSub;
       case 'closing_sub':
-        return loc.isRTL ? 'لإتمام صفقاتك' : 'Close your deals';
+        return loc.msgClosingSub;
       case 'agent_sub':
-        return loc.isRTL ? 'لاستلام رمز الصفقة' : 'Receive transaction code';
+        return loc.msgAgentSub;
       default:
         return '';
     }

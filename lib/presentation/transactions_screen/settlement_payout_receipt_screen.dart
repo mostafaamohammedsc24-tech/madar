@@ -1,4 +1,5 @@
 import '../../core/app_export.dart';
+import '../../core/layout/directional_layout.dart';
 
 /// Settlement Payout Receipt Screen
 /// Shows full fee breakdown and funds released to seller after deal closure
@@ -111,7 +112,7 @@ class _SettlementPayoutReceiptScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const DirectionalBackIcon(color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(

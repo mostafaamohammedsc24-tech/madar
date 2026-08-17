@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/layout/directional_layout.dart';
 import '../providers/user_auth_notifier.dart';
 import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';
@@ -43,7 +44,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               alignment: AlignmentDirectional.centerStart,
               child: IconButton(
                 onPressed: state.isBusy ? null : auth.goBackToPhoneEntry,
-                icon: const Icon(Icons.arrow_back),
+                icon: const DirectionalBackIcon(),
                 style: IconButton.styleFrom(
                   backgroundColor: Theme.of(
                     context,

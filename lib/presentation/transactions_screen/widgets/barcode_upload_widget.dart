@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../core/app_export.dart';
+import '../../../core/layout/directional_layout.dart';
 
 class BarcodeUploadWidget extends StatefulWidget {
   final VoidCallback onUpload;
@@ -169,7 +170,7 @@ class _BarcodeUploadWidgetState extends State<BarcodeUploadWidget>
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    icon: const DirectionalBackIcon(color: Colors.white),
                     onPressed: _closeCamera,
                   ),
                   const Expanded(

@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../../../core/geo/country_registry.dart';
+import '../../../../core/geo/region_detection_service.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../services/supabase_service.dart';
 import '../../../../services/mixpanel_service.dart';
 import '../../data/local/auth_session_storage.dart';
 import '../../data/repositories/supabase_user_auth_repository.dart';
@@ -18,13 +22,16 @@ class UserAuthNotifier extends ChangeNotifier {
     UserAuthRepository? repository,
     AuthSessionStorage? storage,
     FaceVerificationService? faceVerificationService,
+    RegionDetectionService? regionDetection,
   }) : _repository = repository ?? SupabaseUserAuthRepository(),
        _storage = storage ?? AuthSessionStorage(),
-       _faceVerification = faceVerificationService ?? StubFaceVerificationService();
+       _faceVerification = faceVerificationService ?? StubFaceVerificationService(),
+       _regionDetection = regionDetection ?? RegionDetectionService();
 
   final UserAuthRepository _repository;
   final AuthSessionStorage _storage;
   final FaceVerificationService _faceVerification;
+  final RegionDetectionService _regionDetection;
 
   UserAuthState _state = UserAuthState();
   Timer? _resendTimer;
@@ -35,31 +42,62 @@ class UserAuthNotifier extends ChangeNotifier {
   Future<void> initialize() async {
     _setState(_state.copyWith(status: UserAuthStatus.initializing, isBusy: true));
 
-    final draft = await _storage.loadPhoneDraft();
-    if (draft.countryIso != null) {
-      _state = _state.copyWith(
-        selectedCountry: authCountryByIso(draft.countryIso!),
-        phoneNumber: draft.phone ?? '',
-      );
-    }
-
     _sessionSubscription ??= _repository.watchAuthSession().listen((_) {
       _restoreSession();
     });
 
-    await _restoreSession();
+    final userId = _repository.currentUserId;
+    if (userId != null && _repository.hasActiveSession) {
+      await _restoreSession();
+      return;
+    }
+
+    await _initializePreAuthFlow();
+  }
+
+  Future<void> _initializePreAuthFlow() async {
+    final draft = await _storage.loadPhoneDraft();
+    final preAuthRegion = await _storage.loadPreAuthRegion();
+    final regionComplete = await _storage.isPreAuthRegionComplete();
+    final locationHandled = await _storage.isPreAuthLocationHandled();
+
+    var country = CountryRegistry.fallback;
+    var language = AppLanguage.english;
+    var currency = country.defaultCurrencyCode;
+
+    if (regionComplete && preAuthRegion.countryIso != null) {
+      country = CountryRegistry.findByIso(preAuthRegion.countryIso!) ?? country;
+      language = _languageFromCode(preAuthRegion.language);
+      currency = preAuthRegion.currency ?? country.defaultCurrencyCode;
+    }
+
+    _state = _state.copyWith(
+      selectedCountry: draft.countryIso != null
+          ? authCountryByIso(draft.countryIso!)
+          : country,
+      phoneNumber: draft.phone ?? '',
+      selectedLanguage: language,
+      selectedCurrencyCode: currency,
+    );
+
+    final UserAuthStatus nextStatus;
+    if (regionComplete) {
+      nextStatus = UserAuthStatus.unauthenticated;
+    } else if (locationHandled) {
+      nextStatus = UserAuthStatus.awaitingRegionSetup;
+    } else {
+      nextStatus = UserAuthStatus.awaitingLocationPermission;
+    }
+
+    _setState(
+      _state.copyWith(status: nextStatus, isBusy: false, clearMessage: true),
+    );
   }
 
   Future<void> _restoreSession() async {
     final userId = _repository.currentUserId;
     if (userId == null || !_repository.hasActiveSession) {
-      _setState(
-        _state.copyWith(
-          status: UserAuthStatus.unauthenticated,
-          isBusy: false,
-          clearMessage: true,
-        ),
-      );
+      await _initializePreAuthFlow();
       return;
     }
 
@@ -76,24 +114,19 @@ class UserAuthNotifier extends ChangeNotifier {
       return;
     }
 
-    final locationStatus = await _storage.getLocationStatus(userId);
     final faceStatus = await _storage.getFaceStatus(userId);
+    final nextStatus = faceStatus == FaceVerificationStatus.none
+        ? UserAuthStatus.awaitingFaceVerification
+        : UserAuthStatus.authenticated;
 
-    UserAuthStatus nextStatus;
-    if (locationStatus == LocationPermissionStatus.notRequested) {
-      nextStatus = UserAuthStatus.awaitingLocationPermission;
-    } else if (faceStatus == FaceVerificationStatus.none) {
-      nextStatus = UserAuthStatus.awaitingFaceVerification;
-    } else {
+    if (nextStatus == UserAuthStatus.authenticated) {
       await _storage.markOnboardingComplete(userId);
-      nextStatus = UserAuthStatus.authenticated;
     }
 
     _setState(
       _state.copyWith(
         status: nextStatus,
         userId: userId,
-        locationStatus: locationStatus,
         faceVerificationStatus: faceStatus,
         isBusy: false,
         clearMessage: true,
@@ -105,8 +138,97 @@ class UserAuthNotifier extends ChangeNotifier {
     _setState(_state.copyWith(selectedCountry: country, clearMessage: true));
   }
 
+  void selectLanguage(AppLanguage language) {
+    _setState(_state.copyWith(selectedLanguage: language, clearMessage: true));
+  }
+
+  void selectCurrency(String code) {
+    _setState(
+      _state.copyWith(selectedCurrencyCode: code.toUpperCase(), clearMessage: true),
+    );
+  }
+
   void updatePhoneNumber(String value) {
     _setState(_state.copyWith(phoneNumber: value, clearMessage: true));
+  }
+
+  Future<void> requestLocationPermission() async {
+    _setState(_state.copyWith(isBusy: true, clearMessage: true));
+
+    LocationPermissionStatus result = LocationPermissionStatus.denied;
+    RegionDetectionResult? detected;
+
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (serviceEnabled) {
+        var permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+        if (permission == LocationPermission.always ||
+            permission == LocationPermission.whileInUse) {
+          result = LocationPermissionStatus.granted;
+          detected = await _regionDetection.detectFromCurrentLocation();
+        } else if (permission == LocationPermission.deniedForever) {
+          result = LocationPermissionStatus.denied;
+        }
+      }
+    } catch (e) {
+      debugPrint('[UserAuth] location permission error: $e');
+      result = LocationPermissionStatus.denied;
+    }
+
+    await _storage.markPreAuthLocationHandled();
+    final region = detected ?? _regionDetection.fallbackFromDeviceLocale();
+
+    _setState(
+      _state.copyWith(
+        status: UserAuthStatus.awaitingRegionSetup,
+        locationStatus: result,
+        selectedCountry: region.country,
+        selectedLanguage: region.suggestedLanguage,
+        selectedCurrencyCode: region.suggestedCurrencyCode,
+        detectedLatitude: region.latitude,
+        detectedLongitude: region.longitude,
+        isBusy: false,
+      ),
+    );
+  }
+
+  Future<void> skipLocationPermission() async {
+    _setState(_state.copyWith(isBusy: true, clearMessage: true));
+    await _storage.markPreAuthLocationHandled();
+    final region = _regionDetection.fallbackFromDeviceLocale();
+
+    _setState(
+      _state.copyWith(
+        status: UserAuthStatus.awaitingRegionSetup,
+        locationStatus: LocationPermissionStatus.skipped,
+        selectedCountry: region.country,
+        selectedLanguage: region.suggestedLanguage,
+        selectedCurrencyCode: region.suggestedCurrencyCode,
+        isBusy: false,
+        clearMessage: true,
+      ),
+    );
+  }
+
+  Future<void> confirmRegionSetup() async {
+    _setState(_state.copyWith(isBusy: true, clearMessage: true));
+
+    await _storage.savePreAuthRegion(
+      countryIso: _state.selectedCountry.isoCode,
+      languageCode: _languageCode(_state.selectedLanguage),
+      currencyCode: _state.selectedCurrencyCode,
+    );
+
+    _setState(
+      _state.copyWith(
+        status: UserAuthStatus.unauthenticated,
+        isBusy: false,
+        clearMessage: true,
+      ),
+    );
   }
 
   Future<void> sendOtp() async {
@@ -178,10 +300,12 @@ class UserAuthNotifier extends ChangeNotifier {
       );
       MixpanelService.instance.identify(userId);
 
+      await _syncUserProfile(userId);
+
       _stopResendCountdown();
       _setState(
         _state.copyWith(
-          status: UserAuthStatus.awaitingLocationPermission,
+          status: UserAuthStatus.awaitingFaceVerification,
           userId: userId,
           isBusy: false,
         ),
@@ -204,6 +328,24 @@ class UserAuthNotifier extends ChangeNotifier {
     }
   }
 
+  Future<void> _syncUserProfile(String userId) async {
+    try {
+      await SupabaseService.instance.upsertUserProfileFromAuth(
+        userId: userId,
+        phone: _state.phoneNumber,
+        phoneCountryCode: _state.selectedCountry.dialCode,
+        countryCode: _state.selectedCountry.isoCode,
+        preferredLanguage: _languageCode(_state.selectedLanguage),
+        preferredCurrency: _state.selectedCurrencyCode,
+        latitude: _state.detectedLatitude,
+        longitude: _state.detectedLongitude,
+        locationPermission: _state.locationStatus.name,
+      );
+    } catch (e) {
+      debugPrint('[UserAuth] profile sync failed: $e');
+    }
+  }
+
   Future<void> resendOtp() async {
     if (!_state.canResendOtp) return;
     await sendOtp();
@@ -214,61 +356,6 @@ class UserAuthNotifier extends ChangeNotifier {
     _setState(
       _state.copyWith(
         status: UserAuthStatus.unauthenticated,
-        clearMessage: true,
-      ),
-    );
-  }
-
-  Future<void> requestLocationPermission() async {
-    final userId = _state.userId;
-    if (userId == null) return;
-
-    _setState(_state.copyWith(isBusy: true, clearMessage: true));
-
-    LocationPermissionStatus result = LocationPermissionStatus.denied;
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        result = LocationPermissionStatus.denied;
-      } else {
-        var permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-        }
-        if (permission == LocationPermission.always ||
-            permission == LocationPermission.whileInUse) {
-          result = LocationPermissionStatus.granted;
-        } else if (permission == LocationPermission.deniedForever) {
-          result = LocationPermissionStatus.denied;
-        }
-      }
-    } catch (e) {
-      debugPrint('[UserAuth] location permission error: $e');
-      result = LocationPermissionStatus.denied;
-    }
-
-    await _storage.saveLocationStatus(userId, result);
-    _setState(
-      _state.copyWith(
-        status: UserAuthStatus.awaitingFaceVerification,
-        locationStatus: result,
-        isBusy: false,
-      ),
-    );
-  }
-
-  Future<void> skipLocationPermission() async {
-    final userId = _state.userId;
-    if (userId == null) return;
-
-    await _storage.saveLocationStatus(
-      userId,
-      LocationPermissionStatus.skipped,
-    );
-    _setState(
-      _state.copyWith(
-        status: UserAuthStatus.awaitingFaceVerification,
-        locationStatus: LocationPermissionStatus.skipped,
         clearMessage: true,
       ),
     );
@@ -301,6 +388,7 @@ class UserAuthNotifier extends ChangeNotifier {
             userId,
             FaceVerificationStatus.completed,
           );
+          await _updateFaceVerificationRemote(userId, 'verified');
           await _completeOnboarding(userId);
           _setState(
             _state.copyWith(
@@ -312,6 +400,7 @@ class UserAuthNotifier extends ChangeNotifier {
           _setState(_state.copyWith(isBusy: false));
         case FaceVerificationResult.unavailable:
           await _storage.saveFaceStatus(userId, FaceVerificationStatus.skipped);
+          await _updateFaceVerificationRemote(userId, 'skipped');
           await _completeOnboarding(userId);
           _setState(
             _state.copyWith(
@@ -321,6 +410,7 @@ class UserAuthNotifier extends ChangeNotifier {
           );
         case FaceVerificationResult.failure:
           await _storage.saveFaceStatus(userId, FaceVerificationStatus.failed);
+          await _updateFaceVerificationRemote(userId, 'failed');
           _setState(
             _state.copyWith(
               isBusy: false,
@@ -347,6 +437,7 @@ class UserAuthNotifier extends ChangeNotifier {
     if (userId == null) return;
 
     await _storage.saveFaceStatus(userId, FaceVerificationStatus.skipped);
+    await _updateFaceVerificationRemote(userId, 'skipped');
     await _completeOnboarding(userId);
     _setState(
       _state.copyWith(
@@ -354,6 +445,19 @@ class UserAuthNotifier extends ChangeNotifier {
         clearMessage: true,
       ),
     );
+  }
+
+  Future<void> _updateFaceVerificationRemote(
+    String userId,
+    String status,
+  ) async {
+    try {
+      await SupabaseService.instance.updateUserProfile({
+        'face_verification_status': status,
+      });
+    } catch (e) {
+      debugPrint('[UserAuth] face status sync failed: $e');
+    }
   }
 
   Future<void> signOut() async {
@@ -364,9 +468,7 @@ class UserAuthNotifier extends ChangeNotifier {
       await _storage.clearUserData(userId);
     }
     MixpanelService.instance.reset();
-    _setState(
-      UserAuthState(status: UserAuthStatus.unauthenticated),
-    );
+    await _initializePreAuthFlow();
   }
 
   Future<void> _completeOnboarding(String userId) async {
@@ -377,6 +479,28 @@ class UserAuthNotifier extends ChangeNotifier {
         userId: userId,
       ),
     );
+  }
+
+  AppLanguage _languageFromCode(String? code) {
+    switch (code) {
+      case 'ar':
+        return AppLanguage.arabic;
+      case 'ku':
+        return AppLanguage.kurdish;
+      default:
+        return AppLanguage.english;
+    }
+  }
+
+  String _languageCode(AppLanguage language) {
+    switch (language) {
+      case AppLanguage.arabic:
+        return 'ar';
+      case AppLanguage.kurdish:
+        return 'ku';
+      case AppLanguage.english:
+        return 'en';
+    }
   }
 
   void _startResendCountdown({int seconds = 60}) {

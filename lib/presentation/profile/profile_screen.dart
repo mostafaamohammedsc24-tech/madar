@@ -3,6 +3,11 @@ import 'package:provider/provider.dart';
 import '../../core/app_export.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../core/layout/directional_layout.dart';
+import '../../providers/country_context_provider.dart';
+import '../../widgets/currency_selector_sheet.dart';
+import '../../widgets/language_selector_sheet.dart';
+import '../../widgets/madar_country_selector_sheet.dart';
 import '../../features/authentication/presentation/providers/user_auth_notifier.dart';
 import '../../services/supabase_service.dart';
 import '../notifications/notification_center_screen.dart';
@@ -90,6 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localeProvider = context.watch<LocaleProvider>();
+    final countryProvider = context.watch<CountryContextProvider>();
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
@@ -99,11 +105,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: AppBar(
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.primaryDark, AppTheme.primary],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
+        gradient: LinearGradient(
+          colors: [AppTheme.primaryDark, AppTheme.primary],
+          begin: AlignmentDirectional.centerStart,
+          end: AlignmentDirectional.centerEnd,
+        ),
             ),
           ),
           backgroundColor: Colors.transparent,
@@ -145,7 +151,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 16),
                     _buildVerificationCard(theme, loc),
                     const SizedBox(height: 16),
-                    _buildSettingsSection(theme, localeProvider, loc),
+                    _buildSettingsSection(
+                      theme,
+                      localeProvider,
+                      countryProvider,
+                      loc,
+                    ),
                     const SizedBox(height: 16),
                     _buildArchiveSection(theme, loc),
                     const SizedBox(height: 16),
@@ -169,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .trim();
     final phone =
         _profile?['phone_e164'] as String? ??
-        (loc.isRTL ? 'غير محدد' : 'Not set');
+        (loc.notSet);
     final photoUrl = _profile?['profile_photo_url'] as String?;
     final accountStatus = _profile?['account_status'] as String? ?? 'pending';
 
@@ -178,8 +189,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppTheme.primaryDark, AppTheme.primary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -221,7 +232,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   displayName.isEmpty
-                      ? (loc.isRTL ? 'مستخدم مدار' : 'Madar User')
+                      ? loc.madarUser
                       : displayName,
                   style: const TextStyle(
                     color: Colors.white,
@@ -267,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.bar_chart, color: Colors.white),
-                tooltip: loc.isRTL ? 'لوحة العمولات' : 'Commission Dashboard',
+                tooltip: loc.commissionDashboard,
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -305,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            loc.isRTL ? 'التحقق والأمان' : 'Verification & Security',
+            loc.verificationSecurity,
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -313,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           _buildVerificationRow(
             icon: Icons.phone,
-            label: loc.isRTL ? 'رقم الهاتف' : 'Phone Number',
+            label: loc.phoneNumberLabel,
             status: phoneStatus,
             theme: theme,
             loc: loc,
@@ -321,7 +332,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Divider(height: 24),
           _buildVerificationRow(
             icon: Icons.face,
-            label: loc.isRTL ? 'التحقق البيومتري' : 'Biometric Verification',
+            label: loc.biometricVerification,
             status: 'verified',
             theme: theme,
             loc: loc,
@@ -329,7 +340,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Divider(height: 24),
           _buildVerificationRow(
             icon: Icons.badge,
-            label: loc.isRTL ? 'الهوية الوطنية' : 'National ID',
+            label: loc.nationalId,
             status: idStatus,
             theme: theme,
             loc: loc,
@@ -348,9 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     final isVerified = status == 'verified';
     final color = isVerified ? AppTheme.success : Colors.orange;
-    final statusLabel = isVerified
-        ? (loc.isRTL ? 'موثق' : 'Verified')
-        : (loc.isRTL ? 'غير موثق' : 'Unverified');
+    final statusLabel = isVerified ? loc.verified : loc.unverified;
 
     return Row(
       children: [
@@ -394,6 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSettingsSection(
     ThemeData theme,
     LocaleProvider localeProvider,
+    CountryContextProvider countryProvider,
     AppLocalizations loc,
   ) {
     return Container(
@@ -421,34 +431,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
             theme: theme,
           ),
           const Divider(height: 1, indent: 56),
+          const Divider(height: 1, indent: 56),
           _buildSettingsTile(
-            icon: Icons.language,
-            label: loc.languageLabel,
+            icon: Icons.public,
+            label: loc.settingsCountry,
             trailing: Text(
-              localeProvider.language == AppLanguage.arabic
-                  ? 'العربية'
-                  : localeProvider.language == AppLanguage.kurdish
-                  ? 'کوردی'
-                  : 'English',
+              countryProvider.activeCountry.localizedName(loc.languageCode),
               style: TextStyle(
                 color: AppTheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            onTap: () => _showLanguageSheet(localeProvider, loc),
+            onTap: () async {
+              final selected = await MadarCountrySelectorSheet.show(
+                context,
+                selectedCountry: countryProvider.activeCountry,
+              );
+              if (selected != null && mounted) {
+                await countryProvider.setCountry(selected);
+                await SupabaseService.instance.updateUserProfile({
+                  'country_code': selected.isoCode,
+                  'preferred_currency': countryProvider.activeCurrency,
+                });
+              }
+            },
+            theme: theme,
+          ),
+          const Divider(height: 1, indent: 56),
+          _buildSettingsTile(
+            icon: Icons.payments_outlined,
+            label: loc.settingsCurrency,
+            trailing: Text(
+              '${countryProvider.activeCurrencySymbol} ${countryProvider.activeCurrency}',
+              style: TextStyle(
+                color: AppTheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onTap: () async {
+              final code = await CurrencySelectorSheet.show(
+                context,
+                selectedCode: countryProvider.activeCurrency,
+              );
+              if (code != null && mounted) {
+                await countryProvider.setCurrency(code);
+                await SupabaseService.instance.updateUserProfile({
+                  'preferred_currency': code,
+                });
+              }
+            },
+            theme: theme,
+          ),
+          const Divider(height: 1, indent: 56),
+          _buildSettingsTile(
+            icon: Icons.language,
+            label: loc.languageLabel,
+            trailing: Text(
+              localeProvider.language == AppLanguage.arabic
+                  ? loc.langArabic
+                  : localeProvider.language == AppLanguage.kurdish
+                  ? loc.langKurdish
+                  : loc.langEnglish,
+              style: TextStyle(
+                color: AppTheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onTap: () => LanguageSelectorSheet.show(context),
             theme: theme,
           ),
           const Divider(height: 1, indent: 56),
           _buildSettingsTile(
             icon: Icons.phone_android,
-            label: loc.isRTL ? 'تغيير رقم الهاتف' : 'Change Phone Number',
+            label: loc.changePhone,
             onTap: _requestPhoneChange,
             theme: theme,
           ),
           const Divider(height: 1, indent: 56),
           _buildSettingsTile(
             icon: Icons.notifications,
-            label: loc.isRTL ? 'الإشعارات' : 'Notifications',
+            label: loc.notifications,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -460,9 +522,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Divider(height: 1, indent: 56),
           _buildSettingsTile(
             icon: Icons.bar_chart,
-            label: loc.isRTL
-                ? 'لوحة عمولات البائع'
-                : 'Seller Commission Dashboard',
+            label: loc.sellerCommissionDashboard,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -500,8 +560,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       trailing:
-          trailing ??
-          Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+          trailing ?? const DirectionalListArrow(),
       onTap: onTap,
     );
   }
@@ -531,7 +590,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icon(Icons.folder_special, color: AppTheme.primary, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    loc.isRTL ? 'أرشيف الوثائق' : 'Documents Archive',
+                    loc.documentsArchive,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -547,7 +606,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.arrow_forward, size: 14),
+                icon: DirectionalForwardIcon(size: 14),
                 label: Text(loc.viewAll, style: const TextStyle(fontSize: 13)),
                 style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
               ),
@@ -571,7 +630,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(width: 12),
               _buildArchiveItem(
                 icon: Icons.gavel,
-                label: loc.isRTL ? 'العقود' : 'Contracts',
+                label: loc.contracts,
                 count:
                     '${_allTransactions.where((t) => (t['current_stage_index'] as int? ?? 0) >= 2).length}',
                 theme: theme,
@@ -585,7 +644,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(width: 12),
               _buildArchiveItem(
                 icon: Icons.home_work,
-                label: loc.isRTL ? 'السندات' : 'Title Deeds',
+                label: loc.titleDeeds,
                 count:
                     '${_allTransactions.where((t) => (t['current_stage_index'] as int? ?? 0) >= 5).length}',
                 theme: theme,
@@ -646,10 +705,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
+                  DirectionalListArrow(
                     color: AppTheme.primary,
+                    size: 14,
                   ),
                 ],
               ),
@@ -751,7 +809,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Icon(Icons.favorite, color: AppTheme.error, size: 18),
               const SizedBox(width: 8),
               Text(
-                loc.isRTL ? 'المفضلة' : 'Favorites',
+                loc.favorites,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -814,7 +872,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : '';
                   final title =
                       prop['title'] as String? ??
-                      (loc.isRTL ? 'عقار' : 'Property');
+                      (loc.property);
                   final price = prop['asking_price_usd'] as num? ?? 0;
                   return GestureDetector(
                     onTap: () => context.push('/property-detail', extra: prop),
@@ -919,7 +977,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Icon(Icons.bookmarks, color: AppTheme.primary, size: 18),
               const SizedBox(width: 8),
               Text(
-                loc.isRTL ? 'البحوث المحفوظة' : 'Saved Searches',
+                loc.savedSearchesTitle,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -962,7 +1020,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 query.isNotEmpty
                     ? query
                     : (filters?['filter'] as String? ??
-                          (loc.isRTL ? 'بحث' : 'Search')),
+                          (loc.search)),
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -990,67 +1048,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           })),
         ],
-      ),
-    );
-  }
-
-  void _showLanguageSheet(LocaleProvider lp, AppLocalizations loc) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.withAlpha(80),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              loc.isRTL ? 'اختر اللغة' : 'Choose Language',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 16),
-            ...AppLanguage.values.map(
-              (lang) => ListTile(
-                leading: Text(
-                  lang == AppLanguage.arabic
-                      ? '🇮🇶'
-                      : lang == AppLanguage.kurdish
-                      ? '🏔️'
-                      : '🇬🇧',
-                  style: const TextStyle(fontSize: 24),
-                ),
-                title: Text(
-                  lang == AppLanguage.arabic
-                      ? 'العربية'
-                      : lang == AppLanguage.kurdish
-                      ? 'کوردی'
-                      : 'English',
-                ),
-                trailing: lp.language == lang
-                    ? Icon(Icons.check_circle, color: AppTheme.primary)
-                    : null,
-                onTap: () {
-                  lp.setLanguage(lang);
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1083,7 +1080,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                loc.isRTL ? 'الإشعارات' : 'Notifications',
+                loc.notifications,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -1121,8 +1118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: AppTheme.primary,
                             ),
                             title: Text(
-                              n['title'] as String? ??
-                                  (loc.isRTL ? 'إشعار' : 'Notification'),
+                              n['title'] as String? ?? loc.notifications,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1155,7 +1151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(loc.isRTL ? 'تغيير رقم الهاتف' : 'Change Phone Number'),
+        title: Text(loc.changePhone),
         content: Text(
           loc.isRTL
               ? 'سيتم التواصل معك من فريق الدعم لتغيير رقم هاتفك'
@@ -1164,7 +1160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(loc.isRTL ? 'حسناً' : 'OK'),
+            child: Text(loc.ok),
           ),
         ],
       ),
@@ -1174,11 +1170,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _getStatusLabel(String status, AppLocalizations loc) {
     switch (status) {
       case 'active':
-        return loc.isRTL ? 'حساب نشط ✓' : 'Active Account ✓';
+        return loc.activeAccount;
       case 'pending':
-        return loc.isRTL ? 'قيد المراجعة' : 'Under Review';
+        return loc.underReview;
       case 'suspended':
-        return loc.isRTL ? 'موقوف' : 'Suspended';
+        return loc.accountSuspended;
       default:
         return status;
     }

@@ -22,12 +22,28 @@ class LocaleProvider extends ChangeNotifier {
   Future<void> _loadPreferences() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final langIndex = prefs.getInt('language_index') ?? 0;
-      _language =
-          AppLanguage.values[langIndex.clamp(0, AppLanguage.values.length - 1)];
+      final langIndex = prefs.getInt('language_index');
+      if (langIndex != null) {
+        _language = AppLanguage.values[
+            langIndex.clamp(0, AppLanguage.values.length - 1)];
+      } else {
+        final preAuthLang = prefs.getString('pre_auth_language');
+        _language = _languageFromCode(preAuthLang);
+      }
       _isDarkMode = prefs.getBool('dark_mode') ?? false;
       notifyListeners();
     } catch (_) {}
+  }
+
+  AppLanguage _languageFromCode(String? code) {
+    switch (code) {
+      case 'ar':
+        return AppLanguage.arabic;
+      case 'ku':
+        return AppLanguage.kurdish;
+      default:
+        return AppLanguage.english;
+    }
   }
 
   Future<void> setLanguage(AppLanguage lang) async {

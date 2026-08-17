@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../core/app_export.dart';
+import '../../core/layout/directional_layout.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../providers/chat_notifier.dart';
 import '../../services/supabase_service.dart';
@@ -219,7 +220,7 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
                   color: Colors.black.withAlpha(120),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
+                child: const DirectionalBackIcon(color: Colors.white),
               ),
             ),
             actions: [
@@ -738,7 +739,7 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader(theme, "What's Special ✨"),
+          _buildSectionHeader(theme, loc.whatsSpecial),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(14),
@@ -750,7 +751,7 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
             child: Text(_description, style: theme.textTheme.bodyMedium),
           ),
           const SizedBox(height: 20),
-          _buildSectionHeader(theme, '🏠 Lease to Own Option'),
+          _buildSectionHeader(theme, loc.leaseToOwn),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(14),

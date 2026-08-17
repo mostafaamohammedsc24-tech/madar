@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/layout/directional_layout.dart';
+
 class PropertyAnalyticsScreen extends StatefulWidget {
   const PropertyAnalyticsScreen({super.key});
 
@@ -183,8 +185,8 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen>
             pinned: true,
             backgroundColor: const Color(0xFF0A0E1A),
             leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
+              icon: const DirectionalIcon(
+                icon: Icons.arrow_back_ios_new,
                 color: Colors.white,
                 size: 20,
               ),
@@ -739,20 +741,23 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen>
               ),
               const SizedBox(height: 14),
               _buildInsightRow(
-                '🏆',
+                Icons.emoji_events_outlined,
                 'Zayouna shows highest growth at +22% this month',
               ),
-              _buildInsightRow('📈', 'Apartment demand up 18% vs last quarter'),
               _buildInsightRow(
-                '💰',
+                Icons.trending_up_outlined,
+                'Apartment demand up 18% vs last quarter',
+              ),
+              _buildInsightRow(
+                Icons.payments_outlined,
                 'Average listing price increased 8.4% YoY',
               ),
               _buildInsightRow(
-                '⚡',
+                Icons.bolt_outlined,
                 'Sadr City emerging market — fastest growing region',
               ),
               _buildInsightRow(
-                '🔍',
+                Icons.search_outlined,
                 'Villa searches peaked on weekends (+34%)',
               ),
             ],
@@ -892,13 +897,13 @@ class _PropertyAnalyticsScreenState extends State<PropertyAnalyticsScreen>
     );
   }
 
-  Widget _buildInsightRow(String emoji, String text) {
+  Widget _buildInsightRow(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 14)),
+          Icon(icon, size: 16, color: Colors.white54),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

@@ -1,4 +1,5 @@
 import '../../../core/app_export.dart';
+import '../../../core/layout/directional_layout.dart';
 
 class TransactionHeaderWidget extends StatelessWidget {
   final Map<String, dynamic> transaction;
@@ -149,8 +150,7 @@ class TransactionHeaderWidget extends StatelessWidget {
                 role: 'البائع',
               ),
               const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward,
+              DirectionalForwardIcon(
                 color: Colors.white.withAlpha(150),
                 size: 16,
               ),

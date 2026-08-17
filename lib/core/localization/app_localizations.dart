@@ -83,6 +83,10 @@ class AppLocalizations {
   String get commercial => _t(en: 'Commercial', ar: 'تجاري', ku: 'بازرگانی');
   String get investment =>
       _t(en: 'Investment', ar: 'استثمار', ku: 'وەبەرهێنان');
+  String get apartment =>
+      _t(en: 'Apartment', ar: 'شقة', ku: 'شوقە');
+  String get villaType =>
+      _t(en: 'Villa', ar: 'فيلا', ku: 'ڤیلا');
   String get listingType =>
       _t(en: 'Listing Type', ar: 'نوع الإعلان', ku: 'جۆری لیستە');
   String get priceRange =>
@@ -530,6 +534,428 @@ class AppLocalizations {
     en: 'Are you sure you want to logout?',
     ar: 'هل تريد تسجيل الخروج؟',
     ku: 'دڵنیایت دەتەوێت بچیتە دەرەوە؟',
+  );
+
+  // ─── Region Setup ─────────────────────────────────────────────────────────
+  String get authRegionTitle => _t(
+    en: 'Set your region',
+    ar: 'حدد منطقتك',
+    ku: 'ناوچەکەت دیاری بکە',
+  );
+  String get authRegionSubtitle => _t(
+    en: 'We detected your location. Confirm or adjust country, language, and currency.',
+    ar: 'حددنا موقعك. أكد أو عدّل الدولة واللغة والعملة.',
+    ku: 'شوێنەکەت دیاریکرا. وڵات و زمان و دراو پشتڕاست بکەرەوە یان بیگۆڕە.',
+  );
+  String get authRegionCountry => _t(
+    en: 'Country',
+    ar: 'الدولة',
+    ku: 'وڵات',
+  );
+  String get authRegionLanguage => _t(
+    en: 'Language',
+    ar: 'اللغة',
+    ku: 'زمان',
+  );
+  String get authRegionCurrency => _t(
+    en: 'Currency',
+    ar: 'العملة',
+    ku: 'دراو',
+  );
+  String get authRegionConfirm => _t(
+    en: 'Continue',
+    ar: 'متابعة',
+    ku: 'بەردەوامبوون',
+  );
+  String get authRegionDetectedHint => _t(
+    en: 'You can change these anytime from Profile settings.',
+    ar: 'يمكنك تغييرها في أي وقت من إعدادات الملف الشخصي.',
+    ku: 'دەتوانیت لە هەر کاتێک لە ڕێکخستنەکانی پرۆفایل بیگۆڕیت.',
+  );
+
+  // ─── Profile Settings ─────────────────────────────────────────────────────
+  String get settingsCountry => _t(
+    en: 'Country',
+    ar: 'الدولة',
+    ku: 'وڵات',
+  );
+  String get settingsCurrency => _t(
+    en: 'Currency',
+    ar: 'العملة',
+    ku: 'دراو',
+  );
+  String get settingsChangeCountry => _t(
+    en: 'Change country',
+    ar: 'تغيير الدولة',
+    ku: 'گۆڕینی وڵات',
+  );
+  String get settingsChangeCurrency => _t(
+    en: 'Change currency',
+    ar: 'تغيير العملة',
+    ku: 'گۆڕینی دراو',
+  );
+  String get activeCountryTitle => _t(
+    en: 'Active Country',
+    ar: 'الدولة النشطة',
+    ku: 'وڵاتی چالاک',
+  );
+  String get switchMarketContext => _t(
+    en: 'Switch your market context',
+    ar: 'بدّل سياق السوق',
+    ku: 'ناوچەی بازاڕ بگۆڕە',
+  );
+  String get mapType => _t(
+    en: 'Map Type',
+    ar: 'نوع الخريطة',
+    ku: 'جۆری نەخشە',
+  );
+  String get drawArea => _t(
+    en: 'Draw Area',
+    ar: 'رسم منطقة',
+    ku: 'کێشانی ناوچە',
+  );
+  String get cancelDraw => _t(
+    en: 'Cancel Draw',
+    ar: 'إلغاء الرسم',
+    ku: 'هەڵوەشاندنەوەی کێشان',
+  );
+  String areaLabel(String label, int count) => _t(
+    en: 'Area: $label — $count properties',
+    ar: 'منطقة: $label — $count عقار',
+    ku: 'ناوچە: $label — $count خانووبەرە',
+  );
+
+  // ─── Search / Map extended ────────────────────────────────────────────────
+  String get searchSaved => _t(
+    en: 'Search saved',
+    ar: 'تم حفظ البحث',
+    ku: 'گەڕان پاشەکەوت کرا',
+  );
+  String get loadingProperties => _t(
+    en: 'Loading properties...',
+    ar: 'جاري تحميل العقارات...',
+    ku: 'بارکردنی خانووبەرەکان...',
+  );
+  String get done => _t(en: 'Done', ar: 'تم', ku: 'تەواو');
+  String get aiPicks => _t(
+    en: 'AI Picks',
+    ar: 'توصيات الذكاء الاصطناعي',
+    ku: 'پێشنیاری ئەی ئای',
+  );
+  String get resetAll => _t(
+    en: 'Reset All',
+    ar: 'إعادة تعيين',
+    ku: 'ڕیسێتی هەموو',
+  );
+  String get city => _t(en: 'City', ar: 'المدينة', ku: 'شار');
+  String get savedSearchesTitle => _t(
+    en: 'Saved Searches',
+    ar: 'البحوث المحفوظة',
+    ku: 'گەڕانە پاشەکەوتکراوەکان',
+  );
+  String savedCount(int count) => _t(
+    en: '$count saved',
+    ar: '$count محفوظ',
+    ku: '$count پاشەکەوتکراو',
+  );
+  String get clearAll => _t(
+    en: 'Clear All',
+    ar: 'مسح الكل',
+    ku: 'سڕینەوەی هەموو',
+  );
+  String get recent => _t(en: 'Recent', ar: 'السجل الأخير', ku: 'دوایین');
+  String get savedTab => _t(en: 'Saved', ar: 'المحفوظة', ku: 'پاشەکەوتکراو');
+  String get searchFilterHistory => _t(
+    en: 'Search & Filter History',
+    ar: 'سجل البحث والتصفية',
+    ku: 'مێژووی گەڕان و فلتەر',
+  );
+  String resultsCount(int count) => _t(
+    en: '$count results',
+    ar: '$count نتيجة',
+    ku: '$count ئەنجام',
+  );
+  String get mapTypeStandard => _t(
+    en: 'Standard',
+    ar: 'عادي',
+    ku: 'ستاندارد',
+  );
+  String get mapTypeSatellite => _t(
+    en: 'Satellite',
+    ar: 'قمر صناعي',
+    ku: 'مانگی دەستکرد',
+  );
+  String get mapTypeTerrain => _t(
+    en: 'Terrain',
+    ar: 'تضاريس',
+    ku: 'زەوی',
+  );
+  String get mapTypeHybrid => _t(
+    en: 'Hybrid',
+    ar: 'هجين',
+    ku: 'هایبرید',
+  );
+  String timeAgoMinutes(int n) => _t(
+    en: '${n}m ago',
+    ar: '$n دقيقة',
+    ku: '$n خولەک لەمەوبەر',
+  );
+  String timeAgoHours(int n) => _t(
+    en: '${n}h ago',
+    ar: '$n ساعة',
+    ku: '$n کاتژمێر لەمەوبەر',
+  );
+  String timeAgoDays(int n) => _t(
+    en: '${n}d ago',
+    ar: '$n يوم',
+    ku: '$n ڕۆژ لەمەوبەر',
+  );
+
+  String filterLabel(String key) {
+    switch (key) {
+      case 'All':
+        return all;
+      case 'Sale':
+        return forSale;
+      case 'Rent':
+        return forRent;
+      case 'Mortgage':
+        return mortgage;
+      case 'Land':
+        return land;
+      case 'Commercial':
+        return commercial;
+      case 'Investment':
+        return investment;
+      default:
+        return key;
+    }
+  }
+
+  String mapTypeLabel(String id) {
+    switch (id) {
+      case 'satellite':
+        return mapTypeSatellite;
+      case 'terrain':
+        return mapTypeTerrain;
+      case 'hybrid':
+        return mapTypeHybrid;
+      default:
+        return mapTypeStandard;
+    }
+  }
+
+  // ─── Profile extended ─────────────────────────────────────────────────────
+  String get notSet => _t(en: 'Not set', ar: 'غير محدد', ku: 'دیاری نەکراوە');
+  String get madarUser => _t(
+    en: 'Madar User',
+    ar: 'مستخدم مدار',
+    ku: 'بەکارهێنەری مەدار',
+  );
+  String get verificationSecurity => _t(
+    en: 'Verification & Security',
+    ar: 'التحقق والأمان',
+    ku: 'پشتڕاستکردنەوە و پاراستن',
+  );
+  String get phoneNumberLabel => _t(
+    en: 'Phone Number',
+    ar: 'رقم الهاتف',
+    ku: 'ژمارەی تەلەفۆن',
+  );
+  String get biometricVerification => _t(
+    en: 'Biometric Verification',
+    ar: 'التحقق البيومتري',
+    ku: 'پشتڕاستکردنەوەی بایۆمەتری',
+  );
+  String get unverified => _t(
+    en: 'Unverified',
+    ar: 'غير موثق',
+    ku: 'پشتڕاستنەکراوە',
+  );
+  String get changePhone => _t(
+    en: 'Change Phone Number',
+    ar: 'تغيير رقم الهاتف',
+    ku: 'گۆڕینی ژمارەی تەلەفۆن',
+  );
+  String get notifications => _t(
+    en: 'Notifications',
+    ar: 'الإشعارات',
+    ku: 'ئاگاداریەکان',
+  );
+  String get commissionDashboard => _t(
+    en: 'Commission Dashboard',
+    ar: 'لوحة العمولات',
+    ku: 'داشبۆردی کۆمیشن',
+  );
+  String get sellerCommissionDashboard => _t(
+    en: 'Seller Commission Dashboard',
+    ar: 'لوحة عمولات البائع',
+    ku: 'داشبۆردی کۆمیشنی فرۆشیار',
+  );
+  String get documentsArchive => _t(
+    en: 'Documents Archive',
+    ar: 'أرشيف الوثائق',
+    ku: 'ئەرشیفی بەڵگەنامەکان',
+  );
+  String get contracts => _t(en: 'Contracts', ar: 'العقود', ku: 'گرێبەستەکان');
+  String get titleDeeds => _t(
+    en: 'Title Deeds',
+    ar: 'السندات',
+    ku: 'سەندەکان',
+  );
+  String get favorites => _t(
+    en: 'Favorites',
+    ar: 'المفضلة',
+    ku: 'دڵخوازەکان',
+  );
+  String get activeAccount => _t(
+    en: 'Active Account',
+    ar: 'حساب نشط',
+    ku: 'هەژماری چالاک',
+  );
+  String get accountSuspended => _t(
+    en: 'Suspended',
+    ar: 'موقوف',
+    ku: 'هەڵواسراو',
+  );
+  String get profileSaved => _t(
+    en: 'Profile saved',
+    ar: 'تم حفظ الملف الشخصي',
+    ku: 'پرۆفایل پاشەکەوت کرا',
+  );
+  String get ok => _t(en: 'OK', ar: 'حسناً', ku: 'باشە');
+
+  // ─── Messages ─────────────────────────────────────────────────────────────
+  String get msgAiAssistant => _t(
+    en: 'Madar AI Assistant',
+    ar: 'مساعد مدار الذكي',
+    ku: 'یاریدەدەری ئەی ئای مەدار',
+  );
+  String get msgCustomerSupport => _t(
+    en: 'Customer Support',
+    ar: 'خدمة العملاء',
+    ku: 'پشتگیری کڕیار',
+  );
+  String get msgSalesTeam => _t(
+    en: 'Sales Team',
+    ar: 'فريق المبيعات',
+    ku: 'تیمی فرۆشتن',
+  );
+  String get msgClosingTeam => _t(
+    en: 'Deal Closing Team',
+    ar: 'فريق إغلاق الصفقات',
+    ku: 'تیمی داخستنی مامەڵە',
+  );
+  String get msgAgentLawyer => _t(
+    en: 'Agent / Lawyer',
+    ar: 'الوكيل / المحامي',
+    ku: 'نوێنەر / پارێزەر',
+  );
+  String get msgAiSub => _t(
+    en: 'Powered by AI',
+    ar: 'مدعوم بالذكاء الاصطناعي',
+    ku: 'پشتگیری لە ئەی ئای',
+  );
+  String get msgSupportSub => _t(
+    en: 'Available 24/7',
+    ar: 'متاح 24/7',
+    ku: 'بەردەستە 24/7',
+  );
+  String get msgSalesSub => _t(
+    en: 'Property inquiries',
+    ar: 'للاستفسار عن العقارات',
+    ku: 'پرسیار دەربارەی خانووبەرە',
+  );
+  String get msgClosingSub => _t(
+    en: 'Close your deals',
+    ar: 'لإتمام صفقاتك',
+    ku: 'مامەڵەکانت دابخە',
+  );
+  String get msgAgentSub => _t(
+    en: 'Receive transaction code',
+    ar: 'لاستلام رمز الصفقة',
+    ku: 'وەرگرتنی کۆدی مامەڵە',
+  );
+
+  // ─── Deals / Transactions ───────────────────────────────────────────────────
+  String get noActiveDeals => _t(
+    en: 'No active deals',
+    ar: 'لا توجد صفقات نشطة',
+    ku: 'هیچ مامەڵەی چالاک نییە',
+  );
+  String get verifying => _t(
+    en: 'Verifying...',
+    ar: 'جاري التحقق...',
+    ku: 'پشتڕاستکردنەوە...',
+  );
+  String get allDealsTitle => _t(
+    en: 'All Deals',
+    ar: 'كل الصفقات',
+    ku: 'هەموو مامەڵەکان',
+  );
+  String get refresh => _t(
+    en: 'Refresh',
+    ar: 'تحديث',
+    ku: 'نوێکردنەوە',
+  );
+  String get scanBarcode => _t(
+    en: 'Scan Barcode',
+    ar: 'مسح الباركود',
+    ku: 'پێداچوونەوەی بارکۆد',
+  );
+  String get depositConfirmed => _t(
+    en: 'Deposit confirmed',
+    ar: 'تم الإيداع والتأكيد',
+    ku: 'دانان پشتڕاستکرایەوە',
+  );
+  String get escrowConfirmedSuccess => _t(
+    en: 'Escrow deposit confirmed successfully',
+    ar: 'تم تأكيد الإيداع الضماني بنجاح',
+    ku: 'دانانی گەروی بە سەرکەوتوویی پشتڕاستکرایەوە',
+  );
+  String stageCompletedSuccess(int stage) => _t(
+    en: 'Stage $stage completed successfully',
+    ar: 'تم إكمال المرحلة $stage بنجاح',
+    ku: 'قۆناغ $stage بە سەرکەوتوویی تەواوبوو',
+  );
+
+  // ─── Add Property ─────────────────────────────────────────────────────────
+  String get imageAttached => _t(
+    en: 'Image attached',
+    ar: 'تم إرفاق صورة',
+    ku: 'وێنە هاوپێچ کرا',
+  );
+  String get noImage => _t(
+    en: 'No image',
+    ar: 'بدون صورة',
+    ku: 'بێ وێنە',
+  );
+
+  String get noSearchHistoryYet => _t(
+    en: 'No search history yet',
+    ar: 'لا يوجد سجل بحث بعد',
+    ku: 'هێشتا مێژووی گەڕان نییە',
+  );
+  String get enterSearchToSave => _t(
+    en: 'Enter a search or filter to save',
+    ar: 'أدخل بحثاً أو فلتراً لحفظه',
+    ku: 'گەڕان یان فلتەر بنووسە بۆ پاشەکەوتکردن',
+  );
+  String get noSavedSearchesYet => _t(
+    en: 'No saved searches yet',
+    ar: 'لا توجد عمليات بحث محفوظة بعد',
+    ku: 'هێشتا گەڕانی پاشەکەوتکراو نییە',
+  );
+
+  String get drawAreaHint => _t(
+    en: 'Tap on map to draw selection area',
+    ar: 'اضغط على الخريطة لرسم منطقة التحديد',
+    ku: 'بۆ کێشانی ناوچە لەسەر نەخشە دەست لێبدە',
+  );
+  String propertyCountShort(int count) => _t(
+    en: '$count Properties',
+    ar: '$count عقار',
+    ku: '$count خانووبەرە',
   );
 
   // ─── Helper ───────────────────────────────────────────────────────────────

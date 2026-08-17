@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/app_export.dart';
+import '../../../core/layout/directional_layout.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../providers/chat_notifier.dart';
 import '../search_map_screen.dart';
@@ -513,9 +514,8 @@ class _RecommendedPropertyCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Icon(
-                Icons.chevron_right_rounded,
+              padding: const EdgeInsetsDirectional.only(end: 12),
+              child: DirectionalChevronIcon(
                 color: theme.colorScheme.onSurfaceVariant,
                 size: 20,
               ),
