@@ -209,7 +209,7 @@ class _OfficeAiAssistantScreenState extends State<OfficeAiAssistantScreen> {
                       if (suggestions is List && suggestions.isNotEmpty) ...[
                         const SizedBox(height: 10),
                         SizedBox(
-                          height: 250,
+                          height: 238,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: suggestions.length,
