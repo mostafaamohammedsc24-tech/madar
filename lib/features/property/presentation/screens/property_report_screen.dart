@@ -675,9 +675,6 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
             ),
           ),
           PropertyStickyActionBar(
-            isSaved: report.isSaved,
-            onSave: _toggleSave,
-            onShare: _share,
             onContact: _contactSales,
             onAskAi: () => _openAiAdvisor(report),
             onScheduleTour: () => _scheduleTour(report),

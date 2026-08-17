@@ -5,17 +5,11 @@ import '../../../../core/localization/app_localizations.dart';
 class PropertyStickyActionBar extends StatelessWidget {
   const PropertyStickyActionBar({
     super.key,
-    required this.isSaved,
-    required this.onSave,
-    required this.onShare,
     required this.onContact,
     required this.onAskAi,
     required this.onScheduleTour,
   });
 
-  final bool isSaved;
-  final VoidCallback onSave;
-  final VoidCallback onShare;
   final VoidCallback onContact;
   final VoidCallback onAskAi;
   final VoidCallback onScheduleTour;
@@ -30,38 +24,21 @@ class PropertyStickyActionBar extends StatelessWidget {
       elevation: 8,
       color: theme.colorScheme.surface,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(8, 10, 8, 10 + bottom),
+        padding: EdgeInsets.fromLTRB(12, 10, 12, 10 + bottom),
         child: Row(
           children: [
-            IconButton(
-              onPressed: onSave,
-              tooltip: isSaved ? loc.savedProperty : loc.unsavedProperty,
-              icon: Icon(
-                isSaved ? Icons.bookmark : Icons.bookmark_border,
-                color: isSaved
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            IconButton(
-              onPressed: onShare,
-              tooltip: loc.shareProperty,
-              icon: Icon(
-                Icons.share_outlined,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
             Expanded(
-              child: FilledButton(
+              child: FilledButton.icon(
                 onPressed: onContact,
-                child: Text(
-                  loc.contactSalesTeam,
+                icon: const Icon(Icons.phone_outlined, size: 18),
+                label: Text(
+                  loc.contactSales,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             IconButton(
               onPressed: onAskAi,
               tooltip: loc.askAi,

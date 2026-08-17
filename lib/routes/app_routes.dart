@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/authentication/domain/models/user_auth_state.dart';
@@ -9,6 +10,7 @@ import '../features/employee/core/routing/employee_globals.dart';
 import '../features/employee/core/routing/employee_redirect.dart';
 import '../features/office/routing/office_globals.dart';
 import '../features/office/routing/office_redirect.dart';
+import '../features/property/presentation/screens/property_report_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
 import '../presentation/my_properties_screen/my_properties_screen.dart';
@@ -125,7 +127,9 @@ final GoRouter appRouter = GoRouter(
         final property = state.extra as Map<String, dynamic>? ?? {};
         return CustomTransitionPage(
           key: state.pageKey,
-          child: buildDeferredPropertyReport(property),
+          child: ProviderScope(
+            child: PropertyReportScreen(property: property),
+          ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               SlideTransition(
                 position:

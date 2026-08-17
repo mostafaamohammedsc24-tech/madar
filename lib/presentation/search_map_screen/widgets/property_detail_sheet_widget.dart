@@ -65,6 +65,15 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
     }
   }
 
+  void _shareProperty() {
+    sharePropertyLink(
+      context,
+      propertyId: widget.property.id,
+      title: PropertyCardCopy.title(context, widget.property),
+      priceLine: PropertyCardCopy.price(context, widget.property),
+    );
+  }
+
   void _openFullReport() {
     openPropertyReport(
       context,
@@ -152,46 +161,31 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                       PositionedDirectional(
                         top: 12,
                         end: 16,
-                        child: GestureDetector(
-                          onTap: _toggleFavorite,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: _isFavorited
-                                  ? AppTheme.error.withAlpha(20)
-                                  : Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(26),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _ImageActionButton(
+                              icon: Icons.share_outlined,
+                              tooltip: loc.shareProperty,
+                              onTap: _shareProperty,
+                              theme: theme,
                             ),
-                            child: Center(
-                              child: _isTogglingFavorite
-                                  ? SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppTheme.error,
-                                      ),
-                                    )
-                                  : CustomIconWidget(
-                                      iconName: _isFavorited
-                                          ? 'favorite'
-                                          : 'favorite_border',
-                                      color: _isFavorited
-                                          ? AppTheme.error
-                                          : const Color(0xFF757575),
-                                      size: 20,
-                                    ),
+                            const SizedBox(width: 8),
+                            _ImageActionButton(
+                              icon: _isFavorited
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              tooltip: _isFavorited
+                                  ? loc.savedProperty
+                                  : loc.unsavedProperty,
+                              onTap: _isTogglingFavorite ? null : _toggleFavorite,
+                              theme: theme,
+                              iconColor: _isFavorited
+                                  ? AppTheme.error
+                                  : theme.colorScheme.onSurfaceVariant,
+                              loading: _isTogglingFavorite,
                             ),
-                          ),
+                          ],
                         ),
                       ),
                       PositionedDirectional(
@@ -375,69 +369,45 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: _contactSales,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppTheme.primary,
-                                  side: const BorderSide(
-                                    color: AppTheme.primary,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                icon: CustomIconWidget(
-                                  iconName: 'phone',
-                                  color: AppTheme.primary,
-                                  size: 16,
-                                ),
-                                label: Text(
-                                  loc.contactSalesTeam,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: _openFullReport,
+                            icon: const Icon(Icons.open_in_full, size: 18),
+                            label: Text(loc.moreDetails),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppTheme.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: _openFullReport,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                icon: CustomIconWidget(
-                                  iconName: 'open_in_full',
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                label: Text(
-                                  loc.moreDetails,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: _contactSales,
+                            icon: const Icon(Icons.phone_outlined, size: 18),
+                            label: Text(
+                              loc.contactSales,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppTheme.primary,
+                              side: const BorderSide(color: AppTheme.primary),
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
@@ -446,6 +416,61 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ImageActionButton extends StatelessWidget {
+  const _ImageActionButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+    required this.theme,
+    this.iconColor,
+    this.loading = false,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onTap;
+  final ThemeData theme;
+  final Color? iconColor;
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: theme.colorScheme.surface.withValues(alpha: 0.94),
+        shape: const CircleBorder(),
+        elevation: 2,
+        shadowColor: Colors.black26,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Center(
+              child: loading
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: iconColor ?? theme.colorScheme.primary,
+                      ),
+                    )
+                  : Icon(
+                      icon,
+                      size: 20,
+                      color: iconColor ?? theme.colorScheme.onSurfaceVariant,
+                    ),
+            ),
+          ),
+        ),
       ),
     );
   }
