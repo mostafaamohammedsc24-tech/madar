@@ -126,6 +126,10 @@ class EmployeeShell extends StatelessWidget {
         location.startsWith('/employee/hr') ||
         location.startsWith('/employee/closing') ||
         location.startsWith('/employee/support') ||
+        location.startsWith('/employee/quality') ||
+        location.startsWith('/employee/compliance') ||
+        location.startsWith('/employee/system') ||
+        location.startsWith('/employee/executive') ||
         location.startsWith('/employee/audit')) {
       return items.indexWhere((e) => e.route == '/employee/work').clamp(0, 4);
     }

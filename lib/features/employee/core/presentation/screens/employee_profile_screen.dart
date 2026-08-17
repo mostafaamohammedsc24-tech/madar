@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/localization/app_localizations.dart';
+import '../../../../../services/twilio_verify_service.dart';
 import '../providers/employee_auth_notifier.dart';
 
 class EmployeeProfileScreen extends StatelessWidget {
@@ -113,6 +114,14 @@ class EmployeeProfileScreen extends StatelessWidget {
               .toList(),
         ),
         const SizedBox(height: 28),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Verify phone (Twilio SMS)'),
+          subtitle: const Text('2FA / phone confirmation via Madar Verify'),
+          trailing: const Icon(Icons.sms_outlined),
+          onTap: () => _verifyPhoneSheet(context, auth),
+        ),
+        const SizedBox(height: 12),
         OutlinedButton(
           onPressed: () async {
             await auth.logout();
@@ -121,6 +130,91 @@ class EmployeeProfileScreen extends StatelessWidget {
           child: Text(loc.empSignOut),
         ),
       ],
+    );
+  }
+
+  Future<void> _verifyPhoneSheet(
+    BuildContext context,
+    EmployeeAuthNotifier auth,
+  ) async {
+    final phoneCtrl = TextEditingController();
+    final codeCtrl = TextEditingController();
+    final twilio = TwilioVerifyService();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.viewInsetsOf(ctx).bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Phone verification',
+              style: Theme.of(ctx).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'Phone E.164 (+9647…)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: () async {
+                final r = await twilio.sendSms(phoneCtrl.text.trim());
+                if (ctx.mounted) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        r.success ? 'SMS sent' : (r.message ?? 'Failed'),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Send SMS code'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: codeCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Code',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: () async {
+                final r = await twilio.checkCode(
+                  phoneE164: phoneCtrl.text.trim(),
+                  code: codeCtrl.text.trim(),
+                );
+                if (ctx.mounted) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        r.success ? 'Phone verified' : (r.message ?? 'Invalid'),
+                      ),
+                    ),
+                  );
+                  if (r.success) Navigator.pop(ctx);
+                }
+              },
+              child: const Text('Confirm code'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

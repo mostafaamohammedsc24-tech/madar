@@ -34,6 +34,7 @@ import '../presentation/screens/employee_work_screen.dart';
 import '../../sales/presentation/screens/sales_screens.dart';
 import '../../hr/presentation/screens/hr_screens.dart';
 import '../../legal/presentation/screens/legal_screens.dart';
+import '../../ops/presentation/screens/ops_screens.dart';
 import 'employee_globals.dart';
 
 List<RouteBase> buildEmployeeRoutes() {
@@ -259,46 +260,32 @@ List<RouteBase> buildEmployeeRoutes() {
           path: '/employee/hr/organization',
           builder: (context, state) => const HrOrganizationScreen(),
         ),
-        // Closing / Support placeholders (architecture-ready)
+        // Closing / Support / Quality / Compliance / System / Executive
         GoRoute(
           path: '/employee/closing/cases',
-          builder: (context, state) => const _SimpleQueueScreen(
-            title: 'Closing cases',
-            emptyHint: 'Closing intake appears here when Sales hands off deals.',
-          ),
+          builder: (context, state) => const ClosingCasesScreen(),
         ),
         GoRoute(
           path: '/employee/support/tickets',
-          builder: (context, state) => const _SimpleQueueScreen(
-            title: 'Support tickets',
-            emptyHint: 'Open tickets assigned to you will appear here.',
-          ),
+          builder: (context, state) => const SupportTicketsScreen(),
+        ),
+        GoRoute(
+          path: '/employee/quality/queue',
+          builder: (context, state) => const QualityReviewScreen(),
+        ),
+        GoRoute(
+          path: '/employee/compliance/cases',
+          builder: (context, state) => const ComplianceCasesScreen(),
+        ),
+        GoRoute(
+          path: '/employee/system/admin',
+          builder: (context, state) => const SystemAdminScreen(),
+        ),
+        GoRoute(
+          path: '/employee/executive/overview',
+          builder: (context, state) => const ExecutiveDashboardScreen(),
         ),
       ],
     ),
   ];
-}
-
-class _SimpleQueueScreen extends StatelessWidget {
-  const _SimpleQueueScreen({required this.title, required this.emptyHint});
-
-  final String title;
-  final String emptyHint;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            emptyHint,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
-      ),
-    );
-  }
 }

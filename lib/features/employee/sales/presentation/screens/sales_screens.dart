@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/presentation/providers/employee_auth_notifier.dart';
+import '../../../ops/data/ops_repository.dart';
 import '../../data/sales_repository.dart';
 
 class SalesLeadsScreen extends StatefulWidget {
@@ -301,9 +302,32 @@ class _SalesDealsScreenState extends State<SalesDealsScreen> {
                   ),
                   trailing: FilledButton.tonal(
                     onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      final ops = OpsRepository(
+                        context.read<EmployeeAuthNotifier>().repository,
+                      );
+                      final created = await ops.createClosingCase(
+                        buyerName: l['full_name']?.toString() ?? 'Buyer',
+                        sellerName: 'Seller TBD',
+                        propertyRef: l['property_interest']?.toString() ??
+                            l['lead_code']?.toString() ??
+                            '',
+                        priceText: l['budget_text']?.toString(),
+                        leadId: l['id']?.toString(),
+                      );
                       await _repo.updateLeadStatus(
                         l['id'].toString(),
                         'converted',
+                      );
+                      if (!mounted) return;
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            created.success
+                                ? 'Handed to Closing ${created.code}'
+                                : (created.message ?? 'Handoff recorded'),
+                          ),
+                        ),
                       );
                       _load();
                     },

@@ -256,11 +256,21 @@ List<WorkQueueItem> workQueuesFor(
           count: 0,
           route: '/employee/closing/cases',
         ),
+        const WorkQueueItem(
+          title: 'Start closing',
+          count: 0,
+          route: '/employee/closing/cases',
+        ),
       ];
     case EmployeeDepartmentCode.support:
       return [
         const WorkQueueItem(
           title: 'Open tickets',
+          count: 0,
+          route: '/employee/support/tickets',
+        ),
+        const WorkQueueItem(
+          title: 'Urgent',
           count: 0,
           route: '/employee/support/tickets',
         ),
@@ -270,17 +280,41 @@ List<WorkQueueItem> workQueuesFor(
         const WorkQueueItem(
           title: 'Review queue',
           count: 0,
-          route: '/employee/publishing/requests',
+          route: '/employee/quality/queue',
         ),
       ];
     case EmployeeDepartmentCode.compliance:
-    case EmployeeDepartmentCode.systemAdmin:
-    case EmployeeDepartmentCode.executive:
       return [
+        const WorkQueueItem(
+          title: 'Compliance cases',
+          count: 0,
+          route: '/employee/compliance/cases',
+        ),
         WorkQueueItem(
           title: loc.empNavAudit,
           count: 0,
           route: '/employee/audit',
+        ),
+      ];
+    case EmployeeDepartmentCode.systemAdmin:
+      return [
+        const WorkQueueItem(
+          title: 'System configuration',
+          count: 0,
+          route: '/employee/system/admin',
+        ),
+        WorkQueueItem(
+          title: loc.empNavAudit,
+          count: 0,
+          route: '/employee/audit',
+        ),
+      ];
+    case EmployeeDepartmentCode.executive:
+      return [
+        const WorkQueueItem(
+          title: 'Executive overview',
+          count: 0,
+          route: '/employee/executive/overview',
         ),
       ];
     case EmployeeDepartmentCode.unknown:

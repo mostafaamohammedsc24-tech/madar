@@ -626,10 +626,24 @@ class EmployeeRepository {
     }
   }
 
-  Future<({bool success, String? message, String? phoneMasked, String? debugOtp})>
-      requestBuyerOtp(String transactionId) async {
+  Future<
+      ({
+        bool success,
+        String? message,
+        String? phoneMasked,
+        String? phoneE164,
+        String? delivery,
+        String? debugOtp,
+      })> requestBuyerOtp(String transactionId) async {
     if (_token == null) {
-      return (success: false, message: 'unauthorized', phoneMasked: null, debugOtp: null);
+      return (
+        success: false,
+        message: 'unauthorized',
+        phoneMasked: null,
+        phoneE164: null,
+        delivery: null,
+        debugOtp: null,
+      );
     }
     try {
       final result = await _supabase.client.rpc(
@@ -644,6 +658,8 @@ class EmployeeRepository {
           success: false,
           message: (result is Map ? result['message'] : null)?.toString(),
           phoneMasked: null,
+          phoneE164: null,
+          delivery: null,
           debugOtp: null,
         );
       }
@@ -651,10 +667,43 @@ class EmployeeRepository {
         success: true,
         message: null,
         phoneMasked: result['phone_masked']?.toString(),
+        phoneE164: result['phone_e164']?.toString(),
+        delivery: result['delivery']?.toString(),
         debugOtp: result['debug_otp']?.toString(),
       );
     } catch (_) {
-      return (success: false, message: 'unavailable', phoneMasked: null, debugOtp: null);
+      return (
+        success: false,
+        message: 'unavailable',
+        phoneMasked: null,
+        phoneE164: null,
+        delivery: null,
+        debugOtp: null,
+      );
+    }
+  }
+
+  Future<({bool success, String? message})> markBuyerVerifiedViaTwilio(
+    String transactionId,
+  ) async {
+    if (_token == null) return (success: false, message: 'unauthorized');
+    try {
+      final result = await _supabase.client.rpc(
+        'bank_mark_buyer_verified_via_twilio',
+        params: {
+          'p_session_token': _token,
+          'p_transaction_id': transactionId,
+        },
+      );
+      if (result is! Map || result['success'] != true) {
+        return (
+          success: false,
+          message: (result is Map ? result['message'] : 'failed')?.toString(),
+        );
+      }
+      return (success: true, message: null);
+    } catch (_) {
+      return (success: false, message: 'unavailable');
     }
   }
 
