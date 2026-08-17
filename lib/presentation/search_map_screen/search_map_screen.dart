@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -12,15 +11,12 @@ import '../../providers/country_context_provider.dart';
 import '../../services/property_ai_service.dart';
 import '../../services/property_catalog_demo.dart';
 import '../../services/supabase_service.dart';
-import '../../widgets/country_context_switcher.dart';
-import '../notifications/notification_center_screen.dart';
 import './models/property_data.dart';
 import './widgets/ai_recommendations_sheet.dart';
 import './widgets/map_filter_chips_widget.dart';
+import './widgets/map_preview_carousel.dart';
 import './widgets/map_search_bar_widget.dart';
-import './widgets/property_card_slider_widget.dart';
 import './widgets/property_detail_sheet_widget.dart';
-import './widgets/property_list_screen.dart';
 import './widgets/property_map_widget.dart';
 import './widgets/saved_area_search_widget.dart';
 
@@ -40,12 +36,12 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   final GlobalKey<PropertyMapWidgetState> _mapKey =
       GlobalKey<PropertyMapWidgetState>();
   String? _loadedCountryCode;
-  bool _isSheetExpanded = false;
-  // Web preview has no Google Maps JS key; open list first for a stable shell.
-  bool _isFullScreenList = kIsWeb;
   String _selectedFilter = 'All';
   PropertyData? _selectedProperty;
-  bool _isMapLoaded = false;
+  bool _showPreview = false;
+  List<PropertyData> _previewProperties = [];
+  double _mapZoom = 12.5;
+  double _sheetExtent = 0.14;
   String _mapType = 'normal';
   bool _isDrawingMode = false;
   bool _isLoading = true;
@@ -86,16 +82,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   String? _aiSearchInsight;
   int _aiSearchToken = 0;
 
-  // Map legend items
-  final List<Map<String, dynamic>> _legendItems = [
-    {'label': 'Apartment', 'color': Color(0xFF1565C0)},
-    {'label': 'Villa', 'color': Color(0xFF388E3C)},
-    {'label': 'Land', 'color': Color(0xFFF57C00)},
-    {'label': 'Commercial', 'color': Color(0xFF7B1FA2)},
-    {'label': 'For Rent', 'color': Color(0xFF00BCD4)},
-    {'label': 'Mortgage', 'color': Color(0xFFE91E63)},
-  ];
-
   List<Map<String, dynamic>> _savedSearches = [];
   final List<Map<String, dynamic>> _filterHistory = [];
 
@@ -104,14 +90,13 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     super.initState();
     _loadProperties();
     _loadSavedSearches();
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) setState(() => _isMapLoaded = true);
-    });
+    _draggableController.addListener(_onSheetExtentChanged);
   }
 
   @override
   void dispose() {
     _aiSearchDebounce?.cancel();
+    _draggableController.removeListener(_onSheetExtentChanged);
     _draggableController.dispose();
     super.dispose();
   }
@@ -480,7 +465,49 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   }
 
   void _onPropertySelected(PropertyData property) {
+    final nearby = List<PropertyData>.from(_filteredProperties)
+      ..sort((a, b) {
+        final da = _distance(property, a);
+        final db = _distance(property, b);
+        return da.compareTo(db);
+      });
+    setState(() {
+      _selectedProperty = property;
+      _previewProperties = nearby.take(12).toList();
+      _showPreview = true;
+    });
+    _mapKey.currentState?.focusOnPin(LatLng(property.lat, property.lng));
+  }
+
+  double _distance(PropertyData a, PropertyData b) {
+    final dLat = a.lat - b.lat;
+    final dLng = a.lng - b.lng;
+    return dLat * dLat + dLng * dLng;
+  }
+
+  void _onPreviewPageChanged(int index) {
+    if (index < 0 || index >= _previewProperties.length) return;
+    final property = _previewProperties[index];
     setState(() => _selectedProperty = property);
+    _mapKey.currentState?.focusOnPin(LatLng(property.lat, property.lng));
+  }
+
+  void _onSheetExtentChanged() {
+    if (!_draggableController.isAttached) return;
+    final size = _draggableController.size;
+    if ((size - _sheetExtent).abs() > 0.008) {
+      setState(() => _sheetExtent = size);
+    }
+  }
+
+  void _closePreview() {
+    setState(() {
+      _showPreview = false;
+      _selectedProperty = null;
+    });
+  }
+
+  void _openPropertyDetail(PropertyData property) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -518,26 +545,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     if ((aY > pY) == (bY > pY)) return false;
     final xIntersect = (bX - aX) * (pY - aY) / (bY - aY) + aX;
     return pX < xIntersect;
-  }
-
-  /// Opens the bottom sheet panel programmatically
-  void _openPanel() {
-    try {
-      final currentSize = _draggableController.isAttached
-          ? _draggableController.size
-          : 0.12;
-      final isCurrentlyExpanded = currentSize > 0.3;
-      final targetSize = isCurrentlyExpanded ? 0.12 : 0.55;
-      _draggableController.animateTo(
-        targetSize,
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeOutCubic,
-      );
-      setState(() => _isSheetExpanded = !isCurrentlyExpanded);
-    } catch (_) {
-      // Controller not attached yet, just update state
-      setState(() => _isSheetExpanded = !_isSheetExpanded);
-    }
   }
 
   void _showAiRecommendations() {
@@ -601,19 +608,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) => _loadProperties());
     }
 
-    // Web preview: skip Google Maps + sheet stack (no Maps JS in this env).
-    if (kIsWeb) {
-      return Scaffold(
-        body: PropertyListScreen(
-          properties: _filteredProperties,
-          activeFilter: _selectedFilter,
-          onClose: () {},
-          onPropertyTap: _onPropertySelected,
-          showCloseButton: false,
-        ),
-      );
-    }
-
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final isTablet = MediaQuery.of(context).size.width >= 600;
@@ -631,6 +625,13 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               mapType: _mapType,
               isDrawingMode: _isDrawingMode,
               onPolygonDrawn: _onPolygonDrawn,
+              selectedPropertyId: _selectedProperty?.id,
+              onZoomChanged: (z) {
+                if ((z - _mapZoom).abs() > 0.15) {
+                  setState(() => _mapZoom = z);
+                }
+              },
+              onBackgroundTap: _closePreview,
             ),
 
             // Top overlay: search bar + filter chips
@@ -657,21 +658,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                               onVoiceSearch: () {},
                               onSearch: _onSearch,
                               suggestions: _searchSuggestions,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Country context chip
-                          CountryContextChip(),
-                          const SizedBox(width: 8),
-                          // Notification bell
-                          _TopIconButton(
-                            icon: Icons.notifications_outlined,
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    const NotificationCenterScreen(),
-                              ),
                             ),
                           ),
                         ],
@@ -747,14 +733,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 ),
               ),
 
-            // Map legend — start side (left in LTR, right in RTL)
-            PositionedDirectional(
-              start: 16,
-              bottom: bottomNavHeight + 200,
-              child: _buildMapLegend(theme),
-            ),
-
-            // Map controls — end side (right in LTR, left in RTL)
+            // Map controls — end side
             PositionedDirectional(
               end: 16,
               bottom: bottomNavHeight + 180,
@@ -901,244 +880,50 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 ),
               ),
 
-            // ─── BOTTOM PANEL: Floating open button + DraggableScrollableSheet ───
-            // Floating "open panel" button — always visible above the panel
-            Positioned(
-              bottom: 100,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: AnimatedOpacity(
-                  opacity: _isSheetExpanded ? 0.0 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: IgnorePointer(
-                    ignoring: _isSheetExpanded,
-                    child: GestureDetector(
-                      onTap: _openPanel,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.primary.withAlpha(100),
-                              blurRadius: 16,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.keyboard_arrow_up_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              loc.propertyCountShort(_filteredProperties.length),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // DraggableScrollableSheet — uses AbsorbPointer on map area to prevent conflict
+            // ─── BOTTOM PANEL: handle + stats only, swipeable ───
             DraggableScrollableSheet(
               controller: _draggableController,
-              initialChildSize: 0.12,
+              initialChildSize: 0.14,
               minChildSize: 0.12,
-              maxChildSize: isTablet ? 0.5 : 0.65,
+              maxChildSize: isTablet ? 0.36 : 0.42,
               snap: true,
-              snapSizes: const [0.12, 0.22, 0.65],
+              snapSizes: isTablet
+                  ? const [0.14, 0.24, 0.36]
+                  : const [0.14, 0.24, 0.42],
               builder: (context, scrollController) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(24),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(31),
-                        blurRadius: 20,
-                        offset: const Offset(0, -4),
-                      ),
-                    ],
+                return Material(
+                  color: theme.colorScheme.surface,
+                  elevation: 8,
+                  shadowColor: Colors.black26,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
                   ),
-                  child: Column(
+                  child: ListView(
+                    controller: scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
                     children: [
-                      // Drag handle area — intercepts vertical drags ONLY
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: _openPanel,
-                        onVerticalDragUpdate: (details) {
-                          final screenHeight = MediaQuery.of(
-                            context,
-                          ).size.height;
-                          final delta = -details.primaryDelta! / screenHeight;
-                          final current = _draggableController.size;
-                          final newSize = (current + delta).clamp(
-                            0.12,
-                            isTablet ? 0.5 : 0.65,
-                          );
-                          _draggableController.jumpTo(newSize);
-                        },
-                        onVerticalDragEnd: (details) {
-                          final velocity = details.primaryVelocity ?? 0;
-                          final current = _draggableController.size;
-                          double targetSize;
-                          if (velocity < -300) {
-                            targetSize = isTablet ? 0.5 : 0.65;
-                          } else if (velocity > 300) {
-                            targetSize = 0.12;
-                          } else {
-                            const snapPoints = [0.12, 0.22, 0.65];
-                            targetSize = snapPoints.reduce(
-                              (a, b) =>
-                                  (a - current).abs() < (b - current).abs()
-                                  ? a
-                                  : b,
-                            );
-                          }
-                          _draggableController.animateTo(
-                            targetSize,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutCubic,
-                          );
-                          setState(() => _isSheetExpanded = targetSize > 0.3);
-                        },
+                      Center(
                         child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Center(
-                                child: Container(
-                                  width: 40,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.outline,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFBDBDBD),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                       ),
-                      // Header row
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                        child: Row(
-                          children: [
-                            Text(
-                              '${_filteredProperties.length} ${loc.propertiesFound}',
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
+                      const SizedBox(height: 12),
+                      Text(
+                        _mapZoom < 11
+                            ? loc.zoomToSeeProperties
+                            : loc.resultsCountLabel(
+                                _filteredProperties.length,
                               ),
-                            ),
-                            const Spacer(),
-                            // Save Search button
-                            GestureDetector(
-                              onTap: _saveCurrentSearch,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primary.withAlpha(15),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: AppTheme.primary.withAlpha(40),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.bookmark_add_outlined,
-                                      color: AppTheme.primary,
-                                      size: 14,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      loc.save,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppTheme.primary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            if (_savedSearches.isNotEmpty)
-                              GestureDetector(
-                                onTap: _showSavedSearches,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.primaryLight.withAlpha(20),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: AppTheme.primaryLight.withAlpha(
-                                        60,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.bookmarks_outlined,
-                                        color: AppTheme.primaryLight,
-                                        size: 14,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${_savedSearches.length}',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: AppTheme.primaryLight,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: PropertyCardSliderWidget(
-                          properties: _filteredProperties,
-                          scrollController: scrollController,
-                          onPropertyTap: _onPropertySelected,
-                          onSeeAll: () =>
-                              setState(() => _isFullScreenList = true),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -1147,79 +932,32 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               },
             ),
 
-            // Full-screen property list overlay
-            if (_isFullScreenList)
-              Positioned.fill(
-                child: PropertyListScreen(
-                  properties: _filteredProperties,
-                  activeFilter: _selectedFilter,
-                  onClose: () => setState(() => _isFullScreenList = false),
-                  onPropertyTap: (p) {
-                    setState(() => _isFullScreenList = false);
-                    _onPropertySelected(p);
-                  },
+            if (_showPreview && _previewProperties.isNotEmpty)
+              Positioned(
+                left: 12,
+                right: 12,
+                bottom: (MediaQuery.sizeOf(context).height * _sheetExtent) + 8,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  child: MapPreviewCarousel(
+                    key: ValueKey(_previewProperties.first.id),
+                    properties: _previewProperties,
+                    initialIndex: _selectedProperty == null
+                        ? 0
+                        : _previewProperties
+                            .indexWhere((p) => p.id == _selectedProperty!.id)
+                            .clamp(0, _previewProperties.length - 1),
+                    onPageChanged: _onPreviewPageChanged,
+                    onOpen: _openPropertyDetail,
+                    onClose: _closePreview,
+                  ),
                 ),
               ),
           ],
         ),
       );
-  }
-
-  Widget _buildMapLegend(ThemeData theme) {
-    final loc = AppLocalizations.of(context);
-    final labels = [
-      loc.apartment,
-      loc.villaType,
-      loc.land,
-      loc.commercial,
-      loc.forRent,
-      loc.mortgage,
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withAlpha(230),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 8),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: _legendItems
-            .asMap()
-            .entries
-            .map(
-              (entry) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: entry.value['color'] as Color,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      labels[entry.key],
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
   }
 
   void _showFilterPanel(BuildContext context) {

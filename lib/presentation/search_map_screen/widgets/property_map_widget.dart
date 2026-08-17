@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/app_export.dart';
@@ -14,6 +13,9 @@ class PropertyMapWidget extends StatefulWidget {
   final String mapType;
   final bool isDrawingMode;
   final Function(List<LatLng>)? onPolygonDrawn;
+  final String? selectedPropertyId;
+  final ValueChanged<double>? onZoomChanged;
+  final VoidCallback? onBackgroundTap;
 
   const PropertyMapWidget({
     required this.properties,
@@ -21,6 +23,9 @@ class PropertyMapWidget extends StatefulWidget {
     required this.mapType,
     this.isDrawingMode = false,
     this.onPolygonDrawn,
+    this.selectedPropertyId,
+    this.onZoomChanged,
+    this.onBackgroundTap,
     super.key,
   });
 
@@ -34,9 +39,23 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   Set<Polygon> _polygons = {};
   Set<Polyline> _polylines = {};
   final List<LatLng> _drawingPoints = [];
-  bool _isDrawing = false;
   double _currentZoom = 12.5;
-  static const bool _useWebMapFallback = kIsWeb;
+  bool _overlayReady = false;
+  bool _syncingOverlay = false;
+  List<_OverlayPin> _overlayPins = [];
+  static const bool _useWebMapFallback = false;
+
+  static const String _cleanMapStyle = '''
+[
+  {"featureType":"poi","stylers":[{"visibility":"off"}]},
+  {"featureType":"poi.business","stylers":[{"visibility":"off"}]},
+  {"featureType":"poi.attraction","stylers":[{"visibility":"off"}]},
+  {"featureType":"poi.park","elementType":"labels","stylers":[{"visibility":"off"}]},
+  {"featureType":"transit","stylers":[{"visibility":"off"}]},
+  {"featureType":"transit.station","stylers":[{"visibility":"off"}]},
+  {"elementType":"labels.icon","stylers":[{"visibility":"off"}]}
+]
+''';
 
   // Cache for custom marker bitmaps — keyed by type_listingType_size
   final Map<String, BitmapDescriptor> _markerCache = {};
@@ -58,20 +77,20 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   void didUpdateWidget(PropertyMapWidget old) {
     super.didUpdateWidget(old);
     if (_useWebMapFallback) return;
-    if (old.properties != widget.properties) {
+    if (old.properties != widget.properties ||
+        old.selectedPropertyId != widget.selectedPropertyId) {
       _buildMarkers();
+      _scheduleOverlaySync();
     }
     if (!widget.isDrawingMode && old.isDrawingMode) {
       _clearDrawing();
     }
   }
 
-  /// Compute marker pixel size based on zoom level
+  /// Compute marker pixel size based on zoom level — large circular pins.
   double _markerSizeForZoom(double zoom) {
-    // At zoom 10 → 28px, zoom 14 → 44px, zoom 18 → 64px
-    // Linear interpolation clamped between 20 and 72
-    final size = 20.0 + (zoom - 8.0) * 4.0;
-    return size.clamp(20.0, 72.0);
+    final size = 64.0 + (zoom - 8.0) * 6.0;
+    return size.clamp(68.0, 118.0);
   }
 
   // Returns the icon name and color for each property type/listing type
@@ -136,9 +155,11 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   Future<BitmapDescriptor> _createCustomMarker(
     String type,
     String listingType,
-    double markerSize,
-  ) async {
-    final cacheKey = '${type}_${listingType}_${markerSize.toInt()}';
+    double markerSize, {
+    bool selected = false,
+  }) async {
+    final cacheKey =
+        '${type}_${listingType}_${markerSize.toInt()}_${selected ? 's' : 'n'}';
     if (_markerCache.containsKey(cacheKey)) {
       return _markerCache[cacheKey]!;
     }
@@ -146,38 +167,24 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     final spec = _getIconSpec(type, listingType);
     final color = spec['color'] as Color;
     final iconData = spec['icon'] as IconData;
+    final size = selected ? markerSize * 1.18 : markerSize;
 
-    // Canvas size is 2x the marker size for crisp rendering
-    final canvasSize = markerSize * 2.0;
-    final circleRadius = markerSize * 0.55;
-    final center = Offset(canvasSize / 2, canvasSize / 2 - markerSize * 0.1);
+    final canvasSize = size * 2.0;
+    final circleRadius = size * 0.42;
+    final center = Offset(canvasSize / 2, canvasSize / 2);
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    // Shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withAlpha(70)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, markerSize * 0.12);
-    canvas.drawCircle(
-      Offset(center.dx, center.dy + markerSize * 0.05),
-      circleRadius,
-      shadowPaint,
-    );
+      ..color = Colors.black.withAlpha(50)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    canvas.drawCircle(center.translate(0, 2), circleRadius + 1, shadowPaint);
 
-    // Circle background
-    final bgPaint = Paint()..color = color;
-    canvas.drawCircle(center, circleRadius, bgPaint);
+    canvas.drawCircle(center, circleRadius + (selected ? 4 : 0), Paint()..color = Colors.white);
+    canvas.drawCircle(center, circleRadius, Paint()..color = color);
 
-    // White border
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = markerSize * 0.08;
-    canvas.drawCircle(center, circleRadius, borderPaint);
-
-    // Draw icon
-    final iconFontSize = circleRadius * 1.0;
+    final iconFontSize = circleRadius * 0.95;
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
     textPainter.text = TextSpan(
       text: String.fromCharCode(iconData.codePoint),
@@ -197,29 +204,16 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
       ),
     );
 
-    // Pin triangle at bottom
-    final pinPaint = Paint()..color = color;
-    final pinWidth = circleRadius * 0.4;
-    final pinHeight = circleRadius * 0.6;
-    final pinTop = center.dy + circleRadius - 2;
-    final path = Path()
-      ..moveTo(center.dx - pinWidth, pinTop)
-      ..lineTo(center.dx + pinWidth, pinTop)
-      ..lineTo(center.dx, pinTop + pinHeight)
-      ..close();
-    canvas.drawPath(path, pinPaint);
-
     final picture = recorder.endRecording();
     final imgSize = canvasSize.toInt();
     final image = await picture.toImage(imgSize, imgSize);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final bytes = byteData!.buffer.asUint8List();
 
-    // Display size = markerSize (screen pixels)
     final descriptor = BitmapDescriptor.bytes(
       bytes,
-      width: markerSize,
-      height: markerSize + markerSize * 0.3,
+      width: size,
+      height: size,
     );
     _markerCache[cacheKey] = descriptor;
     return descriptor;
@@ -228,12 +222,19 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   Future<void> _buildMarkers() async {
     final size = _markerSizeForZoom(_currentZoom);
     final markerFutures = widget.properties.map((p) async {
-      final icon = await _createCustomMarker(p.type, p.listingType, size);
+      final selected = p.id == widget.selectedPropertyId;
+      final icon = await _createCustomMarker(
+        p.type,
+        p.listingType,
+        size,
+        selected: selected,
+      );
       return Marker(
         markerId: MarkerId(p.id),
         position: LatLng(p.lat, p.lng),
         icon: icon,
-        infoWindow: InfoWindow(title: p.title, snippet: p.formattedPrice),
+        anchor: const Offset(0.5, 0.5),
+        zIndexInt: selected ? 10 : 1,
         onTap: () => widget.onPropertyTap(p),
       );
     });
@@ -256,12 +257,141 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   }
 
   void _onMapTap(LatLng position) {
-    if (!widget.isDrawingMode) return;
-    setState(() {
-      _drawingPoints.add(position);
-      _isDrawing = true;
-      _updateDrawingOverlays();
+    if (widget.isDrawingMode) {
+      setState(() {
+        _drawingPoints.add(position);
+        _updateDrawingOverlays();
+      });
+      return;
+    }
+    widget.onBackgroundTap?.call();
+  }
+
+  void _onCameraMove(CameraPosition position) {
+    _currentZoom = position.zoom;
+    _scheduleOverlaySync();
+  }
+
+  void _onCameraIdle() {
+    widget.onZoomChanged?.call(_currentZoom);
+    _buildMarkers();
+    _scheduleOverlaySync();
+  }
+
+  void _scheduleOverlaySync() {
+    if (_useWebMapFallback || _syncingOverlay) return;
+    _syncingOverlay = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _syncOverlayPins();
+      _syncingOverlay = false;
     });
+  }
+
+  Future<void> _syncOverlayPins() async {
+    final controller = _mapController;
+    if (controller == null || !mounted) return;
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final size = MediaQuery.sizeOf(context);
+    final pins = <_OverlayPin>[];
+    for (final p in widget.properties) {
+      try {
+        final coord = await controller.getScreenCoordinate(
+          LatLng(p.lat, p.lng),
+        );
+        final dx = coord.x / dpr;
+        final dy = coord.y / dpr;
+        if (dx < -90 ||
+            dy < -90 ||
+            dx > size.width + 90 ||
+            dy > size.height + 90) {
+          continue;
+        }
+        pins.add(_OverlayPin(property: p, offset: Offset(dx, dy)));
+      } catch (_) {}
+    }
+    if (!mounted) return;
+    setState(() {
+      _overlayPins = pins;
+      _overlayReady = true;
+    });
+  }
+
+  void completeDrawing() {
+    if (_drawingPoints.length >= 3) {
+      widget.onPolygonDrawn?.call(_drawingPoints);
+    }
+    _clearDrawing();
+  }
+
+  void moveToLocation(LatLng location) {
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: location, zoom: 15),
+      ),
+    );
+  }
+
+  /// Place the pin in the upper third so the preview card does not cover it.
+  void focusOnPin(LatLng location) {
+    final shifted = LatLng(location.latitude - 0.0045, location.longitude);
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: shifted, zoom: _currentZoom.clamp(13.5, 16.5)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_useWebMapFallback) {
+      return _WebMapFallback(
+        properties: widget.properties,
+        onPropertyTap: widget.onPropertyTap,
+      );
+    }
+
+    return Stack(
+      children: [
+        GoogleMap(
+          initialCameraPosition: _baghdadCenter,
+          mapType: _getMapType(),
+          style: _cleanMapStyle,
+          markers: _overlayReady ? {} : _markers,
+          polygons: _polygons,
+          polylines: _polylines,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+          compassEnabled: false,
+          mapToolbarEnabled: false,
+          buildingsEnabled: false,
+          indoorViewEnabled: false,
+          trafficEnabled: false,
+          onMapCreated: (controller) {
+            _mapController = controller;
+            _buildMarkers();
+            _scheduleOverlaySync();
+          },
+          onTap: _onMapTap,
+          onCameraMove: _onCameraMove,
+          onCameraIdle: _onCameraIdle,
+        ),
+        if (_overlayReady)
+          ..._overlayPins.map((pin) {
+            final selected = pin.property.id == widget.selectedPropertyId;
+            final diameter = selected ? 78.0 : 64.0;
+            return Positioned(
+              left: pin.offset.dx - diameter / 2,
+              top: pin.offset.dy - diameter / 2,
+              child: _CircularPropertyPin(
+                property: pin.property,
+                selected: selected,
+                diameter: diameter,
+                onTap: () => widget.onPropertyTap(pin.property),
+              ),
+            );
+          }),
+      ],
+    );
   }
 
   void _updateDrawingOverlays() {
@@ -295,68 +425,92 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
       _drawingPoints.clear();
       _polygons = {};
       _polylines = {};
-      _isDrawing = false;
     });
-  }
-
-  void _onCameraMove(CameraPosition position) {
-    // Track zoom but don't rebuild on every frame
-    _currentZoom = position.zoom;
-  }
-
-  void _onCameraIdle() {
-    // Rebuild markers when camera stops moving (zoom changed)
-    _buildMarkers();
-  }
-
-  void completeDrawing() {
-    if (_drawingPoints.length >= 3) {
-      widget.onPolygonDrawn?.call(_drawingPoints);
-    }
-    _clearDrawing();
-  }
-
-  void moveToLocation(LatLng location) {
-    _mapController?.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: location, zoom: 15),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_useWebMapFallback) {
-      return _WebMapFallback(
-        properties: widget.properties,
-        onPropertyTap: widget.onPropertyTap,
-      );
-    }
-
-    return GoogleMap(
-      initialCameraPosition: _baghdadCenter,
-      mapType: _getMapType(),
-      markers: _markers,
-      polygons: _polygons,
-      polylines: _polylines,
-      myLocationButtonEnabled: false,
-      zoomControlsEnabled: false,
-      compassEnabled: false,
-      mapToolbarEnabled: false,
-      onMapCreated: (controller) {
-        _mapController = controller;
-        _buildMarkers();
-      },
-      onTap: _onMapTap,
-      onCameraMove: _onCameraMove,
-      onCameraIdle: _onCameraIdle,
-    );
   }
 
   @override
   void dispose() {
     _mapController?.dispose();
     super.dispose();
+  }
+}
+
+class _OverlayPin {
+  const _OverlayPin({required this.property, required this.offset});
+
+  final PropertyData property;
+  final Offset offset;
+}
+
+class _CircularPropertyPin extends StatelessWidget {
+  const _CircularPropertyPin({
+    required this.property,
+    required this.selected,
+    required this.diameter,
+    required this.onTap,
+  });
+
+  final PropertyData property;
+  final bool selected;
+  final double diameter;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final spec = _pinSpec(property);
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: diameter,
+        height: diameter,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: spec.color,
+          border: Border.all(color: Colors.white, width: selected ? 5 : 4),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: selected ? 0.28 : 0.18),
+              blurRadius: selected ? 14 : 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Icon(spec.icon, color: Colors.white, size: diameter * 0.46),
+      ),
+    );
+  }
+}
+
+({IconData icon, Color color}) _pinSpec(PropertyData property) {
+  switch (property.type.toLowerCase()) {
+    case 'villa':
+      return (
+        icon: Icons.villa,
+        color: property.listingType == 'mortgage'
+            ? const Color(0xFFE91E63)
+            : const Color(0xFF388E3C),
+      );
+    case 'land':
+      return (icon: Icons.landscape, color: const Color(0xFFF57C00));
+    case 'commercial':
+      return (icon: Icons.store, color: const Color(0xFF7B1FA2));
+    case 'building':
+      return (icon: Icons.domain, color: const Color(0xFFFFB300));
+    case 'apartment':
+      return (
+        icon: Icons.apartment,
+        color: property.listingType == 'rent'
+            ? const Color(0xFF00BCD4)
+            : const Color(0xFF1565C0),
+      );
+    default:
+      return (
+        icon: Icons.home,
+        color: property.listingType == 'rent'
+            ? const Color(0xFF00BCD4)
+            : const Color(0xFF1565C0),
+      );
   }
 }
 
@@ -426,48 +580,14 @@ class _WebMapFallback extends StatelessWidget {
                     28.0 + ((index * 67) % pinAreaWidth.toInt()).toDouble();
                 final top =
                     170.0 + ((index * 53) % pinAreaHeight.toInt()).toDouble();
-                final color = _pinColor(property);
                 return Positioned(
                   left: left.clamp(8.0, width - 8.0),
                   top: top.clamp(8.0, height - 8.0),
-                  child: GestureDetector(
+                  child: _CircularPropertyPin(
+                    property: property,
+                    selected: false,
+                    diameter: 64,
                     onTap: () => onPropertyTap(property),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.92),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: color.withValues(alpha: 0.45),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.location_on, size: 16, color: color),
-                          const SizedBox(width: 4),
-                          Text(
-                            property.title.length > 18
-                                ? '${property.title.substring(0, 18)}…'
-                                : property.title,
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              color: const Color(0xFF1F2A24),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 );
               }),
@@ -485,21 +605,6 @@ class _WebMapFallback extends StatelessWidget {
         );
       },
     );
-  }
-
-  Color _pinColor(PropertyData property) {
-    switch (property.type.toLowerCase()) {
-      case 'villa':
-        return const Color(0xFF388E3C);
-      case 'land':
-        return const Color(0xFFF57C00);
-      case 'commercial':
-        return const Color(0xFF7B1FA2);
-      default:
-        return property.listingType == 'rent'
-            ? const Color(0xFF00BCD4)
-            : const Color(0xFF1565C0);
-    }
   }
 }
 

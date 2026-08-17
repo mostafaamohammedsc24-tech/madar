@@ -46,13 +46,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 onPressed: state.isBusy ? null : auth.goBackToPhoneEntry,
                 icon: const DirectionalBackIcon(),
                 style: IconButton.styleFrom(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest,
+                  backgroundColor: const Color(0xFFF5F5F5),
+                  foregroundColor: const Color(0xFF1565C0),
                 ),
               ),
             ),
             const SizedBox(height: AuthSpacing.md),
+            Text(
+              loc.authWelcome,
+              style: const TextStyle(
+                color: Color(0xFF1565C0),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: AuthSpacing.sm),
             AuthHeader(
               title: loc.authOtpTitle,
               subtitle: loc.authOtpSubtitle(state.maskedPhoneNumber),

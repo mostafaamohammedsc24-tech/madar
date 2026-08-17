@@ -89,10 +89,9 @@ class UserAuthNotifier extends ChangeNotifier {
     final draft = await _storage.loadPhoneDraft();
     final preAuthRegion = await _storage.loadPreAuthRegion();
     final regionComplete = await _storage.isPreAuthRegionComplete();
-    final locationHandled = await _storage.isPreAuthLocationHandled();
 
     var country = CountryRegistry.fallback;
-    var language = AppLanguage.english;
+    var language = AppLanguage.arabic;
     var currency = country.defaultCurrencyCode;
 
     if (regionComplete && preAuthRegion.countryIso != null) {
@@ -113,10 +112,8 @@ class UserAuthNotifier extends ChangeNotifier {
     final UserAuthStatus nextStatus;
     if (regionComplete) {
       nextStatus = UserAuthStatus.unauthenticated;
-    } else if (locationHandled) {
-      nextStatus = UserAuthStatus.awaitingRegionSetup;
     } else {
-      nextStatus = UserAuthStatus.awaitingLocationPermission;
+      nextStatus = UserAuthStatus.awaitingRegionSetup;
     }
 
     _setState(
@@ -165,7 +162,20 @@ class UserAuthNotifier extends ChangeNotifier {
   }
 
   void selectCountry(AuthCountry country) {
-    _setState(_state.copyWith(selectedCountry: country, clearMessage: true));
+    const arabicIsos = {
+      'IQ', 'SA', 'AE', 'JO', 'KW', 'QA', 'BH', 'OM', 'EG', 'LB', 'SY', 'YE',
+      'LY', 'SD', 'MA', 'DZ', 'TN', 'PS',
+    };
+    _setState(
+      _state.copyWith(
+        selectedCountry: country,
+        selectedLanguage: arabicIsos.contains(country.isoCode)
+            ? AppLanguage.arabic
+            : _state.selectedLanguage,
+        selectedCurrencyCode: country.defaultCurrencyCode,
+        clearMessage: true,
+      ),
+    );
   }
 
   void selectLanguage(AppLanguage language) {

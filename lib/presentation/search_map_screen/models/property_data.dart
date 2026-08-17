@@ -166,6 +166,24 @@ class PropertyData {
     }
   }
 
+  List<String> get gallery {
+    final urls = <String>[];
+    if (imageUrl.isNotEmpty) urls.add(imageUrl);
+    final extra = rawData['gallery'] ?? rawData['images'];
+    if (extra is List) {
+      for (final item in extra) {
+        final url = item.toString();
+        if (url.startsWith('http') && !urls.contains(url)) urls.add(url);
+      }
+    }
+    if (urls.isEmpty) {
+      urls.add(
+        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
+      );
+    }
+    return urls;
+  }
+
   String get listingTypeLabel {
     switch (listingType) {
       case 'sale':

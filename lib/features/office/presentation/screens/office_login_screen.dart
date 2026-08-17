@@ -68,6 +68,15 @@ class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(
+              loc.officeWelcome,
+              style: const TextStyle(
+                color: Color(0xFF1565C0),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: AuthSpacing.sm),
             AuthHeader(
               title: loc.officeLoginTitle,
               subtitle: loc.officeLoginSubtitle,

@@ -789,7 +789,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Gemini AI',
+                    'Madar AI',
                     style: TextStyle(
                       color: color,
                       fontSize: 10,

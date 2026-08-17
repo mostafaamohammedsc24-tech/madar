@@ -32,6 +32,15 @@ class PhoneNumberScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(
+              loc.authWelcome,
+              style: const TextStyle(
+                color: Color(0xFF1565C0),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: AuthSpacing.sm),
             AuthHeader(
               title: loc.authPhoneTitle,
               subtitle: loc.authPhoneSubtitle,

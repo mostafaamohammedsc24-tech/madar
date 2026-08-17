@@ -431,7 +431,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             theme: theme,
           ),
           const Divider(height: 1, indent: 56),
-          const Divider(height: 1, indent: 56),
           _buildSettingsTile(
             icon: Icons.public,
             label: loc.settingsCountry,

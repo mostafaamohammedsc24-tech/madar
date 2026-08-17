@@ -39,7 +39,8 @@ class PartnerEntrySection extends StatelessWidget {
                 onPressed: () => context.push('/office-login'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
-                  side: BorderSide(color: theme.colorScheme.outline),
+                  foregroundColor: const Color(0xFF1565C0),
+                  side: const BorderSide(color: Color(0xFF1565C0)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
                   ),
@@ -47,7 +48,7 @@ class PartnerEntrySection extends StatelessWidget {
                 child: Text(
                   loc.officeEntryCta,
                   style: AuthTypography.button(context).copyWith(
-                    color: theme.colorScheme.onSurface,
+                    color: const Color(0xFF1565C0),
                   ),
                 ),
               ),
@@ -58,7 +59,8 @@ class PartnerEntrySection extends StatelessWidget {
                 onPressed: () => context.push('/employee-login'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
-                  side: BorderSide(color: theme.colorScheme.outline),
+                  foregroundColor: const Color(0xFF1565C0),
+                  side: const BorderSide(color: Color(0xFF1565C0)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
                   ),
@@ -66,7 +68,7 @@ class PartnerEntrySection extends StatelessWidget {
                 child: Text(
                   loc.employeeEntryCta,
                   style: AuthTypography.button(context).copyWith(
-                    color: theme.colorScheme.onSurface,
+                    color: const Color(0xFF1565C0),
                   ),
                 ),
               ),

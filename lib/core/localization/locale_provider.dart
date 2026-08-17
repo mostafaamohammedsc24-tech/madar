@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import './app_localizations.dart';
 
 class LocaleProvider extends ChangeNotifier {
-  AppLanguage _language = AppLanguage.english;
+  AppLanguage _language = AppLanguage.arabic;
   bool _isDarkMode = false;
 
   AppLanguage get language => _language;
@@ -42,7 +42,7 @@ class LocaleProvider extends ChangeNotifier {
       case 'ku':
         return AppLanguage.kurdish;
       default:
-        return AppLanguage.english;
+        return AppLanguage.arabic;
     }
   }
 

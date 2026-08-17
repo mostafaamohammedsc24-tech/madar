@@ -10,7 +10,7 @@ class AppLocalizations {
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations) ??
-        const AppLocalizations(AppLanguage.english);
+        const AppLocalizations(AppLanguage.arabic);
   }
 
   bool get isRTL =>
@@ -55,6 +55,16 @@ class AppLocalizations {
   );
   String get propertiesFound =>
       _t(en: 'Properties Found', ar: 'عقار موجود', ku: 'خانووبەرە دۆزراوەکان');
+  String get zoomToSeeProperties => _t(
+    en: 'Zoom to see the properties',
+    ar: 'كبّر الخريطة لرؤية العقارات',
+    ku: 'زووم بکە بۆ بینینی خانووبەرەکان',
+  );
+  String resultsCountLabel(int count) => _t(
+    en: '$count properties found',
+    ar: '$count عقار موجود',
+    ku: '$count خانووبەرە دۆزرایەوە',
+  );
   String get suggested => _t(en: 'Suggested', ar: 'مقترح', ku: 'پێشنیار');
   String get featured => _t(en: 'Featured', ar: 'مميز', ku: 'تایبەت');
   String get mostPopular =>
@@ -428,6 +438,13 @@ class AppLocalizations {
   String get final_ => _t(en: 'Final', ar: 'نهائي', ku: 'کۆتایی');
 
   // ─── User Authentication ──────────────────────────────────────────────────
+  String get authBrandName => _t(en: 'مدار', ar: 'مدار', ku: 'مدار');
+  String get authBrandTagline => _t(en: 'عقارات', ar: 'عقارات', ku: 'عقارات');
+  String get authWelcome => _t(
+    en: 'Welcome',
+    ar: 'مرحباً بك',
+    ku: 'بەخێربێیت',
+  );
   String get authPhoneTitle => _t(
     en: 'Enter your phone number',
     ar: 'أدخل رقم هاتفك',
@@ -538,14 +555,14 @@ class AppLocalizations {
 
   // ─── Region Setup ─────────────────────────────────────────────────────────
   String get authRegionTitle => _t(
-    en: 'Set your region',
-    ar: 'حدد منطقتك',
-    ku: 'ناوچەکەت دیاری بکە',
+    en: 'Choose your country',
+    ar: 'اختر دولتك',
+    ku: 'وڵاتەکەت هەڵبژێرە',
   );
   String get authRegionSubtitle => _t(
-    en: 'We detected your location. Confirm or adjust country, language, and currency.',
-    ar: 'حددنا موقعك. أكد أو عدّل الدولة واللغة والعملة.',
-    ku: 'شوێنەکەت دیاریکرا. وڵات و زمان و دراو پشتڕاست بکەرەوە یان بیگۆڕە.',
+    en: 'Select the country you want to browse properties in.',
+    ar: 'اختر الدولة التي تريد استعراض العقارات فيها.',
+    ku: 'ئەو وڵاتە هەڵبژێرە کە دەتەوێت خانووبەرەی تێدا ببینیت.',
   );
   String get authRegionCountry => _t(
     en: 'Country',
@@ -1490,12 +1507,17 @@ class AppLocalizations {
       _t(en: 'Office login', ar: 'دخول المكاتب', ku: 'چوونەژوورەوەی ئۆفیس');
   String get employeeEntryCta =>
       _t(en: 'Staff login', ar: 'دخول الموظفين', ku: 'چوونەژوورەوەی کارمەند');
+  String get officeWelcome => _t(
+    en: 'Welcome to Madar Offices',
+    ar: 'أهلاً بك في مكاتب مدار',
+    ku: 'بەخێربێیت بۆ ئۆفیسەکانی مەدار',
+  );
   String get officeLoginTitle =>
-      _t(en: 'Office Login', ar: 'دخول المكتب', ku: 'چوونەژوورەوەی ئۆفیس');
+      _t(en: 'Office Login', ar: 'دخول المكاتب', ku: 'چوونەژوورەوەی ئۆفیس');
   String get officeLoginSubtitle => _t(
-    en: 'Sign in with your office credentials. This is not the user phone login.',
-    ar: 'سجّل الدخول ببيانات المكتب. هذا ليس تسجيل دخول المستخدم برقم الهاتف.',
-    ku: 'بە ناسنامەی ئۆفیس بچۆ ژوورەوە. ئەمە چوونەژوورەوەی ژمارەی تەلەفۆنی بەکارهێنەر نییە.',
+    en: 'Sign in with your office code and secret to manage listings.',
+    ar: 'سجّل الدخول برمز المكتب والرمز السري لإدارة العقارات.',
+    ku: 'بە کۆدی ئۆفیس و نهێنی بچۆ ژوورەوە بۆ بەڕێوەبردنی لیستەکان.',
   );
   String get officeCodeLabel =>
       _t(en: 'Office Code', ar: 'رمز المكتب', ku: 'کۆدی ئۆفیس');
@@ -1859,12 +1881,17 @@ class AppLocalizations {
 
 
   // ─── Employee Portal ──────────────────────────────────────────────────────
+  String get empWelcome => _t(
+    en: 'Welcome to Madar Staff',
+    ar: 'أهلاً بك في بوابة الموظفين',
+    ku: 'بەخێربێیت بۆ دەروازەی کارمەندان',
+  );
   String get empLoginTitle =>
       _t(en: 'Employee Login', ar: 'دخول الموظفين', ku: 'چوونەژوورەوەی کارمەند');
   String get empLoginSubtitle => _t(
-    en: 'Internal Madar operations access. Use your Employee ID and secret code.',
-    ar: 'دخول تشغيلي داخلي لمدار. استخدم رقم الموظف والرمز السري.',
-    ku: 'دەستگەیشتنی ناوخۆیی مەدار. ناسنامەی کارمەند و کۆدی نهێنی بەکاربهێنە.',
+    en: 'Use your employee ID and secret code to continue.',
+    ar: 'استخدم رقم الموظف والرمز السري للمتابعة.',
+    ku: 'ناسنامەی کارمەند و کۆدی نهێنی بەکاربهێنە بۆ بەردەوامبوون.',
   );
   String get empIdLabel =>
       _t(en: 'Employee ID', ar: 'رقم الموظف', ku: 'ناسنامەی کارمەند');
