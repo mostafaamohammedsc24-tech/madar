@@ -86,7 +86,9 @@ class _OfficeCreateTransactionScreenState
                 .map(
                   (t) => DropdownMenuItem(
                     value: t,
-                    child: Text(t),
+                    child: Text(loc.propertyTypeName(t) == t
+                        ? loc.filterLabel(t[0].toUpperCase() + t.substring(1))
+                        : loc.propertyTypeName(t)),
                   ),
                 )
                 .toList(),

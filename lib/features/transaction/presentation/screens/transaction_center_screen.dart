@@ -8,6 +8,7 @@ import '../../data/repositories/transaction_repository.dart';
 import '../../domain/enums/transaction_enums.dart';
 import '../../domain/models/deal_transaction.dart';
 import '../../domain/workflows/transaction_workflow.dart';
+import 'transaction_detail_screen.dart';
 
 /// Digital Transaction Center — user-facing deals home.
 /// Does not fake stage completion; backend gates drive progress.
@@ -22,6 +23,7 @@ class TransactionCenterScreen extends StatefulWidget {
 class _TransactionCenterScreenState extends State<TransactionCenterScreen>
     with SingleTickerProviderStateMixin {
   final _repo = TransactionRepository();
+  final _barcodeCtrl = TextEditingController();
   late TabController _tabs;
   bool _loading = true;
   List<DealTransaction> _items = [];
@@ -36,6 +38,7 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
 
   @override
   void dispose() {
+    _barcodeCtrl.dispose();
     _tabs.dispose();
     super.dispose();
   }
@@ -55,19 +58,17 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
 
   Future<void> _openBarcodeScanner() async {
     setState(() => _scanning = true);
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (ctx) => SizedBox(
-        height: MediaQuery.sizeOf(ctx).height * 0.85,
-        child: BarcodeUploadWidget(
-          onUpload: () {},
-          onBarcodeScanned: (code) async {
-            Navigator.of(ctx).pop();
-            await _handleBarcode(code);
-          },
-        ),
-      ),
+    await BarcodeUploadWidget.show(
+      context,
+      onUpload: () {
+        final typed = _barcodeCtrl.text.trim();
+        if (typed.isNotEmpty) {
+          _handleBarcode(typed);
+        }
+      },
+      onBarcodeScanned: (code) {
+        _handleBarcode(code);
+      },
     );
     if (mounted) setState(() => _scanning = false);
   }
@@ -77,13 +78,12 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
     final phone = userAuthNotifier.state.fullPhoneNumber;
 
     // Peek barcode to infer party side
-    final peek =
-        await SupabaseService.instance.getTransactionByBarcode(code);
+    final peek = await SupabaseService.instance.getTransactionByBarcode(code);
     if (peek == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.barcodeNotFound)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.barcodeNotFound)));
       return;
     }
 
@@ -106,22 +106,22 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
 
     if (!mounted) return;
     if (!result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.barcodeRedeemFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.barcodeRedeemFailed)));
       return;
     }
 
     await _load();
 
     if (result.bothPartiesVerified) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.bothPartiesVerified)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.bothPartiesVerified)));
     } else if (result.waitingForOtherParty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.waitingForOtherParty)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.waitingForOtherParty)));
     }
 
     if (result.transaction != null) {
@@ -167,6 +167,7 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
     final theme = Theme.of(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -186,6 +187,37 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
                   IconButton(
                     onPressed: _loading ? null : _load,
                     icon: const Icon(Icons.refresh),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _barcodeCtrl,
+                      decoration: InputDecoration(
+                        hintText: loc.barcodeHint,
+                        prefixIcon: const Icon(Icons.qr_code_2),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        isDense: true,
+                      ),
+                      onSubmitted: (v) {
+                        if (v.trim().isNotEmpty) _handleBarcode(v.trim());
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: () {
+                      final v = _barcodeCtrl.text.trim();
+                      if (v.isNotEmpty) _handleBarcode(v);
+                    },
+                    child: Text(loc.joinDeal),
                   ),
                 ],
               ),
@@ -242,8 +274,8 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
                 loc.noTransactionsInTab,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(
@@ -429,218 +461,6 @@ class _StateChip extends StatelessWidget {
         return loc.txTabCancelled;
       case TransactionListBucket.onHold:
         return loc.txTabOnHold;
-    }
-  }
-}
-
-/// Simple user-facing transaction detail with timeline.
-/// Staff/lawyer actions are not faked here.
-class TransactionDetailScreen extends StatefulWidget {
-  const TransactionDetailScreen({
-    super.key,
-    required this.transactionId,
-    this.initial,
-  });
-
-  final String transactionId;
-  final DealTransaction? initial;
-
-  @override
-  State<TransactionDetailScreen> createState() =>
-      _TransactionDetailScreenState();
-}
-
-class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
-  final _repo = TransactionRepository();
-  DealTransaction? _tx;
-  List<TransactionAuditEvent> _audit = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _tx = widget.initial;
-    _refresh();
-  }
-
-  Future<void> _refresh() async {
-    setState(() => _loading = true);
-    final tx = await _repo.getById(widget.transactionId);
-    final audit = await _repo.listAudit(widget.transactionId);
-    if (!mounted) return;
-    setState(() {
-      _tx = tx ?? _tx;
-      _audit = audit;
-      _loading = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final tx = _tx;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(tx?.transactionNumber ?? loc.navDeals),
-      ),
-      body: _loading && tx == null
-          ? const Center(child: CircularProgressIndicator())
-          : tx == null
-              ? Center(child: Text(loc.transactionNotFound))
-              : RefreshIndicator(
-                  onRefresh: _refresh,
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-                    children: [
-                      Text(
-                        tx.transactionNumber,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _friendlyState(loc, tx.state),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (tx.propertyAddressSnapshot != null) ...[
-                        const SizedBox(height: 8),
-                        Text(tx.propertyAddressSnapshot!),
-                      ],
-                      if (tx.salePrice != null) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          '${tx.currencyCode} ${tx.salePrice!.round()}',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 20),
-                      Text(
-                        loc.txProgress,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ..._buildSteps(loc, tx),
-                      const SizedBox(height: 24),
-                      Text(
-                        loc.txAuditTimeline,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (_audit.isEmpty)
-                        Text(
-                          loc.txNoAuditYet,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        )
-                      else
-                        ..._audit.map(
-                          (e) => ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            dense: true,
-                            leading: const Icon(Icons.circle, size: 10),
-                            title: Text(e.message),
-                            subtitle: Text(
-                              e.createdAt.toLocal().toString().split('.').first,
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 24),
-                      Text(
-                        loc.txBackendEnforcedNote,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-    );
-  }
-
-  List<Widget> _buildSteps(AppLocalizations loc, DealTransaction tx) {
-    final workflow = _repo.workflowFor(tx);
-    final current = tx.progressStepIndex;
-    return [
-      for (var i = 0; i < workflow.steps.length; i++)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Row(
-            children: [
-              Icon(
-                i < current || tx.state == TransactionState.completed
-                    ? Icons.check_circle
-                    : i == current
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                color: i <= current
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outline,
-                size: 22,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  _stepLabel(loc, workflow.steps[i].key),
-                  style: TextStyle(
-                    fontWeight:
-                        i == current ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-    ];
-  }
-
-  String _stepLabel(AppLocalizations loc, String key) {
-    switch (key) {
-      case 'identity':
-        return loc.stepIdentity;
-      case 'documents':
-        return loc.stepDocuments;
-      case 'contract':
-        return loc.stepContract;
-      case 'escrow':
-        return loc.stepEscrow;
-      case 'deed':
-        return loc.stepDeed;
-      case 'agricultural_transfer':
-        return loc.stepAgriculturalTransfer;
-      case 'settlement':
-        return loc.stepSettlement;
-      default:
-        return key;
-    }
-  }
-
-  String _friendlyState(AppLocalizations loc, TransactionState state) {
-    switch (state) {
-      case TransactionState.waitingForParties:
-        return loc.waitingForOtherParty;
-      case TransactionState.partiesVerified:
-        return loc.bothPartiesVerified;
-      case TransactionState.escrowPending:
-        return loc.awaitingDepositConfirmation;
-      case TransactionState.completed:
-        return loc.transactionCompleted;
-      case TransactionState.onHold:
-        return loc.txTabOnHold;
-      default:
-        return state.wireValue.replaceAll('_', ' ');
     }
   }
 }

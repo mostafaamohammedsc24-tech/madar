@@ -48,49 +48,63 @@ class _OfficeConversationsScreenState extends State<OfficeConversationsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: _items.isEmpty
-                  ? ListView(
-                      children: [
-                        const SizedBox(height: 100),
-                        Center(child: Text(loc.officeNoConversations)),
-                      ],
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _items.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemBuilder: (context, i) {
-                        final c = _items[i];
-                        final title = c.title?.isNotEmpty == true
-                            ? c.title!
-                            : loc.officeManagementTeam;
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: theme.colorScheme.primaryContainer,
-                            child: Icon(
-                              Icons.groups_outlined,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: theme.colorScheme.outlineVariant,
-                            ),
-                          ),
-                          title: Text(title),
-                          subtitle: Text(
-                            c.lastMessageAt
-                                    ?.toLocal()
-                                    .toString()
-                                    .split('.')
-                                    .first ??
-                                loc.officeManagementTeam,
-                          ),
-                          onTap: () => context.push('/office/chat/${c.id}'),
-                        );
-                      },
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: _items.length + 1,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, i) {
+                  if (i == 0) {
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: const Color(0xFFFFF3E0),
+                        child: Icon(
+                          Icons.auto_awesome,
+                          color: Colors.orange.shade800,
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: theme.colorScheme.outlineVariant,
+                        ),
+                      ),
+                      title: Text(loc.officeAiAssistantTitle),
+                      subtitle: Text(loc.officeAiPinnedSubtitle),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.push('/office/ai'),
+                    );
+                  }
+                  final c = _items[i - 1];
+                  final title = c.title?.isNotEmpty == true
+                      ? c.title!
+                      : loc.officeManagementTeam;
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      child: Icon(
+                        Icons.groups_outlined,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: theme.colorScheme.outlineVariant,
+                      ),
+                    ),
+                    title: Text(title),
+                    subtitle: Text(
+                      c.lastMessageAt
+                              ?.toLocal()
+                              .toString()
+                              .split('.')
+                              .first ??
+                          loc.officeManagementTeam,
+                    ),
+                    onTap: () => context.push('/office/chat/${c.id}'),
+                  );
+                },
+              ),
             ),
     );
   }

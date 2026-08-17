@@ -83,43 +83,51 @@ class OtpInputFieldState extends State<OtpInputField> {
               },
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(widget.length, (index) {
-              final char = index < digits.length ? digits[index] : '';
-              final isFocused =
-                  widget.enabled && index == digits.length.clamp(0, widget.length);
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const gap = 8.0;
+              final boxW =
+                  ((constraints.maxWidth - gap * (widget.length - 1)) /
+                          widget.length)
+                      .clamp(36.0, 52.0);
+              final boxH = boxW;
 
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: 46,
-                height: 56,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(AuthSpacing.radiusSm),
-                  border: Border.all(
-                    color: widget.hasError
-                        ? AuthColors.errorText
-                        : isFocused
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outline,
-                    width: isFocused ? 2 : 1,
-                  ),
-                ),
-                child: Text(
-                  char.isEmpty ? '•' : char,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: char.isEmpty
-                        ? theme.colorScheme.onSurfaceVariant.withValues(
-                            alpha: 0.35,
-                          )
-                        : theme.colorScheme.onSurface,
-                  ),
-                ),
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(widget.length, (index) {
+                  final char = index < digits.length ? digits[index] : '';
+                  final isFocused =
+                      widget.enabled &&
+                      index == digits.length.clamp(0, widget.length);
+
+                  return Container(
+                    width: boxW,
+                    height: boxH,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF7F9FC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: widget.hasError
+                            ? AuthColors.errorText
+                            : isFocused
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.outline,
+                        width: isFocused ? 2 : 1.2,
+                      ),
+                    ),
+                    child: Text(
+                      char,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 22,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  );
+                }),
               );
-            }),
+            },
           ),
         ],
       ),

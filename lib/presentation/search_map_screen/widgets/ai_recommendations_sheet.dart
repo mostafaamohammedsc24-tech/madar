@@ -5,8 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_export.dart';
 import '../../../core/layout/directional_layout.dart';
 import '../../../core/localization/app_localizations.dart';
-import '../../../providers/chat_notifier.dart';
+import '../../../services/property_ai_service.dart';
 import '../search_map_screen.dart';
+import 'property_card_copy.dart';
 
 class AiRecommendationsSheet extends ConsumerStatefulWidget {
   final List<PropertyData> allProperties;
@@ -25,14 +26,10 @@ class AiRecommendationsSheet extends ConsumerStatefulWidget {
 
 class _AiRecommendationsSheetState
     extends ConsumerState<AiRecommendationsSheet> {
-  static const _config = ChatConfig(
-    provider: 'GEMINI',
-    model: 'gemini/gemini-2.5-flash',
-    streaming: false,
-  );
-
+  final PropertyAiService _ai = PropertyAiService();
   List<PropertyData> _recommended = [];
   String _aiInsight = '';
+  bool _isLoading = true;
   bool _hasLoaded = false;
 
   @override
@@ -42,35 +39,42 @@ class _AiRecommendationsSheetState
   }
 
   Future<void> _loadRecommendations() async {
-    if (widget.allProperties.isEmpty) return;
+    if (widget.allProperties.isEmpty) {
+      setState(() => _isLoading = false);
+      return;
+    }
 
-    final propSummaries = widget.allProperties
-        .take(20)
-        .map(
-          (p) =>
-              '${p.title} | ${p.type} | ${p.listingType} | \$${p.price.toStringAsFixed(0)} | ${p.area.toStringAsFixed(0)}m² | ${p.bedrooms}br | ${p.address}',
-        )
-        .join('\n');
-
-    final messages = [
-      {
-        'role': 'system',
-        'content':
-            'You are a real estate AI assistant. Analyze property listings and recommend the top 3 most attractive ones. Return ONLY a JSON object with this exact format: {"recommendations": [{"id": "prop_id"}, {"id": "prop_id"}, {"id": "prop_id"}], "insight": "Brief 1-2 sentence insight about why these are recommended"}. No markdown, no extra text.',
-      },
-      {
-        'role': 'user',
-        'content':
-            'Here are available properties:\n$propSummaries\n\nRecommend the top 3 most attractive properties for a typical buyer looking for value and quality.',
-      },
-    ];
-
-    ref
-        .read(chatNotifierProvider(_config).notifier)
-        .sendMessage(
-          messages,
-          parameters: {'temperature': 0.3, 'max_tokens': 300},
-        );
+    try {
+      final result = await _ai.chat(
+        userMessage:
+            'Recommend the top 3–5 most attractive properties for a typical buyer looking for value, quality, and good nearby schools. Explain briefly.',
+        catalog: widget.allProperties,
+      );
+      if (!mounted) return;
+      setState(() {
+        _recommended = result.suggestions.map((s) => s.property).toList();
+        if (_recommended.isEmpty) {
+          _recommended = widget.allProperties.take(3).toList();
+        }
+        _aiInsight = result.reply.isNotEmpty
+            ? result.reply
+            : 'Here are the strongest matches from the current inventory.';
+        _isLoading = false;
+        _hasLoaded = true;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _recommended = widget.allProperties.take(3).toList();
+        _aiInsight = 'Showing featured listings while AI reconnects.';
+        _isLoading = false;
+        _hasLoaded = true;
+      });
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        backgroundColor: Colors.red,
+      );
+    }
   }
 
   @override
@@ -78,19 +82,6 @@ class _AiRecommendationsSheetState
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
     final isRTL = loc.isRTL;
-    final chatState = ref.watch(chatNotifierProvider(_config));
-
-    ref.listen<ChatState>(chatNotifierProvider(_config), (prev, next) {
-      if (next.error != null) {
-        Fluttertoast.showToast(
-          msg: next.error.toString(),
-          backgroundColor: Colors.red,
-        );
-      }
-      if (!next.isLoading && next.response.isNotEmpty && !_hasLoaded) {
-        _parseRecommendations(next.response);
-      }
-    });
 
     return Container(
       constraints: BoxConstraints(
@@ -103,7 +94,6 @@ class _AiRecommendationsSheetState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle
           Container(
             width: 40,
             height: 4,
@@ -113,7 +103,6 @@ class _AiRecommendationsSheetState
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          // Header
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
             child: Row(
@@ -122,10 +111,10 @@ class _AiRecommendationsSheetState
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [
-                        const Color(0xFFF57C00),
-                        const Color(0xFFFF9800),
+                        Color(0xFFF57C00),
+                        Color(0xFFFF9800),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -169,11 +158,12 @@ class _AiRecommendationsSheetState
                     color: AppTheme.primary,
                     size: 20,
                   ),
-                  onPressed: chatState.isLoading
+                  onPressed: _isLoading
                       ? null
                       : () {
                           setState(() {
                             _hasLoaded = false;
+                            _isLoading = true;
                             _recommended = [];
                             _aiInsight = '';
                           });
@@ -184,10 +174,8 @@ class _AiRecommendationsSheetState
             ),
           ),
           const Divider(height: 1),
-
-          // Content
           Flexible(
-            child: chatState.isLoading && !_hasLoaded
+            child: _isLoading && !_hasLoaded
                 ? _buildLoadingState(theme, isRTL)
                 : _recommended.isEmpty
                 ? _buildEmptyState(theme, isRTL)
@@ -196,7 +184,6 @@ class _AiRecommendationsSheetState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // AI Insight
                         if (_aiInsight.isNotEmpty) ...[
                           Container(
                             padding: const EdgeInsets.all(14),
@@ -231,8 +218,6 @@ class _AiRecommendationsSheetState
                           ),
                           const SizedBox(height: 16),
                         ],
-
-                        // Recommended properties
                         Text(
                           isRTL
                               ? 'العقارات الموصى بها'
@@ -272,12 +257,12 @@ class _AiRecommendationsSheetState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 48,
             height: 48,
             child: CircularProgressIndicator(
               strokeWidth: 3,
-              color: const Color(0xFFF57C00),
+              color: Color(0xFFF57C00),
             ),
           ),
           const SizedBox(height: 16),
@@ -317,61 +302,6 @@ class _AiRecommendationsSheetState
         ],
       ),
     );
-  }
-
-  void _parseRecommendations(String response) {
-    try {
-      // Extract JSON from response
-      final jsonStart = response.indexOf('{');
-      final jsonEnd = response.lastIndexOf('}');
-      if (jsonStart == -1 || jsonEnd == -1) return;
-
-      final jsonStr = response.substring(jsonStart, jsonEnd + 1);
-      // Simple manual parsing to avoid dart:convert issues
-      final idMatches = RegExp(r'"id"\s*:\s*"([^"]+)"').allMatches(jsonStr);
-      final ids = idMatches.map((m) => m.group(1)!).toList();
-
-      // Extract insight
-      final insightMatch = RegExp(
-        r'"insight"\s*:\s*"([^"]+)"',
-      ).firstMatch(jsonStr);
-      final insight = insightMatch?.group(1) ?? '';
-
-      final recommended = <PropertyData>[];
-      for (final id in ids) {
-        final prop = widget.allProperties.firstWhere(
-          (p) => p.id == id,
-          orElse: () => widget.allProperties.isNotEmpty
-              ? widget.allProperties.first
-              : widget.allProperties.first,
-        );
-        if (!recommended.any((p) => p.id == prop.id)) {
-          recommended.add(prop);
-        }
-        if (recommended.length >= 3) break;
-      }
-
-      // Fallback: if no valid IDs found, pick top 3
-      if (recommended.isEmpty && widget.allProperties.isNotEmpty) {
-        recommended.addAll(widget.allProperties.take(3));
-      }
-
-      if (mounted) {
-        setState(() {
-          _recommended = recommended;
-          _aiInsight = insight;
-          _hasLoaded = true;
-        });
-      }
-    } catch (_) {
-      // Fallback to first 3 properties
-      if (mounted && widget.allProperties.isNotEmpty) {
-        setState(() {
-          _recommended = widget.allProperties.take(3).toList();
-          _hasLoaded = true;
-        });
-      }
-    }
   }
 }
 
@@ -455,7 +385,7 @@ class _RecommendedPropertyCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            property.title,
+                            PropertyCardCopy.title(context, property),
                             style: GoogleFonts.manrope(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -469,7 +399,7 @@ class _RecommendedPropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      property.address,
+                      PropertyCardCopy.address(context, property),
                       style: TextStyle(
                         fontSize: 11,
                         color: theme.colorScheme.onSurfaceVariant,
@@ -481,7 +411,7 @@ class _RecommendedPropertyCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          property.formattedPrice,
+                          PropertyCardCopy.price(context, property),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -499,7 +429,7 @@ class _RecommendedPropertyCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            property.listingTypeLabel,
+                            PropertyCardCopy.listing(context, property),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,

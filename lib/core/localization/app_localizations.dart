@@ -10,7 +10,7 @@ class AppLocalizations {
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations) ??
-        const AppLocalizations(AppLanguage.english);
+        const AppLocalizations(AppLanguage.arabic);
   }
 
   bool get isRTL =>
@@ -48,13 +48,84 @@ class AppLocalizations {
   String get navProfile => _t(en: 'Profile', ar: 'الشخصية', ku: 'پرۆفایل');
 
   // ─── Search Screen ────────────────────────────────────────────────────────
-  String get searchHint => _t(
-    en: 'Search properties...',
-    ar: 'ابحث عن عقارات...',
-    ku: 'بگەڕێ بۆ خانووبەرە...',
-  );
   String get propertiesFound =>
       _t(en: 'Properties Found', ar: 'عقار موجود', ku: 'خانووبەرە دۆزراوەکان');
+  String get zoomToSeeProperties => _t(
+    en: 'Zoom to see the properties',
+    ar: 'كبّر الخريطة لرؤية العقارات',
+    ku: 'زووم بکە بۆ بینینی خانووبەرەکان',
+  );
+  String resultsCountLabel(int count) => _t(
+    en: '$count properties found',
+    ar: '$count عقار موجود',
+    ku: '$count خانووبەرە دۆزرایەوە',
+  );
+  String get swipeForMore => _t(
+    en: 'Swipe for more listings',
+    ar: 'اسحب لعرض المزيد',
+    ku: 'ڕابکێشە بۆ زیاتر',
+  );
+  String get sortHomesForYou =>
+      _t(en: 'Homes for You', ar: 'مقترحة لك', ku: 'پێشنیار بۆ تۆ');
+  String get sortPriceLowHigh => _t(
+    en: 'Price: low to high',
+    ar: 'السعر: من الأقل للأعلى',
+    ku: 'نرخ: کەم بۆ زۆر',
+  );
+  String get sortPriceHighLow => _t(
+    en: 'Price: high to low',
+    ar: 'السعر: من الأعلى للأقل',
+    ku: 'نرخ: زۆر بۆ کەم',
+  );
+  String get sortAreaLarge =>
+      _t(en: 'Largest area', ar: 'الأكبر مساحة', ku: 'گەورەترین ڕووبەر');
+  String get sortNewest => _t(en: 'Newest', ar: 'الأحدث', ku: 'نوێترین');
+  String get saveSearch =>
+      _t(en: 'Save search', ar: 'حفظ البحث', ku: 'پاشەکەوتی گەڕان');
+  String get aiPicksForYou => _t(
+    en: 'AI picks for you',
+    ar: 'مقترح لك بواسطة الذكاء الاصطناعي',
+    ku: 'پێشنیاری AI بۆ تۆ',
+  );
+  String get backToMap => _t(en: 'Map', ar: 'الخريطة', ku: 'نەخشە');
+  String get nearLandmarkResults =>
+      _t(en: 'Properties near', ar: 'عقارات قرب', ku: 'خانووبەرە نزیک');
+  String get areaResultsIn =>
+      _t(en: 'Results in', ar: 'النتائج داخل', ku: 'ئەنجامەکان لە');
+  String get similarProperties => _t(
+    en: 'Similar properties',
+    ar: 'عقارات مشابهة',
+    ku: 'خانووبەرەی هاوشێوە',
+  );
+  String get minBathrooms => _t(
+    en: 'Min. bathrooms',
+    ar: 'حمامات (الحد الأدنى)',
+    ku: 'کەمترین ئاوخانە',
+  );
+  String get featuresLabel =>
+      _t(en: 'Features', ar: 'المميزات', ku: 'تایبەتمەندییەکان');
+  String get nearbyLabel => _t(en: 'Nearby', ar: 'قريب من', ku: 'نزیک لە');
+  String get builderCompanyLabel => _t(
+    en: 'Builder / contractor',
+    ar: 'الشركة / المقاول الباني',
+    ku: 'کۆمپانیای بیناساز',
+  );
+  String get builderCompanyHint => _t(
+    en: 'e.g. Al-Rasheed Construction',
+    ar: 'مثال: شركة الرشيد للإعمار',
+    ku: 'نموونە: کۆمپانیای ڕەشید',
+  );
+  String get yearBuiltLabel => _t(
+    en: 'Year built (min.)',
+    ar: 'سنة البناء (الأقدم)',
+    ku: 'ساڵی بیناسازی',
+  );
+  String get verifiedOnly =>
+      _t(en: 'Verified only', ar: 'الموثقة فقط', ku: 'تەنها پشتڕاستکراوەکان');
+  String get clearAreaFilter =>
+      _t(en: 'Clear area', ar: 'إزالة تحديد المنطقة', ku: 'سنوور لاببە');
+  String get openListing =>
+      _t(en: 'View listing', ar: 'عرض العقار', ku: 'بینینی خانووبەرە');
   String get suggested => _t(en: 'Suggested', ar: 'مقترح', ku: 'پێشنیار');
   String get featured => _t(en: 'Featured', ar: 'مميز', ku: 'تایبەت');
   String get mostPopular =>
@@ -83,10 +154,8 @@ class AppLocalizations {
   String get commercial => _t(en: 'Commercial', ar: 'تجاري', ku: 'بازرگانی');
   String get investment =>
       _t(en: 'Investment', ar: 'استثمار', ku: 'وەبەرهێنان');
-  String get apartment =>
-      _t(en: 'Apartment', ar: 'شقة', ku: 'شوقە');
-  String get villaType =>
-      _t(en: 'Villa', ar: 'فيلا', ku: 'ڤیلا');
+  String get apartment => _t(en: 'Apartment', ar: 'شقة', ku: 'شوقە');
+  String get villaType => _t(en: 'Villa', ar: 'فيلا', ku: 'ڤیلا');
   String get listingType =>
       _t(en: 'Listing Type', ar: 'نوع الإعلان', ku: 'جۆری لیستە');
   String get priceRange =>
@@ -101,7 +170,7 @@ class AppLocalizations {
   String get any => _t(en: 'Any', ar: 'أي', ku: 'هەر');
 
   // ─── Property Card ────────────────────────────────────────────────────────
-  String get verified => _t(en: 'Verified', ar: 'موثق', ku: 'پشتڕاستکراوە');
+  String get verified => _t(en: 'Guaranteed', ar: 'مضمون', ku: 'دڵنیاکراو');
   String get dailyVisitors =>
       _t(en: 'Daily Visitors', ar: 'الزوار اليومي', ku: 'سەردانکارانی ڕۆژانە');
   String get buildingAge =>
@@ -428,52 +497,51 @@ class AppLocalizations {
   String get final_ => _t(en: 'Final', ar: 'نهائي', ku: 'کۆتایی');
 
   // ─── User Authentication ──────────────────────────────────────────────────
-  String get authPhoneTitle => _t(
-    en: 'Enter your phone number',
-    ar: 'أدخل رقم هاتفك',
-    ku: 'ژمارەی تەلەفۆنەکەت بنووسە',
-  );
+  String get authBrandName => _t(en: 'مدار', ar: 'مدار', ku: 'مدار');
+  String get authBrandTagline => _t(en: 'عقارات', ar: 'عقارات', ku: 'عقارات');
+  String get authWelcome => _t(en: 'Welcome', ar: 'مرحباً بك', ku: 'بەخێربێیت');
+  String get authPhoneTitle =>
+      _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
   String get authPhoneSubtitle => _t(
-    en: 'We will send you a verification code to confirm your number.',
-    ar: 'سنرسل لك رمز تحقق لتأكيد رقمك.',
-    ku: 'کۆدێکی پشتڕاستکردنەوە دەنێرین بۆ ژمارەکەت.',
+    en: 'Choose your country and enter your mobile number. We will send you a verification code.',
+    ar: 'اختر بلدك وأدخل رقم هاتفك المحمول، وسنرسل لك رمز التحقق',
+    ku: 'وڵاتەکەت هەڵبژێرە و ژمارەی مۆبایل بنووسە، کۆدی پشتڕاستکردنەوە دەنێرین.',
   );
-  String get authContinue => _t(en: 'Continue', ar: 'متابعة', ku: 'بەردەوامبوون');
-  String get authSelectCountry => _t(
-    en: 'Select country',
-    ar: 'اختر الدولة',
-    ku: 'وڵات هەڵبژێرە',
+  String get authContinue =>
+      _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
+  String get authCountryField => _t(en: 'Country', ar: 'البلد', ku: 'وڵات');
+  String get authPhoneField =>
+      _t(en: 'Your phone number', ar: 'رقم هاتفك', ku: 'ژمارەی تەلەفۆنەکەت');
+  String get authAgreePrivacy => _t(
+    en: 'I agree to the Privacy Policy and Terms of Use',
+    ar: 'أوافق على سياسة الخصوصية وشروط الاستخدام',
+    ku: 'ڕەزامەندم لەسەر سیاسەتی تایبەتمەندی و مەرجەکانی بەکارهێنان',
   );
-  String get authOtpTitle => _t(
-    en: 'Verify your phone',
-    ar: 'تحقق من هاتفك',
-    ku: 'تەلەفۆنەکەت پشتڕاست بکەرەوە',
+  String get staffOfficeEntry => _t(
+    en: 'Staff & office login',
+    ar: 'دخول الموظفين والمكاتب',
+    ku: 'چوونەژوورەوەی کارمەند و ئۆفیس',
   );
+  String get authSelectCountry =>
+      _t(en: 'Select country', ar: 'اختر الدولة', ku: 'وڵات هەڵبژێرە');
+  String get authOtpTitle =>
+      _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
   String authOtpSubtitle(String phone) => _t(
-    en: 'Enter the 6-digit code sent to $phone',
-    ar: 'أدخل الرمز المكون من 6 أرقام المرسل إلى $phone',
-    ku: 'کۆدی 6 ژمارەیی بنووسە کە نێردراوە بۆ $phone',
+    en: 'A verification code was sent via SMS!',
+    ar: 'تم إرسال رمز التحقق عبر SMS!',
+    ku: 'کۆدی پشتڕاستکردنەوە بە SMS نێردرا!',
   );
-  String get authVerifyContinue => _t(
-    en: 'Continue',
-    ar: 'متابعة',
-    ku: 'بەردەوامبوون',
-  );
-  String get authResendOtp => _t(
-    en: 'Resend code',
-    ar: 'إعادة إرسال الرمز',
-    ku: 'دووبارە ناردنی کۆد',
-  );
+  String get authVerifyContinue =>
+      _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
+  String get authResendOtp =>
+      _t(en: 'Send again', ar: 'أرسل مرة أخرى', ku: 'دووبارە بنێرە');
   String authResendIn(int seconds) => _t(
     en: 'Resend in ${seconds}s',
     ar: 'إعادة الإرسال خلال ${seconds} ث',
     ku: 'دووبارە ناردن لە ${seconds} چ',
   );
-  String get authChangePhone => _t(
-    en: 'Change number',
-    ar: 'تغيير الرقم',
-    ku: 'گۆڕینی ژمارە',
-  );
+  String get authChangePhone =>
+      _t(en: 'Change number', ar: 'تغيير الرقم', ku: 'گۆڕینی ژمارە');
   String get authLocationTitle => _t(
     en: 'Find properties around you',
     ar: 'اعثر على عقارات حولك',
@@ -484,31 +552,25 @@ class AppLocalizations {
     ar: 'اسمح بالوصول إلى موقعك لاكتشاف العقارات القريبة منك.',
     ku: 'ڕێگە بدە بە شوێن بۆ دۆزینەوەی خانووبەرە لە نزیکت.',
   );
-  String get authLocationCardTitle => _t(
-    en: 'Nearby properties',
-    ar: 'عقارات قريبة',
-    ku: 'خانووبەرەی نزیک',
-  );
+  String get authLocationCardTitle =>
+      _t(en: 'Nearby properties', ar: 'عقارات قريبة', ku: 'خانووبەرەی نزیک');
   String get authLocationCardDescription => _t(
     en: 'Your location helps us show relevant listings, map results, and distance-based search.',
     ar: 'موقعك يساعدنا في عرض الإعلانات المناسبة ونتائج الخريطة والبحث حسب المسافة.',
     ku: 'شوێنەکەت یارمەتیمان دەدات لیست و نەخشە و گەڕان بەپێی دووری پیشان بدەین.',
   );
-  String get authAllowLocation => _t(
-    en: 'Allow location',
-    ar: 'السماح بالموقع',
-    ku: 'ڕێگەدان بە شوێن',
-  );
+  String get authAllowLocation =>
+      _t(en: 'Allow location', ar: 'السماح بالموقع', ku: 'ڕێگەدان بە شوێن');
   String get authNotNow => _t(en: 'Not now', ar: 'ليس الآن', ku: 'ئێستا نا');
   String get authFaceTitle => _t(
-    en: 'Secure your account',
-    ar: 'أمّن حسابك',
-    ku: 'هەژمارەکەت بپارێزە',
+    en: 'Get ready to complete face recognition',
+    ar: 'استعد لإتمام ميزة التعرف على الوجه',
+    ku: 'ئامادە بە بۆ تەواوکردنی ناسینەوەی ڕووخسار',
   );
   String get authFaceSubtitle => _t(
-    en: 'Add an extra layer of security to protect your account.',
-    ar: 'أضف طبقة أمان إضافية لحماية حسابك.',
-    ku: 'چینێکی زیادەی پاراستن زیاد بکە بۆ هەژمارەکەت.',
+    en: 'Please place your face inside the frame and press the capture button.',
+    ar: 'الرجاء وضع الوجه داخل إطار الصورة والضغط على زر الالتقاط',
+    ku: 'تکایە ڕووخسارت بخەرە ناو چوارچێوەکە و دوگمەی وێنەگرتن لێبدە.',
   );
   String get authFaceCardTitle => _t(
     en: 'Face verification',
@@ -516,20 +578,14 @@ class AppLocalizations {
     ku: 'پشتڕاستکردنەوەی ڕووخسار',
   );
   String get authFaceCardDescription => _t(
-    en: 'Use face verification as two-factor authentication for sensitive actions like transactions.',
-    ar: 'استخدم التحقق بالوجه كمصادقة ثنائية للإجراءات الحساسة مثل المعاملات.',
-    ku: 'پشتڕاستکردنەوەی ڕووخسار وەک 2FA بۆ کردارە هەستیارەکان وەک مامەڵەکان.',
+    en: 'Please place your face inside the frame and press the capture button.',
+    ar: 'الرجاء وضع الوجه داخل إطار الصورة والضغط على زر الالتقاط',
+    ku: 'تکایە ڕووخسارت بخەرە ناو چوارچێوەکە و دوگمەی وێنەگرتن لێبدە.',
   );
-  String get authSetupFaceVerification => _t(
-    en: 'Set up face verification',
-    ar: 'إعداد التحقق بالوجه',
-    ku: 'ڕێکخستنی پشتڕاستکردنەوەی ڕووخسار',
-  );
-  String get authSkipForNow => _t(
-    en: 'Skip for now',
-    ar: 'تخطي الآن',
-    ku: 'فعلاً بەجێبهێڵە',
-  );
+  String get authSetupFaceVerification =>
+      _t(en: 'Start', ar: 'أبدأ', ku: 'دەستپێبکە');
+  String get authSkipForNow =>
+      _t(en: 'Skip for now', ar: 'تخطي الآن', ku: 'فعلاً بەجێبهێڵە');
   String get authLogoutConfirm => _t(
     en: 'Are you sure you want to logout?',
     ar: 'هل تريد تسجيل الخروج؟',
@@ -537,36 +593,18 @@ class AppLocalizations {
   );
 
   // ─── Region Setup ─────────────────────────────────────────────────────────
-  String get authRegionTitle => _t(
-    en: 'Set your region',
-    ar: 'حدد منطقتك',
-    ku: 'ناوچەکەت دیاری بکە',
-  );
+  String get authRegionTitle =>
+      _t(en: 'Choose your country', ar: 'اختر دولتك', ku: 'وڵاتەکەت هەڵبژێرە');
   String get authRegionSubtitle => _t(
-    en: 'We detected your location. Confirm or adjust country, language, and currency.',
-    ar: 'حددنا موقعك. أكد أو عدّل الدولة واللغة والعملة.',
-    ku: 'شوێنەکەت دیاریکرا. وڵات و زمان و دراو پشتڕاست بکەرەوە یان بیگۆڕە.',
+    en: 'Select the country you want to browse properties in.',
+    ar: 'اختر الدولة التي تريد استعراض العقارات فيها.',
+    ku: 'ئەو وڵاتە هەڵبژێرە کە دەتەوێت خانووبەرەی تێدا ببینیت.',
   );
-  String get authRegionCountry => _t(
-    en: 'Country',
-    ar: 'الدولة',
-    ku: 'وڵات',
-  );
-  String get authRegionLanguage => _t(
-    en: 'Language',
-    ar: 'اللغة',
-    ku: 'زمان',
-  );
-  String get authRegionCurrency => _t(
-    en: 'Currency',
-    ar: 'العملة',
-    ku: 'دراو',
-  );
-  String get authRegionConfirm => _t(
-    en: 'Continue',
-    ar: 'متابعة',
-    ku: 'بەردەوامبوون',
-  );
+  String get authRegionCountry => _t(en: 'Country', ar: 'الدولة', ku: 'وڵات');
+  String get authRegionLanguage => _t(en: 'Language', ar: 'اللغة', ku: 'زمان');
+  String get authRegionCurrency => _t(en: 'Currency', ar: 'العملة', ku: 'دراو');
+  String get authRegionConfirm =>
+      _t(en: 'Continue', ar: 'متابعة', ku: 'بەردەوامبوون');
   String get authRegionDetectedHint => _t(
     en: 'You can change these anytime from Profile settings.',
     ar: 'يمكنك تغييرها في أي وقت من إعدادات الملف الشخصي.',
@@ -574,51 +612,24 @@ class AppLocalizations {
   );
 
   // ─── Profile Settings ─────────────────────────────────────────────────────
-  String get settingsCountry => _t(
-    en: 'Country',
-    ar: 'الدولة',
-    ku: 'وڵات',
-  );
-  String get settingsCurrency => _t(
-    en: 'Currency',
-    ar: 'العملة',
-    ku: 'دراو',
-  );
-  String get settingsChangeCountry => _t(
-    en: 'Change country',
-    ar: 'تغيير الدولة',
-    ku: 'گۆڕینی وڵات',
-  );
-  String get settingsChangeCurrency => _t(
-    en: 'Change currency',
-    ar: 'تغيير العملة',
-    ku: 'گۆڕینی دراو',
-  );
-  String get activeCountryTitle => _t(
-    en: 'Active Country',
-    ar: 'الدولة النشطة',
-    ku: 'وڵاتی چالاک',
-  );
+  String get settingsCountry => _t(en: 'Country', ar: 'الدولة', ku: 'وڵات');
+  String get settingsCurrency => _t(en: 'Currency', ar: 'العملة', ku: 'دراو');
+  String get settingsChangeCountry =>
+      _t(en: 'Change country', ar: 'تغيير الدولة', ku: 'گۆڕینی وڵات');
+  String get settingsChangeCurrency =>
+      _t(en: 'Change currency', ar: 'تغيير العملة', ku: 'گۆڕینی دراو');
+  String get activeCountryTitle =>
+      _t(en: 'Active Country', ar: 'الدولة النشطة', ku: 'وڵاتی چالاک');
   String get switchMarketContext => _t(
     en: 'Switch your market context',
     ar: 'بدّل سياق السوق',
     ku: 'ناوچەی بازاڕ بگۆڕە',
   );
-  String get mapType => _t(
-    en: 'Map Type',
-    ar: 'نوع الخريطة',
-    ku: 'جۆری نەخشە',
-  );
-  String get drawArea => _t(
-    en: 'Draw Area',
-    ar: 'رسم منطقة',
-    ku: 'کێشانی ناوچە',
-  );
-  String get cancelDraw => _t(
-    en: 'Cancel Draw',
-    ar: 'إلغاء الرسم',
-    ku: 'هەڵوەشاندنەوەی کێشان',
-  );
+  String get mapType => _t(en: 'Map Type', ar: 'نوع الخريطة', ku: 'جۆری نەخشە');
+  String get drawArea =>
+      _t(en: 'Draw Area', ar: 'رسم منطقة', ku: 'کێشانی ناوچە');
+  String get cancelDraw =>
+      _t(en: 'Cancel Draw', ar: 'إلغاء الرسم', ku: 'هەڵوەشاندنەوەی کێشان');
   String areaLabel(String label, int count) => _t(
     en: 'Area: $label — $count properties',
     ar: 'منطقة: $label — $count عقار',
@@ -626,43 +637,28 @@ class AppLocalizations {
   );
 
   // ─── Search / Map extended ────────────────────────────────────────────────
-  String get searchSaved => _t(
-    en: 'Search saved',
-    ar: 'تم حفظ البحث',
-    ku: 'گەڕان پاشەکەوت کرا',
-  );
+  String get searchSaved =>
+      _t(en: 'Search saved', ar: 'تم حفظ البحث', ku: 'گەڕان پاشەکەوت کرا');
   String get loadingProperties => _t(
     en: 'Loading properties...',
     ar: 'جاري تحميل العقارات...',
     ku: 'بارکردنی خانووبەرەکان...',
   );
   String get done => _t(en: 'Done', ar: 'تم', ku: 'تەواو');
-  String get aiPicks => _t(
-    en: 'AI Picks',
-    ar: 'توصيات الذكاء الاصطناعي',
-    ku: 'پێشنیاری ئەی ئای',
-  );
-  String get resetAll => _t(
-    en: 'Reset All',
-    ar: 'إعادة تعيين',
-    ku: 'ڕیسێتی هەموو',
-  );
+  String get aiPicks =>
+      _t(en: 'AI Picks', ar: 'توصيات الذكاء الاصطناعي', ku: 'پێشنیاری ئەی ئای');
+  String get resetAll =>
+      _t(en: 'Reset All', ar: 'إعادة تعيين', ku: 'ڕیسێتی هەموو');
   String get city => _t(en: 'City', ar: 'المدينة', ku: 'شار');
   String get savedSearchesTitle => _t(
     en: 'Saved Searches',
     ar: 'البحوث المحفوظة',
     ku: 'گەڕانە پاشەکەوتکراوەکان',
   );
-  String savedCount(int count) => _t(
-    en: '$count saved',
-    ar: '$count محفوظ',
-    ku: '$count پاشەکەوتکراو',
-  );
-  String get clearAll => _t(
-    en: 'Clear All',
-    ar: 'مسح الكل',
-    ku: 'سڕینەوەی هەموو',
-  );
+  String savedCount(int count) =>
+      _t(en: '$count saved', ar: '$count محفوظ', ku: '$count پاشەکەوتکراو');
+  String get clearAll =>
+      _t(en: 'Clear All', ar: 'مسح الكل', ku: 'سڕینەوەی هەموو');
   String get recent => _t(en: 'Recent', ar: 'السجل الأخير', ku: 'دوایین');
   String get savedTab => _t(en: 'Saved', ar: 'المحفوظة', ku: 'پاشەکەوتکراو');
   String get searchFilterHistory => _t(
@@ -670,46 +666,19 @@ class AppLocalizations {
     ar: 'سجل البحث والتصفية',
     ku: 'مێژووی گەڕان و فلتەر',
   );
-  String resultsCount(int count) => _t(
-    en: '$count results',
-    ar: '$count نتيجة',
-    ku: '$count ئەنجام',
-  );
-  String get mapTypeStandard => _t(
-    en: 'Standard',
-    ar: 'عادي',
-    ku: 'ستاندارد',
-  );
-  String get mapTypeSatellite => _t(
-    en: 'Satellite',
-    ar: 'قمر صناعي',
-    ku: 'مانگی دەستکرد',
-  );
-  String get mapTypeTerrain => _t(
-    en: 'Terrain',
-    ar: 'تضاريس',
-    ku: 'زەوی',
-  );
-  String get mapTypeHybrid => _t(
-    en: 'Hybrid',
-    ar: 'هجين',
-    ku: 'هایبرید',
-  );
-  String timeAgoMinutes(int n) => _t(
-    en: '${n}m ago',
-    ar: '$n دقيقة',
-    ku: '$n خولەک لەمەوبەر',
-  );
-  String timeAgoHours(int n) => _t(
-    en: '${n}h ago',
-    ar: '$n ساعة',
-    ku: '$n کاتژمێر لەمەوبەر',
-  );
-  String timeAgoDays(int n) => _t(
-    en: '${n}d ago',
-    ar: '$n يوم',
-    ku: '$n ڕۆژ لەمەوبەر',
-  );
+  String resultsCount(int count) =>
+      _t(en: '$count results', ar: '$count نتيجة', ku: '$count ئەنجام');
+  String get mapTypeStandard => _t(en: 'Standard', ar: 'عادي', ku: 'ستاندارد');
+  String get mapTypeSatellite =>
+      _t(en: 'Satellite', ar: 'قمر صناعي', ku: 'مانگی دەستکرد');
+  String get mapTypeTerrain => _t(en: 'Terrain', ar: 'تضاريس', ku: 'زەوی');
+  String get mapTypeHybrid => _t(en: 'Hybrid', ar: 'هجين', ku: 'هایبرید');
+  String timeAgoMinutes(int n) =>
+      _t(en: '${n}m ago', ar: '$n دقيقة', ku: '$n خولەک لەمەوبەر');
+  String timeAgoHours(int n) =>
+      _t(en: '${n}h ago', ar: '$n ساعة', ku: '$n کاتژمێر لەمەوبەر');
+  String timeAgoDays(int n) =>
+      _t(en: '${n}d ago', ar: '$n يوم', ku: '$n ڕۆژ لەمەوبەر');
 
   String filterLabel(String key) {
     switch (key) {
@@ -732,6 +701,261 @@ class AppLocalizations {
     }
   }
 
+  String propertyTypeName(String key) {
+    switch (key.toLowerCase()) {
+      case 'apartment':
+        return apartment;
+      case 'villa':
+        return villaType;
+      case 'land':
+        return land;
+      case 'commercial':
+        return commercial;
+      case 'building':
+        return buildingType;
+      case 'agricultural':
+        return agriculturalType;
+      default:
+        return key;
+    }
+  }
+
+  String featureName(String key) {
+    switch (key.toLowerCase()) {
+      case 'furnished':
+        return featureFurnished;
+      case 'parking':
+        return featureParking;
+      case 'elevator':
+        return featureElevator;
+      case 'garden':
+        return featureGarden;
+      case 'pool':
+        return featurePool;
+      case 'generator':
+        return featureGenerator;
+      case 'balcony':
+        return featureBalcony;
+      case 'security':
+        return featureSecurity;
+      default:
+        return key;
+    }
+  }
+
+  String nearbyName(String key) {
+    switch (key.toLowerCase()) {
+      case 'schools':
+        return nearbySchoolsFilter;
+      case 'hospital':
+        return nearbyHospital;
+      case 'mall':
+        return nearbyMall;
+      case 'transit':
+        return nearbyTransit;
+      case 'mosque':
+        return nearbyMosque;
+      case 'park':
+        return nearbyPark;
+      default:
+        return key;
+    }
+  }
+
+  String get buildingType => _t(en: 'Building', ar: 'عمارة', ku: 'بینا');
+  String get agriculturalType =>
+      _t(en: 'Agricultural', ar: 'زراعي', ku: 'کشتوکاڵی');
+  String get featureFurnished =>
+      _t(en: 'Furnished', ar: 'مفروش', ku: 'ڕەختکراو');
+  String get featureParking =>
+      _t(en: 'Parking', ar: 'موقف سيارة', ku: 'پارکینگ');
+  String get featureElevator => _t(en: 'Elevator', ar: 'مصعد', ku: 'ئەسانسۆر');
+  String get featureGarden => _t(en: 'Garden', ar: 'حديقة', ku: 'باخچە');
+  String get featurePool => _t(en: 'Pool', ar: 'مسبح', ku: 'مەلەوانگە');
+  String get featureGenerator =>
+      _t(en: 'Generator', ar: 'مولد', ku: 'جێنەرەیتەر');
+  String get featureBalcony => _t(en: 'Balcony', ar: 'شرفة', ku: 'باڵکۆن');
+  String get featureSecurity => _t(en: 'Security', ar: 'حراسة', ku: 'پاراستن');
+  String get nearbySchoolsFilter =>
+      _t(en: 'Schools', ar: 'مدارس', ku: 'قوتابخانە');
+  String get nearbyHospital =>
+      _t(en: 'Hospital', ar: 'مستشفى', ku: 'نەخۆشخانە');
+  String get nearbyMall => _t(en: 'Mall', ar: 'مول', ku: 'مۆڵ');
+  String get nearbyTransit => _t(en: 'Transit', ar: 'مواصلات', ku: 'گواستنەوە');
+  String get nearbyMosque => _t(en: 'Mosque', ar: 'جامع', ku: 'مزگەوت');
+  String get nearbyPark => _t(en: 'Park', ar: 'حديقة عامة', ku: 'پارک');
+  String get allGovernorates =>
+      _t(en: 'All governorates', ar: 'كل المحافظات', ku: 'هەموو پارێزگاکان');
+  String get governorateLabel =>
+      _t(en: 'Governorate', ar: 'المحافظة', ku: 'پارێزگا');
+  String get searchHint => _t(
+    en: 'Search: area, price, school, mall…',
+    ar: 'ابحث: منطقة، سعر، مدرسة، مول…',
+    ku: 'بگەڕێ: ناوچە، نرخ، قوتابخانە، مۆڵ…',
+  );
+  String get voiceListening =>
+      _t(en: 'Listening…', ar: 'جاري الاستماع…', ku: 'گوێگرتن…');
+  String get voiceNotAvailable => _t(
+    en: 'Voice search is not available on this device.',
+    ar: 'البحث الصوتي غير متاح على هذا الجهاز.',
+    ku: 'گەڕانی دەنگی لەم ئامێرە بەردەست نییە.',
+  );
+  String get enterBarcodeManually =>
+      _t(en: 'Enter barcode', ar: 'أدخل رمز العملية', ku: 'بارکۆد بنووسە');
+  String get joinDeal =>
+      _t(en: 'Join deal', ar: 'الانضمام للعملية', ku: 'بچۆ مامەڵە');
+  String get txIdentityHint => _t(
+    en: 'Confirm your identity with national ID and face verification.',
+    ar: 'أكد هويتك بالبطاقة الوطنية والتحقق بالوجه.',
+    ku: 'ناسنامەکەت بە کارتی نیشتمانی و ڕووخسار پشتڕاست بکەوە.',
+  );
+  String get txDocumentsHint => _t(
+    en: 'Upload the documents requested by the lawyer for your side.',
+    ar: 'ارفع المستمسكات التي يطلبها المحامي لطرفك.',
+    ku: 'ئەو بەڵگەنامانە بار بکە کە پارێزەر داوای دەکات.',
+  );
+  String get txContractHint => _t(
+    en: 'Download the sale contract PDF, upload the signed copy, then verify with OTP, face, and e-signature.',
+    ar: 'حمّل عقد البيع PDF ثم ارفعه بعد التوقيع، ثم تحقق برمز OTP والوجه والتوقيع الإلكتروني.',
+    ku: 'PDF ی گرێبەست دابەزێنە، پاشان بار بکە، دواتر OTP و ڕووخسار و واژۆ.',
+  );
+  String get txEscrowHint => _t(
+    en: 'Deposit the required amount into Madar escrow at Bank of Baghdad. Funds release when the deed is issued in the buyer name — or, for agricultural homes, after move-in with buyer and lawyer approval.',
+    ar: 'أودع المبلغ في حساب الضمان لدى مصرف بغداد. يُحوَّل المال عند صدور السند باسم المشتري — أو للزراعي بعد الانتقال بموافقة المشتري والمحامي.',
+    ku: 'بڕە پارەکە لە حسابی مسۆگەری بانکی بەغدا دابنێ.',
+  );
+  String get txDeedHint => _t(
+    en: 'Upload the ownership deed. Skipped for agricultural properties.',
+    ar: 'ارفع سند الملكية. تُتخطى إذا كان العقار زراعياً.',
+    ku: 'سەندی خاوەندارێتی بار بکە. بۆ کشتوکاڵی تێپەڕ دەبێت.',
+  );
+  String get txSettlementHint => _t(
+    en: '1% correspondence fee from each party (2% total, editable by finance), 300,000 IQD from each party, taxes, then remainder to the seller with a full receipt.',
+    ar: '1% مكاتبة من كل طرف (2% للمجموع، قابلة للتعديل من المالية) و300 ألف من كل طرف ثم الضرائب وباقي المبلغ للبائع مع وصل كامل.',
+    ku: '1% لە هەر لایەک، 300 هەزار دینار لە هەر لایەک، باج، پاشان ماوەکە بۆ فرۆشیار.',
+  );
+  String get confirmIdentity => _t(
+    en: 'Confirm identity',
+    ar: 'تأكيد الهوية',
+    ku: 'پشتڕاستکردنەوەی ناسنامە',
+  );
+  String get downloadContractPdf => _t(
+    en: 'Download contract PDF',
+    ar: 'تنزيل عقد البيع PDF',
+    ku: 'PDF ی گرێبەست دابەزێنە',
+  );
+  String get uploadSignedContract => _t(
+    en: 'Upload signed contract',
+    ar: 'رفع العقد الموقع',
+    ku: 'گرێبەستی واژۆکراو بار بکە',
+  );
+  String get verifyOtpFaceSign => _t(
+    en: 'OTP, face, then sign',
+    ar: 'رمز التحقق ثم الوجه ثم التوقيع',
+    ku: 'OTP، ڕووخسار، واژۆ',
+  );
+  String get confirmDeposit => _t(
+    en: 'Confirm I deposited',
+    ar: 'أكدت الإيداع',
+    ku: 'دانان پشتڕاست دەکەم',
+  );
+  String get uploadDeed =>
+      _t(en: 'Upload deed', ar: 'رفع السند', ku: 'سەند بار بکە');
+  String get viewReceipt =>
+      _t(en: 'View receipt', ar: 'عرض الوصل', ku: 'پسوڵە ببینە');
+  String get lawyersTeam =>
+      _t(en: 'Lawyers team', ar: 'فريق المحامين', ku: 'تیمی پارێزەران');
+  String get waitingForOtherPartyAction => _t(
+    en: 'Waiting for the other party to complete this step.',
+    ar: 'بانتظار إكمال الطرف الآخر لهذه الخطوة.',
+    ku: 'چاوەڕێی لایەنی دیکە دەکەین.',
+  );
+  String get iAmBuyer =>
+      _t(en: 'I am the buyer', ar: 'أنا المشتري', ku: 'من کڕیارم');
+  String get iAmSeller =>
+      _t(en: 'I am the seller', ar: 'أنا البائع', ku: 'من فرۆشیارم');
+  String get enterOtpCode =>
+      _t(en: 'Enter OTP', ar: 'أدخل رمز التحقق', ku: 'OTP بنووسە');
+  String get verifyFaceCta =>
+      _t(en: 'Verify face', ar: 'التحقق من الوجه', ku: 'ڕووخسار پشتڕاست بکە');
+  String get drawSignature =>
+      _t(en: 'Sign here', ar: 'وقّع هنا', ku: 'لێرە واژۆ بکە');
+  String get sendSignature =>
+      _t(en: 'Send signature', ar: 'إرسال التوقيع', ku: 'واژۆ بنێرە');
+  String get nationalIdDoc =>
+      _t(en: 'National ID', ar: 'البطاقة الوطنية', ku: 'کارتی نیشتمانی');
+  String get proofOfFundsDoc => _t(
+    en: 'Proof of funds',
+    ar: 'إثبات مصدر المال',
+    ku: 'سەلماندنی سەرچاوەی پارە',
+  );
+  String get propertyDeedDoc =>
+      _t(en: 'Property deed', ar: 'سند المنزل', ku: 'سەندی خانوو');
+  String get addRequiredDocument => _t(
+    en: 'Add a required document',
+    ar: 'إضافة مستمسك مطلوب',
+    ku: 'بەڵگەنامەی پێویست زیاد بکە',
+  );
+  String get escrowBankBaghdad => _t(
+    en: 'Madar escrow — Bank of Baghdad',
+    ar: 'حساب الضمان — مصرف بغداد',
+    ku: 'حسابی مسۆگەری — بانکی بەغدا',
+  );
+  String get depositAmountLabel =>
+      _t(en: 'Amount to deposit', ar: 'المبلغ الواجب إيداعه', ku: 'بڕی دانان');
+  String get correspondenceFeeLabel => _t(
+    en: 'Correspondence fee (1% each party)',
+    ar: 'رسوم المكاتبة (1% لكل طرف)',
+    ku: 'کرێی نامەنووسی (1% هەر لایەک)',
+  );
+  String get stampFeeLabel => _t(
+    en: 'Office fee 300,000 IQD each',
+    ar: 'رسوم المكتب 300 ألف لكل طرف',
+    ku: 'کرێی ئۆفیس 300 هەزار بۆ هەر لایەک',
+  );
+  String get remainderToSeller => _t(
+    en: 'Remainder transferred to seller',
+    ar: 'المتبقي يُحوَّل لحساب البائع',
+    ku: 'ماوەکە دەگوازرێتەوە بۆ فرۆشیار',
+  );
+  String get furniturePartnerNotice => _t(
+    en: 'Buyer and seller numbers plus property details are shared with furniture and moving partners after the contract is signed.',
+    ar: 'بعد كتابة العقد تُشارك أرقام المشتري والبائع والعقار تلقائياً مع شركات التجميل العقاري ونقل الأثاث.',
+    ku: 'دوای گرێبەست ژمارەکان لەگەڵ کۆمپانیای جوانکاری و گواستنەوە هاوبەش دەکرێن.',
+  );
+  String get simulateOtherParty => _t(
+    en: 'Other party completed this step',
+    ar: 'أكمل الطرف الآخر هذه الخطوة',
+    ku: 'لایەنی دیکە ئەم هەنگاوەی تەواو کرد',
+  );
+  String get skipAgriculturalDeed => _t(
+    en: 'Deed skipped for agricultural property',
+    ar: 'تم تخطي سند الملكية لأن العقار زراعي',
+    ku: 'سەند تێپەڕ کرا چونکە کشتوکاڵییە',
+  );
+  String get fundsReleaseNote => _t(
+    en: 'Funds are released when the deed is issued in the buyer name. For agricultural homes, release after move-in with buyer approval and supervising lawyer confirmation.',
+    ar: 'يُحوَّل المال عند صدور السند باسم المشتري. للعقار الزراعي: بعد انتقال المشتري بموافقته وتأكيد المحامي المشرف.',
+    ku: 'پارەکە دوای سەند بە ناوی کڕیار دەردەچێت. بۆ کشتوکاڵی دوای گواستنەوە.',
+  );
+  String get barcodeHint => _t(
+    en: 'Paste or type the deal barcode',
+    ar: 'الصق أو اكتب باركود العملية',
+    ku: 'بارکۆدی مامەڵە بنووسە',
+  );
+  String get lawyersTeamChat => _t(
+    en: 'Open lawyers team chat',
+    ar: 'فتح محادثة فريق المحامين',
+    ku: 'چاتی تیمی پارێزەران بکەرەوە',
+  );
+  String get receiptIssued =>
+      _t(en: 'Receipt issued', ar: 'تم إصدار الوصل', ku: 'پسوڵە دەرچوو');
+  String get closeDeal => _t(
+    en: 'Close deal successfully',
+    ar: 'إغلاق العملية بنجاح',
+    ku: 'مامەڵە دابخە',
+  );
+
   String mapTypeLabel(String id) {
     switch (id) {
       case 'satellite':
@@ -747,41 +971,29 @@ class AppLocalizations {
 
   // ─── Profile extended ─────────────────────────────────────────────────────
   String get notSet => _t(en: 'Not set', ar: 'غير محدد', ku: 'دیاری نەکراوە');
-  String get madarUser => _t(
-    en: 'Madar User',
-    ar: 'مستخدم مدار',
-    ku: 'بەکارهێنەری مەدار',
-  );
+  String get madarUser =>
+      _t(en: 'Madar User', ar: 'مستخدم مدار', ku: 'بەکارهێنەری مەدار');
   String get verificationSecurity => _t(
     en: 'Verification & Security',
     ar: 'التحقق والأمان',
     ku: 'پشتڕاستکردنەوە و پاراستن',
   );
-  String get phoneNumberLabel => _t(
-    en: 'Phone Number',
-    ar: 'رقم الهاتف',
-    ku: 'ژمارەی تەلەفۆن',
-  );
+  String get phoneNumberLabel =>
+      _t(en: 'Phone Number', ar: 'رقم الهاتف', ku: 'ژمارەی تەلەفۆن');
   String get biometricVerification => _t(
     en: 'Biometric Verification',
     ar: 'التحقق البيومتري',
     ku: 'پشتڕاستکردنەوەی بایۆمەتری',
   );
-  String get unverified => _t(
-    en: 'Unverified',
-    ar: 'غير موثق',
-    ku: 'پشتڕاستنەکراوە',
-  );
+  String get unverified =>
+      _t(en: 'Unverified', ar: 'غير موثق', ku: 'پشتڕاستنەکراوە');
   String get changePhone => _t(
     en: 'Change Phone Number',
     ar: 'تغيير رقم الهاتف',
     ku: 'گۆڕینی ژمارەی تەلەفۆن',
   );
-  String get notifications => _t(
-    en: 'Notifications',
-    ar: 'الإشعارات',
-    ku: 'ئاگاداریەکان',
-  );
+  String get notifications =>
+      _t(en: 'Notifications', ar: 'الإشعارات', ku: 'ئاگاداریەکان');
   String get commissionDashboard => _t(
     en: 'Commission Dashboard',
     ar: 'لوحة العمولات',
@@ -798,26 +1010,12 @@ class AppLocalizations {
     ku: 'ئەرشیفی بەڵگەنامەکان',
   );
   String get contracts => _t(en: 'Contracts', ar: 'العقود', ku: 'گرێبەستەکان');
-  String get titleDeeds => _t(
-    en: 'Title Deeds',
-    ar: 'السندات',
-    ku: 'سەندەکان',
-  );
-  String get favorites => _t(
-    en: 'Favorites',
-    ar: 'المفضلة',
-    ku: 'دڵخوازەکان',
-  );
-  String get activeAccount => _t(
-    en: 'Active Account',
-    ar: 'حساب نشط',
-    ku: 'هەژماری چالاک',
-  );
-  String get accountSuspended => _t(
-    en: 'Suspended',
-    ar: 'موقوف',
-    ku: 'هەڵواسراو',
-  );
+  String get titleDeeds => _t(en: 'Title Deeds', ar: 'السندات', ku: 'سەندەکان');
+  String get favorites => _t(en: 'Favorites', ar: 'المفضلة', ku: 'دڵخوازەکان');
+  String get activeAccount =>
+      _t(en: 'Active Account', ar: 'حساب نشط', ku: 'هەژماری چالاک');
+  String get accountSuspended =>
+      _t(en: 'Suspended', ar: 'موقوف', ku: 'هەڵواسراو');
   String get profileSaved => _t(
     en: 'Profile saved',
     ar: 'تم حفظ الملف الشخصي',
@@ -831,46 +1029,31 @@ class AppLocalizations {
     ar: 'مساعد مدار الذكي',
     ku: 'یاریدەدەری ئەی ئای مەدار',
   );
-  String get msgCustomerSupport => _t(
-    en: 'Customer Support',
-    ar: 'خدمة العملاء',
-    ku: 'پشتگیری کڕیار',
-  );
-  String get msgSalesTeam => _t(
-    en: 'Sales Team',
-    ar: 'فريق المبيعات',
-    ku: 'تیمی فرۆشتن',
-  );
+  String get msgCustomerSupport =>
+      _t(en: 'Customer Support', ar: 'خدمة العملاء', ku: 'پشتگیری کڕیار');
+  String get msgSalesTeam =>
+      _t(en: 'Sales Team', ar: 'فريق المبيعات', ku: 'تیمی فرۆشتن');
   String get msgClosingTeam => _t(
     en: 'Deal Closing Team',
     ar: 'فريق إغلاق الصفقات',
     ku: 'تیمی داخستنی مامەڵە',
   );
-  String get msgAgentLawyer => _t(
-    en: 'Agent / Lawyer',
-    ar: 'الوكيل / المحامي',
-    ku: 'نوێنەر / پارێزەر',
-  );
+  String get msgAgentLawyer =>
+      _t(en: 'Agent / Lawyer', ar: 'الوكيل / المحامي', ku: 'نوێنەر / پارێزەر');
   String get msgAiSub => _t(
     en: 'Powered by AI',
     ar: 'مدعوم بالذكاء الاصطناعي',
     ku: 'پشتگیری لە ئەی ئای',
   );
-  String get msgSupportSub => _t(
-    en: 'Available 24/7',
-    ar: 'متاح 24/7',
-    ku: 'بەردەستە 24/7',
-  );
+  String get msgSupportSub =>
+      _t(en: 'Available 24/7', ar: 'متاح 24/7', ku: 'بەردەستە 24/7');
   String get msgSalesSub => _t(
     en: 'Property inquiries',
     ar: 'للاستفسار عن العقارات',
     ku: 'پرسیار دەربارەی خانووبەرە',
   );
-  String get msgClosingSub => _t(
-    en: 'Close your deals',
-    ar: 'لإتمام صفقاتك',
-    ku: 'مامەڵەکانت دابخە',
-  );
+  String get msgClosingSub =>
+      _t(en: 'Close your deals', ar: 'لإتمام صفقاتك', ku: 'مامەڵەکانت دابخە');
   String get msgAgentSub => _t(
     en: 'Receive transaction code',
     ar: 'لاستلام رمز الصفقة',
@@ -883,25 +1066,44 @@ class AppLocalizations {
     ar: 'لا توجد صفقات نشطة',
     ku: 'هیچ مامەڵەی چالاک نییە',
   );
-  String get verifying => _t(
-    en: 'Verifying...',
-    ar: 'جاري التحقق...',
-    ku: 'پشتڕاستکردنەوە...',
+  String get verifying =>
+      _t(en: 'Verifying...', ar: 'جاري التحقق...', ku: 'پشتڕاستکردنەوە...');
+  String get allDealsTitle =>
+      _t(en: 'All Deals', ar: 'كل الصفقات', ku: 'هەموو مامەڵەکان');
+  String get refresh => _t(en: 'Refresh', ar: 'تحديث', ku: 'نوێکردنەوە');
+  String get scanBarcode =>
+      _t(en: 'Scan Barcode', ar: 'مسح الباركود', ku: 'پێداچوونەوەی بارکۆد');
+  String get barcodeScanTitle => _t(
+    en: 'Scan deal code',
+    ar: 'مسح رمز الصفقة',
+    ku: 'سکانکردنی کۆدی مامەڵە',
   );
-  String get allDealsTitle => _t(
-    en: 'All Deals',
-    ar: 'كل الصفقات',
-    ku: 'هەموو مامەڵەکان',
+  String get barcodeScanSubtitle => _t(
+    en: 'Get the barcode from the lawyer or real-estate office and scan it to start your deal.',
+    ar: 'احصل على رمز الباركود من الوكيل أو المكتب العقاري وامسحه لبدء صفقتك',
+    ku: 'بارکۆدەکە لە پارێزەر یان ئۆفیسی خانووبەرە وەربگرە و سکان بکە بۆ دەستپێکردنی مامەڵەکەت.',
   );
-  String get refresh => _t(
-    en: 'Refresh',
-    ar: 'تحديث',
-    ku: 'نوێکردنەوە',
+  String get barcodeUploadImage => _t(
+    en: 'Upload barcode image',
+    ar: 'رفع صورة الباركود',
+    ku: 'وێنەی بارکۆد بار بکە',
   );
-  String get scanBarcode => _t(
-    en: 'Scan Barcode',
-    ar: 'مسح الباركود',
-    ku: 'پێداچوونەوەی بارکۆد',
+  String get barcodeHowItWorks =>
+      _t(en: 'How it works', ar: 'كيف يعمل؟', ku: 'چۆن کار دەکات؟');
+  String get barcodeHowStep1 => _t(
+    en: 'The office or company lawyer generates a barcode for this deal.',
+    ar: 'يولّد الوكيل/المكتب رمز باركود خاص بالصفقة',
+    ku: 'ئۆفیس یان پارێزەر بارکۆدێک بۆ ئەم مامەڵەیە دروست دەکات.',
+  );
+  String get barcodeHowStep2 => _t(
+    en: 'The code is sent to both parties in Madar.',
+    ar: 'يرسل الرمز لكلا الطرفين عبر تطبيق مدار',
+    ku: 'کۆدەکە بۆ هەردوو لایەن لە مەدار دەنێردرێت.',
+  );
+  String get barcodeHowStep3 => _t(
+    en: 'Both parties upload the code to open the live deal.',
+    ar: 'يرفع كلا الطرفين الرمز لبدء سلسلة الصفقة',
+    ku: 'هەردوو لایەن کۆدەکە بار دەکەن بۆ کردنەوەی مامەڵەکە.',
   );
   String get depositConfirmed => _t(
     en: 'Deposit confirmed',
@@ -920,16 +1122,9 @@ class AppLocalizations {
   );
 
   // ─── Add Property ─────────────────────────────────────────────────────────
-  String get imageAttached => _t(
-    en: 'Image attached',
-    ar: 'تم إرفاق صورة',
-    ku: 'وێنە هاوپێچ کرا',
-  );
-  String get noImage => _t(
-    en: 'No image',
-    ar: 'بدون صورة',
-    ku: 'بێ وێنە',
-  );
+  String get imageAttached =>
+      _t(en: 'Image attached', ar: 'تم إرفاق صورة', ku: 'وێنە هاوپێچ کرا');
+  String get noImage => _t(en: 'No image', ar: 'بدون صورة', ku: 'بێ وێنە');
 
   String get noSearchHistoryYet => _t(
     en: 'No search history yet',
@@ -952,39 +1147,24 @@ class AppLocalizations {
     ar: 'اضغط على الخريطة لرسم منطقة التحديد',
     ku: 'بۆ کێشانی ناوچە لەسەر نەخشە دەست لێبدە',
   );
-  String propertyCountShort(int count) => _t(
-    en: '$count Properties',
-    ar: '$count عقار',
-    ku: '$count خانووبەرە',
-  );
+  String propertyCountShort(int count) =>
+      _t(en: '$count Properties', ar: '$count عقار', ku: '$count خانووبەرە');
 
   // ─── Property Intelligence Report ─────────────────────────────────────────
-  String get propertyReport => _t(
-    en: 'Property Report',
-    ar: 'تقرير العقار',
-    ku: 'ڕاپۆرتی خانووبەرە',
-  );
+  String get propertyReport =>
+      _t(en: 'Property Report', ar: 'تقرير العقار', ku: 'ڕاپۆرتی خانووبەرە');
   String get askAiAboutProperty => _t(
     en: 'Ask AI about this property',
     ar: 'اسأل الذكاء الاصطناعي عن هذا العقار',
     ku: 'لە ئەی ئای بپرسە دەربارەی ئەم خانووبەرەیە',
   );
   String get askAi => _t(en: 'Ask AI', ar: 'اسأل AI', ku: 'بپرسە لە AI');
-  String get contactConnect => _t(
-    en: 'Contact Sales',
-    ar: 'تواصل مع المبيعات',
-    ku: 'پەیوەندی فرۆشتن',
-  );
-  String get videoTour => _t(
-    en: 'Video Tour',
-    ar: 'جولة فيديو',
-    ku: 'گەشتی ڤیدیۆ',
-  );
-  String get inPersonTour => _t(
-    en: 'In-person Tour',
-    ar: 'زيارة حضورية',
-    ku: 'سەردانی ڕاستەوخۆ',
-  );
+  String get contactConnect =>
+      _t(en: 'Contact Sales', ar: 'تواصل مع المبيعات', ku: 'پەیوەندی فرۆشتن');
+  String get videoTour =>
+      _t(en: 'Video Tour', ar: 'جولة فيديو', ku: 'گەشتی ڤیدیۆ');
+  String get inPersonTour =>
+      _t(en: 'In-person Tour', ar: 'زيارة حضورية', ku: 'سەردانی ڕاستەوخۆ');
   String get tourRequestSent => _t(
     en: 'Tour request sent to our team',
     ar: 'تم إرسال طلب الجولة لفريقنا',
@@ -996,22 +1176,14 @@ class AppLocalizations {
     ku: 'پرسیار نێردرا بۆ تیمی فرۆشتن',
   );
   String get statusSold => _t(en: 'Sold', ar: 'مباع', ku: 'فرۆشراو');
-  String get statusReserved =>
-      _t(en: 'Reserved', ar: 'محجوز', ku: 'پارێزراو');
-  String get statusUnderReview => _t(
-    en: 'Under Review',
-    ar: 'قيد المراجعة',
-    ku: 'لە ژێر پێداچوونەوە',
-  );
+  String get statusReserved => _t(en: 'Reserved', ar: 'محجوز', ku: 'پارێزراو');
+  String get statusUnderReview =>
+      _t(en: 'Under Review', ar: 'قيد المراجعة', ku: 'لە ژێر پێداچوونەوە');
   String get statusOffMarket =>
       _t(en: 'Off Market', ar: 'خارج السوق', ku: 'دەرەوەی بازاڕ');
-  String get dataVerified =>
-      _t(en: 'Verified', ar: 'موثق', ku: 'پشتڕاستکراو');
-  String get dataPublisherProvided => _t(
-    en: 'Publisher',
-    ar: 'من الناشر',
-    ku: 'لە بڵاوکەرەوە',
-  );
+  String get dataVerified => _t(en: 'Verified', ar: 'موثق', ku: 'پشتڕاستکراو');
+  String get dataPublisherProvided =>
+      _t(en: 'Publisher', ar: 'من الناشر', ku: 'لە بڵاوکەرەوە');
   String get dataEstimated =>
       _t(en: 'Estimated', ar: 'تقديري', ku: 'خەمڵێنراو');
   String get dataExternal =>
@@ -1096,11 +1268,11 @@ class AppLocalizations {
   );
   String get lastUpdated =>
       _t(en: 'Last updated', ar: 'آخر تحديث', ku: 'دوایین نوێکردنەوە');
-  String get tour3d => _t(en: '3D Tour', ar: 'جولة ثلاثية الأبعاد', ku: 'گەشتی سێ ڕەهەندی');
+  String get tour3d =>
+      _t(en: '3D Tour', ar: 'جولة ثلاثية الأبعاد', ku: 'گەشتی سێ ڕەهەندی');
   String get virtualTour =>
       _t(en: 'Virtual Tour', ar: 'جولة افتراضية', ku: 'گەشتی مەجازی');
-  String get floorPlan =>
-      _t(en: 'Floor Plan', ar: 'المخطط', ku: 'نەخشەی نهۆم');
+  String get floorPlan => _t(en: 'Floor Plan', ar: 'المخطط', ku: 'نەخشەی نهۆم');
   String get builtUpArea =>
       _t(en: 'Built-up Area', ar: 'مساحة البناء', ku: 'ڕووبەری بینا');
   String get landArea =>
@@ -1121,13 +1293,9 @@ class AppLocalizations {
       _t(en: 'Price Change', ar: 'تغير السعر', ku: 'گۆڕانی نرخ');
   String get salesHistory =>
       _t(en: 'Sales History', ar: 'تاريخ المبيعات', ku: 'مێژووی فرۆشتن');
-  String get publisher =>
-      _t(en: 'Publisher', ar: 'الناشر', ku: 'بڵاوکەرەوە');
-  String get scheduleTourTitle => _t(
-    en: 'Schedule a Tour',
-    ar: 'حجز جولة',
-    ku: 'گەشتێک پلان بکە',
-  );
+  String get publisher => _t(en: 'Publisher', ar: 'الناشر', ku: 'بڵاوکەرەوە');
+  String get scheduleTourTitle =>
+      _t(en: 'Schedule a Tour', ar: 'حجز جولة', ku: 'گەشتێک پلان بکە');
   String get tourNotesHint => _t(
     en: 'Notes (optional)',
     ar: 'ملاحظات (اختياري)',
@@ -1146,30 +1314,20 @@ class AppLocalizations {
       _t(en: 'Monthly Payment', ar: 'القسط الشهري', ku: 'پارەدانی مانگانە');
   String get contractDuration =>
       _t(en: 'Contract Duration', ar: 'مدة العقد', ku: 'ماوەی گرێبەست');
-  String get ownershipContribution => _t(
-    en: 'Toward Ownership',
-    ar: 'نحو التملك',
-    ku: 'بەرەو خاوەنداری',
-  );
-  String get remainingBalance => _t(
-    en: 'Remaining Balance',
-    ar: 'الرصيد المتبقي',
-    ku: 'باڵانسی ماوە',
-  );
+  String get ownershipContribution =>
+      _t(en: 'Toward Ownership', ar: 'نحو التملك', ku: 'بەرەو خاوەنداری');
+  String get remainingBalance =>
+      _t(en: 'Remaining Balance', ar: 'الرصيد المتبقي', ku: 'باڵانسی ماوە');
   String get months => _t(en: 'months', ar: 'أشهر', ku: 'مانگ');
-  String get savedProperty =>
-      _t(en: 'Saved', ar: 'محفوظ', ku: 'پاشەکەوتکرا');
-  String get unsavedProperty =>
-      _t(en: 'Save', ar: 'حفظ', ku: 'پاشەکەوت');
-  String get shareProperty =>
-      _t(en: 'Share', ar: 'مشاركة', ku: 'هاوبەشکردن');
+  String get savedProperty => _t(en: 'Saved', ar: 'محفوظ', ku: 'پاشەکەوتکرا');
+  String get unsavedProperty => _t(en: 'Save', ar: 'حفظ', ku: 'پاشەکەوت');
+  String get shareProperty => _t(en: 'Share', ar: 'مشاركة', ku: 'هاوبەشکردن');
   String get aiGroundedDisclaimer => _t(
     en: 'Answers are based only on available property data.',
     ar: 'الإجابات تعتمد فقط على بيانات العقار المتاحة.',
     ku: 'وەڵامەکان تەنها لەسەر داتای بەردەستی خانووبەرەن.',
   );
-  String get locationHierarchy =>
-      _t(en: 'Location', ar: 'الموقع', ku: 'شوێن');
+  String get locationHierarchy => _t(en: 'Location', ar: 'الموقع', ku: 'شوێن');
   String get mapSection => _t(en: 'Map', ar: 'الخريطة', ku: 'نەخشە');
   String get yesLabel => _t(en: 'Yes', ar: 'نعم', ku: 'بەڵێ');
   String get noLabel => _t(en: 'No', ar: 'لا', ku: 'نەخێر');
@@ -1180,11 +1338,8 @@ class AppLocalizations {
   String get pool => _t(en: 'Pool', ar: 'مسبح', ku: 'مەلەوانگە');
 
   // ─── Edit Profile / Messages / Profile copy ───────────────────────────────
-  String get editProfileTitle => _t(
-    en: 'Edit Profile',
-    ar: 'تعديل الملف الشخصي',
-    ku: 'دەستکاری پرۆفایل',
-  );
+  String get editProfileTitle =>
+      _t(en: 'Edit Profile', ar: 'تعديل الملف الشخصي', ku: 'دەستکاری پرۆفایل');
   String get tapToChangePhoto => _t(
     en: 'Tap to change photo',
     ar: 'اضغط لتغيير الصورة',
@@ -1201,11 +1356,8 @@ class AppLocalizations {
     ar: 'معلومات التواصل',
     ku: 'زانیاری پەیوەندی',
   );
-  String get emailAddress => _t(
-    en: 'Email Address',
-    ar: 'البريد الإلكتروني',
-    ku: 'ناونیشانی ئیمەیل',
-  );
+  String get emailAddress =>
+      _t(en: 'Email Address', ar: 'البريد الإلكتروني', ku: 'ناونیشانی ئیمەیل');
   String get bio => _t(en: 'Bio', ar: 'نبذة شخصية', ku: 'کورتە');
   String get bioHint => _t(
     en: 'Write something about yourself...',
@@ -1235,11 +1387,8 @@ class AppLocalizations {
     ar: 'كيف تعمل الصفقات؟',
     ku: 'مامەڵەکان چۆن کاردەکەن؟',
   );
-  String get currentLocation => _t(
-    en: 'Current Location',
-    ar: 'الموقع الحالي',
-    ku: 'شوێنی ئێستا',
-  );
+  String get currentLocation =>
+      _t(en: 'Current Location', ar: 'الموقع الحالي', ku: 'شوێنی ئێستا');
   String get openInMaps =>
       _t(en: 'Open in Maps', ar: 'فتح في الخريطة', ku: 'لە نەخشەدا بکەرەوە');
   String get savingImage => _t(
@@ -1272,21 +1421,15 @@ class AppLocalizations {
     ar: 'سيتم التواصل معك من فريق الدعم لتغيير رقم هاتفك',
     ku: 'تیمی پشتگیری پەیوەندیت پێدەکات بۆ گۆڕینی ژمارەی تەلەفۆن.',
   );
-  String get markAllRead => _t(
-    en: 'Mark all read',
-    ar: 'قراءة الكل',
-    ku: 'هەموو بخوێنەوە',
-  );
+  String get markAllRead =>
+      _t(en: 'Mark all read', ar: 'قراءة الكل', ku: 'هەموو بخوێنەوە');
   String unreadCountLabel(int n) => _t(
     en: '$n unread notifications',
     ar: '$n إشعارات غير مقروءة',
     ku: '$n ئاگاداری نەخوێندراوە',
   );
-  String get noNotificationsYet => _t(
-    en: 'No notifications',
-    ar: 'لا توجد إشعارات',
-    ku: 'ئاگاداری نییە',
-  );
+  String get noNotificationsYet =>
+      _t(en: 'No notifications', ar: 'لا توجد إشعارات', ku: 'ئاگاداری نییە');
   String minutesAgo(int m) =>
       _t(en: '${m}m ago', ar: 'منذ ${m}د', ku: '$m خولەک پێش ئێستا');
   String hoursAgo(int h) =>
@@ -1318,25 +1461,18 @@ class AppLocalizations {
     ar: 'ما هي أسعار العقارات؟',
     ku: 'نرخی خانووبەرەکان چین؟',
   );
-  String get filterPrices =>
-      _t(en: 'Prices', ar: 'الأسعار', ku: 'نرخەکان');
+  String get filterPrices => _t(en: 'Prices', ar: 'الأسعار', ku: 'نرخەکان');
   String get filterTransactions =>
       _t(en: 'Transactions', ar: 'الصفقات', ku: 'مامەڵەکان');
-  String get filterAi =>
-      _t(en: 'AI', ar: 'الذكاء الاصطناعي', ku: 'ئەی ئای');
-  String get genericErrorOccurred => _t(
-    en: 'An error occurred',
-    ar: 'حدث خطأ',
-    ku: 'هەڵەیەک ڕوویدا',
-  );
+  String get filterAi => _t(en: 'AI', ar: 'الذكاء الاصطناعي', ku: 'ئەی ئای');
+  String get genericErrorOccurred =>
+      _t(en: 'An error occurred', ar: 'حدث خطأ', ku: 'هەڵەیەک ڕوویدا');
 
   // ─── Property AI Translation ──────────────────────────────────────────────
-  String get languageArabic =>
-      _t(en: 'Arabic', ar: 'العربية', ku: 'عەرەبی');
+  String get languageArabic => _t(en: 'Arabic', ar: 'العربية', ku: 'عەرەبی');
   String get languageEnglish =>
       _t(en: 'English', ar: 'الإنجليزية', ku: 'ئینگلیزی');
-  String get languageKurdish =>
-      _t(en: 'Kurdish', ar: 'الكردية', ku: 'کوردی');
+  String get languageKurdish => _t(en: 'Kurdish', ar: 'الكردية', ku: 'کوردی');
   String propertyWrittenIn(String languageName) => _t(
     en: 'Property information is in $languageName',
     ar: 'معلومات العقار مكتوبة بـ$languageName',
@@ -1352,8 +1488,7 @@ class AppLocalizations {
     ar: 'جاري ترجمة معلومات العقار...',
     ku: 'زانیاری خانووبەرە وەردەگێڕدرێت...',
   );
-  String get originalContent =>
-      _t(en: 'Original', ar: 'الأصل', ku: 'ڕەسەن');
+  String get originalContent => _t(en: 'Original', ar: 'الأصل', ku: 'ڕەسەن');
   String get translatedContent =>
       _t(en: 'Translated', ar: 'المترجم', ku: 'وەرگێڕدراو');
   String get aiGeneratedTranslation => _t(
@@ -1428,10 +1563,8 @@ class AppLocalizations {
   String get roleSeller => _t(en: 'Seller', ar: 'البائع', ku: 'فرۆشیار');
   String get txCurrentStep =>
       _t(en: 'Current step', ar: 'المرحلة الحالية', ku: 'هەنگاوی ئێستا');
-  String get txProgress =>
-      _t(en: 'Progress', ar: 'التقدم', ku: 'پێشکەوتن');
-  String get txAuditTimeline =>
-      _t(en: 'Activity', ar: 'النشاط', ku: 'چالاکی');
+  String get txProgress => _t(en: 'Progress', ar: 'التقدم', ku: 'پێشکەوتن');
+  String get txAuditTimeline => _t(en: 'Activity', ar: 'النشاط', ku: 'چالاکی');
   String get txNoAuditYet => _t(
     en: 'No activity recorded yet',
     ar: 'لا يوجد نشاط مسجل بعد',
@@ -1451,8 +1584,7 @@ class AppLocalizations {
       _t(en: 'Identity', ar: 'التحقق من الهوية', ku: 'ناسنامە');
   String get stepDocuments =>
       _t(en: 'Documents', ar: 'المستمسكات', ku: 'بەڵگەنامەکان');
-  String get stepContract =>
-      _t(en: 'Contract', ar: 'عقد البيع', ku: 'گرێبەست');
+  String get stepContract => _t(en: 'Contract', ar: 'عقد البيع', ku: 'گرێبەست');
   String get stepEscrow =>
       _t(en: 'Escrow deposit', ar: 'الإيداع الضماني', ku: 'پارەدانەی دڵنیایی');
   String get stepDeed =>
@@ -1474,11 +1606,8 @@ class AppLocalizations {
     ar: 'اكتملت العملية بنجاح',
     ku: 'مامەڵە بە سەرکەوتوویی تەواو بوو',
   );
-  String get companyLawyerLabel => _t(
-    en: 'Company Lawyer',
-    ar: 'محامي الشركة',
-    ku: 'پارێزەری کۆمپانیا',
-  );
+  String get companyLawyerLabel =>
+      _t(en: 'Company Lawyer', ar: 'محامي الشركة', ku: 'پارێزەری کۆمپانیا');
 
   // ─── Office Portal ────────────────────────────────────────────────────────
   String get partnerEntryPrompt => _t(
@@ -1490,23 +1619,30 @@ class AppLocalizations {
       _t(en: 'Office login', ar: 'دخول المكاتب', ku: 'چوونەژوورەوەی ئۆفیس');
   String get employeeEntryCta =>
       _t(en: 'Staff login', ar: 'دخول الموظفين', ku: 'چوونەژوورەوەی کارمەند');
+  String get officeWelcome => _t(
+    en: 'Welcome to Madar Offices',
+    ar: 'أهلاً بك في مكاتب مدار',
+    ku: 'بەخێربێیت بۆ ئۆفیسەکانی مەدار',
+  );
   String get officeLoginTitle =>
-      _t(en: 'Office Login', ar: 'دخول المكتب', ku: 'چوونەژوورەوەی ئۆفیس');
+      _t(en: 'Office login', ar: 'تسجيل المكتب', ku: 'چوونەژوورەوەی ئۆفیس');
   String get officeLoginSubtitle => _t(
-    en: 'Sign in with your office credentials. This is not the user phone login.',
-    ar: 'سجّل الدخول ببيانات المكتب. هذا ليس تسجيل دخول المستخدم برقم الهاتف.',
-    ku: 'بە ناسنامەی ئۆفیس بچۆ ژوورەوە. ئەمە چوونەژوورەوەی ژمارەی تەلەفۆنی بەکارهێنەر نییە.',
+    en: 'Sign in with your office code and secret to manage listings.',
+    ar: 'سجّل الدخول برمز المكتب والرمز السري لإدارة العقارات.',
+    ku: 'بە کۆدی ئۆفیس و نهێنی بچۆ ژوورەوە بۆ بەڕێوەبردنی لیستەکان.',
   );
   String get officeCodeLabel =>
       _t(en: 'Office Code', ar: 'رمز المكتب', ku: 'کۆدی ئۆفیس');
   String get officeCodeHint =>
       _t(en: 'e.g. NHR-001', ar: 'مثال: NHR-001', ku: 'نموونە: NHR-001');
   String get officeSecretLabel =>
-      _t(en: 'Secret Code', ar: 'الرمز السري', ku: 'کۆدی نهێنی');
-  String get officeSecretHint =>
-      _t(en: 'Enter secret code', ar: 'أدخل الرمز السري', ku: 'کۆدی نهێنی بنووسە');
-  String get officeSignIn =>
-      _t(en: 'Sign in', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
+      _t(en: 'Password', ar: 'الرمز السري', ku: 'وشەی نهێنی');
+  String get officeSecretHint => _t(
+    en: 'Enter secret code',
+    ar: 'أدخل الرمز السري',
+    ku: 'کۆدی نهێنی بنووسە',
+  );
+  String get officeSignIn => _t(en: 'Enter', ar: 'دخول', ku: 'چوونەژوورەوە');
   String get officeForgotCredentials => _t(
     en: 'Forgot credentials?',
     ar: 'نسيت بيانات الدخول؟',
@@ -1554,21 +1690,38 @@ class AppLocalizations {
       _t(en: 'Properties', ar: 'العقارات', ku: 'موڵکەکان');
   String get officeNavTransactions =>
       _t(en: 'Deals', ar: 'العمليات', ku: 'مامەڵەکان');
-  String get officeNavLeads =>
-      _t(en: 'Leads', ar: 'الفرص', ku: 'دەرفەتەکان');
+  String get officeNavLeads => _t(en: 'Leads', ar: 'الفرص', ku: 'دەرفەتەکان');
   String get officeNavConversations =>
       _t(en: 'Chats', ar: 'المحادثات', ku: 'گفتوگۆکان');
   String get officeNavMore => _t(en: 'More', ar: 'المزيد', ku: 'زیاتر');
   String get officeSearchHint => _t(
-    en: 'Search property, location, type…',
-    ar: 'ابحث عن عقار، موقع، نوع…',
-    ku: 'گەڕان بۆ موڵک، شوێن، جۆر…',
+    en: 'Search by area, price, schools, features…',
+    ar: 'ابحث بالمنطقة أو السعر أو المدارس أو المواصفات…',
+    ku: 'گەڕان بە ناوچە، نرخ، قوتابخانە، تایبەتمەندی…',
   );
+  String get officeAiAssistantTitle => _t(
+    en: 'Madar AI for Offices',
+    ar: 'مدار AI للمكاتب',
+    ku: 'مەدار AI بۆ ئۆفیسەکان',
+  );
+  String get officeAiSearchHint => _t(
+    en: 'Describe the client need (budget, district, schools…)',
+    ar: 'صف احتياج العميل (ميزانية، حي، مدارس…)',
+    ku: 'پێداویستی کڕیار بنووسە (بودجە، ناوچە، قوتابخانە…)',
+  );
+  String get officeAiPinnedSubtitle => _t(
+    en: 'Faster inventory search with suggestion cards',
+    ar: 'بحث أسرع في المخزون مع بطاقات اقتراح',
+    ku: 'گەڕانی خێراتر لە کۆگا لەگەڵ کارتی پێشنیار',
+  );
+  String get officeShowOnMap =>
+      _t(en: 'Show on map', ar: 'عرض على الخريطة', ku: 'پیشاندان لەسەر نەخشە');
+  String get officeAiFabLabel =>
+      _t(en: 'AI search', ar: 'بحث ذكي', ku: 'گەڕانی زیر');
   String get officeFilterAll => _t(en: 'All', ar: 'الكل', ku: 'هەموو');
   String get officeFilterSale => _t(en: 'Sale', ar: 'بيع', ku: 'فرۆشتن');
   String get officeFilterRent => _t(en: 'Rent', ar: 'إيجار', ku: 'کرێ');
-  String get officeFilterMortgage =>
-      _t(en: 'Mortgage', ar: 'رهن', ku: 'ڕەهن');
+  String get officeFilterMortgage => _t(en: 'Mortgage', ar: 'رهن', ku: 'ڕەهن');
   String get officeSalesThisMonth => _t(
     en: 'Sales this month',
     ar: 'مبيعات هذا الشهر',
@@ -1623,10 +1776,16 @@ class AppLocalizations {
       _t(en: 'Property reports', ar: 'بلاغات العقارات', ku: 'ڕاپۆرتی موڵک');
   String get officeBuyerLead =>
       _t(en: 'Buyer lead', ar: 'فرصة مشتري', ku: 'دەرفەتی کڕیار');
-  String get officeNoLeads =>
-      _t(en: 'No buyer leads yet.', ar: 'لا توجد فرص مشترين بعد.', ku: 'هێشتا دەرفەتی کڕیار نییە.');
-  String get officeNoReports =>
-      _t(en: 'No property reports yet.', ar: 'لا توجد بلاغات بعد.', ku: 'هێشتا ڕاپۆرت نییە.');
+  String get officeNoLeads => _t(
+    en: 'No buyer leads yet.',
+    ar: 'لا توجد فرص مشترين بعد.',
+    ku: 'هێشتا دەرفەتی کڕیار نییە.',
+  );
+  String get officeNoReports => _t(
+    en: 'No property reports yet.',
+    ar: 'لا توجد بلاغات بعد.',
+    ku: 'هێشتا ڕاپۆرت نییە.',
+  );
   String get officeLeadNew => _t(en: 'New', ar: 'جديد', ku: 'نوێ');
   String get officeLeadContacting =>
       _t(en: 'Contacting', ar: 'جارٍ التواصل', ku: 'پەیوەندیکردن');
@@ -1669,11 +1828,8 @@ class AppLocalizations {
   String get officeMessageHint =>
       _t(en: 'Write a message…', ar: 'اكتب رسالة…', ku: 'نامە بنووسە…');
   String get officeRead => _t(en: 'Read', ar: 'مقروء', ku: 'خوێندراوەتەوە');
-  String get officeCreateTransaction => _t(
-    en: 'Create transaction',
-    ar: 'إنشاء عملية',
-    ku: 'دروستکردنی مامەڵە',
-  );
+  String get officeCreateTransaction =>
+      _t(en: 'Create transaction', ar: 'إنشاء عملية', ku: 'دروستکردنی مامەڵە');
   String get officeNoTransactions => _t(
     en: 'No office transactions yet.',
     ar: 'لا توجد عمليات للمكتب بعد.',
@@ -1689,11 +1845,8 @@ class AppLocalizations {
       _t(en: 'Buyer phone', ar: 'هاتف المشتري', ku: 'تەلەفۆنی کڕیار');
   String get officeTransactionValue =>
       _t(en: 'Transaction value', ar: 'قيمة العملية', ku: 'بەهای مامەڵە');
-  String get officeGenerateBarcode => _t(
-    en: 'Generate barcode',
-    ar: 'إنشاء الباركود',
-    ku: 'دروستکردنی بارکۆد',
-  );
+  String get officeGenerateBarcode =>
+      _t(en: 'Generate barcode', ar: 'إنشاء الباركود', ku: 'دروستکردنی بارکۆد');
   String get officeTransactionNumber =>
       _t(en: 'Transaction', ar: 'رقم العملية', ku: 'ژمارەی مامەڵە');
   String get officeBarcodesDelivered => _t(
@@ -1719,8 +1872,7 @@ class AppLocalizations {
     ar: 'المسؤولية الحالية',
     ku: 'بەرپرسیاری ئێستا',
   );
-  String get officeProgress =>
-      _t(en: 'Progress', ar: 'التقدم', ku: 'پێشکەوتن');
+  String get officeProgress => _t(en: 'Progress', ar: 'التقدم', ku: 'پێشکەوتن');
   String get officeMonitorReadOnlyNote => _t(
     en: 'Monitoring only. Lawyer, finance, and bank stages cannot be changed by the office.',
     ar: 'مراقبة فقط. لا يمكن للمكتب تعديل مراحل المحامي أو المالية أو المصرف.',
@@ -1748,8 +1900,7 @@ class AppLocalizations {
       _t(en: 'Property type', ar: 'نوع العقار', ku: 'جۆری موڵک');
   String get officeListingType =>
       _t(en: 'Sale / Rent', ar: 'بيع / إيجار', ku: 'فرۆشتن / کرێ');
-  String get officeLocation =>
-      _t(en: 'Location', ar: 'الموقع', ku: 'شوێن');
+  String get officeLocation => _t(en: 'Location', ar: 'الموقع', ku: 'شوێن');
   String get officeOwnerPhone =>
       _t(en: 'Phone number', ar: 'رقم الهاتف', ku: 'ژمارەی تەلەفۆن');
   String get officeEstimatedPrice =>
@@ -1784,8 +1935,11 @@ class AppLocalizations {
   );
   String get officePerfProperties =>
       _t(en: 'Properties added', ar: 'عقارات مضافة', ku: 'موڵکی زیادکراو');
-  String get officePerfBuyers =>
-      _t(en: 'Buyers referred', ar: 'مشترون أحضرهم المكتب', ku: 'کڕیاری هێنراو');
+  String get officePerfBuyers => _t(
+    en: 'Buyers referred',
+    ar: 'مشترون أحضرهم المكتب',
+    ku: 'کڕیاری هێنراو',
+  );
   String get officePerfTransactions =>
       _t(en: 'Transactions', ar: 'العمليات', ku: 'مامەڵەکان');
   String get officePerfCompletion =>
@@ -1796,17 +1950,12 @@ class AppLocalizations {
       _t(en: 'Reports / leads', ar: 'بلاغات / فرص', ku: 'ڕاپۆرت / دەرفەت');
   String get officeName =>
       _t(en: 'Office name', ar: 'اسم المكتب', ku: 'ناوی ئۆفیس');
-  String get officeAddress =>
-      _t(en: 'Address', ar: 'العنوان', ku: 'ناونیشان');
+  String get officeAddress => _t(en: 'Address', ar: 'العنوان', ku: 'ناونیشان');
   String get officePhone => _t(en: 'Phone', ar: 'الهاتف', ku: 'تەلەفۆن');
-  String get officeManager =>
-      _t(en: 'Manager', ar: 'المدير', ku: 'بەڕێوەبەر');
-  String get officeLicense =>
-      _t(en: 'License', ar: 'الرخصة', ku: 'مۆڵەت');
-  String get officeCountry =>
-      _t(en: 'Country', ar: 'الدولة', ku: 'وڵات');
-  String get officeCurrency =>
-      _t(en: 'Currency', ar: 'العملة', ku: 'دراو');
+  String get officeManager => _t(en: 'Manager', ar: 'المدير', ku: 'بەڕێوەبەر');
+  String get officeLicense => _t(en: 'License', ar: 'الرخصة', ku: 'مۆڵەت');
+  String get officeCountry => _t(en: 'Country', ar: 'الدولة', ku: 'وڵات');
+  String get officeCurrency => _t(en: 'Currency', ar: 'العملة', ku: 'دراو');
   String get officeJoined =>
       _t(en: 'Joined', ar: 'تاريخ الانضمام', ku: 'بەرواری بەشداری');
   String get officeProfileReadOnlyNote => _t(
@@ -1819,8 +1968,11 @@ class AppLocalizations {
     ar: 'لا مستندات مشاركة بعد.',
     ku: 'هێشتا بەڵگەنامە هاوبەش نەکراوە.',
   );
-  String get officeOpenTicket =>
-      _t(en: 'Open a support ticket', ar: 'فتح طلب دعم', ku: 'کردنەوەی داوای پشتگیری');
+  String get officeOpenTicket => _t(
+    en: 'Open a support ticket',
+    ar: 'فتح طلب دعم',
+    ku: 'کردنەوەی داوای پشتگیری',
+  );
   String get officeTicketSubject =>
       _t(en: 'Subject', ar: 'الموضوع', ku: 'بابەت');
   String get officeTicketBody =>
@@ -1829,31 +1981,40 @@ class AppLocalizations {
       _t(en: 'Submit ticket', ar: 'إرسال الطلب', ku: 'ناردنی داوا');
   String get officeYourTickets =>
       _t(en: 'Your tickets', ar: 'طلباتك', ku: 'داواکانت');
-  String get officeNoTickets =>
-      _t(en: 'No support tickets yet.', ar: 'لا طلبات دعم بعد.', ku: 'هێشتا داوای پشتگیری نییە.');
-
+  String get officeNoTickets => _t(
+    en: 'No support tickets yet.',
+    ar: 'لا طلبات دعم بعد.',
+    ku: 'هێشتا داوای پشتگیری نییە.',
+  );
 
   // ─── Employee Portal ──────────────────────────────────────────────────────
+  String get empWelcome => _t(
+    en: 'Welcome to Madar Staff',
+    ar: 'أهلاً بك في بوابة الموظفين',
+    ku: 'بەخێربێیت بۆ دەروازەی کارمەندان',
+  );
   String get empLoginTitle =>
-      _t(en: 'Employee Login', ar: 'دخول الموظفين', ku: 'چوونەژوورەوەی کارمەند');
+      _t(en: 'Employee login', ar: 'تسجيل الموظف', ku: 'چوونەژوورەوەی کارمەند');
   String get empLoginSubtitle => _t(
-    en: 'Internal Madar operations access. Use your Employee ID and secret code.',
-    ar: 'دخول تشغيلي داخلي لمدار. استخدم رقم الموظف والرمز السري.',
-    ku: 'دەستگەیشتنی ناوخۆیی مەدار. ناسنامەی کارمەند و کۆدی نهێنی بەکاربهێنە.',
+    en: 'Use your employee ID and secret code to continue.',
+    ar: 'استخدم رقم الموظف والرمز السري للمتابعة.',
+    ku: 'ناسنامەی کارمەند و کۆدی نهێنی بەکاربهێنە بۆ بەردەوامبوون.',
   );
   String get empIdLabel =>
-      _t(en: 'Employee ID', ar: 'رقم الموظف', ku: 'ناسنامەی کارمەند');
+      _t(en: 'Job code', ar: 'الرمز الوظيفي', ku: 'کۆدی کار');
   String get empIdHint => _t(
     en: 'SYS-001 or phone 07…',
     ar: 'SYS-001 أو رقم الهاتف 07…',
     ku: 'SYS-001 یان ژمارەی مۆبایل 07…',
   );
   String get empSecretLabel =>
-      _t(en: 'Secret Code', ar: 'الرمز السري', ku: 'کۆدی نهێنی');
-  String get empSecretHint =>
-      _t(en: 'Enter secret code', ar: 'أدخل الرمز السري', ku: 'کۆدی نهێنی بنووسە');
-  String get empSignIn =>
-      _t(en: 'Sign in', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
+      _t(en: 'Password', ar: 'الرمز السري', ku: 'وشەی نهێنی');
+  String get empSecretHint => _t(
+    en: 'Enter secret code',
+    ar: 'أدخل الرمز السري',
+    ku: 'کۆدی نهێنی بنووسە',
+  );
+  String get empSignIn => _t(en: 'Enter', ar: 'دخول', ku: 'چوونەژوورەوە');
   String get empLoginInvalid => _t(
     en: 'Invalid Employee ID or secret.',
     ar: 'رقم الموظف أو الرمز السري غير صحيح.',
@@ -1871,24 +2032,20 @@ class AppLocalizations {
   );
   String get empNavHome => _t(en: 'Home', ar: 'الرئيسية', ku: 'سەرەکی');
   String get empNavWork => _t(en: 'Work', ar: 'العمل', ku: 'کار');
-  String get empNavMessages =>
-      _t(en: 'Messages', ar: 'الرسائل', ku: 'نامەکان');
+  String get empNavMessages => _t(en: 'Messages', ar: 'الرسائل', ku: 'نامەکان');
   String get empNavFinOps =>
       _t(en: 'Financial ops', ar: 'العمليات المالية', ku: 'کارە داراییەکان');
   String get empNavDeposits =>
       _t(en: 'Deposits', ar: 'الإيداعات', ku: 'پارەدانەکان');
-  String get empNavOffices =>
-      _t(en: 'Offices', ar: 'المكاتب', ku: 'ئۆفیسەکان');
+  String get empNavOffices => _t(en: 'Offices', ar: 'المكاتب', ku: 'ئۆفیسەکان');
   String get empNavCommissions =>
       _t(en: 'Commissions', ar: 'العمولات', ku: 'کۆمیسیۆن');
   String get empNavSettlements =>
       _t(en: 'Settlements', ar: 'التسويات', ku: 'یەکلاکردنەوە');
-  String get empNavAudit =>
-      _t(en: 'Audit', ar: 'سجل التدقيق', ku: 'وردبینی');
+  String get empNavAudit => _t(en: 'Audit', ar: 'سجل التدقيق', ku: 'وردبینی');
   String get empNavNotifications =>
       _t(en: 'Alerts', ar: 'التنبيهات', ku: 'ئاگاداری');
-  String get empNavProfile =>
-      _t(en: 'Profile', ar: 'الملف', ku: 'پرۆفایل');
+  String get empNavProfile => _t(en: 'Profile', ar: 'الملف', ku: 'پرۆفایل');
   String get empGoodMorning =>
       _t(en: 'Good morning', ar: 'صباح الخير', ku: 'بەیانی باش');
   String get empGoodAfternoon =>
@@ -1903,8 +2060,7 @@ class AppLocalizations {
       _t(en: "Today's work", ar: 'عمل اليوم', ku: 'کاری ئەمڕۆ');
   String get empOpenWork =>
       _t(en: 'Open Work', ar: 'افتح العمل', ku: 'کار بکەرەوە');
-  String get empWorkTitle =>
-      _t(en: 'Work', ar: 'مساحة العمل', ku: 'شوێنی کار');
+  String get empWorkTitle => _t(en: 'Work', ar: 'مساحة العمل', ku: 'شوێنی کار');
   String get empWorkSubtitle => _t(
     en: 'Only the queues for your role. Everything else stays out of the way.',
     ar: 'طوابير دورك فقط. باقي النظام بعيد عن الطريق.',
@@ -1942,8 +2098,7 @@ class AppLocalizations {
       _t(en: 'Reports', ar: 'البلاغات', ku: 'ڕاپۆرتەکان');
   String get empNavPhotography =>
       _t(en: 'Media', ar: 'التصوير', ku: 'وێنەگرتن');
-  String get empNavChats =>
-      _t(en: 'Chats', ar: 'المحادثات', ku: 'گفتوگۆ');
+  String get empNavChats => _t(en: 'Chats', ar: 'المحادثات', ku: 'گفتوگۆ');
   String get empFinanceControlCenter => _t(
     en: 'Financial Operations Control Center',
     ar: 'مركز التحكم بالعمليات المالية',
@@ -1955,141 +2110,322 @@ class AppLocalizations {
     ku: 'ژمارە ڕاستەوخۆ لە تۆماری مامەڵە — نەخەمڵاندن.',
   );
   String get empRangeToday => _t(en: 'Today', ar: 'اليوم', ku: 'ئەمڕۆ');
-  String get empRangeWeek => _t(en: 'This week', ar: 'هذا الأسبوع', ku: 'ئەم هەفتەیە');
-  String get empRangeMonth => _t(en: 'This month', ar: 'هذا الشهر', ku: 'ئەم مانگە');
-  String get empStatTodaysOps => _t(en: "Today's ops", ar: 'عمليات اليوم', ku: 'کارەکانی ئەمڕۆ');
-  String get empStatPendingDeposits => _t(en: 'Pending deposits', ar: 'إيداعات معلّقة', ku: 'پارەدانی چاوەڕوان');
-  String get empStatConfirmedDeposits => _t(en: 'Confirmed deposits', ar: 'إيداعات مؤكدة', ku: 'پارەدانی پشتڕاست');
+  String get empRangeWeek =>
+      _t(en: 'This week', ar: 'هذا الأسبوع', ku: 'ئەم هەفتەیە');
+  String get empRangeMonth =>
+      _t(en: 'This month', ar: 'هذا الشهر', ku: 'ئەم مانگە');
+  String get empStatTodaysOps =>
+      _t(en: "Today's ops", ar: 'عمليات اليوم', ku: 'کارەکانی ئەمڕۆ');
+  String get empStatPendingDeposits =>
+      _t(en: 'Pending deposits', ar: 'إيداعات معلّقة', ku: 'پارەدانی چاوەڕوان');
+  String get empStatConfirmedDeposits =>
+      _t(en: 'Confirmed deposits', ar: 'إيداعات مؤكدة', ku: 'پارەدانی پشتڕاست');
   String get empStatUnpaid => _t(en: 'Unpaid', ar: 'غير مدفوعة', ku: 'نەدراو');
   String get empStatOverdue => _t(en: 'Overdue', ar: 'متأخرة', ku: 'دواکەوتوو');
-  String get empStatAwaitingSettlement => _t(en: 'Awaiting settlement', ar: 'بانتظار التسوية', ku: 'چاوەڕوانی یەکلاکردنەوە');
-  String get empStatOfficeDue => _t(en: 'Office amounts due', ar: 'مستحقات المكاتب', ku: 'قەرزی ئۆفیس');
-  String get empStatRevenue => _t(en: 'Company revenue', ar: 'إيرادات الشركة', ku: 'داهاتی کۆمپانیا');
-  String get empStatPendingTransfers => _t(en: 'Pending transfers', ar: 'تحويلات معلّقة', ku: 'گواستنەوەی چاوەڕوان');
-  String get empOpenFinancialMonitor => _t(en: 'Open financial monitor', ar: 'فتح مراقبة العمليات المالية', ku: 'کردنەوەی چاودێری دارایی');
-  String get empSearchTransactions => _t(en: 'Search transaction #, phone…', ar: 'ابحث برقم العملية أو الهاتف…', ku: 'گەڕان بە ژمارە یان تەلەفۆن…');
-  String get empEmptyTransactions => _t(en: 'No transactions match.', ar: 'لا عمليات مطابقة.', ku: 'هیچ مامەڵەیەک نییە.');
-  String get empSalePrice => _t(en: 'Sale price', ar: 'سعر البيع', ku: 'نرخی فرۆشتن');
-  String get empRequiredDeposit => _t(en: 'Required deposit', ar: 'الإيداع المطلوب', ku: 'پارەدانی پێویست');
+  String get empStatAwaitingSettlement => _t(
+    en: 'Awaiting settlement',
+    ar: 'بانتظار التسوية',
+    ku: 'چاوەڕوانی یەکلاکردنەوە',
+  );
+  String get empStatOfficeDue =>
+      _t(en: 'Office amounts due', ar: 'مستحقات المكاتب', ku: 'قەرزی ئۆفیس');
+  String get empStatRevenue =>
+      _t(en: 'Company revenue', ar: 'إيرادات الشركة', ku: 'داهاتی کۆمپانیا');
+  String get empStatPendingTransfers => _t(
+    en: 'Pending transfers',
+    ar: 'تحويلات معلّقة',
+    ku: 'گواستنەوەی چاوەڕوان',
+  );
+  String get empOpenFinancialMonitor => _t(
+    en: 'Open financial monitor',
+    ar: 'فتح مراقبة العمليات المالية',
+    ku: 'کردنەوەی چاودێری دارایی',
+  );
+  String get empSearchTransactions => _t(
+    en: 'Search transaction #, phone…',
+    ar: 'ابحث برقم العملية أو الهاتف…',
+    ku: 'گەڕان بە ژمارە یان تەلەفۆن…',
+  );
+  String get empEmptyTransactions => _t(
+    en: 'No transactions match.',
+    ar: 'لا عمليات مطابقة.',
+    ku: 'هیچ مامەڵەیەک نییە.',
+  );
+  String get empSalePrice =>
+      _t(en: 'Sale price', ar: 'سعر البيع', ku: 'نرخی فرۆشتن');
+  String get empRequiredDeposit =>
+      _t(en: 'Required deposit', ar: 'الإيداع المطلوب', ku: 'پارەدانی پێویست');
   String get empDeposited => _t(en: 'Deposited', ar: 'المودع', ku: 'دراو');
   String get empStatus => _t(en: 'Status', ar: 'الحالة', ku: 'دۆخ');
-  String get empFinancialTimeline => _t(en: 'Financial timeline', ar: 'الجدول الزمني المالي', ku: 'کاتی دارایی');
-  String get empCompanyFees => _t(en: 'Company fees', ar: 'رسوم الشركة', ku: 'کرێی کۆمپانیا');
+  String get empFinancialTimeline => _t(
+    en: 'Financial timeline',
+    ar: 'الجدول الزمني المالي',
+    ku: 'کاتی دارایی',
+  );
+  String get empCompanyFees =>
+      _t(en: 'Company fees', ar: 'رسوم الشركة', ku: 'کرێی کۆمپانیا');
   String get empTaxes => _t(en: 'Taxes', ar: 'الضرائب', ku: 'باج');
-  String get empOfficeCommission => _t(en: 'Office commission', ar: 'عمولة المكتب', ku: 'کۆمیسیۆنی ئۆفیس');
-  String get empChangeReason => _t(en: 'Reason for change', ar: 'سبب التعديل', ku: 'هۆکاری گۆڕان');
-  String get empSaveFinancials => _t(en: 'Save (audited)', ar: 'حفظ (مع تدقيق)', ku: 'پاشەکەوت (وردبینی)');
-  String get empSendPaymentRequest => _t(en: 'Send payment request', ar: 'إرسال طلب دفع', ku: 'ناردنی داوای پارەدان');
-  String get empPaymentRequestSent => _t(en: 'Payment request sent.', ar: 'تم إرسال طلب الدفع.', ku: 'داوای پارەدان نێردرا.');
+  String get empOfficeCommission =>
+      _t(en: 'Office commission', ar: 'عمولة المكتب', ku: 'کۆمیسیۆنی ئۆفیس');
+  String get empChangeReason =>
+      _t(en: 'Reason for change', ar: 'سبب التعديل', ku: 'هۆکاری گۆڕان');
+  String get empSaveFinancials =>
+      _t(en: 'Save (audited)', ar: 'حفظ (مع تدقيق)', ku: 'پاشەکەوت (وردبینی)');
+  String get empSendPaymentRequest => _t(
+    en: 'Send payment request',
+    ar: 'إرسال طلب دفع',
+    ku: 'ناردنی داوای پارەدان',
+  );
+  String get empPaymentRequestSent => _t(
+    en: 'Payment request sent.',
+    ar: 'تم إرسال طلب الدفع.',
+    ku: 'داوای پارەدان نێردرا.',
+  );
   String get empSaved => _t(en: 'Saved.', ar: 'تم الحفظ.', ku: 'پاشەکەوتکرا.');
-  String get empActionFailed => _t(en: 'Action failed.', ar: 'فشل الإجراء.', ku: 'کردار سەرکەوتوو نەبوو.');
-  String get empForbidden => _t(en: 'Permission denied.', ar: 'لا تملك الصلاحية.', ku: 'مۆڵەت نییە.');
-  String get empCommissionRules => _t(en: 'Commission rules', ar: 'قواعد العمولة', ku: 'ڕێساکانی کۆمیسیۆن');
+  String get empActionFailed => _t(
+    en: 'Action failed.',
+    ar: 'فشل الإجراء.',
+    ku: 'کردار سەرکەوتوو نەبوو.',
+  );
+  String get empForbidden =>
+      _t(en: 'Permission denied.', ar: 'لا تملك الصلاحية.', ku: 'مۆڵەت نییە.');
+  String get empCommissionRules =>
+      _t(en: 'Commission rules', ar: 'قواعد العمولة', ku: 'ڕێساکانی کۆمیسیۆن');
   String get empCommissionRulesHint => _t(
     en: 'Configurable rules — not hard-coded shares.',
     ar: 'قواعد قابلة للتغيير — وليست نسباً ثابتة في الكود.',
     ku: 'ڕێسای گۆڕاو — نە ڕێژەی جێگیر لە کۆد.',
   );
-  String get empFeeEngine => _t(en: 'Fee engine', ar: 'محرك الرسوم', ku: 'مۆتۆری کرێ');
-  String get empEmptyRules => _t(en: 'No commission rules yet.', ar: 'لا قواعد عمولة بعد.', ku: 'هێشتا ڕێسا نییە.');
-  String get empEmptyFees => _t(en: 'No fee definitions yet.', ar: 'لا تعريفات رسوم بعد.', ku: 'هێشتا پێناسەی کرێ نییە.');
-  String get empEmptyOffices => _t(en: 'No offices found.', ar: 'لا مكاتب.', ku: 'ئۆفیس نییە.');
-  String get empEmptySettlements => _t(en: 'No settlements yet.', ar: 'لا تسويات بعد.', ku: 'هێشتا یەکلاکردنەوە نییە.');
-  String get empEmptyDeposits => _t(en: 'No pending deposits.', ar: 'لا إيداعات معلّقة.', ku: 'پارەدانی چاوەڕوان نییە.');
-  String get empTransactions => _t(en: 'Transactions', ar: 'العمليات', ku: 'مامەڵەکان');
+  String get empFeeEngine =>
+      _t(en: 'Fee engine', ar: 'محرك الرسوم', ku: 'مۆتۆری کرێ');
+  String get empEmptyRules => _t(
+    en: 'No commission rules yet.',
+    ar: 'لا قواعد عمولة بعد.',
+    ku: 'هێشتا ڕێسا نییە.',
+  );
+  String get empEmptyFees => _t(
+    en: 'No fee definitions yet.',
+    ar: 'لا تعريفات رسوم بعد.',
+    ku: 'هێشتا پێناسەی کرێ نییە.',
+  );
+  String get empEmptyOffices =>
+      _t(en: 'No offices found.', ar: 'لا مكاتب.', ku: 'ئۆفیس نییە.');
+  String get empEmptySettlements => _t(
+    en: 'No settlements yet.',
+    ar: 'لا تسويات بعد.',
+    ku: 'هێشتا یەکلاکردنەوە نییە.',
+  );
+  String get empEmptyDeposits => _t(
+    en: 'No pending deposits.',
+    ar: 'لا إيداعات معلّقة.',
+    ku: 'پارەدانی چاوەڕوان نییە.',
+  );
+  String get empTransactions =>
+      _t(en: 'Transactions', ar: 'العمليات', ku: 'مامەڵەکان');
   String get empAmountDue => _t(en: 'Amount due', ar: 'المستحق', ku: 'قەرز');
   String get empAmountPaid => _t(en: 'Amount paid', ar: 'المدفوع', ku: 'دراو');
-  String get empBankWorkspace => _t(en: 'Bank verification workspace', ar: 'مساحة عمل التحقق المصرفي', ku: 'شوێنی پشتڕاستکردنەوەی بانک');
+  String get empBankWorkspace => _t(
+    en: 'Bank verification workspace',
+    ar: 'مساحة عمل التحقق المصرفي',
+    ku: 'شوێنی پشتڕاستکردنەوەی بانک',
+  );
   String get empBankWorkspaceSubtitle => _t(
     en: 'Verify buyer identity and confirm deposits — no company finance edits.',
     ar: 'تحقق من هوية المشتري وتأكيد الإيداع — دون تعديل مالية الشركة.',
     ku: 'ناسنامەی کڕیار و پشتڕاستکردنی پارەدان — بەبێ دەستکاری دارایی کۆمپانیا.',
   );
-  String get empStatTodaysDeposits => _t(en: "Today's deposits", ar: 'إيداعات اليوم', ku: 'پارەدانی ئەمڕۆ');
-  String get empStatCompletedDeposits => _t(en: 'Completed deposits', ar: 'إيداعات مكتملة', ku: 'پارەدانی تەواو');
-  String get empStatAwaitingOtp => _t(en: 'Awaiting OTP', ar: 'بانتظار OTP', ku: 'چاوەڕوانی OTP');
-  String get empStatVerificationRequired => _t(en: 'Verification required', ar: 'يتطلب التحقق', ku: 'پشتڕاستکردنەوە پێویستە');
-  String get empOpenBankOperations => _t(en: 'Open operations', ar: 'فتح العمليات', ku: 'کردنەوەی کارەکان');
-  String get empBankSearchHint => _t(en: 'Transaction #, barcode, buyer phone…', ar: 'رقم العملية، باركود، هاتف المشتري…', ku: 'ژمارەی مامەڵە، بارکۆد، تەلەفۆنی کڕیار…');
+  String get empStatTodaysDeposits =>
+      _t(en: "Today's deposits", ar: 'إيداعات اليوم', ku: 'پارەدانی ئەمڕۆ');
+  String get empStatCompletedDeposits =>
+      _t(en: 'Completed deposits', ar: 'إيداعات مكتملة', ku: 'پارەدانی تەواو');
+  String get empStatAwaitingOtp =>
+      _t(en: 'Awaiting OTP', ar: 'بانتظار OTP', ku: 'چاوەڕوانی OTP');
+  String get empStatVerificationRequired => _t(
+    en: 'Verification required',
+    ar: 'يتطلب التحقق',
+    ku: 'پشتڕاستکردنەوە پێویستە',
+  );
+  String get empOpenBankOperations =>
+      _t(en: 'Open operations', ar: 'فتح العمليات', ku: 'کردنەوەی کارەکان');
+  String get empBankSearchHint => _t(
+    en: 'Transaction #, barcode, buyer phone…',
+    ar: 'رقم العملية، باركود، هاتف المشتري…',
+    ku: 'ژمارەی مامەڵە، بارکۆد، تەلەفۆنی کڕیار…',
+  );
   String get empBuyer => _t(en: 'Buyer', ar: 'المشتري', ku: 'کڕیار');
   String get empSeller => _t(en: 'Seller', ar: 'البائع', ku: 'فرۆشیار');
-  String get empVerifyBuyer => _t(en: 'Verify buyer', ar: 'تحقق من المشتري', ku: 'پشتڕاستکردنی کڕیار');
-  String get empSendOtp => _t(en: 'Send OTP', ar: 'إرسال OTP', ku: 'ناردنی OTP');
-  String get empOtpSent => _t(en: 'OTP sent', ar: 'تم إرسال OTP', ku: 'OTP نێردرا');
-  String get empEnterOtp => _t(en: 'Enter OTP', ar: 'أدخل OTP', ku: 'OTP بنووسە');
-  String get empConfirmOtp => _t(en: 'Confirm OTP', ar: 'تأكيد OTP', ku: 'پشتڕاستکردنی OTP');
-  String get empIdentityConfirmed => _t(en: 'Identity confirmed', ar: 'تم تأكيد الهوية', ku: 'ناسنامە پشتڕاستکرا');
-  String get empConfirmDeposit => _t(en: 'Confirm deposit', ar: 'تأكيد الإيداع', ku: 'پشتڕاستکردنی پارەدان');
-  String get empActualDeposited => _t(en: 'Actual deposited', ar: 'المبلغ المودع فعلياً', ku: 'بڕی دراو');
-  String get empReferenceNumber => _t(en: 'Reference number', ar: 'رقم المرجع', ku: 'ژمارەی سەرچاوە');
-  String get empDepositConfirmed => _t(en: 'Deposit confirmed', ar: 'تم تأكيد الإيداع', ku: 'پارەدان پشتڕاستکرا');
-  String get empVerifyBeforeDeposit => _t(en: 'Verify buyer before confirming deposit.', ar: 'تحقق من المشتري قبل تأكيد الإيداع.', ku: 'پێش پشتڕاستکردنی پارەدان کڕیار پشتڕاست بکە.');
-  String get empEmptyReceipts => _t(en: 'No deposit receipts yet.', ar: 'لا إيصالات إيداع بعد.', ku: 'هێشتا وەسڵ نییە.');
-  String get empDepositReceipt => _t(en: 'Deposit receipt', ar: 'إيصال إيداع', ku: 'وەسڵی پارەدان');
-  String get empOmWorkspace => _t(en: 'Office network control', ar: 'إدارة شبكة المكاتب', ku: 'بەڕێوەبردنی تۆڕی ئۆفیس');
+  String get empVerifyBuyer =>
+      _t(en: 'Verify buyer', ar: 'تحقق من المشتري', ku: 'پشتڕاستکردنی کڕیار');
+  String get empSendOtp =>
+      _t(en: 'Send OTP', ar: 'إرسال OTP', ku: 'ناردنی OTP');
+  String get empOtpSent =>
+      _t(en: 'OTP sent', ar: 'تم إرسال OTP', ku: 'OTP نێردرا');
+  String get empEnterOtp =>
+      _t(en: 'Enter OTP', ar: 'أدخل OTP', ku: 'OTP بنووسە');
+  String get empConfirmOtp =>
+      _t(en: 'Confirm OTP', ar: 'تأكيد OTP', ku: 'پشتڕاستکردنی OTP');
+  String get empIdentityConfirmed => _t(
+    en: 'Identity confirmed',
+    ar: 'تم تأكيد الهوية',
+    ku: 'ناسنامە پشتڕاستکرا',
+  );
+  String get empConfirmDeposit => _t(
+    en: 'Confirm deposit',
+    ar: 'تأكيد الإيداع',
+    ku: 'پشتڕاستکردنی پارەدان',
+  );
+  String get empActualDeposited =>
+      _t(en: 'Actual deposited', ar: 'المبلغ المودع فعلياً', ku: 'بڕی دراو');
+  String get empReferenceNumber =>
+      _t(en: 'Reference number', ar: 'رقم المرجع', ku: 'ژمارەی سەرچاوە');
+  String get empDepositConfirmed => _t(
+    en: 'Deposit confirmed',
+    ar: 'تم تأكيد الإيداع',
+    ku: 'پارەدان پشتڕاستکرا',
+  );
+  String get empVerifyBeforeDeposit => _t(
+    en: 'Verify buyer before confirming deposit.',
+    ar: 'تحقق من المشتري قبل تأكيد الإيداع.',
+    ku: 'پێش پشتڕاستکردنی پارەدان کڕیار پشتڕاست بکە.',
+  );
+  String get empEmptyReceipts => _t(
+    en: 'No deposit receipts yet.',
+    ar: 'لا إيصالات إيداع بعد.',
+    ku: 'هێشتا وەسڵ نییە.',
+  );
+  String get empDepositReceipt =>
+      _t(en: 'Deposit receipt', ar: 'إيصال إيداع', ku: 'وەسڵی پارەدان');
+  String get empOmWorkspace => _t(
+    en: 'Office network control',
+    ar: 'إدارة شبكة المكاتب',
+    ku: 'بەڕێوەبردنی تۆڕی ئۆفیس',
+  );
   String get empOmWorkspaceSubtitle => _t(
     en: 'Bridge between company, offices, properties, and referrals.',
     ar: 'حلقة الوصل بين الشركة والمكاتب والعقارات والإحالات.',
     ku: 'پەیوەندی نێوان کۆمپانیا، ئۆفیس، موڵک و ئاماژەکان.',
   );
-  String get empStatActiveOffices => _t(en: 'Active offices', ar: 'مكاتب نشطة', ku: 'ئۆفیسی چالاک');
-  String get empStatPendingOfficeRequests => _t(en: 'Pending requests', ar: 'طلبات معلّقة', ku: 'داوای چاوەڕوان');
-  String get empStatNewPropertyReports => _t(en: 'New property reports', ar: 'بلاغات عقارات جديدة', ku: 'ڕاپۆرتی موڵکی نوێ');
-  String get empStatAwaitingPhotography => _t(en: 'Awaiting photography', ar: 'بانتظار التصوير', ku: 'چاوەڕوانی وێنەگرتن');
-  String get empStatActiveOfficeTx => _t(en: 'Active office deals', ar: 'عمليات مكاتب نشطة', ku: 'مامەڵەی چالاکی ئۆفیس');
-  String get empManageOffices => _t(en: 'Manage offices', ar: 'إدارة المكاتب', ku: 'بەڕێوەبردنی ئۆفیسەکان');
-  String get empAddOffice => _t(en: 'Add office', ar: 'إضافة مكتب', ku: 'زیادکردنی ئۆفیس');
-  String get empActivateOffice => _t(en: 'Activate', ar: 'تفعيل', ku: 'چالاککردن');
+  String get empStatActiveOffices =>
+      _t(en: 'Active offices', ar: 'مكاتب نشطة', ku: 'ئۆفیسی چالاک');
+  String get empStatPendingOfficeRequests =>
+      _t(en: 'Pending requests', ar: 'طلبات معلّقة', ku: 'داوای چاوەڕوان');
+  String get empStatNewPropertyReports => _t(
+    en: 'New property reports',
+    ar: 'بلاغات عقارات جديدة',
+    ku: 'ڕاپۆرتی موڵکی نوێ',
+  );
+  String get empStatAwaitingPhotography => _t(
+    en: 'Awaiting photography',
+    ar: 'بانتظار التصوير',
+    ku: 'چاوەڕوانی وێنەگرتن',
+  );
+  String get empStatActiveOfficeTx => _t(
+    en: 'Active office deals',
+    ar: 'عمليات مكاتب نشطة',
+    ku: 'مامەڵەی چالاکی ئۆفیس',
+  );
+  String get empManageOffices => _t(
+    en: 'Manage offices',
+    ar: 'إدارة المكاتب',
+    ku: 'بەڕێوەبردنی ئۆفیسەکان',
+  );
+  String get empAddOffice =>
+      _t(en: 'Add office', ar: 'إضافة مكتب', ku: 'زیادکردنی ئۆفیس');
+  String get empActivateOffice =>
+      _t(en: 'Activate', ar: 'تفعيل', ku: 'چالاککردن');
   String get empSuspendOffice => _t(en: 'Suspend', ar: 'تعليق', ku: 'ڕاگرتن');
-  String get empResetSecret => _t(en: 'Reset secret', ar: 'إعادة تعيين الرمز', ku: 'نوێکردنەوەی نهێنی');
-  String get empSecretReset => _t(en: 'Secret reset', ar: 'تم إعادة التعيين', ku: 'نهێنی نوێکرایەوە');
-  String get empTemporarySecret => _t(en: 'Temporary secret', ar: 'الرمز المؤقت', ku: 'نهێنی کاتی');
+  String get empResetSecret =>
+      _t(en: 'Reset secret', ar: 'إعادة تعيين الرمز', ku: 'نوێکردنەوەی نهێنی');
+  String get empSecretReset =>
+      _t(en: 'Secret reset', ar: 'تم إعادة التعيين', ku: 'نهێنی نوێکرایەوە');
+  String get empTemporarySecret =>
+      _t(en: 'Temporary secret', ar: 'الرمز المؤقت', ku: 'نهێنی کاتی');
   String get empClose => _t(en: 'Close', ar: 'إغلاق', ku: 'داخستن');
-  String get empCreateOffice => _t(en: 'Create office', ar: 'إنشاء المكتب', ku: 'دروستکردنی ئۆفیس');
-  String get empOfficeCreated => _t(en: 'Office created', ar: 'تم إنشاء المكتب', ku: 'ئۆفیس دروستکرا');
-  String get empOfficeCode => _t(en: 'Office code', ar: 'رمز المكتب', ku: 'کۆدی ئۆفیس');
+  String get empCreateOffice =>
+      _t(en: 'Create office', ar: 'إنشاء المكتب', ku: 'دروستکردنی ئۆفیس');
+  String get empOfficeCreated =>
+      _t(en: 'Office created', ar: 'تم إنشاء المكتب', ku: 'ئۆفیس دروستکرا');
+  String get empOfficeCode =>
+      _t(en: 'Office code', ar: 'رمز المكتب', ku: 'کۆدی ئۆفیس');
   String get empOfficePendingNote => _t(
     en: 'Office cannot sign in until status is Active.',
     ar: 'لا يمكن للمكتب الدخول قبل أن تصبح حالته Active.',
     ku: 'ئۆفیس ناتوانێت بچێتە ژوورەوە تا دۆخی Active دەبێت.',
   );
-  String get empOfficeName => _t(en: 'Office name', ar: 'اسم المكتب', ku: 'ناوی ئۆفیس');
-  String get empOwnerName => _t(en: 'Owner full name', ar: 'اسم المالك الكامل', ku: 'ناوی تەواوی خاوەن');
-  String get empOwnerPhone => _t(en: 'Owner phone', ar: 'هاتف المالك', ku: 'تەلەفۆنی خاوەن');
-  String get empOfficePhone => _t(en: 'Office phone', ar: 'هاتف المكتب', ku: 'تەلەفۆنی ئۆفیس');
+  String get empOfficeName =>
+      _t(en: 'Office name', ar: 'اسم المكتب', ku: 'ناوی ئۆفیس');
+  String get empOwnerName => _t(
+    en: 'Owner full name',
+    ar: 'اسم المالك الكامل',
+    ku: 'ناوی تەواوی خاوەن',
+  );
+  String get empOwnerPhone =>
+      _t(en: 'Owner phone', ar: 'هاتف المالك', ku: 'تەلەفۆنی خاوەن');
+  String get empOfficePhone =>
+      _t(en: 'Office phone', ar: 'هاتف المكتب', ku: 'تەلەفۆنی ئۆفیس');
   String get empEmail => _t(en: 'Email', ar: 'البريد', ku: 'ئیمەیڵ');
   String get empCountry => _t(en: 'Country', ar: 'الدولة', ku: 'وڵات');
   String get empCity => _t(en: 'City', ar: 'المدينة', ku: 'شار');
   String get empRegion => _t(en: 'Region', ar: 'المنطقة', ku: 'ناوچە');
   String get empAddress => _t(en: 'Address', ar: 'العنوان', ku: 'ناونیشان');
-  String get empLicense => _t(en: 'License number', ar: 'رقم الرخصة', ku: 'ژمارەی مۆڵەت');
-  String get empPropertyReport => _t(en: 'Property report', ar: 'بلاغ عقار', ku: 'ڕاپۆرتی موڵک');
-  String get empRequestPhotography => _t(en: 'Request photography', ar: 'طلب تصوير', ku: 'داوای وێنەگرتن');
-  String get empPhotographyRequested => _t(en: 'Photography requested', ar: 'تم طلب التصوير', ku: 'داوای وێنەگرتن نێردرا');
-  String get empEmptyPhotography => _t(en: 'No photography requests.', ar: 'لا طلبات تصوير.', ku: 'داوای وێنەگرتن نییە.');
-  String get empEmptyChats => _t(en: 'No office conversations yet.', ar: 'لا محادثات مكاتب بعد.', ku: 'هێشتا گفتوگۆ نییە.');
-  String get empOfficeChat => _t(en: 'Office conversation', ar: 'محادثة مكتب', ku: 'گفتوگۆی ئۆفیس');
-  String get empFullName => _t(en: 'Full name', ar: 'الاسم الكامل', ku: 'ناوی تەواو');
-  String get empJobTitle => _t(en: 'Job title', ar: 'المسمى الوظيفي', ku: 'ناونیشانی کار');
+  String get empLicense =>
+      _t(en: 'License number', ar: 'رقم الرخصة', ku: 'ژمارەی مۆڵەت');
+  String get empPropertyReport =>
+      _t(en: 'Property report', ar: 'بلاغ عقار', ku: 'ڕاپۆرتی موڵک');
+  String get empRequestPhotography =>
+      _t(en: 'Request photography', ar: 'طلب تصوير', ku: 'داوای وێنەگرتن');
+  String get empPhotographyRequested => _t(
+    en: 'Photography requested',
+    ar: 'تم طلب التصوير',
+    ku: 'داوای وێنەگرتن نێردرا',
+  );
+  String get empEmptyPhotography => _t(
+    en: 'No photography requests.',
+    ar: 'لا طلبات تصوير.',
+    ku: 'داوای وێنەگرتن نییە.',
+  );
+  String get empEmptyChats => _t(
+    en: 'No office conversations yet.',
+    ar: 'لا محادثات مكاتب بعد.',
+    ku: 'هێشتا گفتوگۆ نییە.',
+  );
+  String get empOfficeChat =>
+      _t(en: 'Office conversation', ar: 'محادثة مكتب', ku: 'گفتوگۆی ئۆفیس');
+  String get empFullName =>
+      _t(en: 'Full name', ar: 'الاسم الكامل', ku: 'ناوی تەواو');
+  String get empJobTitle =>
+      _t(en: 'Job title', ar: 'المسمى الوظيفي', ku: 'ناونیشانی کار');
   String get empDepartment => _t(en: 'Department', ar: 'القسم', ku: 'بەش');
   String get empRole => _t(en: 'Role', ar: 'الدور', ku: 'ڕۆڵ');
   String get empBranch => _t(en: 'Branch', ar: 'الفرع', ku: 'لق');
-  String get empJoined => _t(en: 'Joined', ar: 'تاريخ الالتحاق', ku: 'بەرواری بەشداری');
-  String get empLastLogin => _t(en: 'Last login', ar: 'آخر دخول', ku: 'دوایین چوونەژوورەوە');
-  String get empPermissions => _t(en: 'Permissions', ar: 'الصلاحيات', ku: 'مۆڵەتەکان');
+  String get empJoined =>
+      _t(en: 'Joined', ar: 'تاريخ الالتحاق', ku: 'بەرواری بەشداری');
+  String get empLastLogin =>
+      _t(en: 'Last login', ar: 'آخر دخول', ku: 'دوایین چوونەژوورەوە');
+  String get empPermissions =>
+      _t(en: 'Permissions', ar: 'الصلاحيات', ku: 'مۆڵەتەکان');
   String get empProfileReadOnlyNote => _t(
     en: 'Employee ID, department, role, and permissions are managed by administration.',
     ar: 'رقم الموظف والقسم والدور والصلاحيات تُدار إدارياً ولا تُعدّل من هنا.',
     ku: 'ناسنامە، بەش، ڕۆڵ و مۆڵەت لەلایەن بەڕێوەبردنەوە بەڕێوەدەبرێن.',
   );
-  String get empSignOut => _t(en: 'Sign out', ar: 'تسجيل الخروج', ku: 'دەرچوون');
-  String get empEmptyNotifications => _t(en: 'No notifications yet.', ar: 'لا إشعارات بعد.', ku: 'هێشتا ئاگاداری نییە.');
+  String get empSignOut =>
+      _t(en: 'Sign out', ar: 'تسجيل الخروج', ku: 'دەرچوون');
+  String get empEmptyNotifications => _t(
+    en: 'No notifications yet.',
+    ar: 'لا إشعارات بعد.',
+    ku: 'هێشتا ئاگاداری نییە.',
+  );
   String get empGlobalSearchHint => _t(
     en: 'Search transactions, offices… (permission-scoped)',
     ar: 'ابحث عن عمليات أو مكاتب… (حسب الصلاحيات)',
     ku: 'گەڕان بۆ مامەڵە یان ئۆفیس… (بەپێی مۆڵەت)',
   );
-  String get empEmptyAudit => _t(en: 'No audit entries yet.', ar: 'لا سجلات تدقيق بعد.', ku: 'هێشتا تۆماری وردبینی نییە.');
+  String get empEmptyAudit => _t(
+    en: 'No audit entries yet.',
+    ar: 'لا سجلات تدقيق بعد.',
+    ku: 'هێشتا تۆماری وردبینی نییە.',
+  );
 
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({

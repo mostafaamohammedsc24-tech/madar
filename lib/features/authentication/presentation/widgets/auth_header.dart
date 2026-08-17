@@ -24,8 +24,11 @@ class AuthHeader extends StatelessWidget {
           const SizedBox(height: AuthSpacing.lg),
         ],
         Text(title, style: AuthTypography.display(context)),
-        const SizedBox(height: AuthSpacing.sm),
-        Text(subtitle, style: AuthTypography.body(context)),
+        const SizedBox(height: AuthSpacing.md),
+        Text(
+          subtitle,
+          style: AuthTypography.body(context).copyWith(color: AuthColors.muted),
+        ),
       ],
     );
   }

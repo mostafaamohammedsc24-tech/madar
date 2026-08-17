@@ -1,17 +1,37 @@
-import '../../../core/app_export.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
-// Enhanced search bar with autocomplete suggestions
+import '../../../core/app_export.dart';
+import '../../../core/localization/app_localizations.dart';
+
+/// One rich autocomplete row: text query, area, landmark, or property.
+class SearchSuggestionItem {
+  const SearchSuggestionItem({
+    required this.label,
+    this.kind = 'query',
+    this.payload,
+  });
+
+  final String label;
+
+  /// 'query' | 'area' | 'landmark' | 'property'
+  final String kind;
+  final Object? payload;
+}
+
+// Smart search bar with mixed suggestions (queries, areas, landmarks).
 class MapSearchBarWidget extends StatefulWidget {
   final VoidCallback onFilterTap;
-  final VoidCallback onVoiceSearch;
+  final VoidCallback? onVoiceSearch;
   final Function(String)? onSearch;
-  final List<String> suggestions;
+  final List<SearchSuggestionItem> suggestions;
+  final ValueChanged<SearchSuggestionItem>? onSuggestionTap;
 
   const MapSearchBarWidget({
     required this.onFilterTap,
-    required this.onVoiceSearch,
+    this.onVoiceSearch,
     this.onSearch,
     this.suggestions = const [],
+    this.onSuggestionTap,
     super.key,
   });
 
@@ -22,8 +42,11 @@ class MapSearchBarWidget extends StatefulWidget {
 class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final SpeechToText _speech = SpeechToText();
   bool _hasText = false;
   bool _showSuggestions = false;
+  bool _listening = false;
+  bool _speechReady = false;
 
   @override
   void initState() {
@@ -57,14 +80,92 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
 
   @override
   void dispose() {
+    _speech.stop();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
+  Future<void> _toggleVoice() async {
+    widget.onVoiceSearch?.call();
+    final loc = AppLocalizations.of(context);
+    if (_listening) {
+      await _speech.stop();
+      if (mounted) setState(() => _listening = false);
+      return;
+    }
+
+    try {
+      _speechReady = await _speech.initialize(
+        onStatus: (status) {
+          if (!mounted) return;
+          if (status == 'done' || status == 'notListening') {
+            setState(() => _listening = false);
+          }
+        },
+        onError: (_) {
+          if (mounted) setState(() => _listening = false);
+        },
+      );
+    } catch (_) {
+      _speechReady = false;
+    }
+
+    if (!_speechReady) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.voiceNotAvailable)),
+      );
+      return;
+    }
+
+    final localeId = switch (loc.language) {
+      AppLanguage.arabic => 'ar_IQ',
+      AppLanguage.kurdish => 'ckb_IQ',
+      AppLanguage.english => 'en_US',
+    };
+
+    setState(() => _listening = true);
+    await _speech.listen(
+      listenOptions: SpeechListenOptions(
+        listenFor: const Duration(seconds: 12),
+        pauseFor: const Duration(seconds: 3),
+        partialResults: true,
+        localeId: localeId,
+      ),
+      onResult: (result) {
+        if (!mounted) return;
+        _controller.value = TextEditingValue(
+          text: result.recognizedWords,
+          selection: TextSelection.collapsed(
+            offset: result.recognizedWords.length,
+          ),
+        );
+        widget.onSearch?.call(result.recognizedWords);
+        if (result.finalResult && mounted) {
+          setState(() => _listening = false);
+        }
+      },
+    );
+  }
+
+  String _iconFor(String kind) {
+    switch (kind) {
+      case 'area':
+        return 'location_city';
+      case 'landmark':
+        return 'place';
+      case 'property':
+        return 'home';
+      default:
+        return 'search';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -100,10 +201,12 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
                   controller: _controller,
                   focusNode: _focusNode,
                   decoration: InputDecoration(
-                    hintText: 'Search area, address, price, landmark...',
+                    hintText: _listening ? loc.voiceListening : loc.searchHint,
                     hintStyle: TextStyle(
                       fontSize: 13,
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: _listening
+                          ? AppTheme.primary
+                          : theme.colorScheme.onSurfaceVariant,
                     ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -141,12 +244,14 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
                 )
               else
                 GestureDetector(
-                  onTap: widget.onVoiceSearch,
+                  onTap: _toggleVoice,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: CustomIconWidget(
                       iconName: 'mic',
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: _listening
+                          ? AppTheme.primary
+                          : theme.colorScheme.onSurfaceVariant,
                       size: 20,
                     ),
                   ),
@@ -175,7 +280,6 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
             ],
           ),
         ),
-        // Autocomplete suggestions dropdown
         if (_showSuggestions)
           Container(
             margin: const EdgeInsets.only(top: 4),
@@ -193,14 +297,18 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: widget.suggestions
-                  .take(5)
+                  .take(6)
                   .map(
                     (s) => InkWell(
                       onTap: () {
-                        _controller.text = s;
-                        widget.onSearch?.call(s);
+                        _controller.text = s.label;
                         _focusNode.unfocus();
                         setState(() => _showSuggestions = false);
+                        if (widget.onSuggestionTap != null) {
+                          widget.onSuggestionTap!(s);
+                        } else {
+                          widget.onSearch?.call(s.label);
+                        }
                       },
                       borderRadius: BorderRadius.circular(16),
                       child: Padding(
@@ -211,14 +319,18 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
                         child: Row(
                           children: [
                             CustomIconWidget(
-                              iconName: 'search',
-                              color: AppTheme.primary.withAlpha(150),
+                              iconName: _iconFor(s.kind),
+                              color: s.kind == 'area'
+                                  ? AppTheme.primary
+                                  : s.kind == 'landmark'
+                                      ? const Color(0xFFF57C00)
+                                      : AppTheme.primary.withAlpha(150),
                               size: 16,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                s,
+                                s.label,
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: theme.colorScheme.onSurface,

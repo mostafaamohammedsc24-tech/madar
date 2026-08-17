@@ -39,7 +39,34 @@ class UserAuthNotifier extends ChangeNotifier {
 
   UserAuthState get state => _state;
 
+  bool get _isDemoUi => const bool.fromEnvironment(
+        'DEMO_ENTER_USER_UI',
+        defaultValue: false,
+      );
+
+  /// Local preview only: walk the real auth screens, then enter the user shell.
+  /// Enabled with `--dart-define=DEMO_ENTER_USER_UI=true`.
+  Future<void> enterDemoUserInterface() async {
+    if (!_isDemoUi) return;
+    _setState(
+      _state.copyWith(
+        status: UserAuthStatus.awaitingLocationPermission,
+        phoneNumber: '7901234567',
+        selectedCountry: authCountryByIso('IQ'),
+        selectedLanguage: AppLanguage.arabic,
+        selectedCurrencyCode: 'IQD',
+        isBusy: false,
+        clearMessage: true,
+      ),
+    );
+  }
+
   Future<void> initialize() async {
+    if (_isDemoUi) {
+      await enterDemoUserInterface();
+      return;
+    }
+
     _setState(_state.copyWith(status: UserAuthStatus.initializing, isBusy: true));
 
     _sessionSubscription ??= _repository.watchAuthSession().listen((_) {
@@ -59,10 +86,9 @@ class UserAuthNotifier extends ChangeNotifier {
     final draft = await _storage.loadPhoneDraft();
     final preAuthRegion = await _storage.loadPreAuthRegion();
     final regionComplete = await _storage.isPreAuthRegionComplete();
-    final locationHandled = await _storage.isPreAuthLocationHandled();
 
     var country = CountryRegistry.fallback;
-    var language = AppLanguage.english;
+    var language = AppLanguage.arabic;
     var currency = country.defaultCurrencyCode;
 
     if (regionComplete && preAuthRegion.countryIso != null) {
@@ -80,13 +106,14 @@ class UserAuthNotifier extends ChangeNotifier {
       selectedCurrencyCode: currency,
     );
 
+    final locationHandled = await _storage.isPreAuthLocationHandled();
     final UserAuthStatus nextStatus;
-    if (regionComplete) {
-      nextStatus = UserAuthStatus.unauthenticated;
-    } else if (locationHandled) {
-      nextStatus = UserAuthStatus.awaitingRegionSetup;
-    } else {
+    if (!locationHandled) {
       nextStatus = UserAuthStatus.awaitingLocationPermission;
+    } else if (regionComplete) {
+      nextStatus = UserAuthStatus.unauthenticated;
+    } else {
+      nextStatus = UserAuthStatus.awaitingRegionSetup;
     }
 
     _setState(
@@ -135,7 +162,20 @@ class UserAuthNotifier extends ChangeNotifier {
   }
 
   void selectCountry(AuthCountry country) {
-    _setState(_state.copyWith(selectedCountry: country, clearMessage: true));
+    const arabicIsos = {
+      'IQ', 'SA', 'AE', 'JO', 'KW', 'QA', 'BH', 'OM', 'EG', 'LB', 'SY', 'YE',
+      'LY', 'SD', 'MA', 'DZ', 'TN', 'PS',
+    };
+    _setState(
+      _state.copyWith(
+        selectedCountry: country,
+        selectedLanguage: arabicIsos.contains(country.isoCode)
+            ? AppLanguage.arabic
+            : _state.selectedLanguage,
+        selectedCurrencyCode: country.defaultCurrencyCode,
+        clearMessage: true,
+      ),
+    );
   }
 
   void selectLanguage(AppLanguage language) {
@@ -248,6 +288,18 @@ class UserAuthNotifier extends ChangeNotifier {
         countryCode: _state.selectedCountry.dialCode,
       );
 
+      if (_isDemoUi) {
+        _startResendCountdown();
+        _setState(
+          _state.copyWith(
+            status: UserAuthStatus.awaitingOtpVerification,
+            isBusy: false,
+            clearMessage: true,
+          ),
+        );
+        return;
+      }
+
       await _repository.sendPhoneOtp(_state.fullPhoneNumber);
 
       MixpanelService.instance.trackOtpSent(
@@ -286,6 +338,20 @@ class UserAuthNotifier extends ChangeNotifier {
     _setState(_state.copyWith(isBusy: true, clearMessage: true));
 
     try {
+      if (_isDemoUi) {
+        const userId = 'demo-user-local';
+        _stopResendCountdown();
+        _setState(
+          _state.copyWith(
+            status: UserAuthStatus.awaitingFaceVerification,
+            userId: userId,
+            isBusy: false,
+            clearMessage: true,
+          ),
+        );
+        return;
+      }
+
       final userId = await _repository.verifyPhoneOtp(
         fullPhoneNumber: _state.fullPhoneNumber,
         otp: otp,

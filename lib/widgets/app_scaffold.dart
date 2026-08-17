@@ -14,6 +14,7 @@ class AppScaffold extends StatelessWidget {
 
     return Scaffold(
       extendBody: false,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Screen content with bottom padding so it doesn't go behind nav bar

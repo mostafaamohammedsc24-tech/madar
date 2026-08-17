@@ -33,8 +33,8 @@ class UserAuthState {
     this.userId,
     this.locationStatus = LocationPermissionStatus.notRequested,
     this.faceVerificationStatus = FaceVerificationStatus.none,
-    this.selectedLanguage = AppLanguage.english,
-    this.selectedCurrencyCode = 'USD',
+    this.selectedLanguage = AppLanguage.arabic,
+    this.selectedCurrencyCode = 'IQD',
     this.detectedLatitude,
     this.detectedLongitude,
   }) : selectedCountry = selectedCountry ?? CountryRegistry.fallback;

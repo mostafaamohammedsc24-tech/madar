@@ -38,6 +38,14 @@ void main() async {
     employeeAuthNotifier.initialize(),
   ]);
 
+  const demoEnterUserUi = bool.fromEnvironment(
+    'DEMO_ENTER_USER_UI',
+    defaultValue: false,
+  );
+  if (demoEnterUserUi) {
+    await userAuthNotifier.enterDemoUserInterface();
+  }
+
   bool hasShownError = false;
 
   // 🚨 CRITICAL: Custom error handling - DO NOT REMOVE

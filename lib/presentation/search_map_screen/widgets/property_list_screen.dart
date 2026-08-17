@@ -1,6 +1,7 @@
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../search_map_screen.dart';
+import 'property_card_copy.dart';
 
 /// Full-screen property list that slides up from the map bottom sheet.
 /// Shows sections: Suggested, Featured, Most Popular, Recently Added.
@@ -9,12 +10,14 @@ class PropertyListScreen extends StatefulWidget {
   final String activeFilter;
   final VoidCallback onClose;
   final Function(PropertyData) onPropertyTap;
+  final bool showCloseButton;
 
   const PropertyListScreen({
     required this.properties,
     required this.activeFilter,
     required this.onClose,
     required this.onPropertyTap,
+    this.showCloseButton = true,
     super.key,
   });
 
@@ -114,26 +117,28 @@ class _PropertyListScreenState extends State<PropertyListScreen>
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                       child: Row(
                         children: [
-                          GestureDetector(
-                            onTap: _close,
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color:
-                                    theme.colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Center(
-                                child: CustomIconWidget(
-                                  iconName: 'keyboard_arrow_down',
-                                  color: theme.colorScheme.onSurface,
-                                  size: 22,
+                          if (widget.showCloseButton) ...[
+                            GestureDetector(
+                              onTap: _close,
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color:
+                                      theme.colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: CustomIconWidget(
+                                    iconName: 'keyboard_arrow_down',
+                                    color: theme.colorScheme.onSurface,
+                                    size: 22,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
+                            const SizedBox(width: 12),
+                          ],
                           Expanded(
                             child: Text(
                               '${_filtered.length} ${loc.propertiesFound}',
@@ -550,7 +555,7 @@ class _LargePropertyCardState extends State<_LargePropertyCard> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      p.listingTypeLabel,
+                      PropertyCardCopy.listing(context, p),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
@@ -601,7 +606,7 @@ class _LargePropertyCardState extends State<_LargePropertyCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      p.title,
+                      PropertyCardCopy.title(context, p),
                       style: theme.textTheme.labelLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         height: 1.2,
@@ -643,7 +648,7 @@ class _LargePropertyCardState extends State<_LargePropertyCard> {
                       ],
                     ),
                     Text(
-                      p.formattedPrice,
+                    PropertyCardCopy.price(context, p),
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,

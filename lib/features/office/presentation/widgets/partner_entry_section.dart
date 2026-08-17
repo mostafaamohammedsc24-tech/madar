@@ -2,78 +2,74 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../widgets/madar_drag_handle.dart';
 import '../../../authentication/presentation/theme/auth_theme.dart';
 
-/// Elegant partner / staff entry below user phone login — not a cluttered bolt-on.
+/// Lighter blue partner entry that sits outside the white login card.
 class PartnerEntrySection extends StatelessWidget {
   const PartnerEntrySection({super.key});
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: AuthSpacing.xxl),
-        Row(
-          children: [
-            Expanded(child: Divider(color: theme.colorScheme.outlineVariant)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AuthSpacing.md),
-              child: Text(
-                loc.partnerEntryPrompt,
-                style: AuthTypography.caption(context),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Expanded(child: Divider(color: theme.colorScheme.outlineVariant)),
-          ],
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: FilledButton(
+        onPressed: () => _openChooser(context),
+        style: FilledButton.styleFrom(
+          backgroundColor: AuthColors.canvasSoft,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
-        const SizedBox(height: AuthSpacing.lg),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => context.push('/office-login'),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                  side: BorderSide(color: theme.colorScheme.outline),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                  ),
-                ),
-                child: Text(
-                  loc.officeEntryCta,
-                  style: AuthTypography.button(context).copyWith(
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: AuthSpacing.md),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => context.push('/employee-login'),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                  side: BorderSide(color: theme.colorScheme.outline),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                  ),
-                ),
-                child: Text(
-                  loc.employeeEntryCta,
-                  style: AuthTypography.button(context).copyWith(
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ),
-          ],
+        child: Text(
+          loc.staffOfficeEntry,
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
         ),
-      ],
+      ),
+    );
+  }
+
+  void _openChooser(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const MadarDragHandle(),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.apartment_outlined),
+                title: Text(loc.officeLoginTitle),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push('/office-login');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.badge_outlined),
+                title: Text(loc.empLoginTitle),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push('/employee-login');
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

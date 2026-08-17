@@ -9,8 +9,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/app_export.dart';
 import '../../core/localization/app_localizations.dart';
-import '../../core/services/ai_client.dart';
+import '../../services/property_ai_service.dart';
+import '../../services/property_catalog_demo.dart';
 import '../../services/supabase_service.dart';
+import '../search_map_screen/models/property_data.dart';
+import '../search_map_screen/widgets/ai_property_suggestion_card.dart';
+import '../search_map_screen/widgets/property_detail_sheet_widget.dart';
 
 // Messages Screen — 5 pinned conversations + AI chat + image/location sharing
 
@@ -31,12 +35,8 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
   bool _isLoadingMessages = false;
   RealtimeChannel? _messageChannel;
   bool _isSendingMedia = false;
-
-  static const _aiConfig = ChatConfig(
-    provider: 'GEMINI',
-    model: 'gemini/gemini-2.5-flash',
-    streaming: true,
-  );
+  final PropertyAiService _propertyAi = PropertyAiService();
+  List<PropertyData> _aiCatalog = [];
 
   // Conversation definitions — icons only, no emojis
   static const List<Map<String, dynamic>> _conversationDefs = [
@@ -128,7 +128,23 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
   @override
   void initState() {
     super.initState();
+    _loadAiCatalog();
     _loadMessages();
+  }
+
+  Future<void> _loadAiCatalog() async {
+    try {
+      final data = await SupabaseService.instance.getProperties(limit: 40);
+      if (data.isNotEmpty) {
+        _aiCatalog = data
+            .map(PropertyData.fromSupabase)
+            .where((p) => p.lat != 0 && p.lng != 0)
+            .toList();
+      }
+    } catch (_) {}
+    if (_aiCatalog.isEmpty) {
+      _aiCatalog = PropertyCatalogDemo.listings();
+    }
   }
 
   @override
@@ -231,20 +247,18 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
     _aiHistory.add({'role': 'user', 'content': text});
 
     try {
-      final aiClient = AiClient();
-      const systemPrompt =
-          'You are Madar AI Assistant for a real estate platform. Help users search for properties, understand prices, and guide them through buying, selling, and renting processes in Iraq, Saudi Arabia, and UAE. Respond in the same language the user writes in. Be helpful and professional.';
-
-      final response = await aiClient.chatCompletion(
-        config: _aiConfig,
-        messages: [
-          {'role': 'system', 'content': systemPrompt},
-          ..._aiHistory,
-        ],
+      if (_aiCatalog.isEmpty) await _loadAiCatalog();
+      final result = await _propertyAi.chat(
+        userMessage: text,
+        catalog: _aiCatalog,
+        history: _aiHistory.length > 1
+            ? _aiHistory.sublist(0, _aiHistory.length - 1)
+            : const [],
       );
 
-      final aiText =
-          response ?? 'Sorry, I could not respond right now. Please try again.';
+      final aiText = result.reply.isNotEmpty
+          ? result.reply
+          : 'إليك أفضل الاقتراحات المتاحة حسب طلبك.';
       _aiHistory.add({'role': 'assistant', 'content': aiText});
 
       if (mounted) {
@@ -255,6 +269,14 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
             'sender_type': 'ai',
             'created_at': DateTime.now().toIso8601String(),
             'message_type': 'text',
+            if (result.suggestions.isNotEmpty)
+              'suggestions': result.suggestions,
+            if (result.mapFocusLat != null)
+              'map_focus': {
+                'lat': result.mapFocusLat,
+                'lng': result.mapFocusLng,
+                'label': result.mapFocusLabel,
+              },
           });
         });
         _scrollToBottom();
@@ -767,7 +789,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Gemini AI',
+                    'Madar AI',
                     style: TextStyle(
                       color: color,
                       fontSize: 10,
@@ -852,9 +874,10 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
               runSpacing: 8,
               alignment: WrapAlignment.center,
               children: [
-                _buildSuggestionChip(loc.findApartmentInBaghdad),
-                _buildSuggestionChip(loc.whatArePropertyPrices),
-                _buildSuggestionChip(loc.howDealsWork),
+                _buildSuggestionChip('أرخص شقة قريبة من مدارس'),
+                _buildSuggestionChip('فيلا في المنصور مع مسبح'),
+                _buildSuggestionChip('إيجار مكتب في بغداد'),
+                _buildSuggestionChip('أفضل قيمة تحت 200 ألف'),
               ],
             ),
           ],
@@ -897,74 +920,139 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen>
     final content = msg['content'] as String? ?? '';
     final msgType = msg['message_type'] as String? ?? 'text';
     final conv = _conversationDefs[_selectedConversation];
+    final suggestions = msg['suggestions'];
+    final hasSuggestions =
+        suggestions is List && suggestions.isNotEmpty && !isUser;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: isUser
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Column(
+        crossAxisAlignment:
+            isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          if (!isUser) ...[
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: AppTheme.primary.withAlpha(20),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: CustomIconWidget(
-                  iconName: conv['iconName'] as String,
-                  color: Color(conv['color'] as int),
-                  size: 16,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: msgType == 'image'
-                ? _buildImageBubble(content, isUser, theme, loc)
-                : msgType == 'location'
-                ? _buildLocationBubble(content, isUser, theme, loc)
-                : Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isUser ? AppTheme.primary : theme.cardColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(18),
-                        topRight: const Radius.circular(18),
-                        bottomLeft: Radius.circular(isUser ? 18 : 4),
-                        bottomRight: Radius.circular(isUser ? 4 : 18),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(8),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      content,
-                      style: TextStyle(
-                        color: isUser
-                            ? Colors.white
-                            : theme.textTheme.bodyMedium?.color,
-                        fontSize: 14,
-                        height: 1.5,
-                      ),
+          Row(
+            mainAxisAlignment: isUser
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (!isUser) ...[
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withAlpha(20),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: CustomIconWidget(
+                      iconName: conv['iconName'] as String,
+                      color: Color(conv['color'] as int),
+                      size: 16,
                     ),
                   ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: msgType == 'image'
+                    ? _buildImageBubble(content, isUser, theme, loc)
+                    : msgType == 'location'
+                    ? _buildLocationBubble(content, isUser, theme, loc)
+                    : Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isUser ? AppTheme.primary : theme.cardColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(18),
+                            topRight: const Radius.circular(18),
+                            bottomLeft: Radius.circular(isUser ? 18 : 4),
+                            bottomRight: Radius.circular(isUser ? 4 : 18),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(8),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          content,
+                          style: TextStyle(
+                            color: isUser
+                                ? Colors.white
+                                : theme.textTheme.bodyMedium?.color,
+                            fontSize: 14,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+              ),
+              if (isUser) const SizedBox(width: 8),
+            ],
           ),
-          if (isUser) const SizedBox(width: 8),
+          if (hasSuggestions) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 250,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsetsDirectional.only(start: 40),
+                itemCount: suggestions.length,
+                itemBuilder: (context, index) {
+                  final item = suggestions[index];
+                  if (item is! PropertyAiSuggestion) {
+                    return const SizedBox.shrink();
+                  }
+                  return AiPropertySuggestionCard(
+                    suggestion: item,
+                    onTap: () => _openAiProperty(item.property),
+                  );
+                },
+              ),
+            ),
+            if (msg['map_focus'] is Map) ...[
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: 40),
+                child: TextButton.icon(
+                  onPressed: () {
+                    final focus = msg['map_focus'] as Map;
+                    context.go(
+                      '/search-map-screen',
+                      extra: {
+                        'lat': focus['lat'],
+                        'lng': focus['lng'],
+                        'label': focus['label'],
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.map_outlined, size: 18),
+                  label: Text(
+                    (msg['map_focus'] as Map)['label']?.toString().isNotEmpty ==
+                            true
+                        ? 'عرض على الخريطة: ${(msg['map_focus'] as Map)['label']}'
+                        : 'عرض على الخريطة',
+                  ),
+                ),
+              ),
+            ],
+          ],
         ],
       ),
+    );
+  }
+
+  void _openAiProperty(PropertyData property) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => PropertyDetailSheetWidget(property: property),
     );
   }
 

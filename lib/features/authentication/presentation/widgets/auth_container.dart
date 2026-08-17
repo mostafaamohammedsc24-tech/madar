@@ -1,56 +1,103 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/locale_provider.dart';
+import '../../../../theme/app_theme.dart';
 import '../theme/auth_theme.dart';
 
-/// Responsive shell for all authentication screens.
+/// Blue canvas + centered white card used by every auth / partner login screen.
 class AuthContainer extends StatelessWidget {
   const AuthContainer({
     super.key,
     required this.child,
+    this.footer,
     this.showLanguageAction = true,
     this.onLanguageTap,
   });
 
   final Widget child;
+  final Widget? footer;
   final bool showLanguageAction;
   final VoidCallback? onLanguageTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: AuthColors.canvas,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isWide = constraints.maxWidth >= 600;
-            return Align(
-              alignment: Alignment.topCenter,
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: bottomInset),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: AuthSpacing.maxContentWidth,
-                ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(
-                    AuthSpacing.horizontalPadding,
-                    AuthSpacing.lg,
-                    AuthSpacing.horizontalPadding,
-                    AuthSpacing.lg + bottomInset,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _AuthTopBar(
-                        showLanguageAction: showLanguageAction,
-                        onLanguageTap: onLanguageTap,
-                        isWide: isWide,
+                      const SizedBox(height: 8),
+                      Text(
+                        loc.authBrandName,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w800,
+                          height: 1.1,
+                          letterSpacing: 0.4,
+                        ),
                       ),
-                      const SizedBox(height: AuthSpacing.xl),
-                      Expanded(child: child),
+                      const SizedBox(height: 28),
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: AuthSpacing.maxContentWidth,
+                          ),
+                          child: Material(
+                            color: Colors.white,
+                            elevation: 0,
+                            borderRadius: BorderRadius.circular(24),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                20,
+                                16,
+                                20,
+                                24,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (showLanguageAction &&
+                                      onLanguageTap != null)
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: AuthLanguageButton(
+                                        onTap: onLanguageTap!,
+                                      ),
+                                    ),
+                                  child,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (footer != null) ...[
+                        const SizedBox(height: 16),
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxWidth: AuthSpacing.maxContentWidth,
+                            ),
+                            child: footer!,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -63,66 +110,41 @@ class AuthContainer extends StatelessWidget {
   }
 }
 
-class _AuthTopBar extends StatelessWidget {
-  const _AuthTopBar({
-    required this.showLanguageAction,
-    this.onLanguageTap,
-    required this.isWide,
-  });
+class AuthLanguageButton extends StatelessWidget {
+  const AuthLanguageButton({super.key, required this.onTap});
 
-  final bool showLanguageAction;
-  final VoidCallback? onLanguageTap;
-  final bool isWide;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
+    final language = context.watch<LocaleProvider>().language;
+    final badge = switch (language) {
+      AppLanguage.arabic => 'ع',
+      AppLanguage.kurdish => 'ک',
+      AppLanguage.english => 'En',
+    };
 
-    return Row(
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Madar',
-              style: theme.textTheme.headlineSmall?.copyWith(
+    return Material(
+      color: const Color(0xFFE3F2FD),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Center(
+            child: Text(
+              badge,
+              style: const TextStyle(
+                color: AppTheme.primary,
                 fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
+                fontSize: 13,
               ),
-            ),
-            Text(
-              'Real Estate',
-              style: AuthTypography.caption(context),
-            ),
-          ],
-        ),
-        const Spacer(),
-        if (showLanguageAction && onLanguageTap != null)
-          TextButton.icon(
-            onPressed: onLanguageTap,
-            icon: Icon(
-              Icons.language,
-              size: 18,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            label: Text(
-              loc.languageLabel,
-              style: AuthTypography.caption(context).copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AuthSpacing.md,
-                vertical: AuthSpacing.sm,
-              ),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
-      ],
+        ),
+      ),
     );
   }
 }

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/demo/demo_mode.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../widgets/language_selector_sheet.dart';
 import '../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../authentication/presentation/widgets/auth_container.dart';
 import '../../../authentication/presentation/widgets/auth_error_banner.dart';
 import '../../../authentication/presentation/widgets/auth_header.dart';
+import '../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../authentication/presentation/widgets/primary_auth_button.dart';
 import '../providers/office_auth_notifier.dart';
 
@@ -19,8 +21,12 @@ class OfficeLoginScreen extends StatefulWidget {
 }
 
 class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
-  final _codeCtrl = TextEditingController();
-  final _secretCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController(
+    text: DemoMode.enabled ? DemoMode.officeCode : '',
+  );
+  final _secretCtrl = TextEditingController(
+    text: DemoMode.enabled ? DemoMode.secret : '',
+  );
   bool _obscure = true;
 
   @override
@@ -64,79 +70,78 @@ class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
 
     return AuthContainer(
       onLanguageTap: () => LanguageSelectorSheet.show(context),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AuthHeader(
-              title: loc.officeLoginTitle,
-              subtitle: loc.officeLoginSubtitle,
-            ),
-            const SizedBox(height: AuthSpacing.xl),
-            Text(loc.officeCodeLabel, style: AuthTypography.caption(context)),
-            const SizedBox(height: AuthSpacing.sm),
-            TextField(
-              controller: _codeCtrl,
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                hintText: loc.officeCodeHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AuthHeader(
+            title: loc.officeLoginTitle,
+            subtitle: loc.officeLoginSubtitle,
+          ),
+          const SizedBox(height: AuthSpacing.xl),
+          Text(loc.officeCodeLabel, style: AuthTypography.caption(context)),
+          const SizedBox(height: AuthSpacing.sm),
+          AuthTextField(
+            controller: _codeCtrl,
+            hintText: loc.officeCodeHint,
+            textCapitalization: TextCapitalization.characters,
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: AuthSpacing.lg),
+          Text(loc.officeSecretLabel, style: AuthTypography.caption(context)),
+          const SizedBox(height: AuthSpacing.sm),
+          AuthTextField(
+            controller: _secretCtrl,
+            hintText: loc.officeSecretHint,
+            obscureText: _obscure,
+            suffixIcon: IconButton(
+              onPressed: () => setState(() => _obscure = !_obscure),
+              icon: Icon(
+                _obscure
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
               ),
-              onChanged: (_) => setState(() {}),
             ),
-            const SizedBox(height: AuthSpacing.lg),
-            Text(loc.officeSecretLabel, style: AuthTypography.caption(context)),
-            const SizedBox(height: AuthSpacing.sm),
-            TextField(
-              controller: _secretCtrl,
-              obscureText: _obscure,
-              decoration: InputDecoration(
-                hintText: loc.officeSecretHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                ),
-                suffixIcon: IconButton(
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                  icon: Icon(
-                    _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  ),
-                ),
-              ),
-              onChanged: (_) => setState(() {}),
-              onSubmitted: canSubmit ? (_) => _submit(auth) : null,
-            ),
-            if (auth.message != null) ...[
-              const SizedBox(height: AuthSpacing.md),
-              AuthErrorBanner(message: _friendlyError(loc, auth.message)),
-            ],
-            const SizedBox(height: AuthSpacing.xl),
-            PrimaryAuthButton(
-              label: loc.officeSignIn,
-              isLoading: auth.isBusy,
-              enabled: canSubmit,
-              onPressed: () => _submit(auth),
-            ),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: canSubmit ? (_) => _submit(auth) : null,
+          ),
+          if (DemoMode.enabled) ...[
             const SizedBox(height: AuthSpacing.md),
-            TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(loc.officeForgotCredentialsHint)),
-                );
-              },
-              child: Text(loc.officeForgotCredentials),
-            ),
-            const SizedBox(height: AuthSpacing.lg),
-            TextButton(
-              onPressed: () => context.go('/auth'),
-              child: Text(
-                loc.officeBackToUserLogin,
-                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-              ),
+            Text(
+              '${DemoMode.officeCode} / ${DemoMode.secret}',
+              style: AuthTypography.caption(
+                context,
+              ).copyWith(color: theme.colorScheme.primary),
             ),
           ],
-        ),
+          if (auth.message != null) ...[
+            const SizedBox(height: AuthSpacing.md),
+            AuthErrorBanner(message: _friendlyError(loc, auth.message)),
+          ],
+          const SizedBox(height: AuthSpacing.xl),
+          PrimaryAuthButton(
+            label: loc.officeSignIn,
+            isLoading: auth.isBusy,
+            enabled: canSubmit,
+            onPressed: () => _submit(auth),
+          ),
+          const SizedBox(height: AuthSpacing.md),
+          TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(loc.officeForgotCredentialsHint)),
+              );
+            },
+            child: Text(loc.officeForgotCredentials),
+          ),
+          const SizedBox(height: AuthSpacing.lg),
+          TextButton(
+            onPressed: () => context.go('/auth'),
+            child: Text(
+              loc.officeBackToUserLogin,
+              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ),
+        ],
       ),
     );
   }

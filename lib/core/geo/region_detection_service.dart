@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -32,7 +31,7 @@ class RegionDetectionService {
     'LY', 'SD', 'MA', 'DZ', 'TN', 'PS',
   };
 
-  static const _kurdishCountryCodes = {'IQ'};
+  static const _kurdishCountryCodes = <String>{};
 
   Future<RegionDetectionResult?> detectFromCurrentLocation() async {
     try {
@@ -85,7 +84,7 @@ class RegionDetectionService {
     final country = CountryRegistry.findByIso(iso) ?? CountryRegistry.fallback;
     return RegionDetectionResult(
       country: country,
-      suggestedLanguage: _languageFromLocale(locale),
+      suggestedLanguage: _languageForCountry(country.isoCode),
       suggestedCurrencyCode: CurrencyRegistry.defaultCurrencyForCountry(
         country.isoCode,
       ),
@@ -99,13 +98,6 @@ class RegionDetectionService {
     if (_arabicCountryCodes.contains(isoCode)) {
       return AppLanguage.arabic;
     }
-    return AppLanguage.english;
-  }
-
-  AppLanguage _languageFromLocale(Locale locale) {
-    final code = locale.languageCode.toLowerCase();
-    if (code == 'ar') return AppLanguage.arabic;
-    if (code == 'ku' || code == 'ckb') return AppLanguage.kurdish;
-    return AppLanguage.english;
+    return AppLanguage.arabic;
   }
 }

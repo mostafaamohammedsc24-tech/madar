@@ -14,6 +14,7 @@ const officeShellPrefixes = [
   '/office/create-transaction',
   '/office/transaction',
   '/office/chat',
+  '/office/ai',
   '/office/report-property',
   '/office/notifications',
   '/office/performance',

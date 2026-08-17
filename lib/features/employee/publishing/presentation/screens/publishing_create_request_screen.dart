@@ -19,6 +19,7 @@ class _PublishingCreateRequestScreenState
   final _phone = TextEditingController();
   final _city = TextEditingController();
   final _address = TextEditingController();
+  final _builder = TextEditingController();
   final _notes = TextEditingController();
   String _type = 'house';
   String _tx = 'sale';
@@ -32,6 +33,7 @@ class _PublishingCreateRequestScreenState
     _phone.dispose();
     _city.dispose();
     _address.dispose();
+    _builder.dispose();
     _notes.dispose();
     super.dispose();
   }
@@ -41,6 +43,13 @@ class _PublishingCreateRequestScreenState
       context.read<EmployeeAuthNotifier>().repository,
     );
     setState(() => _busy = true);
+    final builderNote = _builder.text.trim().isEmpty
+        ? ''
+        : 'Builder company: ${_builder.text.trim()}';
+    final combinedNotes = [
+      builderNote,
+      _notes.text.trim(),
+    ].where((s) => s.isNotEmpty).join('\n');
     final res = await repo.createRequest(
       propertyType: _type,
       transactionType: _tx,
@@ -49,7 +58,7 @@ class _PublishingCreateRequestScreenState
       ownerPhone: _phone.text.trim(),
       city: _city.text.trim(),
       addressText: _address.text.trim(),
-      notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      notes: combinedNotes.isEmpty ? null : combinedNotes,
       priority: _priority,
     );
     if (!mounted) return;
@@ -183,6 +192,15 @@ class _PublishingCreateRequestScreenState
           onChanged: (v) => setState(() => _priority = v ?? 'normal'),
           decoration: const InputDecoration(
             labelText: 'Priority',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _builder,
+          decoration: const InputDecoration(
+            labelText: 'Builder / contractor company',
+            hintText: 'e.g. Al-Rasheed Construction',
             border: OutlineInputBorder(),
           ),
         ),
