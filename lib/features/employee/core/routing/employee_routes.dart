@@ -23,6 +23,12 @@ import '../../office_management/presentation/screens/om_create_office_screen.dar
 import '../../office_management/presentation/screens/om_offices_screen.dart';
 import '../../office_management/presentation/screens/om_photography_screen.dart';
 import '../../office_management/presentation/screens/om_reports_screen.dart';
+import '../../publishing/presentation/screens/engineering_workspace_screen.dart';
+import '../../publishing/presentation/screens/information_report_screen.dart';
+import '../../publishing/presentation/screens/media_workspace_screen.dart';
+import '../../publishing/presentation/screens/property_command_center_screen.dart';
+import '../../publishing/presentation/screens/publishing_create_request_screen.dart';
+import '../../publishing/presentation/screens/publishing_requests_screen.dart';
 import 'employee_globals.dart';
 
 List<RouteBase> buildEmployeeRoutes() {
@@ -137,6 +143,54 @@ List<RouteBase> buildEmployeeRoutes() {
         GoRoute(
           path: '/employee/om/conversations',
           builder: (context, state) => const OmConversationsScreen(),
+        ),
+        // Publishing ops
+        GoRoute(
+          path: '/employee/publishing/requests',
+          builder: (context, state) => const PublishingRequestsScreen(),
+        ),
+        GoRoute(
+          path: '/employee/publishing/create',
+          builder: (context, state) => const PublishingCreateRequestScreen(),
+        ),
+        GoRoute(
+          path: '/employee/publishing/property/:id',
+          builder: (context, state) => PropertyCommandCenterScreen(
+            propertyAssetId: state.pathParameters['id']!,
+          ),
+        ),
+        GoRoute(
+          path: '/employee/information/assigned',
+          builder: (context, state) =>
+              const PublishingRequestsScreen(assignedOnly: true),
+        ),
+        GoRoute(
+          path: '/employee/information/property/:id',
+          builder: (context, state) => InformationReportScreen(
+            propertyAssetId: state.pathParameters['id']!,
+          ),
+        ),
+        GoRoute(
+          path: '/employee/media/assigned',
+          builder: (context, state) =>
+              const PublishingRequestsScreen(assignedOnly: true),
+        ),
+        GoRoute(
+          path: '/employee/media/property/:id',
+          builder: (context, state) => MediaWorkspaceScreen(
+            propertyAssetId: state.pathParameters['id']!,
+          ),
+        ),
+        GoRoute(
+          path: '/employee/engineering/assigned',
+          builder: (context, state) =>
+              const PublishingRequestsScreen(assignedOnly: true),
+        ),
+        GoRoute(
+          path: '/employee/engineering/property/:id',
+          builder: (context, state) => EngineeringWorkspaceScreen(
+            propertyAssetId: state.pathParameters['id']!,
+          ),
         ),
       ],
     ),

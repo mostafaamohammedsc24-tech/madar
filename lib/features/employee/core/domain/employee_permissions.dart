@@ -20,6 +20,21 @@ abstract final class EmployeePermission {
   static const propertiesView = 'properties.view';
   static const propertiesAssign = 'properties.assign';
   static const propertiesPublishRequest = 'properties.publish.request';
+  static const publishingView = 'publishing.view';
+  static const publishingCreate = 'publishing.create';
+  static const publishingAssign = 'publishing.assign';
+  static const publishingEdit = 'publishing.edit';
+  static const publishingReview = 'publishing.review';
+  static const publishingPublish = 'publishing.publish';
+  static const informationView = 'information.view';
+  static const informationEdit = 'information.edit';
+  static const informationSubmit = 'information.submit';
+  static const mediaView = 'media.view';
+  static const mediaUpload = 'media.upload';
+  static const mediaSubmit = 'media.submit';
+  static const engineeringView = 'engineering.view';
+  static const engineeringEdit = 'engineering.edit';
+  static const engineeringSubmit = 'engineering.submit';
   static const reportsView = 'reports.view';
   static const reportsExport = 'reports.export';
   static const messagesView = 'messages.view';
@@ -28,7 +43,16 @@ abstract final class EmployeePermission {
   static const searchGlobal = 'search.global';
 }
 
-enum EmployeeDepartmentCode { finance, bank, officeManagement, unknown }
+enum EmployeeDepartmentCode {
+  finance,
+  bank,
+  officeManagement,
+  publishing,
+  information,
+  photography,
+  engineering,
+  unknown,
+}
 
 EmployeeDepartmentCode departmentFromCode(String? code) {
   switch ((code ?? '').toLowerCase()) {
@@ -38,6 +62,14 @@ EmployeeDepartmentCode departmentFromCode(String? code) {
       return EmployeeDepartmentCode.bank;
     case 'office_management':
       return EmployeeDepartmentCode.officeManagement;
+    case 'publishing':
+      return EmployeeDepartmentCode.publishing;
+    case 'information':
+      return EmployeeDepartmentCode.information;
+    case 'photography':
+      return EmployeeDepartmentCode.photography;
+    case 'engineering':
+      return EmployeeDepartmentCode.engineering;
     default:
       return EmployeeDepartmentCode.unknown;
   }

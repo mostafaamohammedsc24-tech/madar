@@ -105,6 +105,14 @@ class EmployeeAccount {
   bool get isBank => department.departmentCode == EmployeeDepartmentCode.bank;
   bool get isOfficeManagement =>
       department.departmentCode == EmployeeDepartmentCode.officeManagement;
+  bool get isPublishing =>
+      department.departmentCode == EmployeeDepartmentCode.publishing;
+  bool get isInformation =>
+      department.departmentCode == EmployeeDepartmentCode.information;
+  bool get isPhotography =>
+      department.departmentCode == EmployeeDepartmentCode.photography;
+  bool get isEngineering =>
+      department.departmentCode == EmployeeDepartmentCode.engineering;
 
   factory EmployeeAccount.fromLoginMap(
     Map<String, dynamic> d,
