@@ -51,6 +51,7 @@ class UserAuthNotifier extends ChangeNotifier {
     _setState(
       _state.copyWith(
         status: UserAuthStatus.awaitingRegionSetup,
+        phoneNumber: '7901234567',
         selectedCountry: authCountryByIso('IQ'),
         selectedLanguage: AppLanguage.arabic,
         selectedCurrencyCode: 'IQD',

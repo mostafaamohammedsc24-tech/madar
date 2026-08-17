@@ -9,6 +9,7 @@ import '../widgets/auth_container.dart';
 import '../widgets/auth_error_banner.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/otp_input_field.dart';
+import '../widgets/primary_auth_button.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({super.key});
@@ -80,6 +81,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 if (!state.isBusy) auth.verifyOtp(code);
               },
             ),
+            if (const bool.fromEnvironment('DEMO_ENTER_USER_UI')) ...[
+              const SizedBox(height: AuthSpacing.xl),
+              PrimaryAuthButton(
+                label: loc.authVerifyContinue,
+                isLoading: state.isBusy,
+                onPressed: () => auth.verifyOtp('123456'),
+              ),
+            ],
             if (state.userMessage != null) ...[
               const SizedBox(height: AuthSpacing.md),
               AuthErrorBanner(message: state.userMessage!),
