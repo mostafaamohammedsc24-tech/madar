@@ -247,7 +247,17 @@ class PropertyData {
     }
   }
 
-  String typeLabel(AppLocalizations loc) => loc.propertyTypeName(type);
+  String typeLabel(AppLocalizations loc) {
+    final raw = type.trim();
+    if (raw.isEmpty) return loc.informationUnavailable;
+    final normalized = raw.toLowerCase().replaceAll('-', '_');
+    final translated = loc.propertyTypeName(normalized);
+    if (translated != normalized && translated != raw) return translated;
+    // Some datasets store listing intent in property_type
+    final listing = loc.filterLabel(raw);
+    if (listing != raw) return listing;
+    return loc.propertyTypeName(raw);
+  }
 
   String get listingTypeLabel => listingLabel(
         AppLocalizations(AppLanguage.english),

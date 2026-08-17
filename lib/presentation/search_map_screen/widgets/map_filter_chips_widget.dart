@@ -55,12 +55,12 @@ class MapFilterChipsWidget extends StatelessWidget {
           final bgColor = isSelected
               ? (isAll ? AppTheme.primary : accent)
               : (isAll
-                  ? theme.colorScheme.surface
-                  : accent.withValues(alpha: 0.12));
+                  ? theme.surfaceVariantColor
+                  : accent.withValues(alpha: theme.isDarkMode ? 0.22 : 0.12));
           final borderColor = isAll
               ? (isSelected
                   ? AppTheme.primary
-                  : theme.colorScheme.outlineVariant)
+                  : theme.borderColor)
               : accent.withValues(alpha: isSelected ? 1 : 0.55);
           final fgColor = isSelected
               ? Colors.white

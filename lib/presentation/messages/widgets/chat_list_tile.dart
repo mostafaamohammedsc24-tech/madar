@@ -20,7 +20,7 @@ class ChatListTile extends StatelessWidget {
     final time = last == null ? '' : _formatTime(last.createdAt);
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: InkWell(
         onTap: onTap,
         child: Padding(

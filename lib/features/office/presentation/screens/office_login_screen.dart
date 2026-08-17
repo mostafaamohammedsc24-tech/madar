@@ -30,6 +30,18 @@ class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
   bool _obscure = true;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final auth = context.read<OfficeAuthNotifier>();
+      await auth.ensureInitialized();
+      if (!mounted) return;
+      if (auth.isAuthenticated) context.go('/office/home');
+    });
+  }
+
+  @override
   void dispose() {
     _codeCtrl.dispose();
     _secretCtrl.dispose();

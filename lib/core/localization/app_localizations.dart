@@ -183,6 +183,11 @@ class AppLocalizations {
     ar: 'تواصل مع المبيعات',
     ku: 'پەیوەندی بکە بە فرۆشتن',
   );
+  String get contactSalesShort => _t(
+    en: 'Contact',
+    ar: 'تواصل',
+    ku: 'پەیوەندی',
+  );
   String get aiConsult =>
       _t(en: 'AI Consult', ar: 'استشارة الذكاء الاصطناعي', ku: 'ئەی ئای ڕاوێژ');
   String get whatsSpecial =>
@@ -658,6 +663,31 @@ class AppLocalizations {
   // ─── User Authentication ──────────────────────────────────────────────────
   String get authBrandName => _t(en: 'مدار', ar: 'مدار', ku: 'مدار');
   String get authBrandTagline => _t(en: 'عقارات', ar: 'عقارات', ku: 'عقارات');
+  String get authDesktopTagline => _t(
+    en: 'Discover, compare, and close property deals with confidence.',
+    ar: 'اكتشف العقارات وقارنها وأتمم صفقاتك بثقة.',
+    ku: 'خانووبەرە بدۆزەرەوە، بەراورد بکە و مامەڵەکانت بە متمانە تەواو بکە.',
+  );
+  String get authDesktopFeatureMap => _t(
+    en: 'Interactive maps with smart search and area filters',
+    ar: 'خرائط تفاعلية مع بحث ذكي وتصفية حسب المنطقة',
+    ku: 'نەخشەی کارلێکدار لەگەڵ گەڕانی زیرەک و فلتەری ناوچە',
+  );
+  String get authDesktopFeatureVerified => _t(
+    en: 'Verified listings and secure transactions',
+    ar: 'إعلانات موثقة ومعاملات آمنة',
+    ku: 'لیستی پشتڕاستکراو و مامەڵەی پارێزراو',
+  );
+  String get authDesktopFeatureLanguages => _t(
+    en: 'Arabic, English, and Kurdish — built for Iraq',
+    ar: 'العربية والإنجليزية والكردية — مصمم للعراق',
+    ku: 'عەرەبی، ئینگلیزی و کوردی — دروستکراو بۆ عێراق',
+  );
+  String get authDesktopFooter => _t(
+    en: 'Premium real estate platform for buyers, sellers, and professionals.',
+    ar: 'منصة عقارية متميزة للمشترين والبائعين والمحترفين.',
+    ku: 'پلاتفۆرمی خانووبەرەی پریمیۆم بۆ کڕیار، فرۆشیار و پیشەییەکان.',
+  );
   String get authWelcome => _t(en: 'Welcome', ar: 'مرحباً بك', ku: 'بەخێربێیت');
   String get authPhoneTitle =>
       _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
@@ -861,20 +891,45 @@ class AppLocalizations {
   }
 
   String propertyTypeName(String key) {
-    switch (key.toLowerCase()) {
+    final normalized = key.trim().toLowerCase().replaceAll('-', '_');
+    switch (normalized) {
       case 'apartment':
+      case 'flat':
+      case 'residential':
+      case 'condo':
+      case 'condominium':
         return apartment;
       case 'villa':
+      case 'house':
+      case 'detached':
         return villaType;
       case 'land':
+      case 'plot':
         return land;
       case 'commercial':
+      case 'office':
+      case 'retail':
+      case 'shop':
+      case 'store':
         return commercial;
       case 'building':
+      case 'multi_family':
+      case 'multifamily':
         return buildingType;
       case 'agricultural':
+      case 'farm':
         return agriculturalType;
+      case 'sale':
+        return forSale;
+      case 'rent':
+        return forRent;
+      case 'mortgage':
+        return mortgage;
+      case 'investment':
+        return investment;
       default:
+        // Title-case English leftovers from legacy data
+        if (RegExp(r'^[a-z_]+$').hasMatch(normalized)) return key;
         return key;
     }
   }

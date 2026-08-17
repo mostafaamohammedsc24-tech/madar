@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart' as provider;
 
 import '../features/authentication/domain/models/user_auth_state.dart';
 import '../features/authentication/presentation/screens/user_auth_flow_screen.dart';
@@ -9,33 +8,15 @@ import '../features/authentication/routing/auth_globals.dart';
 import '../features/authentication/routing/auth_redirect.dart';
 import '../features/employee/core/routing/employee_globals.dart';
 import '../features/employee/core/routing/employee_redirect.dart';
-import '../features/employee/core/routing/employee_routes.dart';
-import '../features/office/presentation/screens/office_chat_screen.dart';
-import '../features/office/presentation/screens/office_ai_assistant_screen.dart';
-import '../features/office/presentation/screens/office_conversations_screen.dart';
-import '../features/office/presentation/screens/office_create_transaction_screen.dart';
-import '../features/office/presentation/screens/office_documents_screen.dart';
-import '../features/office/presentation/screens/office_history_screen.dart';
-import '../features/office/presentation/screens/office_home_screen.dart';
-import '../features/office/presentation/screens/office_leads_screen.dart';
-import '../features/office/presentation/screens/office_login_screen.dart';
-import '../features/office/presentation/screens/office_more_screen.dart';
-import '../features/office/presentation/screens/office_notifications_screen.dart';
-import '../features/office/presentation/screens/office_performance_screen.dart';
-import '../features/office/presentation/screens/office_profile_screen.dart';
-import '../features/office/presentation/screens/office_properties_screen.dart';
-import '../features/office/presentation/screens/office_report_property_screen.dart';
-import '../features/office/presentation/screens/office_support_screen.dart';
-import '../features/office/presentation/screens/office_transaction_monitor_screen.dart';
-import '../features/office/presentation/screens/office_transactions_screen.dart';
-import '../features/office/presentation/shell/office_scaffold.dart';
 import '../features/office/routing/office_globals.dart';
 import '../features/office/routing/office_redirect.dart';
+import '../features/employee/core/routing/employee_routes.dart';
+import '../features/office/routing/office_routes.dart';
 import '../features/property/presentation/screens/property_report_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
-import '../presentation/reviews/ratings_reviews_screen.dart';
 import '../presentation/messages/messages_screen.dart';
+import '../presentation/reviews/ratings_reviews_screen.dart';
 import '../presentation/my_properties_screen/my_properties_screen.dart';
 import '../presentation/notifications/notification_center_screen.dart';
 import '../presentation/profile/documents_archive_screen.dart';
@@ -46,7 +27,6 @@ import '../presentation/search_map_screen/search_map_screen.dart';
 import '../presentation/transactions_screen/settlement_payout_receipt_screen.dart';
 import '../widgets/app_scaffold.dart';
 import '../presentation/auth/two_fa_verification_screen.dart';
-
 class AppRoutes {
   static const String initial = '/';
   static const String auth = '/auth';
@@ -141,162 +121,17 @@ final GoRouter appRouter = GoRouter(
         transitionDuration: const Duration(milliseconds: 280),
       ),
     ),
-    GoRoute(
-      path: AppRoutes.officeLogin,
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeLoginScreen(),
-      ),
-    ),
     ...buildEmployeeRoutes(),
-    GoRoute(
-      path: '/office/create-transaction',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeCreateTransactionScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/office/transaction/:id',
-      builder: (context, state) {
-        final tx = state.extra as Map<String, dynamic>? ??
-            {'id': state.pathParameters['id']};
-        return provider.ChangeNotifierProvider.value(
-          value: officeAuthNotifier,
-          child: OfficeTransactionMonitorScreen(transaction: tx),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/office/chat/:id',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: OfficeChatScreen(
-          conversationId: state.pathParameters['id'] ?? '',
-        ),
-      ),
-    ),
-    GoRoute(
-      path: '/office/ai',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeAiAssistantScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/office/report-property',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeReportPropertyScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/office/notifications',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeNotificationsScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/office/performance',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficePerformanceScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/office/profile',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeProfileScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/office/documents',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeDocumentsScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/office/support',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeSupportScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/office/history',
-      builder: (context, state) => provider.ChangeNotifierProvider.value(
-        value: officeAuthNotifier,
-        child: const OfficeHistoryScreen(),
-      ),
-    ),
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) {
-        return provider.ChangeNotifierProvider.value(
-          value: officeAuthNotifier,
-          child: OfficeScaffold(navigationShell: navigationShell),
-        );
-      },
-      branches: [
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/office/home',
-              builder: (context, state) => const OfficeHomeScreen(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/office/properties',
-              builder: (context, state) => const OfficePropertiesScreen(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/office/transactions',
-              builder: (context, state) => const OfficeTransactionsScreen(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/office/leads',
-              builder: (context, state) => const OfficeLeadsScreen(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/office/conversations',
-              builder: (context, state) => const OfficeConversationsScreen(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/office/more',
-              builder: (context, state) => const OfficeMoreScreen(),
-            ),
-          ],
-        ),
-      ],
-    ),
+    ...buildOfficeRoutes(),
     GoRoute(
       path: AppRoutes.propertyDetail,
       pageBuilder: (context, state) {
         final property = state.extra as Map<String, dynamic>? ?? {};
         return CustomTransitionPage(
           key: state.pageKey,
-          child: ProviderScope(child: PropertyReportScreen(property: property)),
+          child: ProviderScope(
+            child: PropertyReportScreen(property: property),
+          ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               SlideTransition(
                 position:
@@ -533,8 +368,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: AppRoutes.messagesScreen,
-              builder: (context, state) =>
-                  const ProviderScope(child: MessagesScreen()),
+              builder: (context, state) => const MessagesScreen(),
             ),
           ],
         ),

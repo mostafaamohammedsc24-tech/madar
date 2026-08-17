@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../domain/models/property_extended.dart';
 import '../../domain/models/property_media.dart';
-import '../../domain/models/property_report.dart';
 
 class InteractiveFloorPlanView extends StatefulWidget {
   const InteractiveFloorPlanView({

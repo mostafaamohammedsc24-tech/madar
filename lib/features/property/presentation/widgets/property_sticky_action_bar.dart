@@ -5,17 +5,11 @@ import '../../../../core/localization/app_localizations.dart';
 class PropertyStickyActionBar extends StatelessWidget {
   const PropertyStickyActionBar({
     super.key,
-    required this.isSaved,
-    required this.onSave,
-    required this.onShare,
     required this.onContact,
     required this.onAskAi,
     required this.onScheduleTour,
   });
 
-  final bool isSaved;
-  final VoidCallback onSave;
-  final VoidCallback onShare;
   final VoidCallback onContact;
   final VoidCallback onAskAi;
   final VoidCallback onScheduleTour;
@@ -30,53 +24,53 @@ class PropertyStickyActionBar extends StatelessWidget {
       elevation: 8,
       color: theme.colorScheme.surface,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(8, 10, 8, 10 + bottom),
-        child: Row(
+        padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            IconButton(
-              onPressed: onSave,
-              tooltip: isSaved ? loc.savedProperty : loc.unsavedProperty,
-              icon: Icon(
-                isSaved ? Icons.bookmark : Icons.bookmark_border,
-                color: isSaved
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurfaceVariant,
+            FilledButton.icon(
+              onPressed: onContact,
+              icon: const Icon(Icons.phone_outlined, size: 20),
+              label: Text(
+                loc.contactSalesShort,
+                textAlign: TextAlign.center,
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               ),
             ),
-            IconButton(
-              onPressed: onShare,
-              tooltip: loc.shareProperty,
-              icon: Icon(
-                Icons.share_outlined,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            Expanded(
-              child: FilledButton(
-                onPressed: onContact,
-                child: Text(
-                  loc.contactSalesTeam,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton.icon(
+                  onPressed: onAskAi,
+                  icon: Icon(
+                    Icons.psychology_outlined,
+                    size: 20,
+                    color: theme.colorScheme.primary,
+                  ),
+                  label: Text(
+                    loc.askAi,
+                    style: TextStyle(color: theme.colorScheme.primary),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            IconButton(
-              onPressed: onAskAi,
-              tooltip: loc.askAi,
-              icon: Icon(
-                Icons.psychology_outlined,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-            IconButton(
-              onPressed: onScheduleTour,
-              tooltip: loc.scheduleVisit,
-              icon: Icon(
-                Icons.calendar_month_outlined,
-                color: theme.colorScheme.primary,
-              ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: onScheduleTour,
+                  icon: Icon(
+                    Icons.calendar_month_outlined,
+                    size: 20,
+                    color: theme.colorScheme.primary,
+                  ),
+                  label: Text(
+                    loc.scheduleVisit,
+                    style: TextStyle(color: theme.colorScheme.primary),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

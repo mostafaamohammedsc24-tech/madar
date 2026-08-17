@@ -11,9 +11,10 @@ class EmployeeAuthNotifier extends ChangeNotifier {
 
   final EmployeeRepository _repo;
 
-  EmployeeAuthStatus _status = EmployeeAuthStatus.initializing;
+  EmployeeAuthStatus _status = EmployeeAuthStatus.unauthenticated;
   String? _message;
   bool _busy = false;
+  bool _sessionChecked = false;
 
   EmployeeAuthStatus get status => _status;
   String? get message => _message;
@@ -24,6 +25,13 @@ class EmployeeAuthNotifier extends ChangeNotifier {
   EmployeeRepository get repository => _repo;
 
   bool can(String permission) => _repo.can(permission);
+
+  /// Restores persisted session once per app launch (lazy — not at startup).
+  Future<void> ensureInitialized() async {
+    if (_sessionChecked) return;
+    _sessionChecked = true;
+    await initialize();
+  }
 
   Future<void> initialize() async {
     _busy = true;

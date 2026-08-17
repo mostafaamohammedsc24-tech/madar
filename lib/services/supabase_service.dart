@@ -263,6 +263,83 @@ class SupabaseService {
     }
   }
 
+  /// Spatially filtered property fetch for map viewport (indexed lat/lng).
+  Future<List<Map<String, dynamic>>> getPropertiesInBounds({
+    required double swLat,
+    required double swLng,
+    required double neLat,
+    required double neLng,
+    String? countryCode,
+    String? listingType,
+    String? propertyType,
+    int limit = 120,
+  }) async {
+    try {
+      if (DemoMode.enabled) {
+        return PropertyCatalogDemo.listings()
+            .where((p) {
+              if (p.lat < swLat || p.lat > neLat) return false;
+              if (p.lng < swLng || p.lng > neLng) return false;
+              if (listingType != null && p.listingType != listingType) {
+                return false;
+              }
+              if (propertyType != null && p.type != propertyType) return false;
+              return true;
+            })
+            .map((p) => p.rawData)
+            .take(limit)
+            .toList();
+      }
+
+      var query = client
+          .from('properties_v3')
+          .select('id, title, asking_price, price, currency, total_area_sqm, area, '
+              'bedrooms_count, bedrooms, bathrooms_count, bathrooms, property_type, '
+              'listing_type, latitude, longitude, country_code, is_verified, '
+              'is_featured, image_url, district, address_text, created_at')
+          .gte('latitude', swLat)
+          .lte('latitude', neLat)
+          .gte('longitude', swLng)
+          .lte('longitude', neLng);
+
+      if (countryCode != null) {
+        query = query.eq('country_code', countryCode);
+      }
+      if (listingType != null) {
+        query = query.eq('listing_type', listingType);
+      }
+      if (propertyType != null) {
+        query = query.eq('property_type', propertyType);
+      }
+
+      final response = await query
+          .order('created_at', ascending: false)
+          .limit(limit);
+      final rows = List<Map<String, dynamic>>.from(response);
+      if (rows.isNotEmpty) return rows;
+
+      return PropertyCatalogDemo.listings()
+          .where((p) =>
+              p.lat >= swLat &&
+              p.lat <= neLat &&
+              p.lng >= swLng &&
+              p.lng <= neLng)
+          .map((p) => p.rawData)
+          .take(limit)
+          .toList();
+    } catch (e) {
+      return PropertyCatalogDemo.listings()
+          .where((p) =>
+              p.lat >= swLat &&
+              p.lat <= neLat &&
+              p.lng >= swLng &&
+              p.lng <= neLng)
+          .map((p) => p.rawData)
+          .take(limit)
+          .toList();
+    }
+  }
+
   Future<Map<String, dynamic>?> getPropertyById(String id) async {
     try {
       final response = await client

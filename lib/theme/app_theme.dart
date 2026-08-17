@@ -198,5 +198,99 @@ class AppTheme {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: EdgeInsets.zero,
     ),
+    inputDecorationTheme: InputDecorationThemeData(
+      filled: true,
+      fillColor: surfaceVariantDark,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: borderDark),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: borderDark),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: primaryLight, width: 2),
+      ),
+      labelStyle: const TextStyle(color: Color(0xFFB0B0B0)),
+      hintStyle: const TextStyle(color: Color(0xFF888888)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: primaryLight,
+        side: const BorderSide(color: primaryLight),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: primaryLight),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: surfaceVariantDark,
+      selectedColor: primaryDark,
+      labelStyle: GoogleFonts.inter(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFFE6E6E6),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      side: const BorderSide(color: borderDark),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: surfaceDark,
+      modalBackgroundColor: surfaceDark,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: surfaceDark,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      titleTextStyle: GoogleFonts.inter(
+        color: const Color(0xFFE6E6E6),
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+    dividerTheme: const DividerThemeData(color: borderDark, thickness: 1),
+    iconTheme: const IconThemeData(color: Color(0xFFE6E6E6)),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: primary,
+      foregroundColor: Colors.white,
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) return primaryLight;
+        return const Color(0xFF888888);
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return primary.withValues(alpha: 0.45);
+        }
+        return surfaceVariantDark;
+      }),
+    ),
   );
 }

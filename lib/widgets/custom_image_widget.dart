@@ -82,7 +82,7 @@ class CustomImageWidget extends StatelessWidget {
   }
 
   ///build the image with border radius
-  _buildCircleImage() {
+  Widget _buildCircleImage() {
     if (radius != null) {
       return ClipRRect(
         borderRadius: radius ?? BorderRadius.zero,
@@ -94,7 +94,7 @@ class CustomImageWidget extends StatelessWidget {
   }
 
   ///build the image with border and border radius style
-  _buildImageWithBorder() {
+  Widget _buildImageWithBorder() {
     if (border != null) {
       return Container(
         decoration: BoxDecoration(border: border, borderRadius: radius),
@@ -136,29 +136,15 @@ class CustomImageWidget extends StatelessWidget {
             semanticLabel: semanticLabel,
           );
         case ImageType.network:
-          return CachedNetworkImage(
+          return _NetworkImage(
+            imageUrl: imageUrl!,
             height: height,
             width: width,
             fit: fit,
-            imageUrl: imageUrl!,
             color: color,
-            placeholder: (context, url) => SizedBox(
-              height: 30,
-              width: 30,
-              child: LinearProgressIndicator(
-                color: Colors.grey.shade200,
-                backgroundColor: Colors.grey.shade100,
-              ),
-            ),
-            errorWidget: (context, url, error) =>
-                errorWidget ??
-                Image.asset(
-                  placeHolder,
-                  height: height,
-                  width: width,
-                  fit: fit ?? BoxFit.cover,
-                  semanticLabel: semanticLabel,
-                ),
+            placeHolder: placeHolder,
+            errorWidget: errorWidget,
+            semanticLabel: semanticLabel,
           );
         case ImageType.png:
         default:
@@ -173,5 +159,66 @@ class CustomImageWidget extends StatelessWidget {
       }
     }
     return SizedBox();
+  }
+}
+
+class _NetworkImage extends StatelessWidget {
+  const _NetworkImage({
+    required this.imageUrl,
+    this.height,
+    this.width,
+    this.fit,
+    this.color,
+    required this.placeHolder,
+    this.errorWidget,
+    this.semanticLabel,
+  });
+
+  final String imageUrl;
+  final double? height;
+  final double? width;
+  final BoxFit? fit;
+  final Color? color;
+  final String placeHolder;
+  final Widget? errorWidget;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final targetW = width;
+    final memW = targetW != null && targetW.isFinite && targetW > 0
+        ? (targetW * dpr).round()
+        : null;
+    final memH = height != null && height!.isFinite
+        ? (height! * dpr).round()
+        : null;
+
+    return CachedNetworkImage(
+      height: height,
+      width: width,
+      fit: fit,
+      imageUrl: imageUrl,
+      color: color,
+      memCacheWidth: memW,
+      memCacheHeight: memH,
+      placeholder: (context, url) => SizedBox(
+        height: height ?? 30,
+        width: width ?? 30,
+        child: LinearProgressIndicator(
+          color: Colors.grey.shade200,
+          backgroundColor: Colors.grey.shade100,
+        ),
+      ),
+      errorWidget: (context, url, error) =>
+          errorWidget ??
+          Image.asset(
+            placeHolder,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.cover,
+            semanticLabel: semanticLabel,
+          ),
+    );
   }
 }
