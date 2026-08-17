@@ -1843,8 +1843,11 @@ class AppLocalizations {
   );
   String get empIdLabel =>
       _t(en: 'Employee ID', ar: 'رقم الموظف', ku: 'ناسنامەی کارمەند');
-  String get empIdHint =>
-      _t(en: 'e.g. EMP-IQ-000184', ar: 'مثال: EMP-IQ-000184', ku: 'نموونە: EMP-IQ-000184');
+  String get empIdHint => _t(
+    en: 'SYS-001 or phone 07…',
+    ar: 'SYS-001 أو رقم الهاتف 07…',
+    ku: 'SYS-001 یان ژمارەی مۆبایل 07…',
+  );
   String get empSecretLabel =>
       _t(en: 'Secret Code', ar: 'الرمز السري', ku: 'کۆدی نهێنی');
   String get empSecretHint =>
