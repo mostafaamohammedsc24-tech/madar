@@ -209,6 +209,14 @@ class EmployeeRepository {
     }
   }
 
+  Future<void> markNotificationRead(String notificationId) async {
+    try {
+      await _supabase.client.from('employee_notifications').update({
+        'read_at': DateTime.now().toIso8601String(),
+      }).eq('id', notificationId);
+    } catch (_) {}
+  }
+
   Future<List<Map<String, dynamic>>> listAuditLogs({int limit = 50}) async {
     if (!can(EmployeePermission.auditView)) return [];
     try {
@@ -259,6 +267,66 @@ class EmployeeRepository {
             'title': o['name'],
             'subtitle': o['office_code'],
             'raw': o,
+          });
+        }
+      } catch (_) {}
+    }
+
+    if (can(EmployeePermission.propertyRead) ||
+        can(EmployeePermission.publishingView) ||
+        can(EmployeePermission.propertiesView)) {
+      try {
+        final assets = await _supabase.client
+            .from('property_assets')
+            .select('id, public_property_id, pipeline_status, city')
+            .or('public_property_id.eq.$t,city.ilike.%$t%')
+            .limit(10);
+        for (final a in List<Map<String, dynamic>>.from(assets)) {
+          results.add({
+            'type': 'property',
+            'id': a['id'],
+            'title': '#${a['public_property_id']}',
+            'subtitle': a['pipeline_status'],
+            'raw': a,
+          });
+        }
+      } catch (_) {}
+    }
+
+    if (can(EmployeePermission.hrView) ||
+        can(EmployeePermission.employeeEdit)) {
+      try {
+        final emps = await _supabase.client
+            .from('employees')
+            .select('id, employee_code, full_name, employment_status')
+            .or('employee_code.ilike.%$t%,full_name.ilike.%$t%,phone.ilike.%$t%')
+            .limit(10);
+        for (final e in List<Map<String, dynamic>>.from(emps)) {
+          results.add({
+            'type': 'employee',
+            'id': e['id'],
+            'title': e['full_name'],
+            'subtitle': e['employee_code'],
+            'raw': e,
+          });
+        }
+      } catch (_) {}
+    }
+
+    if (can(EmployeePermission.salesLeadsView)) {
+      try {
+        final leads = await _supabase.client
+            .from('sales_leads')
+            .select('id, lead_code, full_name, status, phone')
+            .or('lead_code.ilike.%$t%,full_name.ilike.%$t%,phone.ilike.%$t%')
+            .limit(10);
+        for (final l in List<Map<String, dynamic>>.from(leads)) {
+          results.add({
+            'type': 'lead',
+            'id': l['id'],
+            'title': l['full_name'],
+            'subtitle': '${l['lead_code']} · ${l['status']}',
+            'raw': l,
           });
         }
       } catch (_) {}
@@ -558,10 +626,24 @@ class EmployeeRepository {
     }
   }
 
-  Future<({bool success, String? message, String? phoneMasked, String? debugOtp})>
-      requestBuyerOtp(String transactionId) async {
+  Future<
+      ({
+        bool success,
+        String? message,
+        String? phoneMasked,
+        String? phoneE164,
+        String? delivery,
+        String? debugOtp,
+      })> requestBuyerOtp(String transactionId) async {
     if (_token == null) {
-      return (success: false, message: 'unauthorized', phoneMasked: null, debugOtp: null);
+      return (
+        success: false,
+        message: 'unauthorized',
+        phoneMasked: null,
+        phoneE164: null,
+        delivery: null,
+        debugOtp: null,
+      );
     }
     try {
       final result = await _supabase.client.rpc(
@@ -576,6 +658,8 @@ class EmployeeRepository {
           success: false,
           message: (result is Map ? result['message'] : null)?.toString(),
           phoneMasked: null,
+          phoneE164: null,
+          delivery: null,
           debugOtp: null,
         );
       }
@@ -583,10 +667,43 @@ class EmployeeRepository {
         success: true,
         message: null,
         phoneMasked: result['phone_masked']?.toString(),
+        phoneE164: result['phone_e164']?.toString(),
+        delivery: result['delivery']?.toString(),
         debugOtp: result['debug_otp']?.toString(),
       );
     } catch (_) {
-      return (success: false, message: 'unavailable', phoneMasked: null, debugOtp: null);
+      return (
+        success: false,
+        message: 'unavailable',
+        phoneMasked: null,
+        phoneE164: null,
+        delivery: null,
+        debugOtp: null,
+      );
+    }
+  }
+
+  Future<({bool success, String? message})> markBuyerVerifiedViaTwilio(
+    String transactionId,
+  ) async {
+    if (_token == null) return (success: false, message: 'unauthorized');
+    try {
+      final result = await _supabase.client.rpc(
+        'bank_mark_buyer_verified_via_twilio',
+        params: {
+          'p_session_token': _token,
+          'p_transaction_id': transactionId,
+        },
+      );
+      if (result is! Map || result['success'] != true) {
+        return (
+          success: false,
+          message: (result is Map ? result['message'] : 'failed')?.toString(),
+        );
+      }
+      return (success: true, message: null);
+    } catch (_) {
+      return (success: false, message: 'unavailable');
     }
   }
 

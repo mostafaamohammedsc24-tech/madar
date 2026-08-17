@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/localization/app_localizations.dart';
+import '../../../../../services/twilio_verify_service.dart';
 import '../../../core/domain/employee_permissions.dart';
 import '../../../core/presentation/providers/employee_auth_notifier.dart';
 
@@ -20,7 +21,10 @@ class _BankTransactionDetailScreenState
   final _otpCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
   final _refCtrl = TextEditingController();
+  final _twilio = TwilioVerifyService();
   String? _maskedPhone;
+  String? _phoneE164;
+  bool _viaTwilio = false;
   bool _verified = false;
   bool _busy = false;
 
@@ -47,16 +51,40 @@ class _BankTransactionDetailScreenState
     final res = await auth.repository.requestBuyerOtp(
       widget.transaction['id'].toString(),
     );
+    var twilioOk = false;
+    var message = res.message;
+    if (res.success) {
+      final phone = res.phoneE164 ??
+          widget.transaction['buyer_phone']?.toString();
+      if (phone != null && phone.startsWith('+')) {
+        final sms = await _twilio.sendSms(phone);
+        twilioOk = sms.success;
+        if (sms.success) {
+          message = '${loc.empOtpSent} (Twilio SMS)';
+        } else if (res.debugOtp != null) {
+          message =
+              '${loc.empOtpSent} ${res.phoneMasked ?? ''} · lab code ${res.debugOtp}';
+        } else {
+          message = sms.message ?? 'SMS gateway unavailable';
+        }
+      } else if (res.debugOtp != null) {
+        message =
+            '${loc.empOtpSent} ${res.phoneMasked ?? ''} · lab code ${res.debugOtp}';
+      }
+    }
     if (!mounted) return;
     setState(() {
       _busy = false;
       _maskedPhone = res.phoneMasked;
+      _phoneE164 = res.phoneE164 ??
+          widget.transaction['buyer_phone']?.toString();
+      _viaTwilio = twilioOk || res.delivery == 'twilio_verify';
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           res.success
-              ? '${loc.empOtpSent} ${res.phoneMasked ?? ''}'
+              ? (message ?? loc.empOtpSent)
               : (res.message ?? loc.empActionFailed),
         ),
       ),
@@ -67,19 +95,40 @@ class _BankTransactionDetailScreenState
     final loc = AppLocalizations.of(context);
     final auth = context.read<EmployeeAuthNotifier>();
     setState(() => _busy = true);
-    final res = await auth.repository.verifyBuyerOtp(
-      transactionId: widget.transaction['id'].toString(),
-      otp: _otpCtrl.text.trim(),
-    );
+    var success = false;
+    String? message;
+    final code = _otpCtrl.text.trim();
+    final phone = _phoneE164;
+    if (_viaTwilio && phone != null && phone.startsWith('+')) {
+      final check = await _twilio.checkCode(phoneE164: phone, code: code);
+      if (check.success) {
+        final marked = await auth.repository.markBuyerVerifiedViaTwilio(
+          widget.transaction['id'].toString(),
+        );
+        success = marked.success;
+        message = marked.message;
+      } else {
+        message = check.message ?? 'otp_invalid';
+      }
+    } else {
+      final res = await auth.repository.verifyBuyerOtp(
+        transactionId: widget.transaction['id'].toString(),
+        otp: code,
+      );
+      success = res.success;
+      message = res.message;
+    }
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _verified = res.success;
+      _verified = success;
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          res.success ? loc.empIdentityConfirmed : (res.message ?? loc.empActionFailed),
+          success
+              ? loc.empIdentityConfirmed
+              : (message ?? loc.empActionFailed),
         ),
       ),
     );

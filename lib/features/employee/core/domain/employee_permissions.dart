@@ -41,6 +41,40 @@ abstract final class EmployeePermission {
   static const messagesSend = 'messages.send';
   static const auditView = 'audit.view';
   static const searchGlobal = 'search.global';
+
+  // Org architecture (008)
+  static const propertyRead = 'property.read';
+  static const propertyEdit = 'property.edit';
+  static const propertyPublish = 'property.publish';
+  static const transactionRead = 'transaction.read';
+  static const transactionEdit = 'transaction.edit';
+  static const financeRead = 'finance.read';
+  static const financeEdit = 'finance.edit';
+  static const financeSetFee = 'finance.set_fee';
+  static const contractCreate = 'contract.create';
+  static const contractEdit = 'contract.edit';
+  static const contractApprove = 'contract.approve';
+  static const contractDeliver = 'contract.deliver';
+  static const employeeCreate = 'employee.create';
+  static const employeeEdit = 'employee.edit';
+  static const employeeSuspend = 'employee.suspend';
+  static const employeeResetCredentials = 'employee.reset_credentials';
+  static const employeeAssignRole = 'employee.assign_role';
+  static const salesLeadsView = 'sales.leads.view';
+  static const salesLeadsEdit = 'sales.leads.edit';
+  static const salesClientsView = 'sales.clients.view';
+  static const salesHandoff = 'sales.handoff';
+  static const salesPropertyRequest = 'sales.property_request';
+  static const legalTransactionManage = 'legal.transaction.manage';
+  static const legalOwnershipTransfer = 'legal.ownership.transfer';
+  static const closingManage = 'closing.manage';
+  static const supportTickets = 'support.tickets';
+  static const qualityReview = 'quality.review';
+  static const complianceReview = 'compliance.review';
+  static const systemConfig = 'system.config';
+  static const executiveView = 'executive.view';
+  static const hrView = 'hr.view';
+  static const hrManage = 'hr.manage';
 }
 
 enum EmployeeDepartmentCode {
@@ -51,6 +85,16 @@ enum EmployeeDepartmentCode {
   information,
   photography,
   engineering,
+  hr,
+  sales,
+  contractLawyer,
+  transactionLawyer,
+  closing,
+  support,
+  quality,
+  compliance,
+  systemAdmin,
+  executive,
   unknown,
 }
 
@@ -70,6 +114,26 @@ EmployeeDepartmentCode departmentFromCode(String? code) {
       return EmployeeDepartmentCode.photography;
     case 'engineering':
       return EmployeeDepartmentCode.engineering;
+    case 'hr':
+      return EmployeeDepartmentCode.hr;
+    case 'sales':
+      return EmployeeDepartmentCode.sales;
+    case 'contract_lawyer':
+      return EmployeeDepartmentCode.contractLawyer;
+    case 'transaction_lawyer':
+      return EmployeeDepartmentCode.transactionLawyer;
+    case 'closing':
+      return EmployeeDepartmentCode.closing;
+    case 'support':
+      return EmployeeDepartmentCode.support;
+    case 'quality':
+      return EmployeeDepartmentCode.quality;
+    case 'compliance':
+      return EmployeeDepartmentCode.compliance;
+    case 'system_admin':
+      return EmployeeDepartmentCode.systemAdmin;
+    case 'executive':
+      return EmployeeDepartmentCode.executive;
     default:
       return EmployeeDepartmentCode.unknown;
   }

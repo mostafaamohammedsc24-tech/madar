@@ -7,6 +7,8 @@ import '../../../../../theme/app_theme.dart';
 import '../providers/employee_auth_notifier.dart';
 import 'employee_nav_config.dart';
 
+/// Single employee platform shell: Logo · Search · avatar header +
+/// Home / Work / Messages / Notifications / Profile.
 class EmployeeShell extends StatelessWidget {
   const EmployeeShell({required this.child, super.key});
 
@@ -21,7 +23,7 @@ class EmployeeShell extends StatelessWidget {
     }
 
     final width = MediaQuery.sizeOf(context).width;
-    final useSidebar = width >= 900;
+    final useRail = width >= 1000;
     final items = visibleNavItems(employee);
     final loc = AppLocalizations.of(context);
     final location = GoRouterState.of(context).uri.toString();
@@ -30,42 +32,14 @@ class EmployeeShell extends StatelessWidget {
       switch (item.labelKey) {
         case 'home':
           return loc.empNavHome;
-        case 'finOps':
-          return loc.empNavFinOps;
-        case 'deposits':
-          return loc.empNavDeposits;
-        case 'offices':
-          return loc.empNavOffices;
-        case 'commissions':
-          return loc.empNavCommissions;
-        case 'settlements':
-          return loc.empNavSettlements;
-        case 'audit':
-          return loc.empNavAudit;
+        case 'work':
+          return loc.empNavWork;
+        case 'messages':
+          return loc.empNavMessages;
         case 'notifications':
           return loc.empNavNotifications;
         case 'profile':
           return loc.empNavProfile;
-        case 'operations':
-          return loc.empNavOperations;
-        case 'receipts':
-          return loc.empNavReceipts;
-        case 'reports':
-          return loc.empNavReports;
-        case 'photography':
-          return loc.empNavPhotography;
-        case 'chats':
-          return loc.empNavChats;
-        case 'requests':
-          return 'Requests';
-        case 'newRequest':
-          return 'New request';
-        case 'assigned':
-          return 'Assigned';
-        case 'shoots':
-          return 'Shoots';
-        case 'floorPlans':
-          return 'Floor plans';
         default:
           return item.labelKey;
       }
@@ -77,36 +51,34 @@ class EmployeeShell extends StatelessWidget {
       ),
       employeeName: employee.fullName,
       onSearch: () => context.push('/employee/search'),
-      onNotifications: () => context.push('/employee/notifications'),
-      onProfile: () => context.push('/employee/profile'),
+      onAvatar: () => context.go('/employee/profile'),
     );
 
-    if (useSidebar) {
+    final selected = _indexFor(items, location).clamp(0, items.length - 1);
+
+    if (useRail) {
       return Scaffold(
         backgroundColor: AppTheme.backgroundLight,
-        body: Row(
+        body: Column(
           children: [
-            NavigationRail(
-              extended: width >= 1100,
-              selectedIndex: _indexFor(items, location).clamp(0, items.length - 1),
-              onDestinationSelected: (i) => context.go(items[i].route),
-              labelType: width >= 1100
-                  ? NavigationRailLabelType.none
-                  : NavigationRailLabelType.all,
-              destinations: [
-                for (final item in items)
-                  NavigationRailDestination(
-                    icon: Icon(item.icon),
-                    selectedIcon: Icon(item.selectedIcon),
-                    label: Text(labelFor(item)),
-                  ),
-              ],
-            ),
-            const VerticalDivider(width: 1),
+            header,
             Expanded(
-              child: Column(
+              child: Row(
                 children: [
-                  header,
+                  NavigationRail(
+                    selectedIndex: selected,
+                    onDestinationSelected: (i) => context.go(items[i].route),
+                    labelType: NavigationRailLabelType.all,
+                    destinations: [
+                      for (final item in items)
+                        NavigationRailDestination(
+                          icon: Icon(item.icon),
+                          selectedIcon: Icon(item.selectedIcon),
+                          label: Text(labelFor(item)),
+                        ),
+                    ],
+                  ),
+                  const VerticalDivider(width: 1),
                   Expanded(child: child),
                 ],
               ),
@@ -116,7 +88,6 @@ class EmployeeShell extends StatelessWidget {
       );
     }
 
-    final mobileItems = items.take(5).toList();
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       body: Column(
@@ -126,11 +97,10 @@ class EmployeeShell extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex:
-            _indexFor(mobileItems, location).clamp(0, mobileItems.length - 1),
-        onDestinationSelected: (i) => context.go(mobileItems[i].route),
+        selectedIndex: selected,
+        onDestinationSelected: (i) => context.go(items[i].route),
         destinations: [
-          for (final item in mobileItems)
+          for (final item in items)
             NavigationDestination(
               icon: Icon(item.icon),
               selectedIcon: Icon(item.selectedIcon),
@@ -142,6 +112,27 @@ class EmployeeShell extends StatelessWidget {
   }
 
   int _indexFor(List<EmployeeNavItem> items, String location) {
+    // Nested work routes keep Work tab selected.
+    if (location.startsWith('/employee/work') ||
+        location.startsWith('/employee/finance') ||
+        location.startsWith('/employee/bank') ||
+        location.startsWith('/employee/om') ||
+        location.startsWith('/employee/publishing') ||
+        location.startsWith('/employee/information') ||
+        location.startsWith('/employee/media') ||
+        location.startsWith('/employee/engineering') ||
+        location.startsWith('/employee/sales') ||
+        location.startsWith('/employee/legal') ||
+        location.startsWith('/employee/hr') ||
+        location.startsWith('/employee/closing') ||
+        location.startsWith('/employee/support') ||
+        location.startsWith('/employee/quality') ||
+        location.startsWith('/employee/compliance') ||
+        location.startsWith('/employee/system') ||
+        location.startsWith('/employee/executive') ||
+        location.startsWith('/employee/audit')) {
+      return items.indexWhere((e) => e.route == '/employee/work').clamp(0, 4);
+    }
     for (var i = 0; i < items.length; i++) {
       if (location == items[i].route ||
           location.startsWith('${items[i].route}/')) {
@@ -157,15 +148,13 @@ class _EmployeeHeader extends StatelessWidget {
     required this.departmentName,
     required this.employeeName,
     required this.onSearch,
-    required this.onNotifications,
-    required this.onProfile,
+    required this.onAvatar,
   });
 
   final String departmentName;
   final String employeeName;
   final VoidCallback onSearch;
-  final VoidCallback onNotifications;
-  final VoidCallback onProfile;
+  final VoidCallback onAvatar;
 
   @override
   Widget build(BuildContext context) {
@@ -184,18 +173,17 @@ class _EmployeeHeader extends StatelessWidget {
             'Madar',
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
             ),
           ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
-            ),
+          const SizedBox(width: 10),
+          Flexible(
             child: Text(
               departmentName,
-              style: theme.textTheme.labelMedium,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           const Spacer(),
@@ -204,18 +192,15 @@ class _EmployeeHeader extends StatelessWidget {
             icon: const Icon(Icons.search),
             tooltip: 'Search',
           ),
-          IconButton(
-            onPressed: onNotifications,
-            icon: const Icon(Icons.notifications_outlined),
-          ),
-          IconButton(
-            onPressed: onProfile,
-            icon: CircleAvatar(
-              radius: 14,
+          InkWell(
+            onTap: onAvatar,
+            borderRadius: BorderRadius.circular(20),
+            child: CircleAvatar(
+              radius: 16,
               backgroundColor: theme.colorScheme.primaryContainer,
               child: Text(
                 employeeName.isNotEmpty ? employeeName[0].toUpperCase() : 'E',
-                style: theme.textTheme.labelMedium,
+                style: theme.textTheme.labelLarge,
               ),
             ),
           ),
