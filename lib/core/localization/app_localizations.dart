@@ -126,11 +126,6 @@ class AppLocalizations {
     ar: 'حمامات (الحد الأدنى)',
     ku: 'کەمترین ئاوخانە',
   );
-  String get propertyTypeLabel => _t(
-    en: 'Property type',
-    ar: 'نوع العقار',
-    ku: 'جۆری خانووبەرە',
-  );
   String get featuresLabel => _t(
     en: 'Features',
     ar: 'المميزات',
