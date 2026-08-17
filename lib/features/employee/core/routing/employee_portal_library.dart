@@ -1,0 +1,36 @@
+/// Deferred employee portal — all screens and shells load on first visit.
+library;
+
+export '../presentation/screens/employee_audit_screen.dart';
+export '../presentation/screens/employee_home_screen.dart';
+export '../presentation/screens/employee_login_screen.dart';
+export '../presentation/screens/employee_messages_screen.dart';
+export '../presentation/screens/employee_notifications_screen.dart';
+export '../presentation/screens/employee_profile_screen.dart';
+export '../presentation/screens/employee_search_screen.dart';
+export '../presentation/screens/employee_work_screen.dart';
+export '../presentation/shell/employee_shell.dart';
+export '../../bank/presentation/screens/bank_receipts_screen.dart';
+export '../../bank/presentation/screens/bank_transaction_detail_screen.dart';
+export '../../bank/presentation/screens/bank_transactions_screen.dart';
+export '../../finance/presentation/screens/finance_commissions_screen.dart';
+export '../../finance/presentation/screens/finance_deposits_screen.dart';
+export '../../finance/presentation/screens/finance_offices_accounts_screen.dart';
+export '../../finance/presentation/screens/finance_settlements_screen.dart';
+export '../../finance/presentation/screens/finance_transaction_detail_screen.dart';
+export '../../finance/presentation/screens/finance_transactions_screen.dart';
+export '../../hr/presentation/screens/hr_screens.dart';
+export '../../legal/presentation/screens/legal_screens.dart';
+export '../../office_management/presentation/screens/om_conversations_screen.dart';
+export '../../office_management/presentation/screens/om_create_office_screen.dart';
+export '../../office_management/presentation/screens/om_offices_screen.dart';
+export '../../office_management/presentation/screens/om_photography_screen.dart';
+export '../../office_management/presentation/screens/om_reports_screen.dart';
+export '../../ops/presentation/screens/ops_screens.dart';
+export '../../publishing/presentation/screens/engineering_workspace_screen.dart';
+export '../../publishing/presentation/screens/information_report_screen.dart';
+export '../../publishing/presentation/screens/media_workspace_screen.dart';
+export '../../publishing/presentation/screens/property_command_center_screen.dart';
+export '../../publishing/presentation/screens/publishing_create_request_screen.dart';
+export '../../publishing/presentation/screens/publishing_requests_screen.dart';
+export '../../sales/presentation/screens/sales_screens.dart';

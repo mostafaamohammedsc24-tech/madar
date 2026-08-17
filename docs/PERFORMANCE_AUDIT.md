@@ -34,7 +34,7 @@ See `docs/GOOGLE_MAPS_API_INVENTORY.md`.
 
 ## Fixes implemented in this phase
 
-1. **Deferred route loading** — heavy modules load on first navigation
+1. **Deferred route loading** — property report, messages, analytics, employee portal, office portal
 2. **Lazy partner auth init** — office/employee sessions restore only when needed
 3. **Bounds-based property repository** — debounced map idle → spatial query
 4. **Marker clustering** — grid clusters when marker count > threshold
@@ -51,10 +51,11 @@ See `docs/GOOGLE_MAPS_API_INVENTORY.md`.
 - `google_fonts` web download — consider bundling critical weights via `--dart-define` or asset fonts for AR/KU
 - Property report still heavy when opened (progressive sections already exist; further split deferred)
 - Web Google Maps script size unavoidable; mitigated by lazy map mount
+- User profile / transactions / ratings screens still in main bundle (lower priority)
 
 ## Verification checklist
 
-- [x] Cold load auth screen: no map/employee bundle (deferred routes + lazy partner auth)
+- [x] Cold load auth screen: no map/employee/office bundle (deferred partner portals)
 - [x] Navigate to map: map module loads once
 - [x] Pan map: debounced single bounds request (450ms)
 - [x] 100+ markers: clusters visible at low zoom

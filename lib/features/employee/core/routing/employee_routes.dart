@@ -2,42 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart' as provider;
 
-import '../presentation/screens/employee_audit_screen.dart';
-import '../presentation/screens/employee_home_screen.dart';
-import '../presentation/screens/employee_login_screen.dart';
-import '../presentation/screens/employee_notifications_screen.dart';
-import '../presentation/screens/employee_profile_screen.dart';
-import '../presentation/screens/employee_search_screen.dart';
-import '../presentation/shell/employee_shell.dart';
-import '../../finance/presentation/screens/finance_commissions_screen.dart';
-import '../../finance/presentation/screens/finance_deposits_screen.dart';
-import '../../finance/presentation/screens/finance_offices_accounts_screen.dart';
-import '../../finance/presentation/screens/finance_settlements_screen.dart';
-import '../../finance/presentation/screens/finance_transaction_detail_screen.dart';
-import '../../finance/presentation/screens/finance_transactions_screen.dart';
-import '../../bank/presentation/screens/bank_receipts_screen.dart';
-import '../../bank/presentation/screens/bank_transaction_detail_screen.dart';
-import '../../bank/presentation/screens/bank_transactions_screen.dart';
-import '../../office_management/presentation/screens/om_conversations_screen.dart';
-import '../../office_management/presentation/screens/om_create_office_screen.dart';
-import '../../office_management/presentation/screens/om_offices_screen.dart';
-import '../../office_management/presentation/screens/om_photography_screen.dart';
-import '../../office_management/presentation/screens/om_reports_screen.dart';
-import '../../publishing/presentation/screens/engineering_workspace_screen.dart';
-import '../../publishing/presentation/screens/information_report_screen.dart';
-import '../../publishing/presentation/screens/media_workspace_screen.dart';
-import '../../publishing/presentation/screens/property_command_center_screen.dart';
-import '../../publishing/presentation/screens/publishing_create_request_screen.dart';
-import '../../publishing/presentation/screens/publishing_requests_screen.dart';
-import '../presentation/screens/employee_messages_screen.dart';
-import '../presentation/screens/employee_work_screen.dart';
-import '../../sales/presentation/screens/sales_screens.dart';
-import '../../hr/presentation/screens/hr_screens.dart';
-import '../../legal/presentation/screens/legal_screens.dart';
-import '../../ops/presentation/screens/ops_screens.dart';
+import 'employee_portal_library.dart' deferred as portal;
 import 'employee_globals.dart';
 
-List<RouteBase> buildEmployeeRoutes() {
+Future<void> loadEmployeePortalLibrary() => portal.loadLibrary();
+
+List<RouteBase> buildEmployeeRoutes({
+  Widget Function(Widget Function() builder)? gate,
+}) {
+  Widget gated(Widget Function() builder) =>
+      gate != null ? gate(builder) : builder();
+
   Widget wrap(Widget child) => provider.ChangeNotifierProvider.value(
         value: employeeAuthNotifier,
         child: child,
@@ -46,9 +21,10 @@ List<RouteBase> buildEmployeeRoutes() {
   return [
     GoRoute(
       path: '/employee-login',
-      builder: (context, state) => wrap(const EmployeeLoginScreen()),
+      builder: (context, state) => wrap(
+        gated(() => portal.EmployeeLoginScreen()),
+      ),
     ),
-    // Legacy entry from partner strip
     GoRoute(
       path: '/employee-portal',
       redirect: (context, state) =>
@@ -57,233 +33,279 @@ List<RouteBase> buildEmployeeRoutes() {
               : '/employee-login',
     ),
     ShellRoute(
-      builder: (context, state, child) => wrap(EmployeeShell(child: child)),
+      builder: (context, state, child) => wrap(
+        gated(() => portal.EmployeeShell(child: child)),
+      ),
       routes: [
         GoRoute(
           path: '/employee/home',
-          builder: (context, state) => const EmployeeHomeScreen(),
+          builder: (context, state) =>
+              gated(() => portal.EmployeeHomeScreen()),
         ),
         GoRoute(
           path: '/employee/work',
-          builder: (context, state) => const EmployeeWorkScreen(),
+          builder: (context, state) =>
+              gated(() => portal.EmployeeWorkScreen()),
         ),
         GoRoute(
           path: '/employee/messages',
-          builder: (context, state) => const EmployeeMessagesScreen(),
+          builder: (context, state) =>
+              gated(() => portal.EmployeeMessagesScreen()),
         ),
         GoRoute(
           path: '/employee/profile',
-          builder: (context, state) => const EmployeeProfileScreen(),
+          builder: (context, state) =>
+              gated(() => portal.EmployeeProfileScreen()),
         ),
         GoRoute(
           path: '/employee/notifications',
-          builder: (context, state) => const EmployeeNotificationsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.EmployeeNotificationsScreen()),
         ),
         GoRoute(
           path: '/employee/search',
-          builder: (context, state) => const EmployeeSearchScreen(),
+          builder: (context, state) =>
+              gated(() => portal.EmployeeSearchScreen()),
         ),
         GoRoute(
           path: '/employee/audit',
-          builder: (context, state) => const EmployeeAuditScreen(),
+          builder: (context, state) =>
+              gated(() => portal.EmployeeAuditScreen()),
         ),
-        // Finance
         GoRoute(
           path: '/employee/finance/transactions',
-          builder: (context, state) => const FinanceTransactionsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.FinanceTransactionsScreen()),
         ),
         GoRoute(
           path: '/employee/finance/deposits',
-          builder: (context, state) => const FinanceDepositsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.FinanceDepositsScreen()),
         ),
         GoRoute(
           path: '/employee/finance/offices',
-          builder: (context, state) => const FinanceOfficesAccountsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.FinanceOfficesAccountsScreen()),
         ),
         GoRoute(
           path: '/employee/finance/commissions',
-          builder: (context, state) => const FinanceCommissionsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.FinanceCommissionsScreen()),
         ),
         GoRoute(
           path: '/employee/finance/settlements',
-          builder: (context, state) => const FinanceSettlementsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.FinanceSettlementsScreen()),
         ),
         GoRoute(
           path: '/employee/finance/transaction/:id',
           builder: (context, state) {
             final tx = state.extra as Map<String, dynamic>? ??
                 {'id': state.pathParameters['id']};
-            return FinanceTransactionDetailScreen(transaction: tx);
+            return gated(
+              () => portal.FinanceTransactionDetailScreen(transaction: tx),
+            );
           },
         ),
-        // Bank
         GoRoute(
           path: '/employee/bank/transactions',
-          builder: (context, state) => const BankTransactionsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.BankTransactionsScreen()),
         ),
         GoRoute(
           path: '/employee/bank/deposits',
-          builder: (context, state) => const FinanceDepositsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.FinanceDepositsScreen()),
         ),
         GoRoute(
           path: '/employee/bank/receipts',
-          builder: (context, state) => const BankReceiptsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.BankReceiptsScreen()),
         ),
         GoRoute(
           path: '/employee/bank/transaction/:id',
           builder: (context, state) {
             final tx = state.extra as Map<String, dynamic>? ??
                 {'id': state.pathParameters['id']};
-            return BankTransactionDetailScreen(transaction: tx);
+            return gated(
+              () => portal.BankTransactionDetailScreen(transaction: tx),
+            );
           },
         ),
-        // Office management
         GoRoute(
           path: '/employee/om/offices',
-          builder: (context, state) => const OmOfficesScreen(),
+          builder: (context, state) => gated(() => portal.OmOfficesScreen()),
         ),
         GoRoute(
           path: '/employee/om/offices/create',
-          builder: (context, state) => const OmCreateOfficeScreen(),
+          builder: (context, state) =>
+              gated(() => portal.OmCreateOfficeScreen()),
         ),
         GoRoute(
           path: '/employee/om/reports',
-          builder: (context, state) => const OmReportsScreen(),
+          builder: (context, state) => gated(() => portal.OmReportsScreen()),
         ),
         GoRoute(
           path: '/employee/om/photography',
-          builder: (context, state) => const OmPhotographyScreen(),
+          builder: (context, state) =>
+              gated(() => portal.OmPhotographyScreen()),
         ),
         GoRoute(
           path: '/employee/om/conversations',
-          builder: (context, state) => const OmConversationsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.OmConversationsScreen()),
         ),
-        // Publishing ops
         GoRoute(
           path: '/employee/publishing/requests',
-          builder: (context, state) => const PublishingRequestsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.PublishingRequestsScreen()),
         ),
         GoRoute(
           path: '/employee/publishing/create',
-          builder: (context, state) => const PublishingCreateRequestScreen(),
+          builder: (context, state) =>
+              gated(() => portal.PublishingCreateRequestScreen()),
         ),
         GoRoute(
           path: '/employee/publishing/property/:id',
-          builder: (context, state) => PropertyCommandCenterScreen(
-            propertyAssetId: state.pathParameters['id']!,
+          builder: (context, state) => gated(
+            () => portal.PropertyCommandCenterScreen(
+              propertyAssetId: state.pathParameters['id']!,
+            ),
           ),
         ),
         GoRoute(
           path: '/employee/information/assigned',
-          builder: (context, state) =>
-              const PublishingRequestsScreen(assignedOnly: true),
+          builder: (context, state) => gated(
+            () => portal.PublishingRequestsScreen(assignedOnly: true),
+          ),
         ),
         GoRoute(
           path: '/employee/information/property/:id',
-          builder: (context, state) => InformationReportScreen(
-            propertyAssetId: state.pathParameters['id']!,
+          builder: (context, state) => gated(
+            () => portal.InformationReportScreen(
+              propertyAssetId: state.pathParameters['id']!,
+            ),
           ),
         ),
         GoRoute(
           path: '/employee/media/assigned',
-          builder: (context, state) =>
-              const PublishingRequestsScreen(assignedOnly: true),
+          builder: (context, state) => gated(
+            () => portal.PublishingRequestsScreen(assignedOnly: true),
+          ),
         ),
         GoRoute(
           path: '/employee/media/property/:id',
-          builder: (context, state) => MediaWorkspaceScreen(
-            propertyAssetId: state.pathParameters['id']!,
+          builder: (context, state) => gated(
+            () => portal.MediaWorkspaceScreen(
+              propertyAssetId: state.pathParameters['id']!,
+            ),
           ),
         ),
         GoRoute(
           path: '/employee/engineering/assigned',
-          builder: (context, state) =>
-              const PublishingRequestsScreen(assignedOnly: true),
+          builder: (context, state) => gated(
+            () => portal.PublishingRequestsScreen(assignedOnly: true),
+          ),
         ),
         GoRoute(
           path: '/employee/engineering/property/:id',
-          builder: (context, state) => EngineeringWorkspaceScreen(
-            propertyAssetId: state.pathParameters['id']!,
+          builder: (context, state) => gated(
+            () => portal.EngineeringWorkspaceScreen(
+              propertyAssetId: state.pathParameters['id']!,
+            ),
           ),
         ),
-        // Sales
         GoRoute(
           path: '/employee/sales/leads',
-          builder: (context, state) => const SalesLeadsScreen(),
+          builder: (context, state) => gated(() => portal.SalesLeadsScreen()),
         ),
         GoRoute(
           path: '/employee/sales/followups',
-          builder: (context, state) => const SalesFollowUpsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.SalesFollowUpsScreen()),
         ),
         GoRoute(
           path: '/employee/sales/deals',
-          builder: (context, state) => const SalesDealsScreen(),
+          builder: (context, state) => gated(() => portal.SalesDealsScreen()),
         ),
-        // Legal
         GoRoute(
           path: '/employee/legal/contracts',
           builder: (context, state) {
             final filter = state.uri.queryParameters['filter'];
-            return ContractListScreen(statusFilter: filter);
+            return gated(
+              () => portal.ContractListScreen(statusFilter: filter),
+            );
           },
         ),
         GoRoute(
           path: '/employee/legal/contracts/:id',
-          builder: (context, state) => ContractWorkspaceScreen(
-            contractId: state.pathParameters['id']!,
+          builder: (context, state) => gated(
+            () => portal.ContractWorkspaceScreen(
+              contractId: state.pathParameters['id']!,
+            ),
           ),
         ),
         GoRoute(
           path: '/employee/legal/transactions',
-          builder: (context, state) => const TransactionLawyerScreen(),
+          builder: (context, state) =>
+              gated(() => portal.TransactionLawyerScreen()),
         ),
         GoRoute(
           path: '/employee/legal/transactions/:id',
-          builder: (context, state) => TransactionTimelineScreen(
-            transactionId: state.pathParameters['id']!,
+          builder: (context, state) => gated(
+            () => portal.TransactionTimelineScreen(
+              transactionId: state.pathParameters['id']!,
+            ),
           ),
         ),
         GoRoute(
           path: '/employee/legal/ownership',
-          builder: (context, state) => const OwnershipTransfersScreen(),
+          builder: (context, state) =>
+              gated(() => portal.OwnershipTransfersScreen()),
         ),
-        // HR
         GoRoute(
           path: '/employee/hr/employees',
-          builder: (context, state) => const HrEmployeesScreen(),
+          builder: (context, state) => gated(() => portal.HrEmployeesScreen()),
         ),
         GoRoute(
           path: '/employee/hr/employees/create',
-          builder: (context, state) => const HrCreateEmployeeScreen(),
+          builder: (context, state) =>
+              gated(() => portal.HrCreateEmployeeScreen()),
         ),
         GoRoute(
           path: '/employee/hr/organization',
-          builder: (context, state) => const HrOrganizationScreen(),
+          builder: (context, state) =>
+              gated(() => portal.HrOrganizationScreen()),
         ),
-        // Closing / Support / Quality / Compliance / System / Executive
         GoRoute(
           path: '/employee/closing/cases',
-          builder: (context, state) => const ClosingCasesScreen(),
+          builder: (context, state) =>
+              gated(() => portal.ClosingCasesScreen()),
         ),
         GoRoute(
           path: '/employee/support/tickets',
-          builder: (context, state) => const SupportTicketsScreen(),
+          builder: (context, state) =>
+              gated(() => portal.SupportTicketsScreen()),
         ),
         GoRoute(
           path: '/employee/quality/queue',
-          builder: (context, state) => const QualityReviewScreen(),
+          builder: (context, state) =>
+              gated(() => portal.QualityReviewScreen()),
         ),
         GoRoute(
           path: '/employee/compliance/cases',
-          builder: (context, state) => const ComplianceCasesScreen(),
+          builder: (context, state) =>
+              gated(() => portal.ComplianceCasesScreen()),
         ),
         GoRoute(
           path: '/employee/system/admin',
-          builder: (context, state) => const SystemAdminScreen(),
+          builder: (context, state) =>
+              gated(() => portal.SystemAdminScreen()),
         ),
         GoRoute(
           path: '/employee/executive/overview',
-          builder: (context, state) => const ExecutiveDashboardScreen(),
+          builder: (context, state) =>
+              gated(() => portal.ExecutiveDashboardScreen()),
         ),
       ],
     ),
