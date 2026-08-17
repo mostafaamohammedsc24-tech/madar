@@ -1,5 +1,6 @@
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/theme/listing_filter_theme.dart';
 
 class MapFilterChipsWidget extends StatelessWidget {
   final List<String> options;
@@ -38,7 +39,7 @@ class MapFilterChipsWidget extends StatelessWidget {
     final loc = AppLocalizations.of(context);
 
     return SizedBox(
-      height: 36,
+      height: 38,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -48,35 +49,64 @@ class MapFilterChipsWidget extends StatelessWidget {
           final option = options[i];
           final isSelected = option == selected;
           final label = loc.filterLabel(option);
+          final accent = ListingFilterTheme.colorForFilter(option);
+          final isAll = option == 'All';
+
+          final bgColor = isSelected
+              ? (isAll ? AppTheme.primary : accent)
+              : (isAll
+                  ? theme.colorScheme.surface
+                  : accent.withValues(alpha: 0.12));
+          final borderColor = isAll
+              ? (isSelected
+                  ? AppTheme.primary
+                  : theme.colorScheme.outlineVariant)
+              : accent.withValues(alpha: isSelected ? 1 : 0.55);
+          final fgColor = isSelected
+              ? Colors.white
+              : (isAll ? theme.colorScheme.onSurface : accent);
 
           return GestureDetector(
             onTap: () => onChanged(option),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeOutCubic,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? AppTheme.primary
-                    : theme.colorScheme.surface,
+                color: bgColor,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: borderColor, width: isSelected ? 1.5 : 1),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(20),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
+                  if (isSelected)
+                    BoxShadow(
+                      color: (isAll ? AppTheme.primary : accent).withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  else
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
                 ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (option != 'All') ...[
+                  if (!isAll) ...[
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.white : accent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
                     CustomIconWidget(
                       iconName: _getIcon(option),
-                      color: isSelected
-                          ? Colors.white
-                          : theme.colorScheme.onSurfaceVariant,
+                      color: fgColor,
                       size: 13,
                     ),
                     const SizedBox(width: 5),
@@ -85,12 +115,8 @@ class MapFilterChipsWidget extends StatelessWidget {
                     label,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: isSelected
-                          ? Colors.white
-                          : theme.colorScheme.onSurface,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color: fgColor,
                     ),
                   ),
                 ],
