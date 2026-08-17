@@ -183,6 +183,11 @@ class AppLocalizations {
     ar: 'تواصل مع المبيعات',
     ku: 'پەیوەندی بکە بە فرۆشتن',
   );
+  String get contactSalesShort => _t(
+    en: 'Contact',
+    ar: 'تواصل',
+    ku: 'پەیوەندی',
+  );
   String get aiConsult =>
       _t(en: 'AI Consult', ar: 'استشارة الذكاء الاصطناعي', ku: 'ئەی ئای ڕاوێژ');
   String get whatsSpecial =>

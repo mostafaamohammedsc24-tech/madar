@@ -24,36 +24,53 @@ class PropertyStickyActionBar extends StatelessWidget {
       elevation: 8,
       color: theme.colorScheme.surface,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(12, 10, 12, 10 + bottom),
-        child: Row(
+        padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: onContact,
-                icon: const Icon(Icons.phone_outlined, size: 18),
-                label: Text(
-                  loc.contactSales,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            FilledButton.icon(
+              onPressed: onContact,
+              icon: const Icon(Icons.phone_outlined, size: 20),
+              label: Text(
+                loc.contactSalesShort,
+                textAlign: TextAlign.center,
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton.icon(
+                  onPressed: onAskAi,
+                  icon: Icon(
+                    Icons.psychology_outlined,
+                    size: 20,
+                    color: theme.colorScheme.primary,
+                  ),
+                  label: Text(
+                    loc.askAi,
+                    style: TextStyle(color: theme.colorScheme.primary),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              onPressed: onAskAi,
-              tooltip: loc.askAi,
-              icon: Icon(
-                Icons.psychology_outlined,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-            IconButton(
-              onPressed: onScheduleTour,
-              tooltip: loc.scheduleVisit,
-              icon: Icon(
-                Icons.calendar_month_outlined,
-                color: theme.colorScheme.primary,
-              ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: onScheduleTour,
+                  icon: Icon(
+                    Icons.calendar_month_outlined,
+                    size: 20,
+                    color: theme.colorScheme.primary,
+                  ),
+                  label: Text(
+                    loc.scheduleVisit,
+                    style: TextStyle(color: theme.colorScheme.primary),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

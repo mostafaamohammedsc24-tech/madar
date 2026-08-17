@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart' as provider;
 
-import 'office_portal_library.dart' deferred as portal;
+import 'office_portal_library.dart' as portal;
 import 'office_globals.dart';
-
-Future<void> loadOfficePortalLibrary() => portal.loadLibrary();
 
 /// Office partner portal routes. Pass [gate] to defer-load screens on web.
 List<RouteBase> buildOfficeRoutes({

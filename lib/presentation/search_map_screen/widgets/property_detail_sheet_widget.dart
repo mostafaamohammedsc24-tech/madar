@@ -370,41 +370,47 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: _openFullReport,
-                            icon: const Icon(Icons.open_in_full, size: 18),
-                            label: Text(loc.moreDetails),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppTheme.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              FilledButton.icon(
+                                onPressed: _openFullReport,
+                                icon: const Icon(Icons.open_in_full, size: 20),
+                                label: Text(loc.moreDetails),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: AppTheme.primary,
+                                  foregroundColor: Colors.white,
+                                  minimumSize: const Size.fromHeight(48),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: _contactSales,
-                            icon: const Icon(Icons.phone_outlined, size: 18),
-                            label: Text(
-                              loc.contactSales,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppTheme.primary,
-                              side: const BorderSide(color: AppTheme.primary),
-                              padding: const EdgeInsets.symmetric(vertical: 13),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              const SizedBox(height: 10),
+                              OutlinedButton.icon(
+                                onPressed: _contactSales,
+                                icon: const Icon(Icons.phone_outlined, size: 20),
+                                label: Text(loc.contactSalesShort),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.primary,
+                                  side: const BorderSide(color: AppTheme.primary),
+                                  minimumSize: const Size.fromHeight(48),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 16),

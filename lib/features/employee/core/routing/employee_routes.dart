@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart' as provider;
 
-import 'employee_portal_library.dart' deferred as portal;
+import 'employee_portal_library.dart' as portal;
 import 'employee_globals.dart';
-
-Future<void> loadEmployeePortalLibrary() => portal.loadLibrary();
 
 List<RouteBase> buildEmployeeRoutes({
   Widget Function(Widget Function() builder)? gate,

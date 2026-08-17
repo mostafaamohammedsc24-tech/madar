@@ -10,8 +10,12 @@ import '../features/employee/core/routing/employee_globals.dart';
 import '../features/employee/core/routing/employee_redirect.dart';
 import '../features/office/routing/office_globals.dart';
 import '../features/office/routing/office_redirect.dart';
+import '../features/employee/core/routing/employee_routes.dart';
+import '../features/office/routing/office_routes.dart';
 import '../features/property/presentation/screens/property_report_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
+import '../presentation/analytics/property_analytics_screen.dart';
+import '../presentation/messages/messages_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
 import '../presentation/my_properties_screen/my_properties_screen.dart';
 import '../presentation/notifications/notification_center_screen.dart';
@@ -23,9 +27,6 @@ import '../presentation/search_map_screen/search_map_screen.dart';
 import '../presentation/transactions_screen/settlement_payout_receipt_screen.dart';
 import '../widgets/app_scaffold.dart';
 import '../presentation/auth/two_fa_verification_screen.dart';
-import 'deferred_screens.dart';
-import 'deferred_partner_portals.dart';
-
 class AppRoutes {
   static const String initial = '/';
   static const String auth = '/auth';
@@ -120,7 +121,8 @@ final GoRouter appRouter = GoRouter(
         transitionDuration: const Duration(milliseconds: 280),
       ),
     ),
-    ...buildDeferredPartnerPortalRoutes(),
+    ...buildEmployeeRoutes(),
+    ...buildOfficeRoutes(),
     GoRoute(
       path: AppRoutes.propertyDetail,
       pageBuilder: (context, state) {
@@ -290,7 +292,7 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.propertyAnalytics,
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
-        child: buildDeferredAnalyticsScreen(),
+        child: const PropertyAnalyticsScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             SlideTransition(
               position:
@@ -366,7 +368,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: AppRoutes.messagesScreen,
-              builder: (context, state) => buildDeferredMessagesScreen(),
+              builder: (context, state) => const MessagesScreen(),
             ),
           ],
         ),
