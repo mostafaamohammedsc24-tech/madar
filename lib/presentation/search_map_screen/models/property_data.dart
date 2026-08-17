@@ -1,4 +1,6 @@
 import '../../../core/app_export.dart';
+import '../../../core/currency/currency_registry.dart';
+import '../../../core/localization/app_localizations.dart';
 
 /// Lightweight listing model used by map search, AI chat cards, and list UIs.
 class PropertyData {
@@ -59,8 +61,12 @@ class PropertyData {
           'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600';
     }
 
-    final lat = (d['latitude'] as num?)?.toDouble() ?? 0.0;
-    final lng = (d['longitude'] as num?)?.toDouble() ?? 0.0;
+    final lat = (d['latitude'] as num?)?.toDouble() ??
+        (d['lat'] as num?)?.toDouble() ??
+        0.0;
+    final lng = (d['longitude'] as num?)?.toDouble() ??
+        (d['lng'] as num?)?.toDouble() ??
+        0.0;
 
     final city = d['city'] as String? ?? '';
     final district = d['district'] as String? ?? '';
@@ -92,13 +98,23 @@ class PropertyData {
           d['title'] as String? ??
           '${d['property_type'] ?? 'Property'} — $district',
       address: address,
-      price: (d['asking_price'] as num?)?.toDouble() ?? 0,
+      price: (d['asking_price'] as num?)?.toDouble() ??
+          (d['price'] as num?)?.toDouble() ??
+          0,
       currency: d['currency'] as String? ?? 'USD',
-      area: (d['total_area_sqm'] as num?)?.toDouble() ?? 0,
-      bedrooms: (d['bedrooms_count'] as num?)?.toInt() ?? 0,
-      bathrooms: (d['bathrooms_count'] as num?)?.toInt() ?? 0,
-      type: d['property_type'] as String? ?? 'apartment',
-      listingType: d['listing_type'] as String? ?? 'sale',
+      area: (d['total_area_sqm'] as num?)?.toDouble() ??
+          (d['area'] as num?)?.toDouble() ??
+          0,
+      bedrooms: (d['bedrooms_count'] as num?)?.toInt() ??
+          (d['bedrooms'] as num?)?.toInt() ??
+          0,
+      bathrooms: (d['bathrooms_count'] as num?)?.toInt() ??
+          (d['bathrooms'] as num?)?.toInt() ??
+          0,
+      type: d['property_type'] as String? ?? d['type'] as String? ?? 'apartment',
+      listingType: d['listing_type'] as String? ??
+          d['listingType'] as String? ??
+          'sale',
       lat: lat,
       lng: lng,
       imageUrl: imageUrl,
@@ -141,15 +157,101 @@ class PropertyData {
     );
   }
 
-  String get formattedPrice {
-    if (listingType == 'rent') {
-      return '\$${price.toStringAsFixed(0)}/mo';
+  double priceIn(String currencyCode) =>
+      CurrencyRegistry.convert(price, from: currency, to: currencyCode);
+
+  String displayPrice(
+    String currencyCode, {
+    bool monthlyRent = true,
+    AppLanguage language = AppLanguage.arabic,
+  }) {
+    final amount = priceIn(currencyCode);
+    final base = CurrencyRegistry.formatAmount(amount, currencyCode);
+    if (listingType == 'rent' && monthlyRent) {
+      final suffix = switch (language) {
+        AppLanguage.arabic => '/ شهر',
+        AppLanguage.kurdish => '/ مانگ',
+        AppLanguage.english => '/mo',
+      };
+      return '$base $suffix';
     }
-    if (price >= 1000000) {
-      return '\$${(price / 1000000).toStringAsFixed(1)}M';
-    }
-    return '\$${(price / 1000).toStringAsFixed(0)}K';
+    return base;
   }
+
+  String get formattedPrice => displayPrice(currency);
+
+  String localizedTitle(AppLanguage language) {
+    switch (language) {
+      case AppLanguage.arabic:
+        return rawData['title_ar']?.toString() ?? _arabicTitleFallback;
+      case AppLanguage.kurdish:
+        return rawData['title_ku']?.toString() ??
+            rawData['title_ar']?.toString() ??
+            title;
+      case AppLanguage.english:
+        return rawData['title_en']?.toString() ?? title;
+    }
+  }
+
+  String localizedAddress(AppLanguage language) {
+    switch (language) {
+      case AppLanguage.arabic:
+        return rawData['address_ar']?.toString() ?? address;
+      case AppLanguage.kurdish:
+        return rawData['address_ku']?.toString() ??
+            rawData['address_ar']?.toString() ??
+            address;
+      case AppLanguage.english:
+        return rawData['address_en']?.toString() ?? address;
+    }
+  }
+
+  String localizedTag(AppLocalizations loc, String tag) {
+    final feature = loc.featureName(tag);
+    if (feature != tag) return feature;
+    final nearby = loc.nearbyName(tag);
+    if (nearby != tag) return nearby;
+    final type = loc.propertyTypeName(tag);
+    if (type != tag) return type;
+    return tag;
+  }
+
+  String get _arabicTitleFallback {
+    final districtAr = district.isNotEmpty ? district : address;
+    switch (type) {
+      case 'villa':
+        return 'فيلا — $districtAr';
+      case 'land':
+        return 'أرض — $districtAr';
+      case 'commercial':
+        return 'عقار تجاري — $districtAr';
+      case 'building':
+        return 'عمارة — $districtAr';
+      default:
+        return 'شقة — $districtAr';
+    }
+  }
+
+  String listingLabel(AppLocalizations loc) {
+    switch (listingType) {
+      case 'sale':
+        return loc.forSale;
+      case 'rent':
+        return loc.forRent;
+      case 'mortgage':
+        return loc.mortgage;
+      case 'investment':
+        return loc.investment;
+      default:
+        return loc.propertyTypeName(listingType);
+    }
+  }
+
+  String typeLabel(AppLocalizations loc) => loc.propertyTypeName(type);
+
+  String get listingTypeLabel => listingLabel(
+        AppLocalizations(AppLanguage.english),
+      );
 
   Color get listingTypeColor {
     switch (listingType) {
@@ -206,21 +308,6 @@ class PropertyData {
   int get yearBuilt {
     final raw = rawData['year_built'] ?? rawData['yearBuilt'];
     return int.tryParse(raw?.toString() ?? '') ?? 0;
-  }
-
-  String get listingTypeLabel {
-    switch (listingType) {
-      case 'sale':
-        return 'For Sale';
-      case 'rent':
-        return 'For Rent';
-      case 'mortgage':
-        return 'Mortgage';
-      case 'investment':
-        return 'Investment';
-      default:
-        return listingType;
-    }
   }
 
   Map<String, dynamic> toDetailMap() {

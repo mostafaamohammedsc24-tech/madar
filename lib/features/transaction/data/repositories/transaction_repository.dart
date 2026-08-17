@@ -1,7 +1,10 @@
+import '../../../../core/demo/demo_mode.dart';
+import '../../../../services/app_demo_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../../domain/enums/transaction_enums.dart';
 import '../../domain/models/deal_transaction.dart';
 import '../../domain/workflows/transaction_workflow.dart';
+import '../party_deal_store.dart';
 
 class TransactionRepository {
   TransactionRepository({SupabaseService? supabase})
@@ -33,6 +36,44 @@ class TransactionRepository {
     required String barcodeCode,
     required PartySide partySide,
   }) async {
+    if (DemoMode.enabled) {
+      final demo = AppDemoSeed.demoBarcode(barcodeCode);
+      if (demo == null) {
+        return const BarcodeRedemptionResult(
+          success: false,
+          transaction: null,
+          bothPartiesVerified: false,
+          message: 'barcode_not_found',
+        );
+      }
+      final txMap = Map<String, dynamic>.from(demo['transactions'] as Map);
+      final progress = PartyDealStore.of(txMap['id'].toString());
+      if (partySide == PartySide.buyer) {
+        progress.buyerBarcode = true;
+        txMap['buyer_barcode_uploaded'] = true;
+      } else {
+        progress.sellerBarcode = true;
+        txMap['seller_barcode_uploaded'] = true;
+      }
+      final both = progress.buyerBarcode && progress.sellerBarcode ||
+          (txMap['buyer_barcode_uploaded'] == true &&
+              txMap['seller_barcode_uploaded'] == true);
+      if (both) {
+        txMap['lifecycle_state'] = TransactionState.partiesVerified.wireValue;
+        txMap['buyer_barcode_uploaded'] = true;
+        txMap['seller_barcode_uploaded'] = true;
+      } else {
+        txMap['lifecycle_state'] = TransactionState.waitingForParties.wireValue;
+      }
+      return BarcodeRedemptionResult(
+        success: true,
+        transaction: DealTransaction.fromMap(txMap),
+        bothPartiesVerified: both,
+        waitingForOtherParty: !both,
+        message: both ? 'both_verified' : 'waiting_for_other_party',
+      );
+    }
+
     final userId = _supabase.currentUser?.id;
     if (userId == null) {
       return const BarcodeRedemptionResult(

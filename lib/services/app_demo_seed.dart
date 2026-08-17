@@ -155,80 +155,96 @@ abstract final class AppDemoSeed {
     return [
       {
         'id': 'demo_txn_001',
-        'transaction_number': 'MADAR-IQ-2026-001',
-        'reference_number': 'MADAR-IQ-2026-001',
+        'transaction_number': 'IQ-BGD-SALE-2026-000001',
+        'reference_number': 'IQ-BGD-SALE-2026-000001',
+        'property_id': 'prop_001',
         'property_address_snapshot': 'شارع النضال، الكرادة، بغداد',
         'transaction_type': 'sale',
-        'total_amount': 185000.0,
-        'currency_code': 'USD',
-        'current_stage_index': 3,
-        'lifecycle_state': 'in_progress',
-        'status': 'in_progress',
+        'country_code': 'IQ',
+        'total_amount': 242350000.0,
+        'currency_code': 'IQD',
+        'lifecycle_state': 'escrow_pending',
+        'status': 'escrow_pending',
+        'current_step_key': 'escrow',
         'created_at': DateTime.now().subtract(const Duration(days: 16)).toIso8601String(),
         'buyer_name': 'أحمد الراشدي',
         'seller_name': 'مريم خليل',
-        'transaction_stages': [
-          {
-            'stage_index': 0,
-            'title': 'التحقق من الهوية',
-            'status': 'completed',
-            'completed_at': DateTime.now().subtract(const Duration(days: 15)).toIso8601String(),
-            'icon': 'verified_user',
-          },
-          {
-            'stage_index': 1,
-            'title': 'المستمسكات والوثائق',
-            'status': 'completed',
-            'completed_at': DateTime.now().subtract(const Duration(days: 12)).toIso8601String(),
-            'icon': 'description',
-          },
-          {
-            'stage_index': 2,
-            'title': 'العقد والتوقيع',
-            'status': 'completed',
-            'completed_at': DateTime.now().subtract(const Duration(days: 9)).toIso8601String(),
-            'icon': 'gavel',
-          },
-          {
-            'stage_index': 3,
-            'title': 'الإيداع الضماني',
-            'status': 'in_progress',
-            'completed_at': null,
-            'icon': 'savings',
-          },
-          {
-            'stage_index': 4,
-            'title': 'نقل الملكية',
-            'status': 'pending',
-            'completed_at': null,
-            'icon': 'transfer_within_a_station',
-          },
-          {
-            'stage_index': 5,
-            'title': 'التسوية النهائية',
-            'status': 'pending',
-            'completed_at': null,
-            'icon': 'receipt',
-          },
-        ],
+        'buyer_phone': '+9647901234567',
+        'seller_phone': '+9647907654321',
+        'buyer_barcode_uploaded': true,
+        'seller_barcode_uploaded': true,
+        'buyer_identity_verified': true,
+        'seller_identity_verified': true,
+        'buyer_signed_contract': true,
+        'seller_signed_contract': true,
+        'barcode_code': 'IQ-BGD-SALE-2026-000001',
       },
       {
         'id': 'demo_txn_002',
-        'transaction_number': 'MADAR-IQ-2026-014',
-        'reference_number': 'MADAR-IQ-2026-014',
+        'transaction_number': 'IQ-BGD-RENT-2026-000014',
+        'reference_number': 'IQ-BGD-RENT-2026-000014',
         'property_address_snapshot': 'زيونة، بغداد',
         'transaction_type': 'rent',
-        'total_amount': 2800.0,
-        'currency_code': 'USD',
-        'current_stage_index': 1,
+        'country_code': 'IQ',
+        'total_amount': 3668000.0,
+        'currency_code': 'IQD',
         'lifecycle_state': 'waiting_for_parties',
-        'status': 'pending',
+        'status': 'waiting_for_parties',
+        'current_step_key': 'identity',
         'created_at': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
         'buyer_name': 'ليث المنصور',
         'seller_name': 'شركة الرافدين',
-        'transaction_stages': const [],
+        'buyer_phone': '+9647701112233',
+        'seller_phone': '+9647709998877',
+        'buyer_barcode_uploaded': false,
+        'seller_barcode_uploaded': false,
+        'barcode_code': 'IQ-BGD-RENT-2026-000014',
+      },
+      {
+        'id': 'demo_txn_003',
+        'transaction_number': 'IQ-BGD-AGRI-2026-000008',
+        'reference_number': 'IQ-BGD-AGRI-2026-000008',
+        'property_id': 'prop_015',
+        'property_address_snapshot': 'اليوسفية، بغداد',
+        'transaction_type': 'agricultural',
+        'country_code': 'IQ',
+        'total_amount': 288200000.0,
+        'currency_code': 'IQD',
+        'lifecycle_state': 'parties_verified',
+        'status': 'parties_verified',
+        'current_step_key': 'identity',
+        'created_at': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
+        'buyer_name': 'حسين العبودي',
+        'seller_name': 'فلاح اليوسفية',
+        'buyer_phone': '+9647502223344',
+        'seller_phone': '+9647505556677',
+        'buyer_barcode_uploaded': true,
+        'seller_barcode_uploaded': true,
+        'barcode_code': 'IQ-BGD-AGRI-2026-000008',
       },
     ];
+  }
+
+  static Map<String, dynamic>? demoBarcode(String code) {
+    final normalized = code.trim().toUpperCase();
+    for (final tx in userTransactions()) {
+      final bc = (tx['barcode_code'] ?? tx['transaction_number']).toString().toUpperCase();
+      if (bc == normalized) {
+        return {
+          'id': 'barcode-${tx['id']}',
+          'barcode_code': bc,
+          'transaction_id': tx['id'],
+          'transactions': tx,
+          'buyer_redeemed_at': tx['buyer_barcode_uploaded'] == true
+              ? DateTime.now().toIso8601String()
+              : null,
+          'seller_redeemed_at': tx['seller_barcode_uploaded'] == true
+              ? DateTime.now().toIso8601String()
+              : null,
+        };
+      }
+    }
+    return null;
   }
 
   static List<Map<String, dynamic>> userProperties() {

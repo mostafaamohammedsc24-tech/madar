@@ -31,6 +31,72 @@ class CurrencyRegistry {
 
   static MadarCurrency get fallback => findByCode('USD')!;
 
+  /// Approximate mid-market units per 1 USD (display conversion only).
+  static const Map<String, double> _usdRates = {
+    'USD': 1,
+    'IQD': 1310,
+    'SAR': 3.75,
+    'AED': 3.67,
+    'KWD': 0.31,
+    'QAR': 3.64,
+    'BHD': 0.38,
+    'OMR': 0.39,
+    'JOD': 0.71,
+    'EGP': 49,
+    'TRY': 34,
+    'EUR': 0.92,
+    'GBP': 0.78,
+  };
+
+  static double convert(double amount, {required String from, required String to}) {
+    final src = from.toUpperCase();
+    final dst = to.toUpperCase();
+    if (src == dst) return amount;
+    final fromRate = _usdRates[src] ?? 1;
+    final toRate = _usdRates[dst] ?? 1;
+    final usd = amount / fromRate;
+    return usd * toRate;
+  }
+
+  static String formatAmount(double amount, String currencyCode) {
+    final currency = findByCode(currencyCode) ?? fallback;
+    final digits = currency.decimalDigits;
+    final value = amount.round();
+    final formatted = _groupDigits(value);
+    if (currency.code == 'IQD') {
+      return '${currency.symbol} $formatted';
+    }
+    if (digits == 0) {
+      return '${currency.symbol}$formatted';
+    }
+    return '${currency.symbol}${amount.toStringAsFixed(digits)}';
+  }
+
+  static String _groupDigits(int value) {
+    final sign = value < 0 ? '-' : '';
+    final digits = value.abs().toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      final fromEnd = digits.length - i;
+      buf.write(digits[i]);
+      if (fromEnd > 1 && fromEnd % 3 == 1) buf.write(',');
+    }
+    return '$sign$buf';
+  }
+
+  static double filterMaxFor(String currencyCode) {
+    switch (currencyCode.toUpperCase()) {
+      case 'IQD':
+        return 1000000000000; // 1 trillion
+      case 'KWD':
+      case 'BHD':
+      case 'OMR':
+        return 50000000;
+      default:
+        return 50000000;
+    }
+  }
+
   static String defaultCurrencyForCountry(String isoCode) {
     return _countryCurrencyMap[isoCode.toUpperCase()] ?? 'USD';
   }

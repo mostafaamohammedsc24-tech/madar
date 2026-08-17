@@ -50,7 +50,7 @@ class UserAuthNotifier extends ChangeNotifier {
     if (!_isDemoUi) return;
     _setState(
       _state.copyWith(
-        status: UserAuthStatus.awaitingRegionSetup,
+        status: UserAuthStatus.awaitingLocationPermission,
         phoneNumber: '7901234567',
         selectedCountry: authCountryByIso('IQ'),
         selectedLanguage: AppLanguage.arabic,
@@ -106,8 +106,11 @@ class UserAuthNotifier extends ChangeNotifier {
       selectedCurrencyCode: currency,
     );
 
+    final locationHandled = await _storage.isPreAuthLocationHandled();
     final UserAuthStatus nextStatus;
-    if (regionComplete) {
+    if (!locationHandled) {
+      nextStatus = UserAuthStatus.awaitingLocationPermission;
+    } else if (regionComplete) {
       nextStatus = UserAuthStatus.unauthenticated;
     } else {
       nextStatus = UserAuthStatus.awaitingRegionSetup;

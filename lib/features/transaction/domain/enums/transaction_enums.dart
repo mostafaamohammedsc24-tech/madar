@@ -26,6 +26,9 @@ enum TransactionState {
     switch ((raw ?? '').toLowerCase().trim()) {
       case 'created':
         return TransactionState.created;
+      case 'in_progress':
+      case 'active':
+        return TransactionState.escrowPending;
       case 'waiting_for_parties':
         return TransactionState.waitingForParties;
       case 'parties_verified':

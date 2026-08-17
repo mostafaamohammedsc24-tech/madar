@@ -7,6 +7,7 @@ import '../../../core/layout/directional_layout.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../services/property_ai_service.dart';
 import '../search_map_screen.dart';
+import 'property_card_copy.dart';
 
 class AiRecommendationsSheet extends ConsumerStatefulWidget {
   final List<PropertyData> allProperties;
@@ -384,7 +385,7 @@ class _RecommendedPropertyCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            property.title,
+                            PropertyCardCopy.title(context, property),
                             style: GoogleFonts.manrope(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -398,7 +399,7 @@ class _RecommendedPropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      property.address,
+                      PropertyCardCopy.address(context, property),
                       style: TextStyle(
                         fontSize: 11,
                         color: theme.colorScheme.onSurfaceVariant,
@@ -410,7 +411,7 @@ class _RecommendedPropertyCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          property.formattedPrice,
+                          PropertyCardCopy.price(context, property),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -428,7 +429,7 @@ class _RecommendedPropertyCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            property.listingTypeLabel,
+                            PropertyCardCopy.listing(context, property),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,

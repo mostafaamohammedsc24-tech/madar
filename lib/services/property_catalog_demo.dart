@@ -3,7 +3,56 @@ import '../presentation/search_map_screen/models/property_data.dart';
 /// Shared demo inventory used when Supabase has no listings.
 class PropertyCatalogDemo {
   static List<PropertyData> listings() {
-    return _maps.map(PropertyData.fromMap).toList();
+    return [..._maps, ..._governorateExtras].map((raw) {
+      final map = Map<String, dynamic>.from(raw);
+      map['title_ar'] ??= _arabicTitleFor(map);
+      map['title_en'] ??= map['title'];
+      map['title_ku'] ??= map['title_ar'] ?? map['title'];
+      final district = map['district']?.toString() ?? '';
+      map['address_ar'] ??= district.isEmpty ? map['address'] : '$district، العراق';
+      map['address_en'] ??= map['address'];
+      return PropertyData.fromMap(map);
+    }).toList();
+  }
+
+  static String _arabicTitleFor(Map<String, dynamic> map) {
+    final district = map['district']?.toString() ?? '';
+    switch (map['id']) {
+      case 'prop_001':
+        return 'شقة عصرية — الكرادة';
+      case 'prop_002':
+        return 'فيلا — المنصور';
+      case 'prop_003':
+        return 'مكتب تجاري — زيونة';
+      case 'prop_004':
+        return 'أرض سكنية — الأعظمية';
+      case 'prop_005':
+        return 'تاون هاوس — الجادرية';
+      case 'prop_006':
+        return 'شقة — الكاظمية';
+      case 'prop_007':
+        return 'دوبلكس — أربيل';
+      case 'prop_008':
+        return 'استوديو للإيجار — البصرة';
+      case 'prop_009':
+        return 'محل تجاري — النجف';
+      case 'prop_010':
+        return 'بيت عائلي — الموصل';
+      case 'prop_011':
+        return 'بنتهاوس — الحارثية';
+      case 'prop_012':
+        return 'بيت عائلي — البياع';
+      case 'prop_013':
+        return 'استوديو — الكرادة';
+      case 'prop_014':
+        return 'محل — المنصور';
+      case 'prop_015':
+        return 'أرض زراعية — اليوسفية';
+      case 'prop_016':
+        return 'عمارة استثمارية — الكرادة';
+      default:
+        return '${map['title']} — $district';
+    }
   }
 
   static const List<Map<String, dynamic>> _maps = [
@@ -399,6 +448,360 @@ class PropertyCatalogDemo {
           'محل تجاري بواجهة شارع في المنصور، حركة عالية ومناسب للعلامات التجارية.',
       'nearbySchools': ['Mansour Private School'],
       'nearbyAmenities': ['Al-Mansour Mall', 'Banks', 'Restaurants'],
+    },
+    {
+      'id': 'prop_015',
+      'district': 'اليوسفية',
+      'title': 'Agricultural Land — Yusufiyah',
+      'address': 'Yusufiyah, Baghdad belt',
+      'price': 220000,
+      'currency': 'USD',
+      'area': 4000,
+      'bedrooms': 0,
+      'bathrooms': 0,
+      'type': 'agricultural',
+      'listingType': 'sale',
+      'lat': 33.148,
+      'lng': 44.252,
+      'imageUrl':
+          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      'semanticLabel': 'Agricultural land Yusufiyah',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Agricultural', 'Irrigation', 'Investment'],
+      'description':
+          'أرض زراعية في اليوسفية مع حصة ماء، مناسبة للبساتين أو التحويل لاحقاً.',
+      'nearbySchools': ['Yusufiyah School'],
+      'nearbyAmenities': ['Canal', 'Village market'],
+    },
+    {
+      'id': 'prop_016',
+      'district': 'الكرادة',
+      'builder_company': 'شركة الرشيد للإعمار',
+      'year_built': 2014,
+      'title': 'Investment Building — Karrada',
+      'address': 'Inner Karrada, Baghdad',
+      'price': 890000,
+      'currency': 'USD',
+      'area': 620,
+      'bedrooms': 12,
+      'bathrooms': 8,
+      'type': 'building',
+      'listingType': 'investment',
+      'lat': 33.3022,
+      'lng': 44.412,
+      'imageUrl':
+          'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800',
+      'semanticLabel': 'Investment building Karrada',
+      'isVerified': true,
+      'isFeatured': true,
+      'tags': ['Investment', 'Elevator', 'Rented units'],
+      'description':
+          'عمارة استثمارية في الكرادة بعدة شقق مؤجرة، عائد شهري مناسب للمستثمر.',
+      'nearbySchools': ['Baghdad College'],
+      'nearbyAmenities': ['Cafes', 'Banks', 'Mall'],
+    },
+  ];
+
+  static const List<Map<String, dynamic>> _governorateExtras = [
+    {
+      'id': 'prop_017',
+      'district': 'كركوك',
+      'title': 'Family House — Kirkuk',
+      'address': 'Kirkuk city center',
+      'price': 145000,
+      'currency': 'USD',
+      'area': 210,
+      'bedrooms': 4,
+      'bathrooms': 3,
+      'type': 'villa',
+      'listingType': 'sale',
+      'lat': 35.4681,
+      'lng': 44.3922,
+      'imageUrl': 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800',
+      'semanticLabel': 'House Kirkuk',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Garden', 'Parking', 'Generator'],
+      'description': 'بيت عائلي في كركوك مع حديقة وموقف ومولد.',
+      'nearbySchools': ['Kirkuk Secondary'],
+      'nearbyAmenities': ['Hospital', 'Mosque', 'Market'],
+    },
+    {
+      'id': 'prop_018',
+      'district': 'الرمادي',
+      'title': 'Apartment — Ramadi',
+      'address': 'Ramadi, Anbar',
+      'price': 72000,
+      'currency': 'USD',
+      'area': 140,
+      'bedrooms': 3,
+      'bathrooms': 2,
+      'type': 'apartment',
+      'listingType': 'sale',
+      'lat': 33.4258,
+      'lng': 43.2992,
+      'imageUrl': 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800',
+      'semanticLabel': 'Apartment Ramadi',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Furnished', 'Balcony'],
+      'description': 'شقة في الرمادي، الأنبار.',
+      'nearbySchools': ['Ramadi School'],
+      'nearbyAmenities': ['Mosque', 'Park'],
+    },
+    {
+      'id': 'prop_019',
+      'district': 'كربلاء',
+      'title': 'Hotel apartment — Karbala',
+      'address': 'Karbala, Iraq',
+      'price': 210000,
+      'currency': 'USD',
+      'area': 165,
+      'bedrooms': 2,
+      'bathrooms': 2,
+      'type': 'apartment',
+      'listingType': 'investment',
+      'lat': 32.6160,
+      'lng': 44.0249,
+      'imageUrl': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
+      'semanticLabel': 'Karbala investment',
+      'isVerified': true,
+      'isFeatured': true,
+      'tags': ['Elevator', 'Furnished', 'Security'],
+      'description': 'شقة استثمارية قرب الحرم في كربلاء.',
+      'nearbySchools': ['Karbala School'],
+      'nearbyAmenities': ['Mosque', 'Mall', 'Hospital'],
+    },
+    {
+      'id': 'prop_020',
+      'district': 'الحلة',
+      'title': 'Villa — Hilla',
+      'address': 'Hilla, Babil',
+      'price': 198000,
+      'currency': 'USD',
+      'area': 280,
+      'bedrooms': 5,
+      'bathrooms': 4,
+      'type': 'villa',
+      'listingType': 'sale',
+      'lat': 32.4833,
+      'lng': 44.4333,
+      'imageUrl': 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800',
+      'semanticLabel': 'Villa Hilla',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Garden', 'Pool', 'Garage'],
+      'description': 'فيلا في الحلة، بابل.',
+      'nearbySchools': ['Babil School'],
+      'nearbyAmenities': ['Park', 'Hospital'],
+    },
+    {
+      'id': 'prop_021',
+      'district': 'الكوت',
+      'title': 'Land — Kut',
+      'address': 'Kut, Wasit',
+      'price': 55000,
+      'currency': 'USD',
+      'area': 800,
+      'bedrooms': 0,
+      'bathrooms': 0,
+      'type': 'land',
+      'listingType': 'sale',
+      'lat': 32.5128,
+      'lng': 45.8180,
+      'imageUrl': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      'semanticLabel': 'Land Kut',
+      'isVerified': false,
+      'isFeatured': false,
+      'tags': ['Residential plot'],
+      'description': 'قطعة أرض سكنية في الكوت، واسط.',
+      'nearbySchools': ['Wasit School'],
+      'nearbyAmenities': ['Market'],
+    },
+    {
+      'id': 'prop_022',
+      'district': 'بعقوبة',
+      'title': 'House — Baqubah',
+      'address': 'Baqubah, Diyala',
+      'price': 88000,
+      'currency': 'USD',
+      'area': 190,
+      'bedrooms': 4,
+      'bathrooms': 2,
+      'type': 'villa',
+      'listingType': 'sale',
+      'lat': 33.7446,
+      'lng': 44.6435,
+      'imageUrl': 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800',
+      'semanticLabel': 'House Baqubah',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Garden', 'Generator'],
+      'description': 'بيت في بعقوبة، ديالى.',
+      'nearbySchools': ['Diyala School'],
+      'nearbyAmenities': ['Hospital', 'Mosque'],
+    },
+    {
+      'id': 'prop_023',
+      'district': 'تكريت',
+      'title': 'Apartment — Tikrit',
+      'address': 'Tikrit, Saladin',
+      'price': 64000,
+      'currency': 'USD',
+      'area': 125,
+      'bedrooms': 3,
+      'bathrooms': 2,
+      'type': 'apartment',
+      'listingType': 'rent',
+      'lat': 34.5967,
+      'lng': 43.6786,
+      'imageUrl': 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800',
+      'semanticLabel': 'Apartment Tikrit',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Parking', 'Balcony'],
+      'description': 'شقة للإيجار في تكريت، صلاح الدين.',
+      'nearbySchools': ['Tikrit University'],
+      'nearbyAmenities': ['Mosque', 'Park'],
+    },
+    {
+      'id': 'prop_024',
+      'district': 'الناصرية',
+      'title': 'Shop — Nasiriyah',
+      'address': 'Nasiriyah, Dhi Qar',
+      'price': 41000,
+      'currency': 'USD',
+      'area': 90,
+      'bedrooms': 0,
+      'bathrooms': 1,
+      'type': 'commercial',
+      'listingType': 'sale',
+      'lat': 31.0521,
+      'lng': 46.2573,
+      'imageUrl': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800',
+      'semanticLabel': 'Shop Nasiriyah',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Street front'],
+      'description': 'محل تجاري في الناصرية، ذي قار.',
+      'nearbySchools': ['Dhi Qar School'],
+      'nearbyAmenities': ['Mall', 'Mosque'],
+    },
+    {
+      'id': 'prop_025',
+      'district': 'العمارة',
+      'title': 'House — Amarah',
+      'address': 'Amarah, Maysan',
+      'price': 76000,
+      'currency': 'USD',
+      'area': 200,
+      'bedrooms': 4,
+      'bathrooms': 3,
+      'type': 'villa',
+      'listingType': 'mortgage',
+      'lat': 31.8356,
+      'lng': 47.1444,
+      'imageUrl': 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
+      'semanticLabel': 'House Amarah',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Garden', 'Parking'],
+      'description': 'بيت برهن في العمارة، ميسان.',
+      'nearbySchools': ['Maysan School'],
+      'nearbyAmenities': ['Hospital', 'Park'],
+    },
+    {
+      'id': 'prop_026',
+      'district': 'السماوة',
+      'title': 'Land — Samawah',
+      'address': 'Samawah, Muthanna',
+      'price': 38000,
+      'currency': 'USD',
+      'area': 1200,
+      'bedrooms': 0,
+      'bathrooms': 0,
+      'type': 'land',
+      'listingType': 'sale',
+      'lat': 31.3160,
+      'lng': 45.2806,
+      'imageUrl': 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800',
+      'semanticLabel': 'Land Samawah',
+      'isVerified': false,
+      'isFeatured': false,
+      'tags': ['Agricultural'],
+      'description': 'أرض في السماوة، المثنى.',
+      'nearbySchools': ['Muthanna School'],
+      'nearbyAmenities': ['Market'],
+    },
+    {
+      'id': 'prop_027',
+      'district': 'الديوانية',
+      'title': 'Apartment — Diwaniyah',
+      'address': 'Diwaniyah, Al-Qadisiyyah',
+      'price': 69000,
+      'currency': 'USD',
+      'area': 155,
+      'bedrooms': 3,
+      'bathrooms': 2,
+      'type': 'apartment',
+      'listingType': 'sale',
+      'lat': 31.9892,
+      'lng': 44.9249,
+      'imageUrl': 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
+      'semanticLabel': 'Apartment Diwaniyah',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Elevator', 'Parking'],
+      'description': 'شقة في الديوانية، القادسية.',
+      'nearbySchools': ['Qadisiyyah School'],
+      'nearbyAmenities': ['Mall', 'Hospital'],
+    },
+    {
+      'id': 'prop_028',
+      'district': 'السليمانية',
+      'title': 'Penthouse — Sulaymaniyah',
+      'address': 'Sulaymaniyah, Kurdistan',
+      'price': 310000,
+      'currency': 'USD',
+      'area': 240,
+      'bedrooms': 4,
+      'bathrooms': 3,
+      'type': 'apartment',
+      'listingType': 'sale',
+      'lat': 35.5558,
+      'lng': 45.4351,
+      'imageUrl': 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
+      'semanticLabel': 'Penthouse Sulaymaniyah',
+      'isVerified': true,
+      'isFeatured': true,
+      'tags': ['Furnished', 'Elevator', 'Security', 'Balcony'],
+      'description': 'بنتهاوس في السليمانية.',
+      'nearbySchools': ['Sulaymaniyah International'],
+      'nearbyAmenities': ['Mall', 'Park', 'Hospital'],
+    },
+    {
+      'id': 'prop_029',
+      'district': 'دهوك',
+      'title': 'Villa — Duhok',
+      'address': 'Duhok, Kurdistan',
+      'price': 265000,
+      'currency': 'USD',
+      'area': 320,
+      'bedrooms': 5,
+      'bathrooms': 4,
+      'type': 'villa',
+      'listingType': 'sale',
+      'lat': 36.8671,
+      'lng': 42.9884,
+      'imageUrl': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
+      'semanticLabel': 'Villa Duhok',
+      'isVerified': true,
+      'isFeatured': false,
+      'tags': ['Garden', 'Pool', 'Garage', 'Generator'],
+      'description': 'فيلا في دهوك.',
+      'nearbySchools': ['Duhok School'],
+      'nearbyAmenities': ['Mall', 'Park'],
     },
   ];
 }

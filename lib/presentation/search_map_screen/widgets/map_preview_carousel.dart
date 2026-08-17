@@ -3,6 +3,7 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../models/property_data.dart';
+import 'property_card_copy.dart';
 
 /// Floating horizontal property preview that sits above the map bottom sheet.
 class MapPreviewCarousel extends StatefulWidget {
@@ -142,9 +143,7 @@ class _PreviewCardState extends State<_PreviewCard> {
     final loc = AppLocalizations.of(context);
     final p = widget.property;
     final images = p.gallery;
-    final badge = p.isFeatured
-        ? loc.featured
-        : p.listingTypeLabel;
+    final badge = p.isFeatured ? loc.featured : PropertyCardCopy.listing(context, p);
 
     return GestureDetector(
       onTap: widget.onOpen,
@@ -252,7 +251,7 @@ class _PreviewCardState extends State<_PreviewCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    p.formattedPrice,
+                    PropertyCardCopy.price(context, p),
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: const Color(0xFF1565C0),
@@ -279,7 +278,7 @@ class _PreviewCardState extends State<_PreviewCard> {
                       const SizedBox(width: 12),
                       Flexible(
                         child: Text(
-                          p.type,
+                          PropertyCardCopy.type(context, p),
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.labelMedium,
                         ),
@@ -288,7 +287,7 @@ class _PreviewCardState extends State<_PreviewCard> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    p.address,
+                    PropertyCardCopy.address(context, p),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(

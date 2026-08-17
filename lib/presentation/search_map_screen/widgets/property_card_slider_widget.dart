@@ -2,6 +2,7 @@ import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../services/supabase_service.dart';
 import '../search_map_screen.dart';
+import 'property_card_copy.dart';
 
 // Mini carousel of compact property cards — swipeable horizontally
 class PropertyCardSliderWidget extends StatefulWidget {
@@ -247,7 +248,7 @@ class _MiniPropertyCardState extends State<_MiniPropertyCard> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      p.listingTypeLabel,
+                      PropertyCardCopy.listing(context, p),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 9,
@@ -272,7 +273,7 @@ class _MiniPropertyCardState extends State<_MiniPropertyCard> {
                       children: [
                         Expanded(
                           child: Text(
-                            p.title,
+                            PropertyCardCopy.title(context, p),
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w700,
                               fontSize: 12,
@@ -345,7 +346,7 @@ class _MiniPropertyCardState extends State<_MiniPropertyCard> {
                     ),
                     // Price
                     Text(
-                      p.formattedPrice,
+                    PropertyCardCopy.price(context, p),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,

@@ -25,6 +25,10 @@ class RegionSetupScreen extends StatelessWidget {
 
     await localeProvider.setLanguage(auth.state.selectedLanguage);
     await countryProvider.setCountry(auth.state.selectedCountry);
+    await countryProvider.setCurrency(
+      auth.state.selectedCurrencyCode,
+      overridden: false,
+    );
     await auth.confirmRegionSetup();
   }
 

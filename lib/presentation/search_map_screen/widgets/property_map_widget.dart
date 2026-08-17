@@ -1,6 +1,8 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../../../core/app_export.dart';
 import '../search_map_screen.dart';
@@ -51,6 +53,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   final List<LatLng> _drawingPoints = [];
   double _currentZoom = 12.5;
   DateTime? _lastPinSelectAt;
+  DateTime? _lastDrawAt;
   static const bool _useWebMapFallback = false;
 
   static const String _cleanMapStyle = '''
@@ -465,7 +468,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
           initialCameraPosition: _baghdadCenter,
           mapType: _getMapType(),
           style: _cleanMapStyle,
-          markers: _markers,
+          markers: widget.isDrawingMode ? {} : _markers,
           polygons: _composedPolygons(),
           polylines: _polylines,
           myLocationButtonEnabled: false,
@@ -475,16 +478,57 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
           buildingsEnabled: false,
           indoorViewEnabled: false,
           trafficEnabled: false,
+          scrollGesturesEnabled: !widget.isDrawingMode,
+          zoomGesturesEnabled: !widget.isDrawingMode,
+          tiltGesturesEnabled: !widget.isDrawingMode,
+          rotateGesturesEnabled: !widget.isDrawingMode,
           onMapCreated: (controller) {
             _mapController = controller;
             _buildMarkers();
           },
-          onTap: _onMapTap,
+          onTap: widget.isDrawingMode ? null : _onMapTap,
           onCameraMove: _onCameraMove,
           onCameraIdle: _onCameraIdle,
         ),
+        if (widget.isDrawingMode)
+          Positioned.fill(
+            child: PointerInterceptor(
+              child: Listener(
+                behavior: HitTestBehavior.opaque,
+                onPointerDown: (e) => _addDrawPoint(e.localPosition),
+                onPointerMove: (e) {
+                  if (e.down) _addDrawPoint(e.localPosition);
+                },
+              ),
+            ),
+          ),
       ],
     );
+  }
+
+  Future<void> _addDrawPoint(Offset local) async {
+    final now = DateTime.now();
+    if (_lastDrawAt != null &&
+        now.difference(_lastDrawAt!) < const Duration(milliseconds: 28)) {
+      return;
+    }
+    _lastDrawAt = now;
+    final controller = _mapController;
+    if (controller == null || !widget.isDrawingMode) return;
+    final scale = kIsWeb ? 1.0 : View.of(context).devicePixelRatio;
+    try {
+      final latLng = await controller.getLatLng(
+        ScreenCoordinate(
+          x: (local.dx * scale).round(),
+          y: (local.dy * scale).round(),
+        ),
+      );
+      if (!mounted || !widget.isDrawingMode) return;
+      setState(() {
+        _drawingPoints.add(latLng);
+        _updateDrawingOverlays();
+      });
+    } catch (_) {}
   }
 
   Set<Polygon> _composedPolygons() {
@@ -511,7 +555,6 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
         points: _drawingPoints,
         color: AppTheme.primary,
         width: 3,
-        patterns: [PatternItem.dash(20), PatternItem.gap(10)],
       ),
     };
 

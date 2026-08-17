@@ -1,6 +1,7 @@
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../search_map_screen.dart';
+import 'property_card_copy.dart';
 
 /// Full-screen property list that slides up from the map bottom sheet.
 /// Shows sections: Suggested, Featured, Most Popular, Recently Added.
@@ -554,7 +555,7 @@ class _LargePropertyCardState extends State<_LargePropertyCard> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      p.listingTypeLabel,
+                      PropertyCardCopy.listing(context, p),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
@@ -605,7 +606,7 @@ class _LargePropertyCardState extends State<_LargePropertyCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      p.title,
+                      PropertyCardCopy.title(context, p),
                       style: theme.textTheme.labelLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         height: 1.2,
@@ -647,7 +648,7 @@ class _LargePropertyCardState extends State<_LargePropertyCard> {
                       ],
                     ),
                     Text(
-                      p.formattedPrice,
+                    PropertyCardCopy.price(context, p),
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,

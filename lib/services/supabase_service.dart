@@ -156,6 +156,10 @@ class SupabaseService {
   Future<Map<String, dynamic>?> getTransactionByBarcode(
     String barcodeCode,
   ) async {
+    if (DemoMode.enabled) {
+      final demo = AppDemoSeed.demoBarcode(barcodeCode);
+      if (demo != null) return demo;
+    }
     try {
       final barcode = await client
           .from('transaction_barcodes')
@@ -169,6 +173,10 @@ class SupabaseService {
   }
 
   Future<Map<String, dynamic>?> getTransactionById(String txId) async {
+    if (DemoMode.enabled) {
+      final match = AppDemoSeed.userTransactions().where((t) => t['id'] == txId);
+      if (match.isNotEmpty) return match.first;
+    }
     try {
       final response = await client
           .from('transactions')
@@ -230,6 +238,9 @@ class SupabaseService {
     int offset = 0,
   }) async {
     try {
+      if (DemoMode.enabled) {
+        return PropertyCatalogDemo.listings().map((p) => p.rawData).toList();
+      }
       var query = client
           .from('properties_v3')
           .select('*, property_media_v3(*), property_features_v3(*)');

@@ -48,11 +48,6 @@ class AppLocalizations {
   String get navProfile => _t(en: 'Profile', ar: 'الشخصية', ku: 'پرۆفایل');
 
   // ─── Search Screen ────────────────────────────────────────────────────────
-  String get searchHint => _t(
-    en: 'Search properties...',
-    ar: 'ابحث عن عقارات...',
-    ku: 'بگەڕێ بۆ خانووبەرە...',
-  );
   String get propertiesFound =>
       _t(en: 'Properties Found', ar: 'عقار موجود', ku: 'خانووبەرە دۆزراوەکان');
   String get zoomToSeeProperties => _t(
@@ -212,7 +207,7 @@ class AppLocalizations {
   String get any => _t(en: 'Any', ar: 'أي', ku: 'هەر');
 
   // ─── Property Card ────────────────────────────────────────────────────────
-  String get verified => _t(en: 'Verified', ar: 'موثق', ku: 'پشتڕاستکراوە');
+  String get verified => _t(en: 'Guaranteed', ar: 'مضمون', ku: 'دڵنیاکراو');
   String get dailyVisitors =>
       _t(en: 'Daily Visitors', ar: 'الزوار اليومي', ku: 'سەردانکارانی ڕۆژانە');
   String get buildingAge =>
@@ -849,6 +844,255 @@ class AppLocalizations {
         return key;
     }
   }
+
+  String propertyTypeName(String key) {
+    switch (key.toLowerCase()) {
+      case 'apartment':
+        return apartment;
+      case 'villa':
+        return villaType;
+      case 'land':
+        return land;
+      case 'commercial':
+        return commercial;
+      case 'building':
+        return buildingType;
+      case 'agricultural':
+        return agriculturalType;
+      default:
+        return key;
+    }
+  }
+
+  String featureName(String key) {
+    switch (key.toLowerCase()) {
+      case 'furnished':
+        return featureFurnished;
+      case 'parking':
+        return featureParking;
+      case 'elevator':
+        return featureElevator;
+      case 'garden':
+        return featureGarden;
+      case 'pool':
+        return featurePool;
+      case 'generator':
+        return featureGenerator;
+      case 'balcony':
+        return featureBalcony;
+      case 'security':
+        return featureSecurity;
+      default:
+        return key;
+    }
+  }
+
+  String nearbyName(String key) {
+    switch (key.toLowerCase()) {
+      case 'schools':
+        return nearbySchoolsFilter;
+      case 'hospital':
+        return nearbyHospital;
+      case 'mall':
+        return nearbyMall;
+      case 'transit':
+        return nearbyTransit;
+      case 'mosque':
+        return nearbyMosque;
+      case 'park':
+        return nearbyPark;
+      default:
+        return key;
+    }
+  }
+
+  String get buildingType =>
+      _t(en: 'Building', ar: 'عمارة', ku: 'بینا');
+  String get agriculturalType =>
+      _t(en: 'Agricultural', ar: 'زراعي', ku: 'کشتوکاڵی');
+  String get featureFurnished =>
+      _t(en: 'Furnished', ar: 'مفروش', ku: 'ڕەختکراو');
+  String get featureParking =>
+      _t(en: 'Parking', ar: 'موقف سيارة', ku: 'پارکینگ');
+  String get featureElevator =>
+      _t(en: 'Elevator', ar: 'مصعد', ku: 'ئەسانسۆر');
+  String get featureGarden =>
+      _t(en: 'Garden', ar: 'حديقة', ku: 'باخچە');
+  String get featurePool => _t(en: 'Pool', ar: 'مسبح', ku: 'مەلەوانگە');
+  String get featureGenerator =>
+      _t(en: 'Generator', ar: 'مولد', ku: 'جێنەرەیتەر');
+  String get featureBalcony =>
+      _t(en: 'Balcony', ar: 'شرفة', ku: 'باڵکۆن');
+  String get featureSecurity =>
+      _t(en: 'Security', ar: 'حراسة', ku: 'پاراستن');
+  String get nearbySchoolsFilter =>
+      _t(en: 'Schools', ar: 'مدارس', ku: 'قوتابخانە');
+  String get nearbyHospital =>
+      _t(en: 'Hospital', ar: 'مستشفى', ku: 'نەخۆشخانە');
+  String get nearbyMall => _t(en: 'Mall', ar: 'مول', ku: 'مۆڵ');
+  String get nearbyTransit =>
+      _t(en: 'Transit', ar: 'مواصلات', ku: 'گواستنەوە');
+  String get nearbyMosque => _t(en: 'Mosque', ar: 'جامع', ku: 'مزگەوت');
+  String get nearbyPark => _t(en: 'Park', ar: 'حديقة عامة', ku: 'پارک');
+  String get allGovernorates =>
+      _t(en: 'All governorates', ar: 'كل المحافظات', ku: 'هەموو پارێزگاکان');
+  String get governorateLabel =>
+      _t(en: 'Governorate', ar: 'المحافظة', ku: 'پارێزگا');
+  String get searchHint => _t(
+    en: 'Search: area, price, school, mall…',
+    ar: 'ابحث: منطقة، سعر، مدرسة، مول…',
+    ku: 'بگەڕێ: ناوچە، نرخ، قوتابخانە، مۆڵ…',
+  );
+  String get voiceListening =>
+      _t(en: 'Listening…', ar: 'جاري الاستماع…', ku: 'گوێگرتن…');
+  String get voiceNotAvailable => _t(
+    en: 'Voice search is not available on this device.',
+    ar: 'البحث الصوتي غير متاح على هذا الجهاز.',
+    ku: 'گەڕانی دەنگی لەم ئامێرە بەردەست نییە.',
+  );
+  String get enterBarcodeManually => _t(
+    en: 'Enter barcode',
+    ar: 'أدخل رمز العملية',
+    ku: 'بارکۆد بنووسە',
+  );
+  String get joinDeal => _t(en: 'Join deal', ar: 'الانضمام للعملية', ku: 'بچۆ مامەڵە');
+  String get txIdentityHint => _t(
+    en: 'Confirm your identity with national ID and face verification.',
+    ar: 'أكد هويتك بالبطاقة الوطنية والتحقق بالوجه.',
+    ku: 'ناسنامەکەت بە کارتی نیشتمانی و ڕووخسار پشتڕاست بکەوە.',
+  );
+  String get txDocumentsHint => _t(
+    en: 'Upload the documents requested by the lawyer for your side.',
+    ar: 'ارفع المستمسكات التي يطلبها المحامي لطرفك.',
+    ku: 'ئەو بەڵگەنامانە بار بکە کە پارێزەر داوای دەکات.',
+  );
+  String get txContractHint => _t(
+    en: 'Download the sale contract PDF, upload the signed copy, then verify with OTP, face, and e-signature.',
+    ar: 'حمّل عقد البيع PDF ثم ارفعه بعد التوقيع، ثم تحقق برمز OTP والوجه والتوقيع الإلكتروني.',
+    ku: 'PDF ی گرێبەست دابەزێنە، پاشان بار بکە، دواتر OTP و ڕووخسار و واژۆ.',
+  );
+  String get txEscrowHint => _t(
+    en: 'Deposit the required amount into Madar escrow at Bank of Baghdad. Funds release when the deed is issued in the buyer name — or, for agricultural homes, after move-in with buyer and lawyer approval.',
+    ar: 'أودع المبلغ في حساب الضمان لدى مصرف بغداد. يُحوَّل المال عند صدور السند باسم المشتري — أو للزراعي بعد الانتقال بموافقة المشتري والمحامي.',
+    ku: 'بڕە پارەکە لە حسابی مسۆگەری بانکی بەغدا دابنێ.',
+  );
+  String get txDeedHint => _t(
+    en: 'Upload the ownership deed. Skipped for agricultural properties.',
+    ar: 'ارفع سند الملكية. تُتخطى إذا كان العقار زراعياً.',
+    ku: 'سەندی خاوەندارێتی بار بکە. بۆ کشتوکاڵی تێپەڕ دەبێت.',
+  );
+  String get txSettlementHint => _t(
+    en: '1% correspondence fee from each party (2% total, editable by finance), 300,000 IQD from each party, taxes, then remainder to the seller with a full receipt.',
+    ar: '1% مكاتبة من كل طرف (2% للمجموع، قابلة للتعديل من المالية) و300 ألف من كل طرف ثم الضرائب وباقي المبلغ للبائع مع وصل كامل.',
+    ku: '1% لە هەر لایەک، 300 هەزار دینار لە هەر لایەک، باج، پاشان ماوەکە بۆ فرۆشیار.',
+  );
+  String get confirmIdentity =>
+      _t(en: 'Confirm identity', ar: 'تأكيد الهوية', ku: 'پشتڕاستکردنەوەی ناسنامە');
+  String get downloadContractPdf => _t(
+    en: 'Download contract PDF',
+    ar: 'تنزيل عقد البيع PDF',
+    ku: 'PDF ی گرێبەست دابەزێنە',
+  );
+  String get uploadSignedContract => _t(
+    en: 'Upload signed contract',
+    ar: 'رفع العقد الموقع',
+    ku: 'گرێبەستی واژۆکراو بار بکە',
+  );
+  String get verifyOtpFaceSign => _t(
+    en: 'OTP, face, then sign',
+    ar: 'رمز التحقق ثم الوجه ثم التوقيع',
+    ku: 'OTP، ڕووخسار، واژۆ',
+  );
+  String get confirmDeposit =>
+      _t(en: 'Confirm I deposited', ar: 'أكدت الإيداع', ku: 'دانان پشتڕاست دەکەم');
+  String get uploadDeed =>
+      _t(en: 'Upload deed', ar: 'رفع السند', ku: 'سەند بار بکە');
+  String get viewReceipt =>
+      _t(en: 'View receipt', ar: 'عرض الوصل', ku: 'پسوڵە ببینە');
+  String get lawyersTeam =>
+      _t(en: 'Lawyers team', ar: 'فريق المحامين', ku: 'تیمی پارێزەران');
+  String get waitingForOtherPartyAction => _t(
+    en: 'Waiting for the other party to complete this step.',
+    ar: 'بانتظار إكمال الطرف الآخر لهذه الخطوة.',
+    ku: 'چاوەڕێی لایەنی دیکە دەکەین.',
+  );
+  String get iAmBuyer => _t(en: 'I am the buyer', ar: 'أنا المشتري', ku: 'من کڕیارم');
+  String get iAmSeller => _t(en: 'I am the seller', ar: 'أنا البائع', ku: 'من فرۆشیارم');
+  String get enterOtpCode =>
+      _t(en: 'Enter OTP', ar: 'أدخل رمز التحقق', ku: 'OTP بنووسە');
+  String get verifyFaceCta =>
+      _t(en: 'Verify face', ar: 'التحقق من الوجه', ku: 'ڕووخسار پشتڕاست بکە');
+  String get drawSignature =>
+      _t(en: 'Sign here', ar: 'وقّع هنا', ku: 'لێرە واژۆ بکە');
+  String get sendSignature =>
+      _t(en: 'Send signature', ar: 'إرسال التوقيع', ku: 'واژۆ بنێرە');
+  String get nationalIdDoc =>
+      _t(en: 'National ID', ar: 'البطاقة الوطنية', ku: 'کارتی نیشتمانی');
+  String get proofOfFundsDoc =>
+      _t(en: 'Proof of funds', ar: 'إثبات مصدر المال', ku: 'سەلماندنی سەرچاوەی پارە');
+  String get propertyDeedDoc =>
+      _t(en: 'Property deed', ar: 'سند المنزل', ku: 'سەندی خانوو');
+  String get addRequiredDocument => _t(
+    en: 'Add a required document',
+    ar: 'إضافة مستمسك مطلوب',
+    ku: 'بەڵگەنامەی پێویست زیاد بکە',
+  );
+  String get escrowBankBaghdad => _t(
+    en: 'Madar escrow — Bank of Baghdad',
+    ar: 'حساب الضمان — مصرف بغداد',
+    ku: 'حسابی مسۆگەری — بانکی بەغدا',
+  );
+  String get depositAmountLabel =>
+      _t(en: 'Amount to deposit', ar: 'المبلغ الواجب إيداعه', ku: 'بڕی دانان');
+  String get correspondenceFeeLabel => _t(
+    en: 'Correspondence fee (1% each party)',
+    ar: 'رسوم المكاتبة (1% لكل طرف)',
+    ku: 'کرێی نامەنووسی (1% هەر لایەک)',
+  );
+  String get stampFeeLabel => _t(
+    en: 'Office fee 300,000 IQD each',
+    ar: 'رسوم المكتب 300 ألف لكل طرف',
+    ku: 'کرێی ئۆفیس 300 هەزار بۆ هەر لایەک',
+  );
+  String get remainderToSeller => _t(
+    en: 'Remainder transferred to seller',
+    ar: 'المتبقي يُحوَّل لحساب البائع',
+    ku: 'ماوەکە دەگوازرێتەوە بۆ فرۆشیار',
+  );
+  String get furniturePartnerNotice => _t(
+    en: 'Buyer and seller numbers plus property details are shared with furniture and moving partners after the contract is signed.',
+    ar: 'بعد كتابة العقد تُشارك أرقام المشتري والبائع والعقار تلقائياً مع شركات التجميل العقاري ونقل الأثاث.',
+    ku: 'دوای گرێبەست ژمارەکان لەگەڵ کۆمپانیای جوانکاری و گواستنەوە هاوبەش دەکرێن.',
+  );
+  String get simulateOtherParty => _t(
+    en: 'Other party completed this step',
+    ar: 'أكمل الطرف الآخر هذه الخطوة',
+    ku: 'لایەنی دیکە ئەم هەنگاوەی تەواو کرد',
+  );
+  String get skipAgriculturalDeed => _t(
+    en: 'Deed skipped for agricultural property',
+    ar: 'تم تخطي سند الملكية لأن العقار زراعي',
+    ku: 'سەند تێپەڕ کرا چونکە کشتوکاڵییە',
+  );
+  String get fundsReleaseNote => _t(
+    en: 'Funds are released when the deed is issued in the buyer name. For agricultural homes, release after move-in with buyer approval and supervising lawyer confirmation.',
+    ar: 'يُحوَّل المال عند صدور السند باسم المشتري. للعقار الزراعي: بعد انتقال المشتري بموافقته وتأكيد المحامي المشرف.',
+    ku: 'پارەکە دوای سەند بە ناوی کڕیار دەردەچێت. بۆ کشتوکاڵی دوای گواستنەوە.',
+  );
+  String get barcodeHint => _t(
+    en: 'Paste or type the deal barcode',
+    ar: 'الصق أو اكتب باركود العملية',
+    ku: 'بارکۆدی مامەڵە بنووسە',
+  );
+  String get lawyersTeamChat => _t(
+    en: 'Open lawyers team chat',
+    ar: 'فتح محادثة فريق المحامين',
+    ku: 'چاتی تیمی پارێزەران بکەرەوە',
+  );
+  String get receiptIssued =>
+      _t(en: 'Receipt issued', ar: 'تم إصدار الوصل', ku: 'پسوڵە دەرچوو');
+  String get closeDeal =>
+      _t(en: 'Close deal successfully', ar: 'إغلاق العملية بنجاح', ku: 'مامەڵە دابخە');
 
   String mapTypeLabel(String id) {
     switch (id) {

@@ -1,6 +1,8 @@
 import '../../../core/app_export.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../services/supabase_service.dart';
 import '../search_map_screen.dart';
+import 'property_card_copy.dart';
 
 class PropertyDetailSheetWidget extends StatefulWidget {
   final PropertyData property;
@@ -66,6 +68,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final p = widget.property;
 
     return Container(
@@ -191,7 +194,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            p.listingTypeLabel,
+                            PropertyCardCopy.listing(context, p),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -215,7 +218,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    p.title,
+                                    PropertyCardCopy.title(context, p),
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -232,7 +235,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
-                                          p.address,
+                                          p.localizedAddress(loc.language),
                                           style: theme.textTheme.bodySmall
                                               ?.copyWith(
                                                 color: theme
@@ -252,7 +255,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  p.formattedPrice,
+                                  PropertyCardCopy.price(context, p),
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w800,
@@ -268,9 +271,9 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                                         size: 13,
                                       ),
                                       const SizedBox(width: 3),
-                                      const Text(
-                                        'Verified',
-                                        style: TextStyle(
+                                      Text(
+                                        loc.verified,
+                                        style: const TextStyle(
                                           fontSize: 11,
                                           color: AppTheme.primary,
                                           fontWeight: FontWeight.w600,
@@ -298,7 +301,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  tag,
+                                  PropertyCardCopy.tag(context, p, tag),
                                   style: const TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,

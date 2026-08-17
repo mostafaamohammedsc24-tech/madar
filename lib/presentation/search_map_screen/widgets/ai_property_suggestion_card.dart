@@ -1,5 +1,6 @@
 import '../../../core/app_export.dart';
 import '../../../services/property_ai_service.dart';
+import 'property_card_copy.dart';
 
 /// Compact tappable property suggestion card for AI chat / search results.
 class AiPropertySuggestionCard extends StatelessWidget {
@@ -88,7 +89,7 @@ class AiPropertySuggestionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    p.title,
+                    PropertyCardCopy.title(context, p),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleSmall?.copyWith(
@@ -97,8 +98,8 @@ class AiPropertySuggestionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${p.formattedPrice} · ${p.area.toStringAsFixed(0)} m²'
-                    '${p.bedrooms > 0 ? ' · ${p.bedrooms} bd' : ''}',
+                    '${PropertyCardCopy.price(context, p)} · ${p.area.toStringAsFixed(0)} m²'
+                    '${p.bedrooms > 0 ? ' · ${p.bedrooms}' : ''}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: AppTheme.primary,
                       fontWeight: FontWeight.w600,

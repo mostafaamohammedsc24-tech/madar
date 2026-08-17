@@ -8,7 +8,11 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_export.dart';
+import '../../core/currency/currency_registry.dart';
+import '../../core/geo/iraq_governorates.dart';
+import '../../core/geo/region_detection_service.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../core/localization/locale_provider.dart';
 import '../../providers/country_context_provider.dart';
 import '../../services/places_service.dart';
 import '../../services/property_ai_service.dart';
@@ -18,6 +22,7 @@ import './models/property_data.dart';
 import './widgets/ai_recommendations_sheet.dart';
 import './widgets/map_filter_chips_widget.dart';
 import './widgets/map_preview_carousel.dart';
+import './widgets/property_card_copy.dart';
 import '../../features/authentication/presentation/widgets/demo_auto_advance.dart';
 import './widgets/map_search_bar_widget.dart';
 import './widgets/property_detail_sheet_widget.dart';
@@ -61,8 +66,8 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   LandmarkResult? _activeLandmark;
 
   // Filter state
-  RangeValues _priceRange = const RangeValues(0, 1000000);
-  RangeValues _areaRange = const RangeValues(0, 1000);
+  RangeValues _priceRange = const RangeValues(0, 1000000000000);
+  RangeValues _areaRange = const RangeValues(0, 5000000);
   int _minBedrooms = 0;
   int _minBathrooms = 0;
   String _selectedCity = 'All';
@@ -88,12 +93,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 
   final List<String> _cities = [
     'All',
-    'Baghdad',
-    'Basra',
-    'Erbil',
-    'Mosul',
-    'Najaf',
-    'Karbala',
+    ...IraqGovernorates.all.map((g) => g.id),
   ];
 
   List<PropertyData> _allProperties = [];
@@ -112,6 +112,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     _loadProperties();
     _loadSavedSearches();
     _draggableController.addListener(_onSheetExtentChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _applyGpsContext());
   }
 
   @override
@@ -137,11 +138,15 @@ class _SearchMapScreenState extends State<SearchMapScreen>
             .map((d) => PropertyData.fromSupabase(d))
             .where((p) => p.lat != 0 && p.lng != 0)
             .toList();
-        if (mounted) {
-          setState(() {
-            _allProperties = props;
-            _filteredProperties = List.from(props);
-          });
+        if (props.isNotEmpty) {
+          if (mounted) {
+            setState(() {
+              _allProperties = props;
+              _filteredProperties = List.from(props);
+            });
+          }
+        } else {
+          _loadMockData();
         }
       } else {
         _loadMockData();
@@ -151,6 +156,32 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     }
     if (mounted) setState(() => _isLoading = false);
     _maybePlayDemoCardFlow();
+  }
+
+  Future<void> _applyGpsContext() async {
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission != LocationPermission.always &&
+          permission != LocationPermission.whileInUse) {
+        return;
+      }
+      final detected =
+          await RegionDetectionService().detectFromCurrentLocation();
+      if (!mounted || detected == null) return;
+      await context.read<LocaleProvider>().setLanguage(detected.suggestedLanguage);
+      await context.read<CountryContextProvider>().setCountry(detected.country);
+      await context.read<CountryContextProvider>().setCurrency(
+            detected.suggestedCurrencyCode,
+            overridden: false,
+          );
+      _mapKey.currentState?.moveToLocation(
+        LatLng(detected.latitude ?? 33.3152, detected.longitude ?? 44.3661),
+      );
+      await _loadProperties();
+    } catch (_) {}
   }
 
   void _maybePlayDemoCardFlow() {
@@ -408,7 +439,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
           if (p.listingType != 'mortgage') return false;
           break;
         case 'Land':
-          if (p.type != 'land') return false;
+          if (p.type != 'land' && p.type != 'agricultural') return false;
           break;
         case 'Commercial':
           if (p.type != 'commercial') return false;
@@ -418,10 +449,14 @@ class _SearchMapScreenState extends State<SearchMapScreen>
           break;
       }
     }
-    if (_priceRange.start > 0 && p.price < _priceRange.start) return false;
-    if (_priceRange.end < 1000000 && p.price > _priceRange.end) return false;
+    final currency =
+        context.read<CountryContextProvider>().activeCurrency;
+    final priceMax = CurrencyRegistry.filterMaxFor(currency);
+    final price = p.priceIn(currency);
+    if (_priceRange.start > 0 && price < _priceRange.start) return false;
+    if (_priceRange.end < priceMax && price > _priceRange.end) return false;
     if (_areaRange.start > 0 && p.area < _areaRange.start) return false;
-    if (_areaRange.end < 1000 && p.area > _areaRange.end) return false;
+    if (_areaRange.end < 5000000 && p.area > _areaRange.end) return false;
     if (_minBedrooms > 0 && p.bedrooms < _minBedrooms) return false;
     if (_minBathrooms > 0 && p.bathrooms < _minBathrooms) return false;
     if (_selectedPropertyType != 'All' && p.type != _selectedPropertyType) {
@@ -455,9 +490,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         if (!words.any(nearText.contains)) return false;
       }
     }
-    if (_selectedCity != 'All' &&
-        !p.address.toLowerCase().contains(_selectedCity.toLowerCase())) {
-      return false;
+    if (_selectedCity != 'All') {
+      final gov = IraqGovernorates.byId(_selectedCity);
+      final hay = '${p.address} ${p.district} ${p.title} ${p.description}';
+      if (gov == null || !gov.matches(hay)) return false;
     }
     if (_areaPolygon != null &&
         !_isPointInPolygon(LatLng(p.lat, p.lng), [
@@ -481,7 +517,11 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       final q = _searchQuery.toLowerCase();
       final hay = [
         p.title,
+        p.localizedTitle(AppLanguage.arabic),
+        p.localizedTitle(AppLanguage.kurdish),
+        p.localizedTitle(AppLanguage.english),
         p.address,
+        p.localizedAddress(AppLanguage.arabic),
         p.description,
         p.type,
         p.listingType,
@@ -657,6 +697,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       _schedulePlacesSuggestions(query);
     }
     _scheduleAiSearch(query);
+  }
+
+  void _onVoiceSearch() {
+    // Voice capture runs inside MapSearchBarWidget (speech_to_text).
   }
 
   List<SearchSuggestionItem> _localPropertySuggestions(String query) {
@@ -957,6 +1001,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       body: Stack(
           children: [
             // Full-screen map
@@ -1000,7 +1045,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                           Expanded(
                             child: MapSearchBarWidget(
                               onFilterTap: () => _showFilterPanel(context),
-                              onVoiceSearch: () {},
+                              onVoiceSearch: _onVoiceSearch,
                               onSearch: _onSearch,
                               suggestions: _searchSuggestions,
                               onSuggestionTap: _onSuggestionTap,
@@ -1120,7 +1165,8 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 top: MediaQuery.of(context).padding.top + 130,
                 left: 16,
                 right: 16,
-                child: Container(
+                child: PointerInterceptor(
+                  child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 10,
@@ -1176,6 +1222,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                       ),
                     ],
                   ),
+                ),
                 ),
               ),
 
@@ -1233,7 +1280,8 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               snapSizes: const [0.14, 0.45, 0.92],
               builder: (context, scrollController) {
                 final expanded = _sheetExtent > 0.3;
-                return Material(
+                return PointerInterceptor(
+                  child: Material(
                   color: theme.colorScheme.surface,
                   elevation: 8,
                   shadowColor: Colors.black26,
@@ -1280,6 +1328,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                         const SizedBox(height: 160),
                     ],
                   ),
+                ),
                 );
               },
             ),
@@ -1492,15 +1541,24 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   }
 
   void _showFilterPanel(BuildContext context) {
+    final currency = context.read<CountryContextProvider>().activeCurrency;
+    final priceMax = CurrencyRegistry.filterMaxFor(currency);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _FullFilterSheet(
+      builder: (_) => PointerInterceptor(
+        child: _FullFilterSheet(
         values: DeepFilterValues(
           filter: _selectedFilter,
-          priceRange: _priceRange,
-          areaRange: _areaRange,
+          priceRange: RangeValues(
+            _priceRange.start.clamp(0, priceMax),
+            _priceRange.end.clamp(0, priceMax),
+          ),
+          areaRange: RangeValues(
+            _areaRange.start.clamp(0, 5000000),
+            _areaRange.end.clamp(0, 5000000),
+          ),
           minBedrooms: _minBedrooms,
           minBathrooms: _minBathrooms,
           city: _selectedCity,
@@ -1512,6 +1570,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
           verifiedOnly: _verifiedOnly,
         ),
         cities: _cities,
+        currencyCode: currency,
         onApply: (v) {
           setState(() {
             _selectedFilter = v.filter;
@@ -1537,8 +1596,8 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         onReset: () {
           setState(() {
             _selectedFilter = 'All';
-            _priceRange = const RangeValues(0, 1000000);
-            _areaRange = const RangeValues(0, 1000);
+            _priceRange = RangeValues(0, priceMax);
+            _areaRange = const RangeValues(0, 5000000);
             _minBedrooms = 0;
             _minBathrooms = 0;
             _selectedCity = 'All';
@@ -1552,6 +1611,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
           _applyFilters();
           Navigator.pop(context);
         },
+      ),
       ),
     );
   }
@@ -1581,6 +1641,7 @@ class _HorizontalPropertyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context);
     final p = property;
     return GestureDetector(
       onTap: onTap,
@@ -1630,7 +1691,7 @@ class _HorizontalPropertyCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        p.listingTypeLabel,
+                        PropertyCardCopy.listing(context, p),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -1639,6 +1700,29 @@ class _HorizontalPropertyCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (p.isVerified)
+                    PositionedDirectional(
+                      top: 8,
+                      end: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          loc.verified,
+                          style: const TextStyle(
+                            color: Color(0xFF1565C0),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -1648,10 +1732,19 @@ class _HorizontalPropertyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    p.formattedPrice,
+                    PropertyCardCopy.price(context, p),
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: AppTheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    PropertyCardCopy.title(context, p),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1681,7 +1774,7 @@ class _HorizontalPropertyCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    p.address,
+                    PropertyCardCopy.address(context, p),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -1900,12 +1993,14 @@ class DeepFilterValues {
 class _FullFilterSheet extends StatefulWidget {
   final DeepFilterValues values;
   final List<String> cities;
+  final String currencyCode;
   final ValueChanged<DeepFilterValues> onApply;
   final VoidCallback onReset;
 
   const _FullFilterSheet({
     required this.values,
     required this.cities,
+    required this.currencyCode,
     required this.onApply,
     required this.onReset,
   });
@@ -1928,15 +2023,24 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
   late int _minYearBuilt;
   late bool _verifiedOnly;
 
+  double get _priceMax => CurrencyRegistry.filterMaxFor(widget.currencyCode);
+
   @override
   void initState() {
     super.initState();
     final v = widget.values;
     _selected = v.filter;
-    _priceRange = v.priceRange;
-    _areaRange = v.areaRange;
-    _minBedrooms = v.minBedrooms;
-    _minBathrooms = v.minBathrooms;
+    final max = CurrencyRegistry.filterMaxFor(widget.currencyCode);
+    _priceRange = RangeValues(
+      v.priceRange.start.clamp(0, max),
+      v.priceRange.end.clamp(0, max),
+    );
+    _areaRange = RangeValues(
+      v.areaRange.start.clamp(0, 5000000),
+      v.areaRange.end.clamp(0, 5000000),
+    );
+    _minBedrooms = v.minBedrooms.clamp(0, 50);
+    _minBathrooms = v.minBathrooms.clamp(0, 30);
     _selectedCity = v.city;
     _propertyType = v.propertyType;
     _features = Set.from(v.features);
@@ -2082,7 +2186,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    loc.city,
+                    loc.governorateLabel,
                     style: theme.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 12),
@@ -2091,6 +2195,9 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                     runSpacing: 8,
                     children: widget.cities.map((c) {
                       final isSelected = _selectedCity == c;
+                      final label = c == 'All'
+                          ? loc.allGovernorates
+                          : (IraqGovernorates.byId(c)?.name(loc.language) ?? c);
                       return GestureDetector(
                         onTap: () => setState(() => _selectedCity = c),
                         child: AnimatedContainer(
@@ -2109,7 +2216,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                                 : Border.all(color: AppTheme.borderLight),
                           ),
                           child: Text(
-                            c,
+                            label,
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -2130,21 +2237,27 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                         loc.priceRange,
                         style: theme.textTheme.titleSmall,
                       ),
-                      Text(
-                        '\$${(_priceRange.start / 1000).toStringAsFixed(0)}K — \$${(_priceRange.end / 1000).toStringAsFixed(0)}K',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.w600,
+                      Flexible(
+                        child: Text(
+                          '${CurrencyRegistry.formatAmount(_priceRange.start, widget.currencyCode)} — ${CurrencyRegistry.formatAmount(_priceRange.end, widget.currencyCode)}',
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
                   ),
                   RangeSlider(
-                    values: _priceRange,
+                    values: RangeValues(
+                      _priceRange.start.clamp(0, _priceMax),
+                      _priceRange.end.clamp(0, _priceMax),
+                    ),
                     min: 0,
-                    max: 1000000,
-                    divisions: 100,
+                    max: _priceMax,
+                    divisions: 200,
                     activeColor: AppTheme.primary,
                     inactiveColor: AppTheme.primaryContainer,
                     onChanged: (v) => setState(() => _priceRange = v),
@@ -2168,96 +2281,66 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                     ],
                   ),
                   RangeSlider(
-                    values: _areaRange,
+                    values: RangeValues(
+                      _areaRange.start.clamp(0, 5000000),
+                      _areaRange.end.clamp(0, 5000000),
+                    ),
                     min: 0,
-                    max: 1000,
-                    divisions: 100,
+                    max: 5000000,
+                    divisions: 200,
                     activeColor: AppTheme.primary,
                     inactiveColor: AppTheme.primaryContainer,
                     onChanged: (v) => setState(() => _areaRange = v),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    loc.minBedrooms,
-                    style: theme.textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 12),
                   Row(
-                    children: [0, 1, 2, 3, 4, 5].map((n) {
-                      final isSelected = _minBedrooms == n;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: GestureDetector(
-                          onTap: () => setState(() => _minBedrooms = n),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppTheme.primary
-                                  : AppTheme.surfaceVariantLight,
-                              borderRadius: BorderRadius.circular(10),
-                              border: isSelected
-                                  ? null
-                                  : Border.all(color: AppTheme.borderLight),
-                            ),
-                            child: Center(
-                              child: Text(
-                                n == 0 ? loc.any : '$n+',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : theme.colorScheme.onSurface,
-                                ),
-                              ),
-                            ),
-                          ),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(loc.minBedrooms, style: theme.textTheme.titleSmall),
+                      Text(
+                        _minBedrooms == 0 ? loc.any : '$_minBedrooms+',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w600,
                         ),
-                      );
-                    }).toList(),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Text(loc.minBathrooms, style: theme.textTheme.titleSmall),
-                  const SizedBox(height: 12),
+                  Slider(
+                    value: _minBedrooms.clamp(0, 50).toDouble(),
+                    min: 0,
+                    max: 50,
+                    divisions: 50,
+                    activeColor: AppTheme.primary,
+                    inactiveColor: AppTheme.primaryContainer,
+                    onChanged: (v) =>
+                        setState(() => _minBedrooms = v.round()),
+                  ),
+                  const SizedBox(height: 8),
                   Row(
-                    children: [0, 1, 2, 3, 4].map((n) {
-                      final isSelected = _minBathrooms == n;
-                      return Padding(
-                        padding: const EdgeInsetsDirectional.only(end: 8),
-                        child: GestureDetector(
-                          onTap: () => setState(() => _minBathrooms = n),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppTheme.primary
-                                  : AppTheme.surfaceVariantLight,
-                              borderRadius: BorderRadius.circular(10),
-                              border: isSelected
-                                  ? null
-                                  : Border.all(color: AppTheme.borderLight),
-                            ),
-                            child: Center(
-                              child: Text(
-                                n == 0 ? loc.any : '$n+',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : theme.colorScheme.onSurface,
-                                ),
-                              ),
-                            ),
-                          ),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(loc.minBathrooms, style: theme.textTheme.titleSmall),
+                      Text(
+                        _minBathrooms == 0 ? loc.any : '$_minBathrooms+',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w600,
                         ),
-                      );
-                    }).toList(),
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    value: _minBathrooms.clamp(0, 30).toDouble(),
+                    min: 0,
+                    max: 30,
+                    divisions: 30,
+                    activeColor: AppTheme.primary,
+                    inactiveColor: AppTheme.primaryContainer,
+                    onChanged: (v) =>
+                        setState(() => _minBathrooms = v.round()),
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -2273,10 +2356,11 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                       'land',
                       'commercial',
                       'building',
+                      'agricultural',
                     ],
                     isSelected: (o) => _propertyType == o,
                     onTap: (o) => setState(() => _propertyType = o),
-                    label: (o) => o == 'All' ? loc.all : o,
+                    label: (o) => o == 'All' ? loc.all : loc.propertyTypeName(o),
                   ),
                   const SizedBox(height: 24),
                   Text(loc.featuresLabel, style: theme.textTheme.titleSmall),
@@ -2298,6 +2382,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                           ? _features.remove(o)
                           : _features.add(o);
                     }),
+                    label: loc.featureName,
                   ),
                   const SizedBox(height: 24),
                   Text(loc.nearbyLabel, style: theme.textTheme.titleSmall),
@@ -2315,6 +2400,7 @@ class _FullFilterSheetState extends State<_FullFilterSheet> {
                     onTap: (o) => setState(() {
                       _nearby.contains(o) ? _nearby.remove(o) : _nearby.add(o);
                     }),
+                    label: loc.nearbyName,
                   ),
                   const SizedBox(height: 24),
                   Text(
