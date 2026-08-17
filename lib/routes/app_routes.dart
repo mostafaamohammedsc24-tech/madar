@@ -71,7 +71,12 @@ class AppRoutes {
 }
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.auth,
+  initialLocation: const bool.fromEnvironment(
+        'DEMO_ENTER_USER_UI',
+        defaultValue: false,
+      )
+      ? AppRoutes.searchMapScreen
+      : AppRoutes.auth,
   refreshListenable: authRouterRefresh,
   redirect: (context, state) {
     final location = state.matchedLocation;

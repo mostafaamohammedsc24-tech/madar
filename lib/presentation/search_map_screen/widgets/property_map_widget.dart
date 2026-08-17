@@ -1,11 +1,13 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/app_export.dart';
 import '../search_map_screen.dart';
 
-// Full-screen GoogleMap with custom property type icons, polygon draw support
+// Full-screen GoogleMap with custom property type icons, polygon draw support.
+// On web without Maps JS, falls back to a local map canvas so the user shell stays usable.
 class PropertyMapWidget extends StatefulWidget {
   final List<PropertyData> properties;
   final Function(PropertyData) onPropertyTap;
@@ -34,6 +36,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   final List<LatLng> _drawingPoints = [];
   bool _isDrawing = false;
   double _currentZoom = 12.5;
+  static const bool _useWebMapFallback = kIsWeb;
 
   // Cache for custom marker bitmaps — keyed by type_listingType_size
   final Map<String, BitmapDescriptor> _markerCache = {};
@@ -46,12 +49,15 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
   @override
   void initState() {
     super.initState();
-    _buildMarkers();
+    if (!_useWebMapFallback) {
+      _buildMarkers();
+    }
   }
 
   @override
   void didUpdateWidget(PropertyMapWidget old) {
     super.didUpdateWidget(old);
+    if (_useWebMapFallback) return;
     if (old.properties != widget.properties) {
       _buildMarkers();
     }
@@ -320,6 +326,13 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_useWebMapFallback) {
+      return _WebMapFallback(
+        properties: widget.properties,
+        onPropertyTap: widget.onPropertyTap,
+      );
+    }
+
     return GoogleMap(
       initialCameraPosition: _baghdadCenter,
       mapType: _getMapType(),
@@ -345,4 +358,188 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     _mapController?.dispose();
     super.dispose();
   }
+}
+
+/// Lightweight map stand-in for Flutter web when Google Maps JS is unavailable.
+class _WebMapFallback extends StatelessWidget {
+  const _WebMapFallback({
+    required this.properties,
+    required this.onPropertyTap,
+  });
+
+  final List<PropertyData> properties;
+  final Function(PropertyData) onPropertyTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final pins = properties.take(24).toList();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.sizeOf(context).width;
+        final height = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : MediaQuery.sizeOf(context).height;
+        final pinAreaWidth = (width - 80).clamp(120.0, 900.0);
+        final pinAreaHeight = (height - 220).clamp(120.0, 900.0);
+
+        return Container(
+          width: width,
+          height: height,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFD7E4EC),
+                Color(0xFFE8F0E9),
+                Color(0xFFD9E2D4),
+                Color(0xFFC5D4C8),
+              ],
+            ),
+          ),
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            children: [
+              Positioned.fill(
+                child: CustomPaint(painter: _WebMapGridPainter()),
+              ),
+              Positioned(
+                top: 120,
+                left: 24,
+                right: 24,
+                child: Text(
+                  'Baghdad · map preview',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: const Color(0xFF3A4A42),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+              ...List.generate(pins.length, (index) {
+                final property = pins[index];
+                final left =
+                    28.0 + ((index * 67) % pinAreaWidth.toInt()).toDouble();
+                final top =
+                    170.0 + ((index * 53) % pinAreaHeight.toInt()).toDouble();
+                final color = _pinColor(property);
+                return Positioned(
+                  left: left.clamp(8.0, width - 8.0),
+                  top: top.clamp(8.0, height - 8.0),
+                  child: GestureDetector(
+                    onTap: () => onPropertyTap(property),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: color.withValues(alpha: 0.45),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.location_on, size: 16, color: color),
+                          const SizedBox(width: 4),
+                          Text(
+                            property.title.length > 18
+                                ? '${property.title.substring(0, 18)}…'
+                                : property.title,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: const Color(0xFF1F2A24),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              if (pins.isEmpty)
+                Center(
+                  child: Text(
+                    'No listings in this area yet',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: const Color(0xFF4A5B52),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Color _pinColor(PropertyData property) {
+    switch (property.type.toLowerCase()) {
+      case 'villa':
+        return const Color(0xFF388E3C);
+      case 'land':
+        return const Color(0xFFF57C00);
+      case 'commercial':
+        return const Color(0xFF7B1FA2);
+      default:
+        return property.listingType == 'rent'
+            ? const Color(0xFF00BCD4)
+            : const Color(0xFF1565C0);
+    }
+  }
+}
+
+class _WebMapGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF8AA396).withValues(alpha: 0.18)
+      ..strokeWidth = 1;
+
+    const step = 48.0;
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+
+    final river = Paint()
+      ..color = const Color(0xFF7BA7C2).withValues(alpha: 0.35)
+      ..strokeWidth = 18
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    final path = Path()
+      ..moveTo(size.width * 0.15, 0)
+      ..quadraticBezierTo(
+        size.width * 0.45,
+        size.height * 0.35,
+        size.width * 0.55,
+        size.height * 0.55,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.7,
+        size.height * 0.8,
+        size.width * 0.85,
+        size.height,
+      );
+    canvas.drawPath(path, river);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -39,7 +39,37 @@ class UserAuthNotifier extends ChangeNotifier {
 
   UserAuthState get state => _state;
 
+  /// Local preview only: enter the consumer shell without Supabase OTP.
+  /// Enabled with `--dart-define=DEMO_ENTER_USER_UI=true`.
+  Future<void> enterDemoUserInterface() async {
+    const enabled = bool.fromEnvironment(
+      'DEMO_ENTER_USER_UI',
+      defaultValue: false,
+    );
+    if (!enabled) return;
+    _setState(
+      _state.copyWith(
+        status: UserAuthStatus.authenticated,
+        userId: 'demo-user-local',
+        selectedCountry: authCountryByIso('IQ'),
+        selectedLanguage: AppLanguage.arabic,
+        selectedCurrencyCode: 'IQD',
+        isBusy: false,
+        clearMessage: true,
+      ),
+    );
+  }
+
   Future<void> initialize() async {
+    const demo = bool.fromEnvironment(
+      'DEMO_ENTER_USER_UI',
+      defaultValue: false,
+    );
+    if (demo) {
+      await enterDemoUserInterface();
+      return;
+    }
+
     _setState(_state.copyWith(status: UserAuthStatus.initializing, isBusy: true));
 
     _sessionSubscription ??= _repository.watchAuthSession().listen((_) {

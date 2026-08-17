@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/services/aiIntegrations/chat_completion_service.dart';
+import '../core/services/aiIntegrations/direct_llm_client.dart';
 
 class ChatConfig {
   final String provider;
@@ -57,6 +58,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   final String provider;
   final String model;
   final bool streaming;
+  final DirectLlmClient _direct = DirectLlmClient();
 
   ChatNotifier({
     required this.provider,
@@ -74,8 +76,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
       isLoading: true,
     );
 
+    const lambdaUrl = String.fromEnvironment('AWS_LAMBDA_CHAT_COMPLETION_URL');
+
     try {
-      if (streaming) {
+      if (lambdaUrl.isNotEmpty && streaming) {
         await getStreamingChatCompletion(
           provider,
           model,
@@ -98,7 +102,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
               state = state.copyWith(error: error, isLoading: false),
           parameters: parameters,
         );
-      } else {
+        return;
+      }
+
+      if (lambdaUrl.isNotEmpty && !streaming) {
         final result = await getChatCompletion(
           provider,
           model,
@@ -112,7 +119,18 @@ class ChatNotifier extends StateNotifier<ChatState> {
           fullResponse: result,
           isLoading: false,
         );
+        return;
       }
+
+      final content = await _direct.complete(
+        messages: messages,
+        temperature: (parameters['temperature'] as num?)?.toDouble() ?? 0.4,
+        maxTokens: (parameters['max_tokens'] as num?)?.toInt() ?? 2048,
+      );
+      if (content == null || content.isEmpty) {
+        throw Exception('No AI provider available');
+      }
+      state = ChatState(response: content, isLoading: false);
     } catch (error) {
       state = state.copyWith(
         error: error is Exception ? error : Exception(error.toString()),

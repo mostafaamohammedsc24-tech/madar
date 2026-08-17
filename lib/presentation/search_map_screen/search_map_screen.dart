@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -6,9 +9,11 @@ import 'package:provider/provider.dart';
 import '../../core/app_export.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../providers/country_context_provider.dart';
+import '../../services/property_ai_service.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/country_context_switcher.dart';
 import '../notifications/notification_center_screen.dart';
+import './models/property_data.dart';
 import './widgets/ai_recommendations_sheet.dart';
 import './widgets/map_filter_chips_widget.dart';
 import './widgets/map_search_bar_widget.dart';
@@ -17,6 +22,8 @@ import './widgets/property_detail_sheet_widget.dart';
 import './widgets/property_list_screen.dart';
 import './widgets/property_map_widget.dart';
 import './widgets/saved_area_search_widget.dart';
+
+export './models/property_data.dart';
 
 class SearchMapScreen extends StatefulWidget {
   const SearchMapScreen({super.key});
@@ -33,7 +40,8 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       GlobalKey<PropertyMapWidgetState>();
   String? _loadedCountryCode;
   bool _isSheetExpanded = false;
-  bool _isFullScreenList = false;
+  // Web preview has no Google Maps JS key; open list first for a stable shell.
+  bool _isFullScreenList = kIsWeb;
   String _selectedFilter = 'All';
   PropertyData? _selectedProperty;
   bool _isMapLoaded = false;
@@ -72,6 +80,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 
   List<PropertyData> _allProperties = [];
   List<PropertyData> _filteredProperties = [];
+  final PropertyAiService _propertyAi = PropertyAiService();
+  Timer? _aiSearchDebounce;
+  String? _aiSearchInsight;
+  int _aiSearchToken = 0;
 
   // Map legend items
   final List<Map<String, dynamic>> _legendItems = [
@@ -98,6 +110,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 
   @override
   void dispose() {
+    _aiSearchDebounce?.cancel();
     _draggableController.dispose();
     super.dispose();
   }
@@ -321,6 +334,14 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         'isVerified': true,
         'isFeatured': true,
         'tags': ['Furnished', 'Central AC', 'Parking'],
+        'description':
+            'شقة عصرية مفروشة في الكرادة قرب الجامعات، إطلالة شارع، موقف سيارة، تكييف مركزي. مناسبة للعوائل الصغيرة.',
+        'nearbySchools': [
+          'Baghdad College',
+          'Al-Mansour Primary',
+          'International School of Baghdad',
+        ],
+        'nearbyAmenities': ['Family Mall', 'Al-Nahrain Hospital', 'Tigris Corniche'],
       },
       {
         'id': 'prop_002',
@@ -342,6 +363,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         'isVerified': true,
         'isFeatured': false,
         'tags': ['Garden', 'Pool', 'Generator'],
+        'description':
+            'فيلا واسعة في المنصور مع حديقة ومسبح ومولد. حي راقٍ قريب من المدارس الخاصة والمستشفيات.',
+        'nearbySchools': ['Mansour Private School', 'Oxford International School'],
+        'nearbyAmenities': ['Al-Mansour Mall', 'Ibn Sina Hospital', 'Embassy district'],
       },
       {
         'id': 'prop_003',
@@ -363,6 +388,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         'isVerified': true,
         'isFeatured': true,
         'tags': ['Elevator', 'Backup Power', 'Reception'],
+        'description':
+            'مكتب تجاري للإيجار في زيونة مع استقبال ومصعد وطاقة احتياطية. مناسب للشركات الناشئة.',
+        'nearbySchools': ['Zayouna Secondary School'],
+        'nearbyAmenities': ['Business center', 'Banks', 'Restaurants'],
       },
       {
         'id': 'prop_004',
@@ -384,6 +413,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         'isVerified': false,
         'isFeatured': false,
         'tags': ['Corner Plot', 'Main Road Access'],
+        'description':
+            'قطعة أرض سكنية زاوية في الأعظمية مع واجهة على شارع رئيسي. مناسبة للبناء الاستثماري.',
+        'nearbySchools': ['Adhamiya High School'],
+        'nearbyAmenities': ['Local market', 'Mosque', 'Clinic'],
       },
       {
         'id': 'prop_005',
@@ -405,6 +438,13 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         'isVerified': true,
         'isFeatured': true,
         'tags': ['River View', 'Smart Home', 'Garage'],
+        'description':
+            'تاون هاوس بإطلالة نهر دجلة في الجادرية، منزل ذكي وكراج. متاح بتمويل عقاري.',
+        'nearbySchools': [
+          'University of Baghdad area schools',
+          'Jadriya International School',
+        ],
+        'nearbyAmenities': ['Tigris promenade', 'Cafes', 'University campus'],
       },
       {
         'id': 'prop_006',
@@ -426,6 +466,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         'isVerified': false,
         'isFeatured': false,
         'tags': ['Near Metro', 'Quiet Area'],
+        'description':
+            'شقة اقتصادية هادئة في الكاظمية قرب النقل العام. خيار جيد للميزانيات المحدودة.',
+        'nearbySchools': ['Kadhimiya Primary School'],
+        'nearbyAmenities': ['Metro stop', 'Local souq', 'Clinic'],
       },
     ];
     final props = mockMaps.map(PropertyData.fromMap).toList();
@@ -474,12 +518,24 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         }
         if (_searchQuery.isNotEmpty) {
           final q = _searchQuery.toLowerCase();
-          if (!p.title.toLowerCase().contains(q) &&
-              !p.address.toLowerCase().contains(q) &&
-              !p.type.toLowerCase().contains(q) &&
-              !p.tags.any((t) => t.toLowerCase().contains(q))) {
-            return false;
-          }
+          final hay = [
+            p.title,
+            p.address,
+            p.description,
+            p.type,
+            p.listingType,
+            p.formattedPrice,
+            p.price.toString(),
+            p.area.toString(),
+            p.bedrooms.toString(),
+            ...p.tags,
+            ...p.nearbySchools,
+            ...p.nearbyAmenities,
+          ].join(' ').toLowerCase();
+          final tokens = q.split(RegExp(r'\s+')).where((t) => t.length > 1);
+          final anyMatch =
+              hay.contains(q) || tokens.every((t) => hay.contains(t));
+          if (!anyMatch) return false;
         }
         return true;
       }).toList();
@@ -501,17 +557,84 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         for (final p in _allProperties) {
           if (p.title.toLowerCase().contains(q)) suggestions.add(p.title);
           if (p.address.toLowerCase().contains(q)) suggestions.add(p.address);
+          if (p.description.toLowerCase().contains(q)) {
+            suggestions.add(p.title);
+          }
           for (final t in p.tags) {
             if (t.toLowerCase().contains(q)) suggestions.add(t);
+          }
+          for (final s in p.nearbySchools) {
+            if (s.toLowerCase().contains(q)) suggestions.add(s);
           }
         }
         _searchSuggestions = suggestions.take(6).toList();
       } else {
         _searchSuggestions = [];
+        _aiSearchInsight = null;
       }
     });
     _applyFilters();
     if (query.isNotEmpty) _addToFilterHistory();
+    _scheduleAiSearch(query);
+  }
+
+  void _scheduleAiSearch(String query) {
+    _aiSearchDebounce?.cancel();
+    if (query.trim().length < 3) return;
+    final token = ++_aiSearchToken;
+    _aiSearchDebounce = Timer(const Duration(milliseconds: 700), () async {
+      final result = await _propertyAi.search(
+        query: query,
+        catalog: _allProperties,
+      );
+      if (!mounted || token != _aiSearchToken) return;
+
+      final byId = {for (final p in _allProperties) p.id: p};
+      var matched = result.matchedIds
+          .map((id) => byId[id])
+          .whereType<PropertyData>()
+          .toList();
+      if (matched.isEmpty) {
+        matched = result.suggestions.map((s) => s.property).toList();
+      }
+      if (matched.isEmpty) return;
+
+      if (result.sortHint == 'price_asc') {
+        matched = List.from(matched)..sort((a, b) => a.price.compareTo(b.price));
+      } else if (result.sortHint == 'price_desc') {
+        matched = List.from(matched)..sort((a, b) => b.price.compareTo(a.price));
+      } else if (result.sortHint == 'area_desc') {
+        matched = List.from(matched)..sort((a, b) => b.area.compareTo(a.area));
+      }
+
+      setState(() {
+        _filteredProperties = matched;
+        _aiSearchInsight = result.reply.isNotEmpty ? result.reply : null;
+        _searchSuggestions = {
+          ...result.suggestions.map((s) => s.property.title),
+          ..._searchSuggestions,
+        }.take(6).toList();
+      });
+
+      if (_aiSearchInsight != null && _aiSearchInsight!.trim().isNotEmpty) {
+        final preview = _aiSearchInsight!.length > 120
+            ? '${_aiSearchInsight!.substring(0, 120)}…'
+            : _aiSearchInsight!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(preview),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+
+      if (result.mapFocusLat != null && result.mapFocusLng != null) {
+        _mapKey.currentState?.moveToLocation(
+          LatLng(result.mapFocusLat!, result.mapFocusLng!),
+        );
+      }
+    });
   }
 
   void _onPropertySelected(PropertyData property) {
@@ -634,6 +757,19 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         context.watch<CountryContextProvider>().activeCountryCode;
     if (_loadedCountryCode != null && _loadedCountryCode != countryCode) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _loadProperties());
+    }
+
+    // Web preview: skip Google Maps + sheet stack (no Maps JS in this env).
+    if (kIsWeb) {
+      return Scaffold(
+        body: PropertyListScreen(
+          properties: _filteredProperties,
+          activeFilter: _selectedFilter,
+          onClose: () {},
+          onPropertyTap: _onPropertySelected,
+          showCloseButton: false,
+        ),
+      );
     }
 
     final theme = Theme.of(context);
@@ -2201,187 +2337,3 @@ class _FilterHistorySheet extends StatelessWidget {
   }
 }
 
-// ─── Unified Property Data Model ──────────────────────────────────────────────
-class PropertyData {
-  final String id;
-  final String title;
-  final String address;
-  final double price;
-  final String currency;
-  final double area;
-  final int bedrooms;
-  final int bathrooms;
-  final String type;
-  final String listingType;
-  final double lat;
-  final double lng;
-  final String imageUrl;
-  final String semanticLabel;
-  final bool isVerified;
-  final bool isFeatured;
-  final List<String> tags;
-  final Map<String, dynamic> rawData;
-
-  const PropertyData({
-    required this.id,
-    required this.title,
-    required this.address,
-    required this.price,
-    required this.currency,
-    required this.area,
-    required this.bedrooms,
-    required this.bathrooms,
-    required this.type,
-    required this.listingType,
-    required this.lat,
-    required this.lng,
-    required this.imageUrl,
-    required this.semanticLabel,
-    required this.isVerified,
-    required this.isFeatured,
-    required this.tags,
-    required this.rawData,
-  });
-
-  factory PropertyData.fromSupabase(Map<String, dynamic> d) {
-    final media = d['property_media_v3'] as List?;
-    String imageUrl = '';
-    if (media != null && media.isNotEmpty) {
-      imageUrl = media.first['media_url'] as String? ?? '';
-    }
-    if (imageUrl.isEmpty) {
-      imageUrl =
-          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600';
-    }
-
-    final lat = (d['latitude'] as num?)?.toDouble() ?? 0.0;
-    final lng = (d['longitude'] as num?)?.toDouble() ?? 0.0;
-
-    final city = d['city'] as String? ?? '';
-    final district = d['district'] as String? ?? '';
-    final address =
-        d['address_text'] as String? ??
-        [district, city].where((s) => s.isNotEmpty).join(', ');
-
-    final features = d['property_features_v3'] as List?;
-    final tags = features != null
-        ? features
-              .map((f) => f['feature_name'] as String? ?? '')
-              .where((s) => s.isNotEmpty)
-              .take(3)
-              .toList()
-        : <String>[];
-
-    return PropertyData(
-      id: d['id'] as String? ?? '',
-      title:
-          d['title'] as String? ??
-          '${d['property_type'] ?? 'Property'} — $district',
-      address: address,
-      price: (d['asking_price'] as num?)?.toDouble() ?? 0,
-      currency: d['currency'] as String? ?? 'USD',
-      area: (d['total_area_sqm'] as num?)?.toDouble() ?? 0,
-      bedrooms: (d['bedrooms_count'] as num?)?.toInt() ?? 0,
-      bathrooms: (d['bathrooms_count'] as num?)?.toInt() ?? 0,
-      type: d['property_type'] as String? ?? 'apartment',
-      listingType: d['listing_type'] as String? ?? 'sale',
-      lat: lat,
-      lng: lng,
-      imageUrl: imageUrl,
-      semanticLabel: 'Property in $address',
-      isVerified: d['is_verified'] as bool? ?? false,
-      isFeatured: d['is_featured'] as bool? ?? false,
-      tags: tags,
-      rawData: d,
-    );
-  }
-
-  factory PropertyData.fromMap(Map<String, dynamic> map) {
-    return PropertyData(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      address: map['address'] as String,
-      price: (map['price'] as num).toDouble(),
-      currency: map['currency'] as String,
-      area: (map['area'] as num).toDouble(),
-      bedrooms: map['bedrooms'] as int,
-      bathrooms: map['bathrooms'] as int,
-      type: map['type'] as String,
-      listingType: map['listingType'] as String,
-      lat: (map['lat'] as num).toDouble(),
-      lng: (map['lng'] as num).toDouble(),
-      imageUrl: map['imageUrl'] as String,
-      semanticLabel: map['semanticLabel'] as String,
-      isVerified: map['isVerified'] as bool? ?? false,
-      isFeatured: map['isFeatured'] as bool? ?? false,
-      tags: List<String>.from(map['tags'] as List? ?? []),
-      rawData: map,
-    );
-  }
-
-  String get formattedPrice {
-    if (listingType == 'rent') {
-      return '\$${price.toStringAsFixed(0)}/mo';
-    }
-    if (price >= 1000000) {
-      return '\$${(price / 1000000).toStringAsFixed(1)}M';
-    }
-    return '\$${(price / 1000).toStringAsFixed(0)}K';
-  }
-
-  Color get listingTypeColor {
-    switch (listingType) {
-      case 'sale':
-        return AppTheme.saleColor;
-      case 'rent':
-        return AppTheme.rentColor;
-      case 'mortgage':
-        return AppTheme.mortgageColor;
-      case 'investment':
-        return AppTheme.investmentColor;
-      default:
-        return AppTheme.primary;
-    }
-  }
-
-  String get listingTypeLabel {
-    switch (listingType) {
-      case 'sale':
-        return 'For Sale';
-      case 'rent':
-        return 'For Rent';
-      case 'mortgage':
-        return 'Mortgage';
-      case 'investment':
-        return 'Investment';
-      default:
-        return listingType;
-    }
-  }
-
-  Map<String, dynamic> toDetailMap() {
-    return {
-      'id': id,
-      'title': title,
-      'address': address,
-      'asking_price': price,
-      'estimatedValue': price,
-      'total_area_sqm': area,
-      'area': area,
-      'bedrooms_count': bedrooms,
-      'bedrooms': bedrooms,
-      'bathrooms_count': bathrooms,
-      'bathrooms': bathrooms,
-      'property_type': type,
-      'type': type,
-      'listing_type': listingType,
-      'listingType': listingType,
-      'imageUrl': imageUrl,
-      'is_verified': isVerified,
-      'isVerified': isVerified,
-      'is_featured': isFeatured,
-      'isFeatured': isFeatured,
-      ...rawData,
-    };
-  }
-}

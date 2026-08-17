@@ -9,12 +9,14 @@ class PropertyListScreen extends StatefulWidget {
   final String activeFilter;
   final VoidCallback onClose;
   final Function(PropertyData) onPropertyTap;
+  final bool showCloseButton;
 
   const PropertyListScreen({
     required this.properties,
     required this.activeFilter,
     required this.onClose,
     required this.onPropertyTap,
+    this.showCloseButton = true,
     super.key,
   });
 
@@ -114,26 +116,28 @@ class _PropertyListScreenState extends State<PropertyListScreen>
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                       child: Row(
                         children: [
-                          GestureDetector(
-                            onTap: _close,
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color:
-                                    theme.colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Center(
-                                child: CustomIconWidget(
-                                  iconName: 'keyboard_arrow_down',
-                                  color: theme.colorScheme.onSurface,
-                                  size: 22,
+                          if (widget.showCloseButton) ...[
+                            GestureDetector(
+                              onTap: _close,
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color:
+                                      theme.colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: CustomIconWidget(
+                                    iconName: 'keyboard_arrow_down',
+                                    color: theme.colorScheme.onSurface,
+                                    size: 22,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
+                            const SizedBox(width: 12),
+                          ],
                           Expanded(
                             child: Text(
                               '${_filtered.length} ${loc.propertiesFound}',
