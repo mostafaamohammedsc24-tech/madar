@@ -27,13 +27,12 @@ abstract final class AuthTypography {
       MediaQuery.sizeOf(context).width >= AuthSpacing.wideBreakpoint;
 
   static TextStyle display(BuildContext context) {
-    final wide = isWide(context);
-    return Theme.of(context).textTheme.displayMedium!.copyWith(
-      fontSize: wide ? 40 : 32,
+    return const TextStyle(
+      fontSize: 24,
       fontWeight: FontWeight.w800,
-      letterSpacing: -1.1,
-      height: 1.15,
-      color: const Color(0xFF0D47A1),
+      letterSpacing: -0.3,
+      height: 1.25,
+      color: AuthColors.ink,
     );
   }
 
@@ -81,9 +80,12 @@ abstract final class AuthTypography {
 
 /// Shared color tokens for auth surfaces.
 abstract final class AuthColors {
+  static const Color canvas = AppTheme.primary;
+  static const Color canvasSoft = Color(0xFF42A5F5);
   static const Color accent = AppTheme.primary;
   static const Color accentMuted = AppTheme.primaryContainer;
   static const Color errorSurface = AppTheme.errorLight;
   static const Color errorText = AppTheme.error;
-  static const Color ink = Color(0xFF0D47A1);
+  static const Color ink = Color(0xFF101828);
+  static const Color muted = Color(0xFF667085);
 }

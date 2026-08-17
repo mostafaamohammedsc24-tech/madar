@@ -15,7 +15,7 @@ extension AuthCountryPhone on MadarCountry {
       case 'GB':
         return '7XXX XXXXXX';
       case 'IQ':
-        return '7XX XXX XXXX';
+        return '000 000 0000';
       default:
         return 'XXXXXXXXXX';
     }

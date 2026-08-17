@@ -342,17 +342,10 @@ class _TransactionsScreenState extends State<TransactionsScreen>
         IconButton(
           icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
           onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (_) => SizedBox(
-                height: MediaQuery.of(context).size.height * 0.9,
-                child: BarcodeUploadWidget(
-                  onUpload: _onBarcodeUploaded,
-                  onBarcodeScanned: _onBarcodeScanned,
-                ),
-              ),
+            BarcodeUploadWidget.show(
+              context,
+              onUpload: _onBarcodeUploaded,
+              onBarcodeScanned: _onBarcodeScanned,
             );
           },
           tooltip: loc.scanBarcode,
@@ -397,6 +390,7 @@ class _TransactionsScreenState extends State<TransactionsScreen>
         child: BarcodeUploadWidget(
           onUpload: _onBarcodeUploaded,
           onBarcodeScanned: _onBarcodeScanned,
+          showDragHandle: false,
         ),
       ),
     );

@@ -58,19 +58,17 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
 
   Future<void> _openBarcodeScanner() async {
     setState(() => _scanning = true);
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (ctx) => SizedBox(
-        height: MediaQuery.sizeOf(ctx).height * 0.85,
-        child: BarcodeUploadWidget(
-          onUpload: () {},
-          onBarcodeScanned: (code) async {
-            Navigator.of(ctx).pop();
-            await _handleBarcode(code);
-          },
-        ),
-      ),
+    await BarcodeUploadWidget.show(
+      context,
+      onUpload: () {
+        final typed = _barcodeCtrl.text.trim();
+        if (typed.isNotEmpty) {
+          _handleBarcode(typed);
+        }
+      },
+      onBarcodeScanned: (code) {
+        _handleBarcode(code);
+      },
     );
     if (mounted) setState(() => _scanning = false);
   }
@@ -80,13 +78,12 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
     final phone = userAuthNotifier.state.fullPhoneNumber;
 
     // Peek barcode to infer party side
-    final peek =
-        await SupabaseService.instance.getTransactionByBarcode(code);
+    final peek = await SupabaseService.instance.getTransactionByBarcode(code);
     if (peek == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.barcodeNotFound)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.barcodeNotFound)));
       return;
     }
 
@@ -109,22 +106,22 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
 
     if (!mounted) return;
     if (!result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.barcodeRedeemFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.barcodeRedeemFailed)));
       return;
     }
 
     await _load();
 
     if (result.bothPartiesVerified) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.bothPartiesVerified)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.bothPartiesVerified)));
     } else if (result.waitingForOtherParty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.waitingForOtherParty)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.waitingForOtherParty)));
     }
 
     if (result.transaction != null) {
@@ -277,8 +274,8 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
                 loc.noTransactionsInTab,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(

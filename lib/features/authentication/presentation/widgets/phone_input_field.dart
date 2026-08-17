@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../../widgets/country_flag_widget.dart';
 import '../../domain/models/auth_country.dart';
 import '../theme/auth_theme.dart';
 
@@ -14,6 +13,7 @@ class PhoneInputField extends StatefulWidget {
     required this.onPhoneChanged,
     this.onSubmitted,
     this.autofocus = false,
+    this.showCountrySelector = true,
   });
 
   final AuthCountry country;
@@ -22,6 +22,7 @@ class PhoneInputField extends StatefulWidget {
   final ValueChanged<String> onPhoneChanged;
   final VoidCallback? onSubmitted;
   final bool autofocus;
+  final bool showCountrySelector;
 
   @override
   State<PhoneInputField> createState() => _PhoneInputFieldState();
@@ -73,28 +74,24 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
               start: const Radius.circular(AuthSpacing.radiusMd),
             ),
             child: InkWell(
-              onTap: widget.onCountryTap,
+              onTap: widget.showCountrySelector ? widget.onCountryTap : null,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AuthSpacing.md),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CountryFlagWidget(
-                      countryCode: widget.country.isoCode,
-                      size: 22,
-                    ),
-                    const SizedBox(width: AuthSpacing.sm),
                     Text(
                       widget.country.dialCode,
                       style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    Icon(
-                      Icons.expand_more,
-                      size: 20,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    if (widget.showCountrySelector)
+                      Icon(
+                        Icons.expand_more,
+                        size: 20,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                   ],
                 ),
               ),

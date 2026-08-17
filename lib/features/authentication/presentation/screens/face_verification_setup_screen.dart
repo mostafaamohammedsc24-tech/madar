@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../widgets/language_selector_sheet.dart';
 import '../providers/user_auth_notifier.dart';
 import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/auth_error_banner.dart';
 import '../widgets/auth_header.dart';
-import '../widgets/auth_welcome_chip.dart';
 import '../widgets/demo_auto_advance.dart';
 import '../widgets/primary_auth_button.dart';
 import '../widgets/secondary_auth_button.dart';
-import '../widgets/security_setup_card.dart';
 
 class FaceVerificationSetupScreen extends StatelessWidget {
   const FaceVerificationSetupScreen({super.key});
@@ -28,22 +27,16 @@ class FaceVerificationSetupScreen extends StatelessWidget {
         if (!state.isBusy) auth.skipFaceVerification();
       },
       child: AuthContainer(
-      showLanguageAction: false,
-      child: SingleChildScrollView(
+        onLanguageTap: () => LanguageSelectorSheet.show(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AuthWelcomeChip(label: loc.authWelcome),
-            const SizedBox(height: AuthSpacing.lg),
             AuthHeader(
               title: loc.authFaceTitle,
               subtitle: loc.authFaceSubtitle,
             ),
             const SizedBox(height: AuthSpacing.xl),
-            SecuritySetupCard(
-              title: loc.authFaceCardTitle,
-              description: loc.authFaceCardDescription,
-            ),
+            const Center(child: _FaceFrameMark()),
             if (state.userMessage != null) ...[
               const SizedBox(height: AuthSpacing.md),
               AuthErrorBanner(message: state.userMessage!),
@@ -62,7 +55,46 @@ class FaceVerificationSetupScreen extends StatelessWidget {
           ],
         ),
       ),
-    ),
+    );
+  }
+}
+
+class _FaceFrameMark extends StatelessWidget {
+  const _FaceFrameMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 148,
+      height: 148,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 128,
+            height: 128,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: const Color(0xFF90CAF9), width: 2),
+            ),
+            child: const Icon(
+              Icons.face_retouching_natural,
+              size: 64,
+              color: Color(0xFF1565C0),
+            ),
+          ),
+          const Positioned(
+            right: 8,
+            bottom: 8,
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: Color(0xFF2E7D32),
+              child: Icon(Icons.check, color: Colors.white, size: 18),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

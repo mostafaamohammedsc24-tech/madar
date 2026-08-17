@@ -86,45 +86,42 @@ class OtpInputFieldState extends State<OtpInputField> {
           LayoutBuilder(
             builder: (context, constraints) {
               const gap = 8.0;
-              final boxW = ((constraints.maxWidth - gap * (widget.length - 1)) /
-                      widget.length)
-                  .clamp(40.0, 58.0);
-              final boxH = boxW * 1.25;
+              final boxW =
+                  ((constraints.maxWidth - gap * (widget.length - 1)) /
+                          widget.length)
+                      .clamp(36.0, 52.0);
+              final boxH = boxW;
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(widget.length, (index) {
                   final char = index < digits.length ? digits[index] : '';
-                  final isFocused = widget.enabled &&
+                  final isFocused =
+                      widget.enabled &&
                       index == digits.length.clamp(0, widget.length);
 
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
+                  return Container(
                     width: boxW,
                     height: boxH,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: const Color(0xFFF7F9FC),
-                      borderRadius: BorderRadius.circular(AuthSpacing.radiusSm),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: widget.hasError
                             ? AuthColors.errorText
                             : isFocused
                             ? theme.colorScheme.primary
                             : theme.colorScheme.outline,
-                        width: isFocused ? 2.5 : 1.2,
+                        width: isFocused ? 2 : 1.2,
                       ),
                     ),
                     child: Text(
-                      char.isEmpty ? '•' : char,
+                      char,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                         fontSize: 22,
-                        color: char.isEmpty
-                            ? theme.colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.35,
-                              )
-                            : theme.colorScheme.onSurface,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   );

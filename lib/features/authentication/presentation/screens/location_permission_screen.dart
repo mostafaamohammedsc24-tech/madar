@@ -9,7 +9,6 @@ import '../providers/user_auth_notifier.dart';
 import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/auth_header.dart';
-import '../widgets/permission_card.dart';
 import '../widgets/primary_auth_button.dart';
 import '../widgets/secondary_auth_button.dart';
 
@@ -33,7 +32,9 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
   Future<void> _requestNow() async {
     if (_requested || !mounted) return;
     _requested = true;
-    await _applyAfter(context.read<UserAuthNotifier>().requestLocationPermission);
+    await _applyAfter(
+      context.read<UserAuthNotifier>().requestLocationPermission,
+    );
   }
 
   Future<void> _applyAfter(Future<void> Function() action) async {
@@ -42,12 +43,14 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
     final state = context.read<UserAuthNotifier>().state;
     await context.read<LocaleProvider>().setLanguage(state.selectedLanguage);
     if (!mounted) return;
-    await context.read<CountryContextProvider>().setCountry(state.selectedCountry);
+    await context.read<CountryContextProvider>().setCountry(
+      state.selectedCountry,
+    );
     if (!mounted) return;
     await context.read<CountryContextProvider>().setCurrency(
-          state.selectedCurrencyCode,
-          overridden: false,
-        );
+      state.selectedCurrencyCode,
+      overridden: false,
+    );
   }
 
   @override
@@ -57,7 +60,6 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
     final state = auth.state;
 
     return AuthContainer(
-      showLanguageAction: true,
       onLanguageTap: () => LanguageSelectorSheet.show(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -66,13 +68,20 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
             title: loc.authLocationTitle,
             subtitle: loc.authLocationSubtitle,
           ),
-          const Spacer(),
-          PermissionCard(
-            icon: Icons.location_on_outlined,
-            title: loc.authLocationCardTitle,
-            description: loc.authLocationCardDescription,
+          const SizedBox(height: AuthSpacing.xl),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(
+              Icons.location_on_outlined,
+              size: 48,
+              color: Color(0xFF1565C0),
+            ),
           ),
-          const Spacer(),
+          const SizedBox(height: AuthSpacing.xl),
           PrimaryAuthButton(
             label: loc.authAllowLocation,
             isLoading: state.isBusy,
