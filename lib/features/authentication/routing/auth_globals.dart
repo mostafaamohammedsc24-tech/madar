@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../presentation/providers/user_auth_notifier.dart';
 import '../../office/presentation/providers/office_auth_notifier.dart';
+import '../../employee/core/presentation/providers/employee_auth_notifier.dart';
 
 /// Bridges auth notifiers to GoRouter refreshListenable.
 class AuthRouterRefresh extends ChangeNotifier {
@@ -11,6 +12,7 @@ class AuthRouterRefresh extends ChangeNotifier {
 
   final UserAuthNotifier _notifier;
   OfficeAuthNotifier? _office;
+  EmployeeAuthNotifier? _employee;
 
   UserAuthNotifier get notifier => _notifier;
 
@@ -21,10 +23,18 @@ class AuthRouterRefresh extends ChangeNotifier {
     _office!.addListener(notifyListeners);
   }
 
+  void attachEmployee(EmployeeAuthNotifier employee) {
+    if (_employee == employee) return;
+    _employee?.removeListener(notifyListeners);
+    _employee = employee;
+    _employee!.addListener(notifyListeners);
+  }
+
   @override
   void dispose() {
     _notifier.removeListener(notifyListeners);
     _office?.removeListener(notifyListeners);
+    _employee?.removeListener(notifyListeners);
     super.dispose();
   }
 }

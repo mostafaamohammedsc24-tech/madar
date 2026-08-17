@@ -1832,6 +1832,214 @@ class AppLocalizations {
   String get officeNoTickets =>
       _t(en: 'No support tickets yet.', ar: 'لا طلبات دعم بعد.', ku: 'هێشتا داوای پشتگیری نییە.');
 
+
+  // ─── Employee Portal ──────────────────────────────────────────────────────
+  String get empLoginTitle =>
+      _t(en: 'Employee Login', ar: 'دخول الموظفين', ku: 'چوونەژوورەوەی کارمەند');
+  String get empLoginSubtitle => _t(
+    en: 'Internal Madar operations access. Use your Employee ID and secret code.',
+    ar: 'دخول تشغيلي داخلي لمدار. استخدم رقم الموظف والرمز السري.',
+    ku: 'دەستگەیشتنی ناوخۆیی مەدار. ناسنامەی کارمەند و کۆدی نهێنی بەکاربهێنە.',
+  );
+  String get empIdLabel =>
+      _t(en: 'Employee ID', ar: 'رقم الموظف', ku: 'ناسنامەی کارمەند');
+  String get empIdHint =>
+      _t(en: 'e.g. EMP-IQ-000184', ar: 'مثال: EMP-IQ-000184', ku: 'نموونە: EMP-IQ-000184');
+  String get empSecretLabel =>
+      _t(en: 'Secret Code', ar: 'الرمز السري', ku: 'کۆدی نهێنی');
+  String get empSecretHint =>
+      _t(en: 'Enter secret code', ar: 'أدخل الرمز السري', ku: 'کۆدی نهێنی بنووسە');
+  String get empSignIn =>
+      _t(en: 'Sign in', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
+  String get empLoginInvalid => _t(
+    en: 'Invalid Employee ID or secret.',
+    ar: 'رقم الموظف أو الرمز السري غير صحيح.',
+    ku: 'ناسنامە یان نهێنی هەڵەیە.',
+  );
+  String get empLoginRateLimited => _t(
+    en: 'Too many attempts. Try again later.',
+    ar: 'محاولات كثيرة. حاول لاحقاً.',
+    ku: 'هەوڵی زۆر. دواتر هەوڵبدەوە.',
+  );
+  String get empLoginUnavailable => _t(
+    en: 'Login unavailable. Check connection.',
+    ar: 'تسجيل الدخول غير متاح.',
+    ku: 'چوونەژوورەوە بەردەست نییە.',
+  );
+  String get empNavHome => _t(en: 'Home', ar: 'الرئيسية', ku: 'سەرەکی');
+  String get empNavFinOps =>
+      _t(en: 'Financial ops', ar: 'العمليات المالية', ku: 'کارە داراییەکان');
+  String get empNavDeposits =>
+      _t(en: 'Deposits', ar: 'الإيداعات', ku: 'پارەدانەکان');
+  String get empNavOffices =>
+      _t(en: 'Offices', ar: 'المكاتب', ku: 'ئۆفیسەکان');
+  String get empNavCommissions =>
+      _t(en: 'Commissions', ar: 'العمولات', ku: 'کۆمیسیۆن');
+  String get empNavSettlements =>
+      _t(en: 'Settlements', ar: 'التسويات', ku: 'یەکلاکردنەوە');
+  String get empNavAudit =>
+      _t(en: 'Audit', ar: 'سجل التدقيق', ku: 'وردبینی');
+  String get empNavNotifications =>
+      _t(en: 'Alerts', ar: 'الإشعارات', ku: 'ئاگاداری');
+  String get empNavProfile =>
+      _t(en: 'Profile', ar: 'الملف', ku: 'پرۆفایل');
+  String get empNavOperations =>
+      _t(en: 'Operations', ar: 'العمليات', ku: 'کارەکان');
+  String get empNavReceipts =>
+      _t(en: 'Receipts', ar: 'الإيصالات', ku: 'وەسڵەکان');
+  String get empNavReports =>
+      _t(en: 'Reports', ar: 'البلاغات', ku: 'ڕاپۆرتەکان');
+  String get empNavPhotography =>
+      _t(en: 'Media', ar: 'التصوير', ku: 'وێنەگرتن');
+  String get empNavChats =>
+      _t(en: 'Chats', ar: 'المحادثات', ku: 'گفتوگۆ');
+  String get empFinanceControlCenter => _t(
+    en: 'Financial Operations Control Center',
+    ar: 'مركز التحكم بالعمليات المالية',
+    ku: 'ناوەندی کۆنترۆڵی کارە داراییەکان',
+  );
+  String get empFinanceControlSubtitle => _t(
+    en: 'Live figures from the transaction ledger — not estimates.',
+    ar: 'أرقام مباشرة من سجل العمليات — وليست تقديرات.',
+    ku: 'ژمارە ڕاستەوخۆ لە تۆماری مامەڵە — نەخەمڵاندن.',
+  );
+  String get empRangeToday => _t(en: 'Today', ar: 'اليوم', ku: 'ئەمڕۆ');
+  String get empRangeWeek => _t(en: 'This week', ar: 'هذا الأسبوع', ku: 'ئەم هەفتەیە');
+  String get empRangeMonth => _t(en: 'This month', ar: 'هذا الشهر', ku: 'ئەم مانگە');
+  String get empStatTodaysOps => _t(en: "Today's ops", ar: 'عمليات اليوم', ku: 'کارەکانی ئەمڕۆ');
+  String get empStatPendingDeposits => _t(en: 'Pending deposits', ar: 'إيداعات معلّقة', ku: 'پارەدانی چاوەڕوان');
+  String get empStatConfirmedDeposits => _t(en: 'Confirmed deposits', ar: 'إيداعات مؤكدة', ku: 'پارەدانی پشتڕاست');
+  String get empStatUnpaid => _t(en: 'Unpaid', ar: 'غير مدفوعة', ku: 'نەدراو');
+  String get empStatOverdue => _t(en: 'Overdue', ar: 'متأخرة', ku: 'دواکەوتوو');
+  String get empStatAwaitingSettlement => _t(en: 'Awaiting settlement', ar: 'بانتظار التسوية', ku: 'چاوەڕوانی یەکلاکردنەوە');
+  String get empStatOfficeDue => _t(en: 'Office amounts due', ar: 'مستحقات المكاتب', ku: 'قەرزی ئۆفیس');
+  String get empStatRevenue => _t(en: 'Company revenue', ar: 'إيرادات الشركة', ku: 'داهاتی کۆمپانیا');
+  String get empStatPendingTransfers => _t(en: 'Pending transfers', ar: 'تحويلات معلّقة', ku: 'گواستنەوەی چاوەڕوان');
+  String get empOpenFinancialMonitor => _t(en: 'Open financial monitor', ar: 'فتح مراقبة العمليات المالية', ku: 'کردنەوەی چاودێری دارایی');
+  String get empSearchTransactions => _t(en: 'Search transaction #, phone…', ar: 'ابحث برقم العملية أو الهاتف…', ku: 'گەڕان بە ژمارە یان تەلەفۆن…');
+  String get empEmptyTransactions => _t(en: 'No transactions match.', ar: 'لا عمليات مطابقة.', ku: 'هیچ مامەڵەیەک نییە.');
+  String get empSalePrice => _t(en: 'Sale price', ar: 'سعر البيع', ku: 'نرخی فرۆشتن');
+  String get empRequiredDeposit => _t(en: 'Required deposit', ar: 'الإيداع المطلوب', ku: 'پارەدانی پێویست');
+  String get empDeposited => _t(en: 'Deposited', ar: 'المودع', ku: 'دراو');
+  String get empStatus => _t(en: 'Status', ar: 'الحالة', ku: 'دۆخ');
+  String get empFinancialTimeline => _t(en: 'Financial timeline', ar: 'الجدول الزمني المالي', ku: 'کاتی دارایی');
+  String get empCompanyFees => _t(en: 'Company fees', ar: 'رسوم الشركة', ku: 'کرێی کۆمپانیا');
+  String get empTaxes => _t(en: 'Taxes', ar: 'الضرائب', ku: 'باج');
+  String get empOfficeCommission => _t(en: 'Office commission', ar: 'عمولة المكتب', ku: 'کۆمیسیۆنی ئۆفیس');
+  String get empChangeReason => _t(en: 'Reason for change', ar: 'سبب التعديل', ku: 'هۆکاری گۆڕان');
+  String get empSaveFinancials => _t(en: 'Save (audited)', ar: 'حفظ (مع تدقيق)', ku: 'پاشەکەوت (وردبینی)');
+  String get empSendPaymentRequest => _t(en: 'Send payment request', ar: 'إرسال طلب دفع', ku: 'ناردنی داوای پارەدان');
+  String get empPaymentRequestSent => _t(en: 'Payment request sent.', ar: 'تم إرسال طلب الدفع.', ku: 'داوای پارەدان نێردرا.');
+  String get empSaved => _t(en: 'Saved.', ar: 'تم الحفظ.', ku: 'پاشەکەوتکرا.');
+  String get empActionFailed => _t(en: 'Action failed.', ar: 'فشل الإجراء.', ku: 'کردار سەرکەوتوو نەبوو.');
+  String get empForbidden => _t(en: 'Permission denied.', ar: 'لا تملك الصلاحية.', ku: 'مۆڵەت نییە.');
+  String get empCommissionRules => _t(en: 'Commission rules', ar: 'قواعد العمولة', ku: 'ڕێساکانی کۆمیسیۆن');
+  String get empCommissionRulesHint => _t(
+    en: 'Configurable rules — not hard-coded shares.',
+    ar: 'قواعد قابلة للتغيير — وليست نسباً ثابتة في الكود.',
+    ku: 'ڕێسای گۆڕاو — نە ڕێژەی جێگیر لە کۆد.',
+  );
+  String get empFeeEngine => _t(en: 'Fee engine', ar: 'محرك الرسوم', ku: 'مۆتۆری کرێ');
+  String get empEmptyRules => _t(en: 'No commission rules yet.', ar: 'لا قواعد عمولة بعد.', ku: 'هێشتا ڕێسا نییە.');
+  String get empEmptyFees => _t(en: 'No fee definitions yet.', ar: 'لا تعريفات رسوم بعد.', ku: 'هێشتا پێناسەی کرێ نییە.');
+  String get empEmptyOffices => _t(en: 'No offices found.', ar: 'لا مكاتب.', ku: 'ئۆفیس نییە.');
+  String get empEmptySettlements => _t(en: 'No settlements yet.', ar: 'لا تسويات بعد.', ku: 'هێشتا یەکلاکردنەوە نییە.');
+  String get empEmptyDeposits => _t(en: 'No pending deposits.', ar: 'لا إيداعات معلّقة.', ku: 'پارەدانی چاوەڕوان نییە.');
+  String get empTransactions => _t(en: 'Transactions', ar: 'العمليات', ku: 'مامەڵەکان');
+  String get empAmountDue => _t(en: 'Amount due', ar: 'المستحق', ku: 'قەرز');
+  String get empAmountPaid => _t(en: 'Amount paid', ar: 'المدفوع', ku: 'دراو');
+  String get empBankWorkspace => _t(en: 'Bank verification workspace', ar: 'مساحة عمل التحقق المصرفي', ku: 'شوێنی پشتڕاستکردنەوەی بانک');
+  String get empBankWorkspaceSubtitle => _t(
+    en: 'Verify buyer identity and confirm deposits — no company finance edits.',
+    ar: 'تحقق من هوية المشتري وتأكيد الإيداع — دون تعديل مالية الشركة.',
+    ku: 'ناسنامەی کڕیار و پشتڕاستکردنی پارەدان — بەبێ دەستکاری دارایی کۆمپانیا.',
+  );
+  String get empStatTodaysDeposits => _t(en: "Today's deposits", ar: 'إيداعات اليوم', ku: 'پارەدانی ئەمڕۆ');
+  String get empStatCompletedDeposits => _t(en: 'Completed deposits', ar: 'إيداعات مكتملة', ku: 'پارەدانی تەواو');
+  String get empStatAwaitingOtp => _t(en: 'Awaiting OTP', ar: 'بانتظار OTP', ku: 'چاوەڕوانی OTP');
+  String get empStatVerificationRequired => _t(en: 'Verification required', ar: 'يتطلب التحقق', ku: 'پشتڕاستکردنەوە پێویستە');
+  String get empOpenBankOperations => _t(en: 'Open operations', ar: 'فتح العمليات', ku: 'کردنەوەی کارەکان');
+  String get empBankSearchHint => _t(en: 'Transaction #, barcode, buyer phone…', ar: 'رقم العملية، باركود، هاتف المشتري…', ku: 'ژمارەی مامەڵە، بارکۆد، تەلەفۆنی کڕیار…');
+  String get empBuyer => _t(en: 'Buyer', ar: 'المشتري', ku: 'کڕیار');
+  String get empSeller => _t(en: 'Seller', ar: 'البائع', ku: 'فرۆشیار');
+  String get empVerifyBuyer => _t(en: 'Verify buyer', ar: 'تحقق من المشتري', ku: 'پشتڕاستکردنی کڕیار');
+  String get empSendOtp => _t(en: 'Send OTP', ar: 'إرسال OTP', ku: 'ناردنی OTP');
+  String get empOtpSent => _t(en: 'OTP sent', ar: 'تم إرسال OTP', ku: 'OTP نێردرا');
+  String get empEnterOtp => _t(en: 'Enter OTP', ar: 'أدخل OTP', ku: 'OTP بنووسە');
+  String get empConfirmOtp => _t(en: 'Confirm OTP', ar: 'تأكيد OTP', ku: 'پشتڕاستکردنی OTP');
+  String get empIdentityConfirmed => _t(en: 'Identity confirmed', ar: 'تم تأكيد الهوية', ku: 'ناسنامە پشتڕاستکرا');
+  String get empConfirmDeposit => _t(en: 'Confirm deposit', ar: 'تأكيد الإيداع', ku: 'پشتڕاستکردنی پارەدان');
+  String get empActualDeposited => _t(en: 'Actual deposited', ar: 'المبلغ المودع فعلياً', ku: 'بڕی دراو');
+  String get empReferenceNumber => _t(en: 'Reference number', ar: 'رقم المرجع', ku: 'ژمارەی سەرچاوە');
+  String get empDepositConfirmed => _t(en: 'Deposit confirmed', ar: 'تم تأكيد الإيداع', ku: 'پارەدان پشتڕاستکرا');
+  String get empVerifyBeforeDeposit => _t(en: 'Verify buyer before confirming deposit.', ar: 'تحقق من المشتري قبل تأكيد الإيداع.', ku: 'پێش پشتڕاستکردنی پارەدان کڕیار پشتڕاست بکە.');
+  String get empEmptyReceipts => _t(en: 'No deposit receipts yet.', ar: 'لا إيصالات إيداع بعد.', ku: 'هێشتا وەسڵ نییە.');
+  String get empDepositReceipt => _t(en: 'Deposit receipt', ar: 'إيصال إيداع', ku: 'وەسڵی پارەدان');
+  String get empOmWorkspace => _t(en: 'Office network control', ar: 'إدارة شبكة المكاتب', ku: 'بەڕێوەبردنی تۆڕی ئۆفیس');
+  String get empOmWorkspaceSubtitle => _t(
+    en: 'Bridge between company, offices, properties, and referrals.',
+    ar: 'حلقة الوصل بين الشركة والمكاتب والعقارات والإحالات.',
+    ku: 'پەیوەندی نێوان کۆمپانیا، ئۆفیس، موڵک و ئاماژەکان.',
+  );
+  String get empStatActiveOffices => _t(en: 'Active offices', ar: 'مكاتب نشطة', ku: 'ئۆفیسی چالاک');
+  String get empStatPendingOfficeRequests => _t(en: 'Pending requests', ar: 'طلبات معلّقة', ku: 'داوای چاوەڕوان');
+  String get empStatNewPropertyReports => _t(en: 'New property reports', ar: 'بلاغات عقارات جديدة', ku: 'ڕاپۆرتی موڵکی نوێ');
+  String get empStatAwaitingPhotography => _t(en: 'Awaiting photography', ar: 'بانتظار التصوير', ku: 'چاوەڕوانی وێنەگرتن');
+  String get empStatActiveOfficeTx => _t(en: 'Active office deals', ar: 'عمليات مكاتب نشطة', ku: 'مامەڵەی چالاکی ئۆفیس');
+  String get empManageOffices => _t(en: 'Manage offices', ar: 'إدارة المكاتب', ku: 'بەڕێوەبردنی ئۆفیسەکان');
+  String get empAddOffice => _t(en: 'Add office', ar: 'إضافة مكتب', ku: 'زیادکردنی ئۆفیس');
+  String get empActivateOffice => _t(en: 'Activate', ar: 'تفعيل', ku: 'چالاککردن');
+  String get empSuspendOffice => _t(en: 'Suspend', ar: 'تعليق', ku: 'ڕاگرتن');
+  String get empResetSecret => _t(en: 'Reset secret', ar: 'إعادة تعيين الرمز', ku: 'نوێکردنەوەی نهێنی');
+  String get empSecretReset => _t(en: 'Secret reset', ar: 'تم إعادة التعيين', ku: 'نهێنی نوێکرایەوە');
+  String get empTemporarySecret => _t(en: 'Temporary secret', ar: 'الرمز المؤقت', ku: 'نهێنی کاتی');
+  String get empClose => _t(en: 'Close', ar: 'إغلاق', ku: 'داخستن');
+  String get empCreateOffice => _t(en: 'Create office', ar: 'إنشاء المكتب', ku: 'دروستکردنی ئۆفیس');
+  String get empOfficeCreated => _t(en: 'Office created', ar: 'تم إنشاء المكتب', ku: 'ئۆفیس دروستکرا');
+  String get empOfficeCode => _t(en: 'Office code', ar: 'رمز المكتب', ku: 'کۆدی ئۆفیس');
+  String get empOfficePendingNote => _t(
+    en: 'Office cannot sign in until status is Active.',
+    ar: 'لا يمكن للمكتب الدخول قبل أن تصبح حالته Active.',
+    ku: 'ئۆفیس ناتوانێت بچێتە ژوورەوە تا دۆخی Active دەبێت.',
+  );
+  String get empOfficeName => _t(en: 'Office name', ar: 'اسم المكتب', ku: 'ناوی ئۆفیس');
+  String get empOwnerName => _t(en: 'Owner full name', ar: 'اسم المالك الكامل', ku: 'ناوی تەواوی خاوەن');
+  String get empOwnerPhone => _t(en: 'Owner phone', ar: 'هاتف المالك', ku: 'تەلەفۆنی خاوەن');
+  String get empOfficePhone => _t(en: 'Office phone', ar: 'هاتف المكتب', ku: 'تەلەفۆنی ئۆفیس');
+  String get empEmail => _t(en: 'Email', ar: 'البريد', ku: 'ئیمەیڵ');
+  String get empCountry => _t(en: 'Country', ar: 'الدولة', ku: 'وڵات');
+  String get empCity => _t(en: 'City', ar: 'المدينة', ku: 'شار');
+  String get empRegion => _t(en: 'Region', ar: 'المنطقة', ku: 'ناوچە');
+  String get empAddress => _t(en: 'Address', ar: 'العنوان', ku: 'ناونیشان');
+  String get empLicense => _t(en: 'License number', ar: 'رقم الرخصة', ku: 'ژمارەی مۆڵەت');
+  String get empPropertyReport => _t(en: 'Property report', ar: 'بلاغ عقار', ku: 'ڕاپۆرتی موڵک');
+  String get empRequestPhotography => _t(en: 'Request photography', ar: 'طلب تصوير', ku: 'داوای وێنەگرتن');
+  String get empPhotographyRequested => _t(en: 'Photography requested', ar: 'تم طلب التصوير', ku: 'داوای وێنەگرتن نێردرا');
+  String get empEmptyPhotography => _t(en: 'No photography requests.', ar: 'لا طلبات تصوير.', ku: 'داوای وێنەگرتن نییە.');
+  String get empEmptyChats => _t(en: 'No office conversations yet.', ar: 'لا محادثات مكاتب بعد.', ku: 'هێشتا گفتوگۆ نییە.');
+  String get empOfficeChat => _t(en: 'Office conversation', ar: 'محادثة مكتب', ku: 'گفتوگۆی ئۆفیس');
+  String get empFullName => _t(en: 'Full name', ar: 'الاسم الكامل', ku: 'ناوی تەواو');
+  String get empJobTitle => _t(en: 'Job title', ar: 'المسمى الوظيفي', ku: 'ناونیشانی کار');
+  String get empDepartment => _t(en: 'Department', ar: 'القسم', ku: 'بەش');
+  String get empRole => _t(en: 'Role', ar: 'الدور', ku: 'ڕۆڵ');
+  String get empBranch => _t(en: 'Branch', ar: 'الفرع', ku: 'لق');
+  String get empJoined => _t(en: 'Joined', ar: 'تاريخ الالتحاق', ku: 'بەرواری بەشداری');
+  String get empLastLogin => _t(en: 'Last login', ar: 'آخر دخول', ku: 'دوایین چوونەژوورەوە');
+  String get empPermissions => _t(en: 'Permissions', ar: 'الصلاحيات', ku: 'مۆڵەتەکان');
+  String get empProfileReadOnlyNote => _t(
+    en: 'Employee ID, department, role, and permissions are managed by administration.',
+    ar: 'رقم الموظف والقسم والدور والصلاحيات تُدار إدارياً ولا تُعدّل من هنا.',
+    ku: 'ناسنامە، بەش، ڕۆڵ و مۆڵەت لەلایەن بەڕێوەبردنەوە بەڕێوەدەبرێن.',
+  );
+  String get empSignOut => _t(en: 'Sign out', ar: 'تسجيل الخروج', ku: 'دەرچوون');
+  String get empEmptyNotifications => _t(en: 'No notifications yet.', ar: 'لا إشعارات بعد.', ku: 'هێشتا ئاگاداری نییە.');
+  String get empGlobalSearchHint => _t(
+    en: 'Search transactions, offices… (permission-scoped)',
+    ar: 'ابحث عن عمليات أو مكاتب… (حسب الصلاحيات)',
+    ku: 'گەڕان بۆ مامەڵە یان ئۆفیس… (بەپێی مۆڵەت)',
+  );
+  String get empEmptyAudit => _t(en: 'No audit entries yet.', ar: 'لا سجلات تدقيق بعد.', ku: 'هێشتا تۆماری وردبینی نییە.');
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String en,

@@ -7,6 +7,7 @@ import './core/localization/locale_provider.dart';
 import './providers/country_context_provider.dart';
 import './features/authentication/routing/auth_globals.dart';
 import './features/office/routing/office_globals.dart';
+import './features/employee/core/routing/employee_globals.dart';
 import './services/mixpanel_service.dart';
 import './services/supabase_service.dart';
 import './widgets/custom_error_widget.dart';
@@ -31,7 +32,11 @@ void main() async {
   }
 
   wireOfficeAuthIntoRouter();
-  await officeAuthNotifier.initialize();
+  wireEmployeeAuthIntoRouter();
+  await Future.wait([
+    officeAuthNotifier.initialize(),
+    employeeAuthNotifier.initialize(),
+  ]);
 
   bool hasShownError = false;
 
@@ -62,6 +67,7 @@ void main() async {
             ),
             provider.ChangeNotifierProvider.value(value: userAuthNotifier),
             provider.ChangeNotifierProvider.value(value: officeAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: employeeAuthNotifier),
           ],
           child: const MyApp(),
         ),
