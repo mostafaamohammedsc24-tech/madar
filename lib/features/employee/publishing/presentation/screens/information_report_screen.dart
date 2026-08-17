@@ -234,6 +234,7 @@ class _InformationReportScreenState extends State<InformationReportScreen> {
                     'ownership_type',
                     'year_built',
                     'developer',
+                    'builder_company',
                   ],
                   data: _basic,
                   onChanged: (m) {

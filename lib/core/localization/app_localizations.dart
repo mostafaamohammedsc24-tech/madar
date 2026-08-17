@@ -70,6 +70,102 @@ class AppLocalizations {
     ar: 'اسحب لعرض المزيد',
     ku: 'ڕابکێشە بۆ زیاتر',
   );
+  String get sortHomesForYou => _t(
+    en: 'Homes for You',
+    ar: 'مقترحة لك',
+    ku: 'پێشنیار بۆ تۆ',
+  );
+  String get sortPriceLowHigh => _t(
+    en: 'Price: low to high',
+    ar: 'السعر: من الأقل للأعلى',
+    ku: 'نرخ: کەم بۆ زۆر',
+  );
+  String get sortPriceHighLow => _t(
+    en: 'Price: high to low',
+    ar: 'السعر: من الأعلى للأقل',
+    ku: 'نرخ: زۆر بۆ کەم',
+  );
+  String get sortAreaLarge => _t(
+    en: 'Largest area',
+    ar: 'الأكبر مساحة',
+    ku: 'گەورەترین ڕووبەر',
+  );
+  String get sortNewest => _t(
+    en: 'Newest',
+    ar: 'الأحدث',
+    ku: 'نوێترین',
+  );
+  String get saveSearch => _t(
+    en: 'Save search',
+    ar: 'حفظ البحث',
+    ku: 'پاشەکەوتی گەڕان',
+  );
+  String get aiPicksForYou => _t(
+    en: 'AI picks for you',
+    ar: 'مقترح لك بواسطة الذكاء الاصطناعي',
+    ku: 'پێشنیاری AI بۆ تۆ',
+  );
+  String get backToMap => _t(en: 'Map', ar: 'الخريطة', ku: 'نەخشە');
+  String get nearLandmarkResults => _t(
+    en: 'Properties near',
+    ar: 'عقارات قرب',
+    ku: 'خانووبەرە نزیک',
+  );
+  String get areaResultsIn => _t(
+    en: 'Results in',
+    ar: 'النتائج داخل',
+    ku: 'ئەنجامەکان لە',
+  );
+  String get similarProperties => _t(
+    en: 'Similar properties',
+    ar: 'عقارات مشابهة',
+    ku: 'خانووبەرەی هاوشێوە',
+  );
+  String get minBathrooms => _t(
+    en: 'Min. bathrooms',
+    ar: 'حمامات (الحد الأدنى)',
+    ku: 'کەمترین ئاوخانە',
+  );
+  String get propertyTypeLabel => _t(
+    en: 'Property type',
+    ar: 'نوع العقار',
+    ku: 'جۆری خانووبەرە',
+  );
+  String get featuresLabel => _t(
+    en: 'Features',
+    ar: 'المميزات',
+    ku: 'تایبەتمەندییەکان',
+  );
+  String get nearbyLabel => _t(
+    en: 'Nearby',
+    ar: 'قريب من',
+    ku: 'نزیک لە',
+  );
+  String get builderCompanyLabel => _t(
+    en: 'Builder / contractor',
+    ar: 'الشركة / المقاول الباني',
+    ku: 'کۆمپانیای بیناساز',
+  );
+  String get builderCompanyHint => _t(
+    en: 'e.g. Al-Rasheed Construction',
+    ar: 'مثال: شركة الرشيد للإعمار',
+    ku: 'نموونە: کۆمپانیای ڕەشید',
+  );
+  String get yearBuiltLabel => _t(
+    en: 'Year built (min.)',
+    ar: 'سنة البناء (الأقدم)',
+    ku: 'ساڵی بیناسازی',
+  );
+  String get verifiedOnly => _t(
+    en: 'Verified only',
+    ar: 'الموثقة فقط',
+    ku: 'تەنها پشتڕاستکراوەکان',
+  );
+  String get clearAreaFilter => _t(
+    en: 'Clear area',
+    ar: 'إزالة تحديد المنطقة',
+    ku: 'سنوور لاببە',
+  );
   String get openListing => _t(
     en: 'View listing',
     ar: 'عرض العقار',

@@ -17,6 +17,13 @@ class PropertyMapWidget extends StatefulWidget {
   final ValueChanged<double>? onZoomChanged;
   final VoidCallback? onBackgroundTap;
 
+  /// Highlighted area boundary (blue stroke + light fill).
+  final List<LatLng>? areaPolygon;
+
+  /// Landmark focus pin (school, mall, gas station…).
+  final LatLng? landmarkLocation;
+  final String? landmarkLabel;
+
   const PropertyMapWidget({
     required this.properties,
     required this.onPropertyTap,
@@ -26,6 +33,9 @@ class PropertyMapWidget extends StatefulWidget {
     this.selectedPropertyId,
     this.onZoomChanged,
     this.onBackgroundTap,
+    this.areaPolygon,
+    this.landmarkLocation,
+    this.landmarkLabel,
     super.key,
   });
 
@@ -76,7 +86,8 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     super.didUpdateWidget(old);
     if (_useWebMapFallback) return;
     if (old.properties != widget.properties ||
-        old.selectedPropertyId != widget.selectedPropertyId) {
+        old.selectedPropertyId != widget.selectedPropertyId ||
+        old.landmarkLocation != widget.landmarkLocation) {
       _buildMarkers();
     }
     if (!widget.isDrawingMode && old.isDrawingMode) {
@@ -238,7 +249,78 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     });
 
     final markers = await Future.wait(markerFutures);
-    if (mounted) setState(() => _markers = markers.toSet());
+    final all = markers.toSet();
+
+    final landmark = widget.landmarkLocation;
+    if (landmark != null) {
+      final icon = await _createLandmarkMarker(size * 1.05);
+      all.add(
+        Marker(
+          markerId: const MarkerId('landmark_focus'),
+          position: landmark,
+          icon: icon,
+          anchor: const Offset(0.5, 0.5),
+          zIndexInt: 20,
+          infoWindow: widget.landmarkLabel != null
+              ? InfoWindow(title: widget.landmarkLabel)
+              : InfoWindow.noText,
+        ),
+      );
+    }
+
+    if (mounted) setState(() => _markers = all);
+  }
+
+  Future<BitmapDescriptor> _createLandmarkMarker(double size) async {
+    final cacheKey = 'landmark_${size.toInt()}';
+    if (_markerCache.containsKey(cacheKey)) return _markerCache[cacheKey]!;
+
+    const color = Color(0xFF212121);
+    const iconData = Icons.place;
+    final canvasSize = size * 2.0;
+    final circleRadius = size * 0.42;
+    final center = Offset(canvasSize / 2, canvasSize / 2);
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final shadowPaint = Paint()
+      ..color = Colors.black.withAlpha(60)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    canvas.drawCircle(center.translate(0, 2), circleRadius + 1, shadowPaint);
+    canvas.drawCircle(center, circleRadius + 4, Paint()..color = Colors.white);
+    canvas.drawCircle(center, circleRadius, Paint()..color = color);
+
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(iconData.codePoint),
+      style: TextStyle(
+        fontSize: circleRadius * 1.05,
+        fontFamily: iconData.fontFamily,
+        color: const Color(0xFFFFC107),
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(
+      canvasSize.toInt(),
+      canvasSize.toInt(),
+    );
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final descriptor = BitmapDescriptor.bytes(
+      byteData!.buffer.asUint8List(),
+      width: size,
+      height: size,
+    );
+    _markerCache[cacheKey] = descriptor;
+    return descriptor;
   }
 
   MapType _getMapType() {
@@ -330,6 +412,34 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     );
   }
 
+  /// Fit camera to a set of points (area polygon or landmark + properties).
+  void fitBounds(List<LatLng> points) {
+    if (points.isEmpty || _mapController == null) return;
+    if (points.length == 1) {
+      moveToLocation(points.first);
+      return;
+    }
+    var minLat = points.first.latitude;
+    var maxLat = points.first.latitude;
+    var minLng = points.first.longitude;
+    var maxLng = points.first.longitude;
+    for (final p in points) {
+      if (p.latitude < minLat) minLat = p.latitude;
+      if (p.latitude > maxLat) maxLat = p.latitude;
+      if (p.longitude < minLng) minLng = p.longitude;
+      if (p.longitude > maxLng) maxLng = p.longitude;
+    }
+    _mapController!.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(minLat, minLng),
+          northeast: LatLng(maxLat, maxLng),
+        ),
+        56,
+      ),
+    );
+  }
+
   /// Place the pin in the upper third so the preview card does not cover it.
   void focusOnPin(LatLng location) {
     final shifted = LatLng(location.latitude - 0.0045, location.longitude);
@@ -356,7 +466,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
           mapType: _getMapType(),
           style: _cleanMapStyle,
           markers: _markers,
-          polygons: _polygons,
+          polygons: _composedPolygons(),
           polylines: _polylines,
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
@@ -375,6 +485,21 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
         ),
       ],
     );
+  }
+
+  Set<Polygon> _composedPolygons() {
+    final area = widget.areaPolygon;
+    if (area == null || area.length < 3) return _polygons;
+    return {
+      ..._polygons,
+      Polygon(
+        polygonId: const PolygonId('area_boundary'),
+        points: area,
+        strokeColor: const Color(0xFF1565C0),
+        strokeWidth: 2,
+        fillColor: const Color(0xFF1565C0).withAlpha(18),
+      ),
+    };
   }
 
   void _updateDrawingOverlays() {

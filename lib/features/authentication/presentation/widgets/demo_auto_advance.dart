@@ -6,7 +6,7 @@ class DemoAutoAdvance extends StatefulWidget {
     super.key,
     required this.onAdvance,
     required this.child,
-    this.delay = const Duration(milliseconds: 1700),
+    this.delay = const Duration(milliseconds: 2800),
   });
 
   final VoidCallback onAdvance;

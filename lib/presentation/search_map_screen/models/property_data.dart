@@ -184,6 +184,30 @@ class PropertyData {
     return urls;
   }
 
+  /// District/neighborhood name, from structured data or the address.
+  String get district {
+    final raw = rawData['district']?.toString().trim();
+    if (raw != null && raw.isNotEmpty) return raw;
+    final parts = address.split(',');
+    if (parts.length >= 2) return parts[parts.length - 2].trim();
+    return '';
+  }
+
+  /// Builder / contractor company, when captured by data-entry staff.
+  String get builderCompany {
+    final keys = ['builder_company', 'builder', 'developer', 'contractor'];
+    for (final key in keys) {
+      final value = rawData[key]?.toString().trim();
+      if (value != null && value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
+  int get yearBuilt {
+    final raw = rawData['year_built'] ?? rawData['yearBuilt'];
+    return int.tryParse(raw?.toString() ?? '') ?? 0;
+  }
+
   String get listingTypeLabel {
     switch (listingType) {
       case 'sale':

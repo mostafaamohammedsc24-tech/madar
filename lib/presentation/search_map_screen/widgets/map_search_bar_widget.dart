@@ -1,17 +1,34 @@
 import '../../../core/app_export.dart';
 
-// Enhanced search bar with autocomplete suggestions
+/// One rich autocomplete row: text query, area, landmark, or property.
+class SearchSuggestionItem {
+  const SearchSuggestionItem({
+    required this.label,
+    this.kind = 'query',
+    this.payload,
+  });
+
+  final String label;
+
+  /// 'query' | 'area' | 'landmark' | 'property'
+  final String kind;
+  final Object? payload;
+}
+
+// Smart search bar with mixed suggestions (queries, areas, landmarks).
 class MapSearchBarWidget extends StatefulWidget {
   final VoidCallback onFilterTap;
   final VoidCallback onVoiceSearch;
   final Function(String)? onSearch;
-  final List<String> suggestions;
+  final List<SearchSuggestionItem> suggestions;
+  final ValueChanged<SearchSuggestionItem>? onSuggestionTap;
 
   const MapSearchBarWidget({
     required this.onFilterTap,
     required this.onVoiceSearch,
     this.onSearch,
     this.suggestions = const [],
+    this.onSuggestionTap,
     super.key,
   });
 
@@ -62,6 +79,19 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
     super.dispose();
   }
 
+  String _iconFor(String kind) {
+    switch (kind) {
+      case 'area':
+        return 'location_city';
+      case 'landmark':
+        return 'place';
+      case 'property':
+        return 'home';
+      default:
+        return 'search';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -100,7 +130,7 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
                   controller: _controller,
                   focusNode: _focusNode,
                   decoration: InputDecoration(
-                    hintText: 'Search area, address, price, landmark...',
+                    hintText: 'ابحث: منطقة، سعر، مدرسة، مول…',
                     hintStyle: TextStyle(
                       fontSize: 13,
                       color: theme.colorScheme.onSurfaceVariant,
@@ -175,7 +205,7 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
             ],
           ),
         ),
-        // Autocomplete suggestions dropdown
+        // Mixed autocomplete: areas, landmarks, free text
         if (_showSuggestions)
           Container(
             margin: const EdgeInsets.only(top: 4),
@@ -193,14 +223,18 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: widget.suggestions
-                  .take(5)
+                  .take(6)
                   .map(
                     (s) => InkWell(
                       onTap: () {
-                        _controller.text = s;
-                        widget.onSearch?.call(s);
+                        _controller.text = s.label;
                         _focusNode.unfocus();
                         setState(() => _showSuggestions = false);
+                        if (widget.onSuggestionTap != null) {
+                          widget.onSuggestionTap!(s);
+                        } else {
+                          widget.onSearch?.call(s.label);
+                        }
                       },
                       borderRadius: BorderRadius.circular(16),
                       child: Padding(
@@ -211,14 +245,18 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
                         child: Row(
                           children: [
                             CustomIconWidget(
-                              iconName: 'search',
-                              color: AppTheme.primary.withAlpha(150),
+                              iconName: _iconFor(s.kind),
+                              color: s.kind == 'area'
+                                  ? AppTheme.primary
+                                  : s.kind == 'landmark'
+                                      ? const Color(0xFFF57C00)
+                                      : AppTheme.primary.withAlpha(150),
                               size: 16,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                s,
+                                s.label,
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: theme.colorScheme.onSurface,

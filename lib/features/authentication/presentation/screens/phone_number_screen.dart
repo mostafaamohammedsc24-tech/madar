@@ -28,7 +28,7 @@ class PhoneNumberScreen extends StatelessWidget {
         digits.length >= state.selectedCountry.minPhoneLength && !state.isBusy;
 
     return DemoAutoAdvance(
-      delay: const Duration(milliseconds: 2000),
+      delay: const Duration(milliseconds: 2800),
       onAdvance: () {
         if (canContinue) auth.sendOtp();
       },

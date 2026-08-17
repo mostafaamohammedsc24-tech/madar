@@ -37,7 +37,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     }
 
     return DemoAutoAdvance(
-      delay: const Duration(milliseconds: 2000),
+      delay: const Duration(milliseconds: 2800),
       onAdvance: () {
         if (!state.isBusy) auth.verifyOtp('123456');
       },

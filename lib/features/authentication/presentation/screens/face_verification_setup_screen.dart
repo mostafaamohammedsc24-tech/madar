@@ -22,7 +22,7 @@ class FaceVerificationSetupScreen extends StatelessWidget {
     final state = auth.state;
 
     return DemoAutoAdvance(
-      delay: const Duration(milliseconds: 2000),
+      delay: const Duration(milliseconds: 2800),
       onAdvance: () {
         if (!state.isBusy) auth.skipFaceVerification();
       },

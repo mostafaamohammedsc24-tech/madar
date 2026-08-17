@@ -9,6 +9,9 @@ class PropertyCatalogDemo {
   static const List<Map<String, dynamic>> _maps = [
     {
       'id': 'prop_001',
+      'district': 'الكرادة',
+      'builder_company': 'شركة الرشيد للإعمار',
+      'year_built': 2019,
       'title': 'Modern Apartment — Karrada',
       'address': '14 Al-Nidhal St, Karrada, Baghdad',
       'price': 185000,
@@ -42,6 +45,9 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_002',
+      'district': 'المنصور',
+      'builder_company': 'مجموعة المهندس للبناء',
+      'year_built': 2021,
       'title': 'Villa — Mansour District',
       'address': '7 Prince Rd, Mansour, Baghdad',
       'price': 420000,
@@ -73,6 +79,9 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_003',
+      'district': 'زيونة',
+      'builder_company': 'شركة الرافدين للمقاولات',
+      'year_built': 2017,
       'title': 'Office Space — Zayouna',
       'address': '22 Commerce Ave, Zayouna, Baghdad',
       'price': 2800,
@@ -97,6 +106,7 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_004',
+      'district': 'الأعظمية',
       'title': 'Residential Land — Adhamiya',
       'address': 'Block 14, Adhamiya District, Baghdad',
       'price': 95000,
@@ -121,6 +131,9 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_005',
+      'district': 'الكاظمية',
+      'builder_company': 'شركة بابل الحديثة',
+      'year_built': 2022,
       'title': 'Townhouse — Jadriya',
       'address': '9 River View St, Jadriya, Baghdad',
       'price': 260000,
@@ -148,6 +161,9 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_006',
+      'district': 'الدورة',
+      'builder_company': 'مجموعة المهندس للبناء',
+      'year_built': 2020,
       'title': 'Apartment — Kadhimiya',
       'address': '33 Al-Kadhim St, Kadhimiya, Baghdad',
       'price': 75000,
@@ -172,6 +188,9 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_007',
+      'district': 'الجادرية',
+      'builder_company': 'شركة الرشيد للإعمار',
+      'year_built': 2018,
       'title': 'Duplex — Erbil Dream City',
       'address': 'Dream City, Erbil',
       'price': 310000,
@@ -196,6 +215,9 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_008',
+      'district': 'المنصور',
+      'builder_company': 'شركة النخبة العقارية',
+      'year_built': 2023,
       'title': 'Studio Rent — Basra Corniche',
       'address': 'Corniche Rd, Basra',
       'price': 450,
@@ -220,6 +242,7 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_009',
+      'district': 'الكرادة',
       'title': 'Commercial Shop — Najaf',
       'address': 'Old City edge, Najaf',
       'price': 160000,
@@ -244,6 +267,9 @@ class PropertyCatalogDemo {
     },
     {
       'id': 'prop_010',
+      'district': 'زيونة',
+      'builder_company': 'شركة بابل الحديثة',
+      'year_built': 2016,
       'title': 'Family House — Mosul New',
       'address': 'New Mosul, Nineveh',
       'price': 135000,
