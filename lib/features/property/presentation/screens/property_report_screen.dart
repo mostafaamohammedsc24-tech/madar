@@ -18,7 +18,11 @@ import '../../domain/models/property_language.dart';
 import '../../domain/models/property_report.dart';
 import '../../domain/models/property_surroundings.dart';
 import '../../domain/models/property_translation.dart';
+import '../../../../services/property_catalog_demo.dart';
+import '../screens/property_compare_sheet.dart';
+import '../widgets/interactive_floor_plan_view.dart';
 import '../widgets/property_extended_sections.dart';
+import '../widgets/property_fullscreen_gallery.dart';
 import '../widgets/property_map_section.dart';
 import '../widgets/property_price_chart.dart';
 import '../widgets/property_report_nav.dart';
@@ -808,11 +812,11 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
             label: Text(loc.askAiAboutProperty),
           ),
           OutlinedButton.icon(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(loc.compareComingSoon)),
-              );
-            },
+            onPressed: () => PropertyCompareSheet.show(
+              context,
+              base: report,
+              candidates: PropertyCatalogDemo.listings(),
+            ),
             icon: const Icon(Icons.compare_arrows, size: 18),
             label: Text(loc.compareProperty),
           ),
@@ -1596,44 +1600,68 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
   }
 
   void _showFloorPlanSheet(PropertyReport report) {
-    final plans = report.media.items
-        .where((i) => i.kind.toString().contains('floorPlan') || i.category.toString().contains('floorPlan'))
-        .toList();
-    // Prefer floor-plan kind
-    final items = report.media.items
+    final loc = AppLocalizations.of(context);
+    final plan = report.floorPlan;
+    final mediaPlans = report.media.items
         .where((i) => i.kind.name == 'floorPlan')
         .toList();
-    final show = items.isNotEmpty ? items : plans;
+
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       builder: (ctx) {
-        final loc = AppLocalizations.of(ctx);
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(title: Text(loc.floorPlan)),
-              if (show.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: EmptySectionHint(),
-                )
-              else
-                SizedBox(
-                  height: 240,
-                  child: PageView(
-                    children: show
-                        .map(
-                          (m) => InteractiveViewer(
-                            child: Image.network(m.url, fit: BoxFit.contain),
-                          ),
-                        )
-                        .toList(),
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.75,
+          minChildSize: 0.4,
+          maxChildSize: 0.92,
+          builder: (_, scroll) {
+            return Material(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: ListView(
+                controller: scroll,
+                padding: const EdgeInsets.all(20),
+                children: [
+                  Text(
+                    loc.floorPlan,
+                    style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
-                ),
-              const SizedBox(height: 12),
-            ],
-          ),
+                  const SizedBox(height: 12),
+                  if (plan != null && plan.hasAny)
+                    InteractiveFloorPlanView(
+                      plan: plan,
+                      media: report.media,
+                      onOpen3d: report.showTour3d
+                          ? (id) => _openExternalMedia(
+                                report.media.tour3d?.url,
+                              )
+                          : null,
+                      onOpenPhotos: (photos) {
+                        Navigator.pop(ctx);
+                        PropertyFullscreenGallery.open(
+                          context,
+                          items: photos,
+                          initialIndex: 0,
+                        );
+                      },
+                    )
+                  else if (mediaPlans.isNotEmpty)
+                    ...mediaPlans.map(
+                      (m) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: InteractiveViewer(
+                          child: Image.network(m.url, fit: BoxFit.contain),
+                        ),
+                      ),
+                    )
+                  else
+                    const EmptySectionHint(),
+                ],
+              ),
+            );
+          },
         );
       },
     );

@@ -26,6 +26,7 @@ class _InformationReportScreenState extends State<InformationReportScreen> {
   Map<String, dynamic> _utilities = {};
   Map<String, dynamic> _neighborhood = {};
   Map<String, dynamic> _condition = {};
+  Map<String, dynamic> _construction = {};
   final _notes = TextEditingController();
   final List<PropertyRoomDraft> _rooms = [];
   int _requiredCompleted = 0;
@@ -67,6 +68,8 @@ class _InformationReportScreenState extends State<InformationReportScreen> {
             Map<String, dynamic>.from(info['neighborhood'] as Map? ?? {});
         _condition =
             Map<String, dynamic>.from(info['condition'] as Map? ?? {});
+        _construction =
+            Map<String, dynamic>.from(info['construction'] as Map? ?? {});
         _notes.text = info['field_notes'] as String? ?? '';
         _requiredCompleted =
             (info['required_completed'] as num?)?.toInt() ?? 0;
@@ -108,6 +111,7 @@ class _InformationReportScreenState extends State<InformationReportScreen> {
     countMap(_utilities, 12);
     countMap(_neighborhood, 8);
     countMap(_condition, 6);
+    countMap(_construction, 8);
     n += _rooms.length.clamp(0, 20);
     if (_notes.text.trim().isNotEmpty) n += 10;
     return n.clamp(0, _requiredTotal);
@@ -305,6 +309,29 @@ class _InformationReportScreenState extends State<InformationReportScreen> {
                       label: const Text('Add room'),
                     ),
                   ],
+                ),
+              ),
+              _Section(
+                title: 'Construction & builder',
+                child: _MapForm(
+                  fields: const [
+                    'construction_status',
+                    'construction_material',
+                    'structure_type',
+                    'foundation_type',
+                    'roof_type',
+                    'exterior_material',
+                    'interior_material',
+                    'architect',
+                    'engineering_office',
+                    'last_renovation',
+                    'last_maintenance',
+                  ],
+                  data: _construction,
+                  onChanged: (m) {
+                    setState(() => _construction = m);
+                    _saveSection('construction', m);
+                  },
                 ),
               ),
               _Section(

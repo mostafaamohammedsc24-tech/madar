@@ -265,6 +265,41 @@ class PropertyCatalogDemo {
           'location_verified': true,
           'photos_verified': true,
         },
+        'floor_plan': {
+          'image_url':
+              'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900',
+          'rooms': [
+            {
+              'name': 'Living Room',
+              'x': 0.08,
+              'y': 0.15,
+              'w': 0.42,
+              'h': 0.35,
+              'room_key': 'living_room',
+              'linked_media_category': 'living_room',
+              'linked_3d_point_id': 'lr_01',
+            },
+            {
+              'name': 'Kitchen',
+              'x': 0.52,
+              'y': 0.15,
+              'w': 0.28,
+              'h': 0.22,
+              'room_key': 'kitchen',
+              'linked_media_category': 'kitchen',
+            },
+            {
+              'name': 'Master Bedroom',
+              'x': 0.08,
+              'y': 0.55,
+              'w': 0.35,
+              'h': 0.32,
+              'room_key': 'master_bedroom',
+              'linked_media_category': 'master_bedroom',
+              'linked_3d_point_id': 'mb_01',
+            },
+          ],
+        },
       },
       'nearbySchools': [
         'Baghdad College',

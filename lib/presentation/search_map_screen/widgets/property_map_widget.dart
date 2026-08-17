@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../../../core/app_export.dart';
+import '../../../core/theme/listing_filter_theme.dart';
 import '../search_map_screen.dart';
 
 // Full-screen GoogleMap with custom property type icons, polygon draw support.
@@ -106,59 +107,59 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
 
   // Returns the icon name and color for each property type/listing type
   Map<String, dynamic> _getIconSpec(String type, String listingType) {
+    final color = ListingFilterTheme.pinColor(
+      propertyType: type,
+      listingType: listingType,
+    );
     switch (type) {
       case 'apartment':
         return {
           'icon': Icons.apartment,
-          'color': listingType == 'rent'
-              ? const Color(0xFF00BCD4)
-              : const Color(0xFF1565C0),
+          'color': color,
           'label': listingType == 'rent' ? 'Rent' : 'Apt',
         };
       case 'villa':
         return {
           'icon': Icons.villa,
-          'color': listingType == 'mortgage'
-              ? const Color(0xFFE91E63)
-              : const Color(0xFF388E3C),
+          'color': color,
           'label': listingType == 'mortgage' ? 'Mortgage' : 'Villa',
         };
       case 'land':
         return {
           'icon': Icons.landscape,
-          'color': const Color(0xFFF57C00),
+          'color': color,
           'label': 'Land',
         };
       case 'commercial':
         return {
           'icon': Icons.store,
-          'color': const Color(0xFF7B1FA2),
+          'color': color,
           'label': 'Shop',
         };
       case 'building':
         return {
           'icon': Icons.domain,
-          'color': const Color(0xFFFFB300),
+          'color': color,
           'label': 'Bldg',
         };
       case 'investment':
         return {
           'icon': Icons.trending_up,
-          'color': const Color(0xFFE91E63),
+          'color': color,
           'label': 'Invest',
         };
       default:
         if (listingType == 'mortgage') {
           return {
             'icon': Icons.account_balance,
-            'color': const Color(0xFFE91E63),
+            'color': color,
             'label': 'Mortgage',
           };
         }
         return {
           'icon': Icons.home,
-          'color': const Color(0xFF1565C0),
-          'label': 'Sale',
+          'color': color,
+          'label': listingType == 'rent' ? 'Rent' : 'Sale',
         };
     }
   }

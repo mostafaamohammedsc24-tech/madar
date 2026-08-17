@@ -48,6 +48,7 @@ class PropertyReport {
     this.verification = const PropertyVerificationFlags(),
     this.tags = const [],
     this.marketAnalytics,
+    this.floorPlan,
   });
 
   final String id;
@@ -86,6 +87,7 @@ class PropertyReport {
   final PropertyVerificationFlags verification;
   final List<String> tags;
   final PropertyMarketAnalytics? marketAnalytics;
+  final PropertyFloorPlan? floorPlan;
 
   /// Show translate CTA when property language differs from the user's UI language.
   bool needsTranslationFor(ContentLanguage userLanguage) {
@@ -137,6 +139,7 @@ class PropertyReport {
       verification: verification,
       tags: tags,
       marketAnalytics: marketAnalytics,
+      floorPlan: floorPlan,
     );
   }
 
@@ -181,7 +184,8 @@ class PropertyReport {
   bool get showMap => location.hasCoordinates;
   bool get showTour3d => media.has3dTour;
   bool get showTour360 => media.has360Tour;
-  bool get showFloorPlan => media.hasFloorPlan;
+  bool get showFloorPlan =>
+      media.hasFloorPlan || floorPlan?.hasAny == true;
   bool get showDimensions => dimensions?.hasAny == true;
   bool get showConstruction => construction?.hasAny == true;
   bool get showBuilder => builder?.hasAny == true;

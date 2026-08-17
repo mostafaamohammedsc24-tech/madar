@@ -235,3 +235,42 @@ class PropertyMarketAnalytics {
       listingsCount != null ||
       daysOnMarket != null;
 }
+
+/// Interactive floor plan overlay — room boxes are publisher-defined (0–1 coords).
+class FloorPlanRoom {
+  const FloorPlanRoom({
+    required this.name,
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+    this.roomKey,
+    this.linked3dPointId,
+    this.linkedMediaCategory,
+  });
+
+  final String name;
+  final double x;
+  final double y;
+  final double width;
+  final double height;
+  final String? roomKey;
+  final String? linked3dPointId;
+  final String? linkedMediaCategory;
+}
+
+class PropertyFloorPlan {
+  const PropertyFloorPlan({
+    this.imageUrl,
+    this.floors = const [],
+    this.rooms = const [],
+  });
+
+  final String? imageUrl;
+  final List<String> floors;
+  final List<FloorPlanRoom> rooms;
+
+  bool get hasImage => imageUrl != null && imageUrl!.isNotEmpty;
+  bool get hasInteractiveRooms => rooms.isNotEmpty;
+  bool get hasAny => hasImage || hasInteractiveRooms;
+}

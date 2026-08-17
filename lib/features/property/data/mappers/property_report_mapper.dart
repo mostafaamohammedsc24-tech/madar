@@ -239,6 +239,9 @@ class PropertyReportMapper {
       marketAnalytics: _mapMarketAnalytics(
         _asMap(intel['market_analytics']),
       ),
+      floorPlan: _mapFloorPlan(
+        _asMap(intel['floor_plan']) ?? _asMap(d['floor_plan']),
+      ),
     );
   }
 
@@ -872,5 +875,44 @@ class PropertyReportMapper {
       daysOnMarket: (json['days_on_market'] as num?)?.toInt(),
     );
     return m.hasAny ? m : null;
+  }
+
+  PropertyFloorPlan? _mapFloorPlan(Map<String, dynamic>? json) {
+    if (json == null) return null;
+    final roomsRaw = json['rooms'] as List? ?? const [];
+    final rooms = <FloorPlanRoom>[];
+    for (final r in roomsRaw) {
+      if (r is! Map) continue;
+      final m = Map<String, dynamic>.from(r);
+      final name = m['name'] as String? ?? m['room'] as String? ?? '';
+      if (name.isEmpty) continue;
+      rooms.add(
+        FloorPlanRoom(
+          name: name,
+          x: (m['x'] as num?)?.toDouble() ?? 0,
+          y: (m['y'] as num?)?.toDouble() ?? 0,
+          width: (m['w'] as num?)?.toDouble() ??
+              (m['width'] as num?)?.toDouble() ??
+              0.2,
+          height: (m['h'] as num?)?.toDouble() ??
+              (m['height'] as num?)?.toDouble() ??
+              0.2,
+          roomKey: m['room_key'] as String?,
+          linked3dPointId: m['linked_3d_point_id'] as String?,
+          linkedMediaCategory: m['linked_media_category'] as String?,
+        ),
+      );
+    }
+    final floors = (json['floors'] as List?)
+            ?.map((e) => e.toString())
+            .where((s) => s.isNotEmpty)
+            .toList() ??
+        const [];
+    final plan = PropertyFloorPlan(
+      imageUrl: json['image_url'] as String? ?? json['url'] as String?,
+      floors: floors,
+      rooms: rooms,
+    );
+    return plan.hasAny ? plan : null;
   }
 }
