@@ -56,6 +56,7 @@ class _EmployeeNotificationsScreenState
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
                       final n = _items[i];
+                      final repo = context.read<EmployeeAuthNotifier>().repository;
                       return ListTile(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -64,11 +65,18 @@ class _EmployeeNotificationsScreenState
                           ),
                         ),
                         title: Text(n['title']?.toString() ?? ''),
-                        subtitle: Text(
-                          '${n['body'] ?? ''}\n'
-                          '${n['related_entity_type'] ?? ''} ${n['related_entity_id'] ?? ''}',
+                        subtitle: Text(n['body']?.toString() ?? ''),
+                        trailing: TextButton(
+                          onPressed: () async {
+                            try {
+                              await repo.markNotificationRead(
+                                n['id'].toString(),
+                              );
+                            } catch (_) {}
+                            _load();
+                          },
+                          child: Text(loc.empReviewAction),
                         ),
-                        isThreeLine: true,
                       );
                     },
                   ),

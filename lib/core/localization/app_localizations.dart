@@ -1867,6 +1867,9 @@ class AppLocalizations {
     ku: 'چوونەژوورەوە بەردەست نییە.',
   );
   String get empNavHome => _t(en: 'Home', ar: 'الرئيسية', ku: 'سەرەکی');
+  String get empNavWork => _t(en: 'Work', ar: 'العمل', ku: 'کار');
+  String get empNavMessages =>
+      _t(en: 'Messages', ar: 'الرسائل', ku: 'نامەکان');
   String get empNavFinOps =>
       _t(en: 'Financial ops', ar: 'العمليات المالية', ku: 'کارە داراییەکان');
   String get empNavDeposits =>
@@ -1880,9 +1883,54 @@ class AppLocalizations {
   String get empNavAudit =>
       _t(en: 'Audit', ar: 'سجل التدقيق', ku: 'وردبینی');
   String get empNavNotifications =>
-      _t(en: 'Alerts', ar: 'الإشعارات', ku: 'ئاگاداری');
+      _t(en: 'Alerts', ar: 'التنبيهات', ku: 'ئاگاداری');
   String get empNavProfile =>
       _t(en: 'Profile', ar: 'الملف', ku: 'پرۆفایل');
+  String get empGoodMorning =>
+      _t(en: 'Good morning', ar: 'صباح الخير', ku: 'بەیانی باش');
+  String get empGoodAfternoon =>
+      _t(en: 'Good afternoon', ar: 'مساء الخير', ku: 'دوا نیوەڕۆ باش');
+  String get empGoodEvening =>
+      _t(en: 'Good evening', ar: 'مساء الخير', ku: 'ئێوارە باش');
+  String get empFocusToday =>
+      _t(en: 'Focus today', ar: 'ركز اليوم', ku: 'سەرنجی ئەمڕۆ');
+  String get empTodaysTasks =>
+      _t(en: "Today's tasks", ar: 'مهام اليوم', ku: 'ئەرکەکانی ئەمڕۆ');
+  String get empTodaysWork =>
+      _t(en: "Today's work", ar: 'عمل اليوم', ku: 'کاری ئەمڕۆ');
+  String get empOpenWork =>
+      _t(en: 'Open Work', ar: 'افتح العمل', ku: 'کار بکەرەوە');
+  String get empWorkTitle =>
+      _t(en: 'Work', ar: 'مساحة العمل', ku: 'شوێنی کار');
+  String get empWorkSubtitle => _t(
+    en: 'Only the queues for your role. Everything else stays out of the way.',
+    ar: 'طوابير دورك فقط. باقي النظام بعيد عن الطريق.',
+    ku: 'تەنها ڕیزەکانی ڕۆڵەکەت. هەموو شتێکی تر لە ڕێگادا نییە.',
+  );
+  String get empNoWorkQueues => _t(
+    en: 'No work queues for this role yet.',
+    ar: 'لا توجد طوابير عمل لهذا الدور بعد.',
+    ku: 'هێشتا ڕیزی کار بۆ ئەم ڕۆڵە نییە.',
+  );
+  String get empNoWorkspace => _t(
+    en: 'No workspace assigned. Contact HR.',
+    ar: 'لا توجد مساحة عمل. تواصل مع الموارد البشرية.',
+    ku: 'هیچ شوێنی کار دیاری نەکراوە. پەیوەندی بە HR بکە.',
+  );
+  String get empMessagesHint => _t(
+    en: 'Conversations tied to your department and assignments.',
+    ar: 'محادثات مرتبطة بقسمك ومهامك.',
+    ku: 'گفتوگۆکانی بەشی خۆت و ئەرکەکانت.',
+  );
+  String get empMessagesEmpty => _t(
+    en: 'No conversations yet.',
+    ar: 'لا محادثات بعد.',
+    ku: 'هێشتا گفتوگۆ نییە.',
+  );
+  String get empConversation =>
+      _t(en: 'Conversation', ar: 'محادثة', ku: 'گفتوگۆ');
+  String get empReviewAction =>
+      _t(en: 'Review', ar: 'مراجعة', ku: 'پێداچوونەوە');
   String get empNavOperations =>
       _t(en: 'Operations', ar: 'العمليات', ku: 'کارەکان');
   String get empNavReceipts =>

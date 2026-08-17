@@ -29,6 +29,11 @@ import '../../publishing/presentation/screens/media_workspace_screen.dart';
 import '../../publishing/presentation/screens/property_command_center_screen.dart';
 import '../../publishing/presentation/screens/publishing_create_request_screen.dart';
 import '../../publishing/presentation/screens/publishing_requests_screen.dart';
+import '../presentation/screens/employee_messages_screen.dart';
+import '../presentation/screens/employee_work_screen.dart';
+import '../../sales/presentation/screens/sales_screens.dart';
+import '../../hr/presentation/screens/hr_screens.dart';
+import '../../legal/presentation/screens/legal_screens.dart';
 import 'employee_globals.dart';
 
 List<RouteBase> buildEmployeeRoutes() {
@@ -56,6 +61,14 @@ List<RouteBase> buildEmployeeRoutes() {
         GoRoute(
           path: '/employee/home',
           builder: (context, state) => const EmployeeHomeScreen(),
+        ),
+        GoRoute(
+          path: '/employee/work',
+          builder: (context, state) => const EmployeeWorkScreen(),
+        ),
+        GoRoute(
+          path: '/employee/messages',
+          builder: (context, state) => const EmployeeMessagesScreen(),
         ),
         GoRoute(
           path: '/employee/profile',
@@ -192,7 +205,100 @@ List<RouteBase> buildEmployeeRoutes() {
             propertyAssetId: state.pathParameters['id']!,
           ),
         ),
+        // Sales
+        GoRoute(
+          path: '/employee/sales/leads',
+          builder: (context, state) => const SalesLeadsScreen(),
+        ),
+        GoRoute(
+          path: '/employee/sales/followups',
+          builder: (context, state) => const SalesFollowUpsScreen(),
+        ),
+        GoRoute(
+          path: '/employee/sales/deals',
+          builder: (context, state) => const SalesDealsScreen(),
+        ),
+        // Legal
+        GoRoute(
+          path: '/employee/legal/contracts',
+          builder: (context, state) {
+            final filter = state.uri.queryParameters['filter'];
+            return ContractListScreen(statusFilter: filter);
+          },
+        ),
+        GoRoute(
+          path: '/employee/legal/contracts/:id',
+          builder: (context, state) => ContractWorkspaceScreen(
+            contractId: state.pathParameters['id']!,
+          ),
+        ),
+        GoRoute(
+          path: '/employee/legal/transactions',
+          builder: (context, state) => const TransactionLawyerScreen(),
+        ),
+        GoRoute(
+          path: '/employee/legal/transactions/:id',
+          builder: (context, state) => TransactionTimelineScreen(
+            transactionId: state.pathParameters['id']!,
+          ),
+        ),
+        GoRoute(
+          path: '/employee/legal/ownership',
+          builder: (context, state) => const OwnershipTransfersScreen(),
+        ),
+        // HR
+        GoRoute(
+          path: '/employee/hr/employees',
+          builder: (context, state) => const HrEmployeesScreen(),
+        ),
+        GoRoute(
+          path: '/employee/hr/employees/create',
+          builder: (context, state) => const HrCreateEmployeeScreen(),
+        ),
+        GoRoute(
+          path: '/employee/hr/organization',
+          builder: (context, state) => const HrOrganizationScreen(),
+        ),
+        // Closing / Support placeholders (architecture-ready)
+        GoRoute(
+          path: '/employee/closing/cases',
+          builder: (context, state) => const _SimpleQueueScreen(
+            title: 'Closing cases',
+            emptyHint: 'Closing intake appears here when Sales hands off deals.',
+          ),
+        ),
+        GoRoute(
+          path: '/employee/support/tickets',
+          builder: (context, state) => const _SimpleQueueScreen(
+            title: 'Support tickets',
+            emptyHint: 'Open tickets assigned to you will appear here.',
+          ),
+        ),
       ],
     ),
   ];
+}
+
+class _SimpleQueueScreen extends StatelessWidget {
+  const _SimpleQueueScreen({required this.title, required this.emptyHint});
+
+  final String title;
+  final String emptyHint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            emptyHint,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
+      ),
+    );
+  }
 }

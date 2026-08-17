@@ -113,6 +113,16 @@ class EmployeeAccount {
       department.departmentCode == EmployeeDepartmentCode.photography;
   bool get isEngineering =>
       department.departmentCode == EmployeeDepartmentCode.engineering;
+  bool get isHr => department.departmentCode == EmployeeDepartmentCode.hr;
+  bool get isSales => department.departmentCode == EmployeeDepartmentCode.sales;
+  bool get isContractLawyer =>
+      department.departmentCode == EmployeeDepartmentCode.contractLawyer;
+  bool get isTransactionLawyer =>
+      department.departmentCode == EmployeeDepartmentCode.transactionLawyer;
+  bool get isClosing =>
+      department.departmentCode == EmployeeDepartmentCode.closing;
+  bool get isSupport =>
+      department.departmentCode == EmployeeDepartmentCode.support;
 
   factory EmployeeAccount.fromLoginMap(
     Map<String, dynamic> d,
