@@ -958,6 +958,420 @@ class AppLocalizations {
     ku: '$count خانووبەرە',
   );
 
+  // ─── Property Intelligence Report ─────────────────────────────────────────
+  String get propertyReport => _t(
+    en: 'Property Report',
+    ar: 'تقرير العقار',
+    ku: 'ڕاپۆرتی خانووبەرە',
+  );
+  String get askAiAboutProperty => _t(
+    en: 'Ask AI about this property',
+    ar: 'اسأل الذكاء الاصطناعي عن هذا العقار',
+    ku: 'لە ئەی ئای بپرسە دەربارەی ئەم خانووبەرەیە',
+  );
+  String get askAi => _t(en: 'Ask AI', ar: 'اسأل AI', ku: 'بپرسە لە AI');
+  String get contactConnect => _t(
+    en: 'Contact Sales',
+    ar: 'تواصل مع المبيعات',
+    ku: 'پەیوەندی فرۆشتن',
+  );
+  String get videoTour => _t(
+    en: 'Video Tour',
+    ar: 'جولة فيديو',
+    ku: 'گەشتی ڤیدیۆ',
+  );
+  String get inPersonTour => _t(
+    en: 'In-person Tour',
+    ar: 'زيارة حضورية',
+    ku: 'سەردانی ڕاستەوخۆ',
+  );
+  String get tourRequestSent => _t(
+    en: 'Tour request sent to our team',
+    ar: 'تم إرسال طلب الجولة لفريقنا',
+    ku: 'داواکاری گەشت نێردرا بۆ تیمەکەمان',
+  );
+  String get inquirySentToSales => _t(
+    en: 'Inquiry sent to Sales Team',
+    ar: 'تم إرسال الاستفسار لفريق المبيعات',
+    ku: 'پرسیار نێردرا بۆ تیمی فرۆشتن',
+  );
+  String get statusSold => _t(en: 'Sold', ar: 'مباع', ku: 'فرۆشراو');
+  String get statusReserved =>
+      _t(en: 'Reserved', ar: 'محجوز', ku: 'پارێزراو');
+  String get statusUnderReview => _t(
+    en: 'Under Review',
+    ar: 'قيد المراجعة',
+    ku: 'لە ژێر پێداچوونەوە',
+  );
+  String get statusOffMarket =>
+      _t(en: 'Off Market', ar: 'خارج السوق', ku: 'دەرەوەی بازاڕ');
+  String get dataVerified =>
+      _t(en: 'Verified', ar: 'موثق', ku: 'پشتڕاستکراو');
+  String get dataPublisherProvided => _t(
+    en: 'Publisher',
+    ar: 'من الناشر',
+    ku: 'لە بڵاوکەرەوە',
+  );
+  String get dataEstimated =>
+      _t(en: 'Estimated', ar: 'تقديري', ku: 'خەمڵێنراو');
+  String get dataExternal =>
+      _t(en: 'External', ar: 'مصدر خارجي', ku: 'سەرچاوەی دەرەکی');
+  String get dataMockDemo =>
+      _t(en: 'Mock / Demo', ar: 'تجريبي', ku: 'نموونە / دیمۆ');
+  String get sectionNoDataYet => _t(
+    en: 'No data available yet',
+    ar: 'لا توجد بيانات بعد',
+    ku: 'هێشتا داتا نییە',
+  );
+  String get factsAndFeatures => _t(
+    en: 'Facts & Features',
+    ar: 'الحقائق والمميزات',
+    ku: 'ڕاستی و تایبەتمەندی',
+  );
+  String get priceAndValuation => _t(
+    en: 'Price & Valuation',
+    ar: 'السعر والتقييم',
+    ku: 'نرخ و هەڵسەنگاندن',
+  );
+  String get currentPrice =>
+      _t(en: 'Current Price', ar: 'السعر الحالي', ku: 'نرخی ئێستا');
+  String get previousPrice =>
+      _t(en: 'Previous Price', ar: 'السعر السابق', ku: 'نرخی پێشوو');
+  String get estimatedValue =>
+      _t(en: 'Estimated Value', ar: 'القيمة التقديرية', ku: 'بەهای خەمڵێنراو');
+  String get investmentPotential => _t(
+    en: 'Investment Potential',
+    ar: 'إمكانية الاستثمار',
+    ku: 'توانای وەبەرهێنان',
+  );
+  String get rentAnalysis =>
+      _t(en: 'Rental Analysis', ar: 'تحليل الإيجار', ku: 'شیکاری کرێ');
+  String get futureOfArea => _t(
+    en: 'Future of the Area',
+    ar: 'مستقبل المنطقة',
+    ku: 'داهاتووی ناوچەکە',
+  );
+  String get nearbyInvestmentOpportunities => _t(
+    en: 'Nearby Investment Opportunities',
+    ar: 'فرص استثمارية قريبة',
+    ku: 'دەرفەتی وەبەرهێنانی نزیک',
+  );
+  String get nearbyPlaces =>
+      _t(en: 'Nearby Places', ar: 'أماكن قريبة', ku: 'شوێنە نزیکەکان');
+  String get transportationAccess => _t(
+    en: 'Transportation & Accessibility',
+    ar: 'النقل والوصول',
+    ku: 'گواستنەوە و گەیشتن',
+  );
+  String get infrastructure =>
+      _t(en: 'Infrastructure', ar: 'البنية التحتية', ku: 'ژێرخان');
+  String get risksEnvironment => _t(
+    en: 'Risks & Environment',
+    ar: 'المخاطر والبيئة',
+    ku: 'مەترسی و ژینگە',
+  );
+  String get developmentPotential => _t(
+    en: 'Development Potential',
+    ar: 'إمكانية التطوير',
+    ku: 'توانای گەشەپێدان',
+  );
+  String get renovationImprovements => _t(
+    en: 'Renovation & Improvements',
+    ar: 'التجديد والتحسينات',
+    ku: 'نوێکردنەوە و باشترکردن',
+  );
+  String get energySustainability => _t(
+    en: 'Energy & Sustainability',
+    ar: 'الطاقة والاستدامة',
+    ku: 'وزە و بەردەوامی',
+  );
+  String get buildingDetails =>
+      _t(en: 'Building Details', ar: 'تفاصيل المبنى', ku: 'وردەکاری بینا');
+  String get interior => _t(en: 'Interior', ar: 'داخلي', ku: 'ناوەوە');
+  String get exterior => _t(en: 'Exterior', ar: 'خارجي', ku: 'دەرەوە');
+  String get utilitiesServices => _t(
+    en: 'Utilities & Services',
+    ar: 'المرافق والخدمات',
+    ku: 'خزمەتگوزاری و سوودمەندی',
+  );
+  String get lastUpdated =>
+      _t(en: 'Last updated', ar: 'آخر تحديث', ku: 'دوایین نوێکردنەوە');
+  String get tour3d => _t(en: '3D Tour', ar: 'جولة ثلاثية الأبعاد', ku: 'گەشتی سێ ڕەهەندی');
+  String get virtualTour =>
+      _t(en: 'Virtual Tour', ar: 'جولة افتراضية', ku: 'گەشتی مەجازی');
+  String get floorPlan =>
+      _t(en: 'Floor Plan', ar: 'المخطط', ku: 'نەخشەی نهۆم');
+  String get builtUpArea =>
+      _t(en: 'Built-up Area', ar: 'مساحة البناء', ku: 'ڕووبەری بینا');
+  String get landArea =>
+      _t(en: 'Land Area', ar: 'مساحة الأرض', ku: 'ڕووبەری زەوی');
+  String get livingRooms =>
+      _t(en: 'Living Rooms', ar: 'صالات', ku: 'ژووری دانیشتن');
+  String get yearBuilt =>
+      _t(en: 'Year Built', ar: 'سنة البناء', ku: 'ساڵی دروستکردن');
+  String get yearRenovated =>
+      _t(en: 'Year Renovated', ar: 'سنة التجديد', ku: 'ساڵی نوێکردنەوە');
+  String get parking => _t(en: 'Parking', ar: 'مواقف', ku: 'پارکینگ');
+  String get floor => _t(en: 'Floor', ar: 'الطابق', ku: 'نهۆم');
+  String get totalFloors =>
+      _t(en: 'Total Floors', ar: 'إجمالي الطوابق', ku: 'کۆی نهۆمەکان');
+  String get propertyTypeLabel =>
+      _t(en: 'Property Type', ar: 'نوع العقار', ku: 'جۆری خانووبەرە');
+  String get priceChange =>
+      _t(en: 'Price Change', ar: 'تغير السعر', ku: 'گۆڕانی نرخ');
+  String get salesHistory =>
+      _t(en: 'Sales History', ar: 'تاريخ المبيعات', ku: 'مێژووی فرۆشتن');
+  String get publisher =>
+      _t(en: 'Publisher', ar: 'الناشر', ku: 'بڵاوکەرەوە');
+  String get scheduleTourTitle => _t(
+    en: 'Schedule a Tour',
+    ar: 'حجز جولة',
+    ku: 'گەشتێک پلان بکە',
+  );
+  String get tourNotesHint => _t(
+    en: 'Notes (optional)',
+    ar: 'ملاحظات (اختياري)',
+    ku: 'تێبینی (ئارەزوومەندانە)',
+  );
+  String get sendRequest =>
+      _t(en: 'Send Request', ar: 'إرسال الطلب', ku: 'ناردنی داواکاری');
+  String get rentToOwnCalculator => _t(
+    en: 'Rent-to-Own Calculator',
+    ar: 'حاسبة الإيجار التمليكي',
+    ku: 'ژمێرەری کرێ بۆ خاوەنداری',
+  );
+  String get initialPayment =>
+      _t(en: 'Initial Payment', ar: 'الدفعة الأولى', ku: 'پارەی سەرەتا');
+  String get monthlyPayment =>
+      _t(en: 'Monthly Payment', ar: 'القسط الشهري', ku: 'پارەدانی مانگانە');
+  String get contractDuration =>
+      _t(en: 'Contract Duration', ar: 'مدة العقد', ku: 'ماوەی گرێبەست');
+  String get ownershipContribution => _t(
+    en: 'Toward Ownership',
+    ar: 'نحو التملك',
+    ku: 'بەرەو خاوەنداری',
+  );
+  String get remainingBalance => _t(
+    en: 'Remaining Balance',
+    ar: 'الرصيد المتبقي',
+    ku: 'باڵانسی ماوە',
+  );
+  String get months => _t(en: 'months', ar: 'أشهر', ku: 'مانگ');
+  String get savedProperty =>
+      _t(en: 'Saved', ar: 'محفوظ', ku: 'پاشەکەوتکرا');
+  String get unsavedProperty =>
+      _t(en: 'Save', ar: 'حفظ', ku: 'پاشەکەوت');
+  String get shareProperty =>
+      _t(en: 'Share', ar: 'مشاركة', ku: 'هاوبەشکردن');
+  String get aiGroundedDisclaimer => _t(
+    en: 'Answers are based only on available property data.',
+    ar: 'الإجابات تعتمد فقط على بيانات العقار المتاحة.',
+    ku: 'وەڵامەکان تەنها لەسەر داتای بەردەستی خانووبەرەن.',
+  );
+  String get locationHierarchy =>
+      _t(en: 'Location', ar: 'الموقع', ku: 'شوێن');
+  String get mapSection => _t(en: 'Map', ar: 'الخريطة', ku: 'نەخشە');
+  String get yesLabel => _t(en: 'Yes', ar: 'نعم', ku: 'بەڵێ');
+  String get noLabel => _t(en: 'No', ar: 'لا', ku: 'نەخێر');
+  String get elevator => _t(en: 'Elevator', ar: 'مصعد', ku: 'ئاسانسۆر');
+  String get furnished => _t(en: 'Furnished', ar: 'مفروش', ku: 'فەرشکراو');
+  String get balcony => _t(en: 'Balcony', ar: 'شرفة', ku: 'باڵکۆن');
+  String get garden => _t(en: 'Garden', ar: 'حديقة', ku: 'باخچە');
+  String get pool => _t(en: 'Pool', ar: 'مسبح', ku: 'مەلەوانگە');
+
+  // ─── Edit Profile / Messages / Profile copy ───────────────────────────────
+  String get editProfileTitle => _t(
+    en: 'Edit Profile',
+    ar: 'تعديل الملف الشخصي',
+    ku: 'دەستکاری پرۆفایل',
+  );
+  String get tapToChangePhoto => _t(
+    en: 'Tap to change photo',
+    ar: 'اضغط لتغيير الصورة',
+    ku: 'دەست لێبدە بۆ گۆڕینی وێنە',
+  );
+  String get firstName =>
+      _t(en: 'First Name', ar: 'الاسم الأول', ku: 'ناوی یەکەم');
+  String get lastName =>
+      _t(en: 'Last Name', ar: 'اسم العائلة', ku: 'ناوی خێزان');
+  String get displayName =>
+      _t(en: 'Display Name', ar: 'الاسم المعروض', ku: 'ناوی پیشاندان');
+  String get contactInformation => _t(
+    en: 'Contact Information',
+    ar: 'معلومات التواصل',
+    ku: 'زانیاری پەیوەندی',
+  );
+  String get emailAddress => _t(
+    en: 'Email Address',
+    ar: 'البريد الإلكتروني',
+    ku: 'ناونیشانی ئیمەیل',
+  );
+  String get bio => _t(en: 'Bio', ar: 'نبذة شخصية', ku: 'کورتە');
+  String get bioHint => _t(
+    en: 'Write something about yourself...',
+    ar: 'اكتب نبذة عنك...',
+    ku: 'شتێک دەربارەی خۆت بنووسە...',
+  );
+  String get fieldRequired => _t(
+    en: 'This field is required',
+    ar: 'هذا الحقل مطلوب',
+    ku: 'ئەم خانەیە پێویستە',
+  );
+  String get failedSendImage => _t(
+    en: 'Failed to send image',
+    ar: 'فشل إرسال الصورة',
+    ku: 'ناردنی وێنە سەرکەوتوو نەبوو',
+  );
+  String get failedGetLocation => _t(
+    en: 'Failed to get location',
+    ar: 'فشل الحصول على الموقع',
+    ku: 'وەرگرتنی شوێن سەرکەوتوو نەبوو',
+  );
+  String get imageLabel => _t(en: 'Image', ar: 'صورة', ku: 'وێنە');
+  String get cameraLabel => _t(en: 'Camera', ar: 'كاميرا', ku: 'کامێرا');
+  String get locationLabel => _t(en: 'Location', ar: 'موقع', ku: 'شوێن');
+  String get howDealsWork => _t(
+    en: 'How do transactions work?',
+    ar: 'كيف تعمل الصفقات؟',
+    ku: 'مامەڵەکان چۆن کاردەکەن؟',
+  );
+  String get currentLocation => _t(
+    en: 'Current Location',
+    ar: 'الموقع الحالي',
+    ku: 'شوێنی ئێستا',
+  );
+  String get openInMaps =>
+      _t(en: 'Open in Maps', ar: 'فتح في الخريطة', ku: 'لە نەخشەدا بکەرەوە');
+  String get savingImage => _t(
+    en: 'Saving image...',
+    ar: 'جاري حفظ الصورة...',
+    ku: 'وێنە پاشەکەوت دەکرێت...',
+  );
+  String get typeYourMessage => _t(
+    en: 'Type your message...',
+    ar: 'اكتب رسالتك...',
+    ku: 'نامەکەت بنووسە...',
+  );
+  String get noFavoritePropertiesYet => _t(
+    en: 'No favorite properties yet',
+    ar: 'لا توجد عقارات مفضلة بعد',
+    ku: 'هێشتا خانووبەرەی دڵخواز نییە',
+  );
+  String get allDocumentsContractsDeeds => _t(
+    en: 'All Documents, Contracts & Title Deeds',
+    ar: 'جميع الوثائق والعقود والسندات',
+    ku: 'هەموو بەڵگەنامە و گرێبەست و سندەکان',
+  );
+  String get tapToViewTransactionDocs => _t(
+    en: 'Tap to view and download transaction documents',
+    ar: 'اضغط لعرض وتحميل وثائق صفقاتك',
+    ku: 'دەست لێبدە بۆ بینین و داگرتنی بەڵگەنامەکانی مامەڵە',
+  );
+  String get phoneChangeSupportNote => _t(
+    en: 'Our support team will contact you to change your phone number.',
+    ar: 'سيتم التواصل معك من فريق الدعم لتغيير رقم هاتفك',
+    ku: 'تیمی پشتگیری پەیوەندیت پێدەکات بۆ گۆڕینی ژمارەی تەلەفۆن.',
+  );
+  String get markAllRead => _t(
+    en: 'Mark all read',
+    ar: 'قراءة الكل',
+    ku: 'هەموو بخوێنەوە',
+  );
+  String unreadCountLabel(int n) => _t(
+    en: '$n unread notifications',
+    ar: '$n إشعارات غير مقروءة',
+    ku: '$n ئاگاداری نەخوێندراوە',
+  );
+  String get noNotificationsYet => _t(
+    en: 'No notifications',
+    ar: 'لا توجد إشعارات',
+    ku: 'ئاگاداری نییە',
+  );
+  String minutesAgo(int m) =>
+      _t(en: '${m}m ago', ar: 'منذ ${m}د', ku: '$m خولەک پێش ئێستا');
+  String hoursAgo(int h) =>
+      _t(en: '${h}h ago', ar: 'منذ ${h}س', ku: '$h کاتژمێر پێش ئێستا');
+  String daysAgo(int d) =>
+      _t(en: '${d}d ago', ar: 'منذ ${d}ي', ku: '$d ڕۆژ پێش ئێستا');
+  String get locationPermissionDenied => _t(
+    en: 'Location permission denied',
+    ar: 'لم يتم منح إذن الموقع',
+    ku: 'مۆڵەتی شوێن ڕەتکرایەوە',
+  );
+  String get askAboutPropertyOrDeal => _t(
+    en: 'Ask me about any property or deal',
+    ar: 'اسألني عن أي عقار أو صفقة',
+    ku: 'لێم بپرسە دەربارەی هەر خانووبەرە یان مامەڵەیەک',
+  );
+  String startConversationWith(String name) => _t(
+    en: 'Start a conversation with $name',
+    ar: 'ابدأ محادثة مع $name',
+    ku: 'گفتوگۆ دەست پێبکە لەگەڵ $name',
+  );
+  String get findApartmentInBaghdad => _t(
+    en: 'Find an apartment in Baghdad',
+    ar: 'ابحث عن شقة في بغداد',
+    ku: 'بگەڕێ بۆ شوقەیەک لە بەغدا',
+  );
+  String get whatArePropertyPrices => _t(
+    en: 'What are property prices?',
+    ar: 'ما هي أسعار العقارات؟',
+    ku: 'نرخی خانووبەرەکان چین؟',
+  );
+  String get filterPrices =>
+      _t(en: 'Prices', ar: 'الأسعار', ku: 'نرخەکان');
+  String get filterTransactions =>
+      _t(en: 'Transactions', ar: 'الصفقات', ku: 'مامەڵەکان');
+  String get filterAi =>
+      _t(en: 'AI', ar: 'الذكاء الاصطناعي', ku: 'ئەی ئای');
+  String get genericErrorOccurred => _t(
+    en: 'An error occurred',
+    ar: 'حدث خطأ',
+    ku: 'هەڵەیەک ڕوویدا',
+  );
+
+  // ─── Property AI Translation ──────────────────────────────────────────────
+  String get languageArabic =>
+      _t(en: 'Arabic', ar: 'العربية', ku: 'عەرەبی');
+  String get languageEnglish =>
+      _t(en: 'English', ar: 'الإنجليزية', ku: 'ئینگلیزی');
+  String get languageKurdish =>
+      _t(en: 'Kurdish', ar: 'الكردية', ku: 'کوردی');
+  String propertyWrittenIn(String languageName) => _t(
+    en: 'Property information is in $languageName',
+    ar: 'معلومات العقار مكتوبة بـ$languageName',
+    ku: 'زانیاری خانووبەرە بە $languageName نووسراوە',
+  );
+  String translateTo(String languageName) => _t(
+    en: 'Translate to $languageName',
+    ar: 'ترجمة إلى $languageName',
+    ku: 'وەرگێڕان بۆ $languageName',
+  );
+  String get translatingPropertyInfo => _t(
+    en: 'Translating property information...',
+    ar: 'جاري ترجمة معلومات العقار...',
+    ku: 'زانیاری خانووبەرە وەردەگێڕدرێت...',
+  );
+  String get originalContent =>
+      _t(en: 'Original', ar: 'الأصل', ku: 'ڕەسەن');
+  String get translatedContent =>
+      _t(en: 'Translated', ar: 'المترجم', ku: 'وەرگێڕدراو');
+  String get aiGeneratedTranslation => _t(
+    en: 'AI-generated translation',
+    ar: 'ترجمة مولدة بالذكاء الاصطناعي',
+    ku: 'وەرگێڕانی دروستکراو بە ئەی ئای',
+  );
+  String get translationFailed => _t(
+    en: 'Translation unavailable right now',
+    ar: 'الترجمة غير متاحة حالياً',
+    ku: 'وەرگێڕان ئێستا بەردەست نییە',
+  );
+  String get translateEntireProperty => _t(
+    en: 'Translate entire property',
+    ar: 'ترجمة العقار بالكامل',
+    ku: 'وەرگێڕانی تەواوی خانووبەرە',
+  );
+
   // ─── Helper ───────────────────────────────────────────────────────────────
   String _t({
     required String en,

@@ -6,6 +6,7 @@ import '../features/authentication/domain/models/user_auth_state.dart';
 import '../features/authentication/presentation/screens/user_auth_flow_screen.dart';
 import '../features/authentication/routing/auth_globals.dart';
 import '../features/authentication/routing/auth_redirect.dart';
+import '../features/property/presentation/screens/property_report_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
 import '../presentation/messages/messages_screen.dart';
@@ -15,7 +16,6 @@ import '../presentation/profile/documents_archive_screen.dart';
 import '../presentation/profile/edit_profile_screen.dart';
 import '../presentation/profile/profile_screen.dart';
 import '../presentation/profile/seller_commission_dashboard.dart';
-import '../presentation/property_detail/property_detail_screen.dart';
 import '../presentation/search_map_screen/search_map_screen.dart';
 import '../presentation/transactions_screen/transactions_screen.dart';
 import '../presentation/transactions_screen/settlement_payout_receipt_screen.dart';
@@ -81,7 +81,7 @@ final GoRouter appRouter = GoRouter(
         final property = state.extra as Map<String, dynamic>? ?? {};
         return CustomTransitionPage(
           key: state.pageKey,
-          child: ProviderScope(child: PropertyDetailScreen(property: property)),
+          child: ProviderScope(child: PropertyReportScreen(property: property)),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               SlideTransition(
                 position:
