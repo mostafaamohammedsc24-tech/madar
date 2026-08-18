@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/authentication/domain/models/user_auth_state.dart';
@@ -27,6 +26,7 @@ import '../presentation/search_map_screen/search_map_screen.dart';
 import '../presentation/transactions_screen/settlement_payout_receipt_screen.dart';
 import '../widgets/app_scaffold.dart';
 import '../presentation/auth/two_fa_verification_screen.dart';
+
 class AppRoutes {
   static const String initial = '/';
   static const String auth = '/auth';
@@ -129,9 +129,9 @@ final GoRouter appRouter = GoRouter(
         final property = state.extra as Map<String, dynamic>? ?? {};
         return CustomTransitionPage(
           key: state.pageKey,
-          child: ProviderScope(
-            child: PropertyReportScreen(property: property),
-          ),
+          // Use root ProviderScope — a nested scope previously isolated
+          // Riverpod state and could break report dependencies on web.
+          child: PropertyReportScreen(property: property),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               SlideTransition(
                 position:

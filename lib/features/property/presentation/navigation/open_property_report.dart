@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../routes/app_routes.dart';
@@ -12,13 +11,20 @@ void openPropertyReport(
   bool popSheetFirst = false,
 }) {
   void navigate() {
-    appRouter.push(AppRoutes.propertyDetail, extra: propertyMap);
+    try {
+      appRouter.push(AppRoutes.propertyDetail, extra: Map<String, dynamic>.from(propertyMap));
+    } catch (e, st) {
+      debugPrint('openPropertyReport failed: $e\n$st');
+    }
   }
 
   if (popSheetFirst && Navigator.canPop(context)) {
     Navigator.pop(context);
-    // Sheet context is disposed after pop — schedule navigation on next frame.
-    WidgetsBinding.instance.addPostFrameCallback((_) => navigate());
+    // Sheet context is disposed after pop — wait two frames so the sheet
+    // route fully settles before pushing the report (avoids web hang).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => navigate());
+    });
     return;
   }
 

@@ -90,12 +90,23 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
   }
 
   Future<void> _bootstrap() async {
-    final id = widget.property['id']?.toString();
     PropertyReport? report;
-    if (id != null && id.isNotEmpty) {
-      report = await _repo.loadById(id, seed: widget.property);
-    } else {
-      report = _repo.fromMap(widget.property);
+    try {
+      final id = widget.property['id']?.toString();
+      if (id != null && id.isNotEmpty) {
+        report = await _repo.loadById(id, seed: widget.property);
+      } else if (widget.property.isNotEmpty) {
+        report = _repo.fromMap(widget.property);
+      }
+    } catch (e, st) {
+      debugPrint('PropertyReportScreen bootstrap failed: $e\n$st');
+      try {
+        if (widget.property.isNotEmpty) {
+          report = _repo.fromMap(widget.property);
+        }
+      } catch (_) {
+        report = null;
+      }
     }
     if (!mounted) return;
     setState(() {
@@ -103,7 +114,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
       _loading = false;
     });
     if (report != null) {
-      await _warmTranslationCache(report);
+      try {
+        await _warmTranslationCache(report);
+      } catch (_) {}
     }
   }
 
@@ -176,10 +189,50 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
-    if (_loading || _report == null) {
+    if (_loading) {
       return Scaffold(
         body: Center(
           child: CircularProgressIndicator(color: theme.colorScheme.primary),
+        ),
+      );
+    }
+
+    if (_report == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const DirectionalBackIcon(),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 40,
+                  color: theme.colorScheme.error,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  loc.sectionNoDataYet,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () {
+                    setState(() => _loading = true);
+                    _bootstrap();
+                  },
+                  child: Text(loc.retry),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }

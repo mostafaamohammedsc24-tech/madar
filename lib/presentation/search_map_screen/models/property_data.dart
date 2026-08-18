@@ -321,7 +321,9 @@ class PropertyData {
   }
 
   Map<String, dynamic> toDetailMap() {
+    // Spread rawData first so typed fields win over messy backend shapes.
     return {
+      ...rawData,
       'id': id,
       'title': title,
       'address': address,
@@ -345,7 +347,6 @@ class PropertyData {
       'isVerified': isVerified,
       'is_featured': isFeatured,
       'isFeatured': isFeatured,
-      ...rawData,
     };
   }
 }

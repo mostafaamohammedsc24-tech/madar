@@ -24,14 +24,13 @@ class PropertyReportMapper {
     Map<String, dynamic> d, {
     bool isSaved = false,
   }) {
-    final currency = (d['currency'] as String?) ?? 'USD';
-    final price = (d['asking_price'] as num?)?.toDouble() ??
-        (d['price'] as num?)?.toDouble();
-    final areaSqm = (d['total_area_sqm'] as num?)?.toDouble() ??
-        (d['area'] as num?)?.toDouble();
+    final currency = _asString(d['currency']) ?? 'USD';
+    final price = _asDouble(d['asking_price']) ?? _asDouble(d['price']);
+    final areaSqm =
+        _asDouble(d['total_area_sqm']) ?? _asDouble(d['area']);
 
     final status = PropertyStatus.fromString(
-      d['listing_type'] as String? ?? d['listingType'] as String?,
+      _asString(d['listing_type']) ?? _asString(d['listingType']),
     );
 
     // Optional intelligence payloads (JSONB columns or nested objects).
@@ -117,33 +116,31 @@ class PropertyReportMapper {
       investable: AreaMeasure.maybe(areasJson?['investable'] as num?),
     );
 
-    final city = d['city'] as String? ?? '';
-    final district = d['district'] as String? ?? '';
-    final address = d['address_text'] as String? ??
-        d['address'] as String? ??
+    final city = _asString(d['city']) ?? '';
+    final district = _asString(d['district']) ?? '';
+    final address = _asString(d['address_text']) ??
+        _asString(d['address']) ??
         [district, city].where((s) => s.isNotEmpty).join(', ');
 
     return PropertyReport(
       id: d['id']?.toString() ?? '',
-      title: d['title'] as String? ??
+      title: _asString(d['title']) ??
           '${d['property_type'] ?? 'Property'}${district.isNotEmpty ? ' — $district' : ''}',
       status: status,
       location: PropertyLocation(
-        latitude: (d['latitude'] as num?)?.toDouble() ??
-            (d['lat'] as num?)?.toDouble(),
-        longitude: (d['longitude'] as num?)?.toDouble() ??
-            (d['lng'] as num?)?.toDouble(),
+        latitude: _asDouble(d['latitude']) ?? _asDouble(d['lat']),
+        longitude: _asDouble(d['longitude']) ?? _asDouble(d['lng']),
         addressText: address.isEmpty ? null : address,
-        countryCode: d['country_code'] as String?,
-        countryName: d['country_name'] as String?,
+        countryCode: _asString(d['country_code']),
+        countryName: _asString(d['country_name']),
         city: city.isEmpty ? null : city,
         district: district.isEmpty ? null : district,
-        neighborhood: d['neighborhood'] as String?,
-        street: d['street'] as String?,
-        postalCode: d['postal_code'] as String?,
-        elevationM: (d['elevation_m'] as num?)?.toDouble() ??
-            (intel['elevation_m'] as num?)?.toDouble(),
-        province: d['province'] as String? ?? intel['province'] as String?,
+        neighborhood: _asString(d['neighborhood']),
+        street: _asString(d['street']),
+        postalCode: _asString(d['postal_code']),
+        elevationM:
+            _asDouble(d['elevation_m']) ?? _asDouble(intel['elevation_m']),
+        province: _asString(d['province']) ?? _asString(intel['province']),
       ),
       pricing: PropertyPricing(
         currentPrice: current,
@@ -299,6 +296,33 @@ class PropertyReportMapper {
     if (v is Map<String, dynamic>) return v;
     if (v is Map) return Map<String, dynamic>.from(v);
     return null;
+  }
+
+  String? _asString(dynamic v) {
+    if (v == null) return null;
+    if (v is String) {
+      final t = v.trim();
+      return t.isEmpty ? null : t;
+    }
+    return v.toString();
+  }
+
+  double? _asDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    if (v is String) return double.tryParse(v.replaceAll(',', ''));
+    return null;
+  }
+
+  bool _asBool(dynamic v, {bool fallback = false}) {
+    if (v is bool) return v;
+    if (v is num) return v != 0;
+    if (v is String) {
+      final t = v.toLowerCase().trim();
+      if (t == 'true' || t == '1' || t == 'yes') return true;
+      if (t == 'false' || t == '0' || t == 'no') return false;
+    }
+    return fallback;
   }
 
   DateTime? _parseDate(dynamic v) {
@@ -842,7 +866,7 @@ class PropertyReportMapper {
   ) {
     final v = _asMap(d['verification']) ?? _asMap(intel['verification']);
     if (v == null) {
-      final verified = d['is_verified'] as bool? ?? false;
+      final verified = _asBool(d['is_verified']);
       return PropertyVerificationFlags(propertyVerified: verified);
     }
     return PropertyVerificationFlags(
