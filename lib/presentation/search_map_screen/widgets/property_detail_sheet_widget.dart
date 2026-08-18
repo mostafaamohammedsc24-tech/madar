@@ -1,7 +1,8 @@
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../features/property/data/repositories/property_report_repository.dart';
 import '../../../features/property/presentation/navigation/open_property_report.dart';
-import '../../../presentation/messages/open_sales_chat.dart';
+import '../../../presentation/messages/open_listing_contact.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/supabase_service.dart';
 import '../search_map_screen.dart';
@@ -84,7 +85,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
     );
   }
 
-  void _contactSales() {
+  void _contactListing() {
     final loc = AppLocalizations.of(context);
     final property = widget.property;
     final payload = property.toDetailMap();
@@ -92,6 +93,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
     final price = PropertyCardCopy.price(context, property);
     final address = property.localizedAddress(loc.language);
     final imageUrl = property.imageUrl;
+    final publisher = PropertyReportRepository().fromMap(payload).publisher;
 
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
@@ -99,8 +101,9 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final navContext = appRouter.routerDelegate.navigatorKey.currentContext;
       if (navContext == null || !navContext.mounted) return;
-      openSalesChat(
+      openListingContact(
         navContext,
+        publisher: publisher,
         property: payload,
         propertyId: property.id,
         title: title,
@@ -418,7 +421,7 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
                               ),
                               const SizedBox(height: 10),
                               OutlinedButton.icon(
-                                onPressed: _contactSales,
+                                onPressed: _contactListing,
                                 icon: const Icon(Icons.phone_outlined, size: 20),
                                 label: Text(loc.contactSalesShort),
                                 style: OutlinedButton.styleFrom(

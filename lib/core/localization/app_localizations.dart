@@ -1435,6 +1435,33 @@ class AppLocalizations {
     ar: 'اسأل الذكاء الاصطناعي عن هذا العقار',
     ku: 'لە ئەی ئای بپرسە دەربارەی ئەم خانووبەرەیە',
   );
+  String get listedBy => _t(en: 'Listed by', ar: 'معروض بواسطة', ku: 'لیستکراو لەلایەن');
+  String get madarSalesTeam =>
+      _t(en: 'Madar Sales Team', ar: 'فريق مبيعات مدار', ku: 'تیمی فرۆشتنی مەدار');
+  String contactAgentName(String name) => _t(
+    en: 'Contact $name',
+    ar: 'تواصل مع $name',
+    ku: 'پەیوەندی بە $name',
+  );
+  String get requestTour =>
+      _t(en: 'Request a tour', ar: 'اطلب جولة', ku: 'داوای گەشت بکە');
+  String get requestTourHint => _t(
+    en: 'as early as today',
+    ar: 'يمكن اليوم',
+    ku: 'لە ئەمڕۆوە',
+  );
+  String get estMonthlyPayment =>
+      _t(en: 'Est. payment', ar: 'القسط التقديري', ku: 'پارەدانی خەمڵێنراو');
+  String get showMore => _t(en: 'Show more', ar: 'عرض المزيد', ku: 'زیاتر نیشان بدە');
+  String get showcaseBadge => _t(en: 'Showcase', ar: 'مميز', ku: 'نمایش');
+  String get bedsShort => _t(en: 'beds', ar: 'غرف', ku: 'نووستن');
+  String get bathsShort => _t(en: 'baths', ar: 'حمامات', ku: 'ئاوخانە');
+  String get areaUnitM2 => _t(en: 'm²', ar: 'م²', ku: 'م²');
+  String get listingAgentChatAck => _t(
+    en: 'Thanks for your interest. The listing agent will reply here shortly.',
+    ar: 'شكراً لاهتمامك. سيتواصل معك الوكيل العقاري عبر هذه المحادثة قريباً.',
+    ku: 'سوپاس بۆ گرنگیدانت. بریکاری لیستەکە بەم زووانە لێرە وەڵامت دەداتەوە.',
+  );
   String get askAi => _t(en: 'Ask AI', ar: 'اسأل AI', ku: 'بپرسە لە AI');
   String get contactConnect =>
       _t(en: 'Contact Sales', ar: 'تواصل مع المبيعات', ku: 'پەیوەندی فرۆشتن');

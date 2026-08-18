@@ -21,6 +21,7 @@ import '../../services/property_catalog_demo.dart';
 import '../../core/maps/map_bounds.dart';
 import '../../services/property_map_repository.dart';
 import '../../services/supabase_service.dart';
+import '../../features/property/presentation/navigation/open_property_report.dart';
 import './models/property_data.dart';
 import './widgets/ai_recommendations_sheet.dart';
 import './widgets/map_filter_chips_widget.dart';
@@ -28,7 +29,7 @@ import './widgets/map_preview_carousel.dart';
 import './widgets/property_card_copy.dart';
 import '../../features/authentication/presentation/widgets/demo_auto_advance.dart';
 import './widgets/map_search_bar_widget.dart';
-import './widgets/property_detail_sheet_widget.dart';
+import './widgets/property_listing_card.dart';
 import './widgets/property_map_widget.dart';
 import './widgets/saved_area_search_widget.dart';
 
@@ -917,11 +918,9 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   }
 
   void _openPropertyDetail(PropertyData property) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => PropertyDetailSheetWidget(property: property),
+    openPropertyReport(
+      context,
+      propertyMap: property.toDetailMap(),
     );
   }
 
@@ -1021,6 +1020,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     final loc = AppLocalizations.of(context);
     final isTablet = MediaQuery.of(context).size.width >= 600;
     const bottomNavHeight = 0.0;
+    final media = MediaQuery.of(context);
+    final searchBand = media.padding.top + 76;
+    final sheetMax = (1.0 - searchBand / media.size.height).clamp(0.82, 0.93);
+    final sheetMerged = _sheetExtent >= sheetMax - 0.04;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -1048,43 +1051,58 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               onBoundsChanged: _onMapBoundsChanged,
             ),
 
-            // Top overlay: search bar + filter chips
+            // Top overlay: search bar + filter chips (merges with the sheet)
             Positioned(
               top: 0,
               left: 0,
               right: 0,
-              child: SafeArea(
-                bottom: false,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                        16,
-                        12,
-                        16,
-                        0,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: MapSearchBarWidget(
-                              onFilterTap: () => _showFilterPanel(context),
-                              onVoiceSearch: _onVoiceSearch,
-                              onSearch: _onSearch,
-                              suggestions: _searchSuggestions,
-                              onSuggestionTap: _onSuggestionTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                color: sheetMerged
+                    ? theme.colorScheme.surface
+                    : Colors.transparent,
+                child: SafeArea(
+                  bottom: false,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          16,
+                          12,
+                          16,
+                          0,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: MapSearchBarWidget(
+                                onFilterTap: () => _showFilterPanel(context),
+                                onVoiceSearch: _onVoiceSearch,
+                                onSearch: _onSearch,
+                                suggestions: _searchSuggestions,
+                                onSuggestionTap: _onSuggestionTap,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    MapFilterChipsWidget(
-                      options: _filterOptions,
-                      selected: _selectedFilter,
-                      onChanged: _onFilterChanged,
-                    ),
-                  ],
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 180),
+                        child: sheetMerged
+                            ? const SizedBox(height: 8)
+                            : Column(
+                                children: [
+                                  const SizedBox(height: 8),
+                                  MapFilterChipsWidget(
+                                    options: _filterOptions,
+                                    selected: _selectedFilter,
+                                    onChanged: _onFilterChanged,
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1299,18 +1317,19 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               controller: _draggableController,
               initialChildSize: 0.14,
               minChildSize: 0.12,
-              maxChildSize: 0.92,
+              maxChildSize: sheetMax,
               snap: true,
-              snapSizes: const [0.14, 0.45, 0.92],
+              snapSizes: [0.14, 0.45, sheetMax],
               builder: (context, scrollController) {
                 final expanded = _sheetExtent > 0.3;
+                final listMode = _sheetExtent > 0.52;
                 return PointerInterceptor(
                   child: Material(
                   color: theme.colorScheme.surface,
                   elevation: 8,
                   shadowColor: Colors.black26,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(sheetMerged ? 0 : 24),
                   ),
                   child: ListView(
                     controller: scrollController,
@@ -1346,7 +1365,10 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                         const SizedBox(height: 8),
                         _buildSheetToolbar(theme, loc),
                         const Divider(height: 20),
-                        ..._buildCategorySections(theme, loc),
+                        if (listMode)
+                          ..._buildVerticalFeed(theme, loc)
+                        else
+                          ..._buildCategorySections(theme, loc),
                         const SizedBox(height: 60),
                       ] else
                         const SizedBox(height: 160),
@@ -1561,6 +1583,32 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       section(loc.aiPicksForYou, aiPicks),
       section(loc.mostPopular, popular),
       section(loc.recentlyAdded, newest),
+    ];
+  }
+
+  List<Widget> _buildVerticalFeed(ThemeData theme, AppLocalizations loc) {
+    final items = _filteredProperties;
+    if (items.isEmpty) {
+      return [
+        Padding(
+          padding: const EdgeInsets.all(32),
+          child: Center(
+            child: Text(
+              loc.noData,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+      ];
+    }
+    return [
+      for (final property in items)
+        PropertyListingCard(
+          property: property,
+          onTap: () => _openPropertyDetail(property),
+        ),
     ];
   }
 

@@ -11,6 +11,7 @@ class PropertyCatalogDemo {
       final district = map['district']?.toString() ?? '';
       map['address_ar'] ??= district.isEmpty ? map['address'] : '$district، العراق';
       map['address_en'] ??= map['address'];
+      _attachDemoPublisher(map);
       return PropertyData.fromMap(map);
     }).toList();
   }
@@ -52,6 +53,55 @@ class PropertyCatalogDemo {
         return 'عمارة استثمارية — الكرادة';
       default:
         return '${map['title']} — $district';
+    }
+  }
+
+  static void _attachDemoPublisher(Map<String, dynamic> map) {
+    if (map['publisher'] is Map) return;
+    switch (map['id']) {
+      case 'prop_002':
+        map['listing_source'] = 'office';
+        map['publisher'] = {
+          'id': 'agt-ziad',
+          'name': 'زياد الحمداني',
+          'company_name': 'مكتب المنصور العقاري',
+          'photo_url':
+              'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400',
+          'origin': 'office',
+          'is_verified': true,
+        };
+        return;
+      case 'prop_006':
+        map['listing_source'] = 'office';
+        map['publisher'] = {
+          'id': 'agt-sara',
+          'name': 'سارة الكبيسي',
+          'company_name': 'مكتب الكاظمية',
+          'photo_url':
+              'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+          'origin': 'office',
+          'is_verified': true,
+        };
+        return;
+      case 'prop_010':
+        map['listing_source'] = 'office';
+        map['publisher'] = {
+          'id': 'agt-ahmed',
+          'name': 'أحمد الربيعي',
+          'company_name': 'مكتب الموصل السكني',
+          'photo_url':
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+          'origin': 'office',
+        };
+        return;
+      default:
+        map['listing_source'] = 'madar';
+        map['publisher'] = {
+          'id': 'madar-sales',
+          'name': 'فريق مبيعات مدار',
+          'company_name': 'مدار',
+          'origin': 'madar',
+        };
     }
   }
 

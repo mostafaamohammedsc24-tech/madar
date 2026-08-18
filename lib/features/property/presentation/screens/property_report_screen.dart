@@ -19,11 +19,12 @@ import '../../domain/models/property_report.dart';
 import '../../domain/models/property_surroundings.dart';
 import '../../domain/models/property_translation.dart';
 import '../../../../services/property_catalog_demo.dart';
-import '../../../../presentation/messages/open_sales_chat.dart';
+import '../../../../presentation/messages/open_listing_contact.dart';
 import '../screens/property_compare_sheet.dart';
 import '../widgets/interactive_floor_plan_view.dart';
 import '../widgets/property_extended_sections.dart';
 import '../widgets/property_fullscreen_gallery.dart';
+import '../widgets/property_listed_by_card.dart';
 import '../widgets/property_map_section.dart';
 import '../widgets/property_price_chart.dart';
 import '../widgets/property_report_nav.dart';
@@ -258,27 +259,54 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
               controller: _scrollController,
               slivers: [
                 SliverAppBar(
-                  expandedHeight: report.showMedia ? 320 : 120,
+                  expandedHeight: report.showMedia ? 340 : 120,
                   pinned: true,
-                  leading: IconButton(
-                    icon: DirectionalBackIcon(
-                      color: theme.colorScheme.onSurface,
+                  stretch: true,
+                  backgroundColor: theme.colorScheme.surface,
+                  leading: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Material(
+                      color: Colors.white.withValues(alpha: 0.92),
+                      shape: const CircleBorder(),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: DirectionalBackIcon(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        onPressed: () => Navigator.of(context).maybePop(),
+                      ),
                     ),
-                    onPressed: () => Navigator.of(context).maybePop(),
                   ),
                   actions: [
-                    IconButton(
-                      icon: Icon(
-                        report.isSaved
-                            ? Icons.bookmark
-                            : Icons.bookmark_border,
-                      ),
+                    _GlassIconButton(
+                      icon: report.isSaved
+                          ? Icons.favorite
+                          : Icons.favorite_border,
                       onPressed: _toggleSave,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.share_outlined),
+                    _GlassIconButton(
+                      icon: Icons.share_outlined,
                       onPressed: _share,
                     ),
+                    _GlassIconButton(
+                      icon: Icons.more_vert,
+                      onPressed: () => _showMoreMenu(report),
+                    ),
+                    if (report.publisher?.avatarUrl != null)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          end: 12,
+                          start: 4,
+                        ),
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundImage: NetworkImage(
+                            report.publisher!.avatarUrl!,
+                          ),
+                        ),
+                      )
+                    else
+                      const SizedBox(width: 8),
                   ],
                   flexibleSpace: FlexibleSpaceBar(
                     background: report.showMedia
@@ -713,11 +741,12 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showPublisher)
                   SliverToBoxAdapter(
-                    child: ReportSection(
-                      title: loc.publisher,
-                      icon: Icons.badge_outlined,
-                      initiallyExpanded: false,
-                      child: _buildPublisher(report, theme),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child: PropertyListedByCard(
+                        publisher: report.publisher!,
+                        onContact: _contactListing,
+                      ),
                     ),
                   ),
                 if (report.showListingMeta && report.listingMeta != null)
@@ -750,7 +779,8 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
             ),
           ),
           PropertyStickyActionBar(
-            onContact: _contactSales,
+            publisher: report.publisher,
+            onContact: _contactListing,
             onAskAi: () => _openAiAdvisor(report),
             onScheduleTour: () => _scheduleTour(report),
           ),
@@ -770,10 +800,21 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     final texts = _texts;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 5,
+              margin: const EdgeInsets.only(top: 10, bottom: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD0D5DD),
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+          ),
           Row(
             children: [
               PropertyStatusBadge(status: report.status),
@@ -783,6 +824,79 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
               ],
             ],
           ),
+          const SizedBox(height: 10),
+          if (price != null)
+            Text(
+              price.format(),
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                fontSize: 32,
+                color: const Color(0xFF101828),
+              ),
+            ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: [
+              if (report.facts.bedrooms != null && report.facts.bedrooms! > 0)
+                _SpecChip(
+                  icon: Icons.bed_outlined,
+                  label: '${report.facts.bedrooms} ${loc.bedsShort}',
+                ),
+              if (report.facts.bathrooms != null && report.facts.bathrooms! > 0)
+                _SpecChip(
+                  icon: Icons.bathtub_outlined,
+                  label: '${report.facts.bathrooms} ${loc.bathsShort}',
+                ),
+              if (report.areas.primary != null)
+                _SpecChip(
+                  icon: Icons.square_foot_outlined,
+                  label:
+                      '${report.areas.primary!.squareMeters.toStringAsFixed(0)} ${loc.areaUnitM2}',
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            texts.title,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          if (hierarchy.isNotEmpty)
+            Text(
+              hierarchy.join(' · '),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            )
+          else if (report.location.displayLine.isNotEmpty)
+            Text(
+              report.location.displayLine,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          if (perSqm != null) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F4C46),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '${loc.sqmPrice}: ${perSqm.format()}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
           if (report.listingMeta?.propertyNumberId?.isNotEmpty == true) ...[
             const SizedBox(height: 8),
             Text(
@@ -807,46 +921,6 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                     ),
                   )
                   .toList(),
-            ),
-          ],
-          const SizedBox(height: 12),
-          Text(
-            texts.title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 6),
-          if (hierarchy.isNotEmpty)
-            Text(
-              hierarchy.join(' · '),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            )
-          else if (report.location.displayLine.isNotEmpty)
-            Text(
-              report.location.displayLine,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          const SizedBox(height: 14),
-          if (price != null)
-            Text(
-              price.format(),
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-          if (perSqm != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              '${loc.sqmPrice}: ${perSqm.format()}',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
             ),
           ],
           if (report.pricing.changePercent != null) ...[
@@ -874,9 +948,18 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
         runSpacing: 8,
         children: [
           FilledButton.tonalIcon(
-            onPressed: _contactSales,
-            icon: const Icon(Icons.support_agent, size: 18),
-            label: Text(loc.contactSalesTeam),
+            onPressed: _contactListing,
+            icon: Icon(
+              report.publisher?.routesToAgent == true
+                  ? Icons.person_outline
+                  : Icons.support_agent,
+              size: 18,
+            ),
+            label: Text(
+              report.publisher?.routesToAgent == true
+                  ? loc.contactAgentName(report.publisher!.displayName)
+                  : loc.contactSalesTeam,
+            ),
           ),
           OutlinedButton.icon(
             onPressed: () => _openAiAdvisor(report),
@@ -1405,21 +1488,6 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     );
   }
 
-  Widget _buildPublisher(PropertyReport report, ThemeData theme) {
-    final p = report.publisher!;
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: CircleAvatar(
-        child: Text((p.companyName ?? p.name ?? '?')[0].toUpperCase()),
-      ),
-      title: Text(p.companyName ?? p.name ?? ''),
-      subtitle: p.name != null && p.companyName != null ? Text(p.name!) : null,
-      trailing: p.isVerified
-          ? const ProvenanceChip(provenance: DataProvenance.verified)
-          : null,
-    );
-  }
-
   Future<void> _toggleSave() async {
     final report = _report;
     if (report == null) return;
@@ -1440,11 +1508,12 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     Fluttertoast.showToast(msg: loc.linkCopied);
   }
 
-  Future<void> _contactSales() async {
+  Future<void> _contactListing() async {
     final report = _report;
     if (report == null) return;
-    await openSalesChat(
+    await openListingContact(
       context,
+      publisher: report.publisher,
       propertyId: report.id,
       title: report.title,
       priceLine: report.pricing.currentPrice?.format(),
@@ -1460,6 +1529,48 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
         if (report.media.photos.isNotEmpty)
           'imageUrl': report.media.photos.first.url,
       },
+    );
+  }
+
+  void _showMoreMenu(PropertyReport report) {
+    final loc = AppLocalizations.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.chat_outlined),
+              title: Text(
+                report.publisher?.routesToAgent == true
+                    ? loc.contactAgentName(report.publisher!.displayName)
+                    : loc.contactSalesTeam,
+              ),
+              onTap: () {
+                Navigator.pop(ctx);
+                _contactListing();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.auto_awesome),
+              title: Text(loc.askAiAboutProperty),
+              onTap: () {
+                Navigator.pop(ctx);
+                _openAiAdvisor(report);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.share_outlined),
+              title: Text(loc.shareProperty),
+              onTap: () {
+                Navigator.pop(ctx);
+                _share();
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1748,6 +1859,56 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
 
   String _formatDate(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+}
+
+class _GlassIconButton extends StatelessWidget {
+  const _GlassIconButton({required this.icon, required this.onPressed});
+
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+      child: Material(
+        color: Colors.white.withValues(alpha: 0.92),
+        shape: const CircleBorder(),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(width: 40, height: 40),
+          icon: Icon(icon, size: 20),
+          onPressed: onPressed,
+        ),
+      ),
+    );
+  }
+}
+
+class _SpecChip extends StatelessWidget {
+  const _SpecChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 18, color: const Color(0xFF667085)),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            color: Color(0xFF344054),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _MortgageCalculator extends StatefulWidget {

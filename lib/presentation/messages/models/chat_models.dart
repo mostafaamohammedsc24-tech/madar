@@ -8,15 +8,24 @@ enum ChatThreadKind { ai, support, sales, closing, agent }
 enum ChatMessageType { text, image, location, voice, video, barcode, propertyCard }
 
 class ChatThread {
-  const ChatThread({required this.id, required this.kind, required this.icon});
+  const ChatThread({
+    required this.id,
+    required this.kind,
+    required this.icon,
+    this.displayName,
+  });
 
   final String id;
   final ChatThreadKind kind;
   final IconData icon;
+  final String? displayName;
 
   Color get color => AppTheme.primary;
 
   String title(AppLocalizations loc) {
+    if (displayName != null && displayName!.trim().isNotEmpty) {
+      return displayName!;
+    }
     return switch (kind) {
       ChatThreadKind.ai => loc.msgAiAssistant,
       ChatThreadKind.support => loc.msgCustomerSupport,
