@@ -4,6 +4,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../features/authentication/routing/auth_globals.dart';
 import '../../../../presentation/transactions_screen/widgets/barcode_upload_widget.dart';
 import '../../../../services/supabase_service.dart';
+import '../../data/party_deal_store.dart';
 import '../../data/repositories/transaction_repository.dart';
 import '../../domain/enums/transaction_enums.dart';
 import '../../domain/models/deal_transaction.dart';
@@ -88,15 +89,18 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
     }
 
     final userId = SupabaseService.instance.currentUser?.id ?? '';
-    var side = _repo.inferPartySide(
+    final side = _repo.inferPartySide(
       barcodeRow: peek,
       userId: userId,
       userPhone: phone,
     );
 
     if (side == null) {
-      side = await _askPartySide(loc);
-      if (side == null) return;
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.barcodeRoleFromOfficeOnly)),
+      );
+      return;
     }
 
     final result = await _repo.redeemBarcode(
@@ -110,6 +114,16 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
         context,
       ).showSnackBar(SnackBar(content: Text(loc.barcodeRedeemFailed)));
       return;
+    }
+
+    if (result.transaction != null) {
+      final progress = PartyDealStore.of(result.transaction!.id);
+      progress.mySide = side;
+      if (side == PartySide.buyer) {
+        progress.buyerBarcode = true;
+      } else {
+        progress.sellerBarcode = true;
+      }
     }
 
     await _load();
@@ -135,30 +149,6 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
       );
       await _load();
     }
-  }
-
-  Future<PartySide?> _askPartySide(AppLocalizations loc) async {
-    return showModalBottomSheet<PartySide>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(title: Text(loc.selectYourRole)),
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: Text(loc.roleBuyer),
-              onTap: () => Navigator.pop(ctx, PartySide.buyer),
-            ),
-            ListTile(
-              leading: const Icon(Icons.storefront_outlined),
-              title: Text(loc.roleSeller),
-              onTap: () => Navigator.pop(ctx, PartySide.seller),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override

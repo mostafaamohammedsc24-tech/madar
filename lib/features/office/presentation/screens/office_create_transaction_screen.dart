@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../presentation/messages/open_sales_chat.dart';
 import '../../../../theme/app_theme.dart';
 import '../../domain/models/office_models.dart';
 import '../providers/office_auth_notifier.dart';
@@ -62,6 +63,14 @@ class _OfficeCreateTransactionScreenState
     if (!result.success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result.message ?? loc.officeActionFailed)),
+      );
+    } else if (result.buyerBarcode != null && result.sellerBarcode != null) {
+      deliverOfficeBarcodesToAgentChat(
+        transactionNumber: result.transactionNumber ?? '',
+        buyerBarcode: result.buyerBarcode!,
+        sellerBarcode: result.sellerBarcode!,
+        buyerPhone: _buyerCtrl.text.trim(),
+        sellerPhone: _sellerCtrl.text.trim(),
       );
     }
   }

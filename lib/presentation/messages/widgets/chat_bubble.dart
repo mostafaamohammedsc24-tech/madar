@@ -157,6 +157,8 @@ class ChatBubble extends StatelessWidget {
             ],
           ),
         );
+      case ChatMessageType.propertyCard:
+        return _PropertyCardBody(content: message.content, radius: radius);
       case ChatMessageType.text:
         final color = isUser ? Colors.white : const Color(0xFF101828);
         return _TextShell(
@@ -399,3 +401,110 @@ class _VoiceBody extends StatelessWidget {
     );
   }
 }
+
+class _PropertyCardBody extends StatelessWidget {
+  const _PropertyCardBody({required this.content, required this.radius});
+
+  final String content;
+  final BorderRadius radius;
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, dynamic> data = {};
+    try {
+      final decoded = jsonDecode(content);
+      if (decoded is Map) data = Map<String, dynamic>.from(decoded);
+    } catch (_) {}
+
+    final title = data['title']?.toString() ?? content;
+    final price = data['price']?.toString();
+    final address = data['address']?.toString();
+    final imageUrl = data['imageUrl']?.toString();
+
+    return Material(
+      color: Colors.white,
+      elevation: 1,
+      borderRadius: radius,
+      child: InkWell(
+        borderRadius: radius,
+        onTap: () {
+          final id = data['id']?.toString();
+          if (id == null || id.isEmpty) return;
+          context.push('/property-detail', extra: data);
+        },
+        child: SizedBox(
+          width: 260,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: radius.topLeft,
+                  topRight: radius.topRight,
+                ),
+                child: AspectRatio(
+                  aspectRatio: 16 / 10,
+                  child: imageUrl != null && imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: const Color(0xFFEEF2F6),
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.home_work_outlined),
+                          ),
+                        )
+                      : Container(
+                          color: const Color(0xFFEEF2F6),
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.home_work_outlined),
+                        ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
+                    ),
+                    if (address != null && address.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        address,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                    if (price != null && price.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        price,
+                        style: const TextStyle(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

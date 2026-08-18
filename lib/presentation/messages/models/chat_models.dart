@@ -5,7 +5,7 @@ import '../../../theme/app_theme.dart';
 
 enum ChatThreadKind { ai, support, sales, closing, agent }
 
-enum ChatMessageType { text, image, location, voice, video, barcode }
+enum ChatMessageType { text, image, location, voice, video, barcode, propertyCard }
 
 class ChatThread {
   const ChatThread({required this.id, required this.kind, required this.icon});
@@ -94,10 +94,13 @@ class ChatMessage {
       'voice' => ChatMessageType.voice,
       'video' => ChatMessageType.video,
       'barcode' => ChatMessageType.barcode,
+      'property' || 'property_card' => ChatMessageType.propertyCard,
       _ =>
         content.startsWith('location:')
             ? ChatMessageType.location
-            : ChatMessageType.text,
+            : content.trimLeft().startsWith('{') && content.contains('"title"')
+                ? ChatMessageType.propertyCard
+                : ChatMessageType.text,
     };
     final created =
         DateTime.tryParse(map['created_at'] as String? ?? '') ?? DateTime.now();
