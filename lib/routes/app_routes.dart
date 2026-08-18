@@ -13,6 +13,8 @@ import '../features/employee/core/routing/employee_routes.dart';
 import '../features/office/routing/office_routes.dart';
 import '../features/property/presentation/screens/property_report_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
+import '../features/transaction/presentation/screens/transaction_detail_screen.dart';
+import '../features/transaction/domain/models/deal_transaction.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
 import '../presentation/messages/messages_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
@@ -36,6 +38,7 @@ class AppRoutes {
   static const String messagesScreen = '/messages-screen';
   static const String profileScreen = '/profile-screen';
   static const String propertyDetail = '/property-detail';
+  static const String transactionDetail = '/transaction-detail';
   static const String notificationCenter = '/notifications';
   static const String editProfile = '/edit-profile';
   static const String sellerCommission = '/seller-commission';
@@ -147,6 +150,52 @@ final GoRouter appRouter = GoRouter(
                 child: child,
               ),
           transitionDuration: const Duration(milliseconds: 350),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.transactionDetail,
+      pageBuilder: (context, state) {
+        DealTransaction? initial;
+        String id = '';
+        final extra = state.extra;
+        if (extra is DealTransaction) {
+          initial = extra;
+          id = extra.id;
+        } else if (extra is Map) {
+          final map = Map<String, dynamic>.from(extra);
+          id = map['id']?.toString() ??
+              state.uri.queryParameters['id'] ??
+              '';
+          final nested = map['transaction'];
+          if (nested is DealTransaction) {
+            initial = nested;
+            if (id.isEmpty) id = nested.id;
+          }
+        } else {
+          id = state.uri.queryParameters['id'] ?? '';
+        }
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: TransactionDetailScreen(
+            transactionId: id,
+            initial: initial,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              SlideTransition(
+                position:
+                    Tween<Offset>(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOutCubic,
+                      ),
+                    ),
+                child: child,
+              ),
+          transitionDuration: const Duration(milliseconds: 300),
         );
       },
     ),

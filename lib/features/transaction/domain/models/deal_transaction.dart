@@ -94,41 +94,66 @@ class DealTransaction {
   }
 
   factory DealTransaction.fromMap(Map<String, dynamic> d) {
+    String? asString(dynamic v) {
+      if (v == null) return null;
+      if (v is String) {
+        final t = v.trim();
+        return t.isEmpty ? null : t;
+      }
+      return v.toString();
+    }
+
+    double? asDouble(dynamic v) {
+      if (v == null) return null;
+      if (v is num) return v.toDouble();
+      if (v is String) return double.tryParse(v.replaceAll(',', ''));
+      return null;
+    }
+
+    bool asBool(dynamic v) {
+      if (v is bool) return v;
+      if (v is num) return v != 0;
+      if (v is String) {
+        final t = v.toLowerCase().trim();
+        return t == 'true' || t == '1' || t == 'yes';
+      }
+      return false;
+    }
+
     return DealTransaction(
-      id: d['id']?.toString() ?? '',
-      transactionNumber: d['transaction_number'] as String? ??
-          d['reference_number'] as String? ??
-          d['id']?.toString() ??
+      id: asString(d['id']) ?? '',
+      transactionNumber: asString(d['transaction_number']) ??
+          asString(d['reference_number']) ??
+          asString(d['id']) ??
           '',
       state: TransactionState.fromWire(
-        d['lifecycle_state'] as String? ?? d['status'] as String?,
+        asString(d['lifecycle_state']) ?? asString(d['status']),
       ),
-      type: DealTransactionType.fromWire(d['transaction_type'] as String?),
-      countryCode: d['country_code'] as String? ?? 'IQ',
-      currencyCode: d['currency_code'] as String? ?? 'IQD',
-      workflowId: d['workflow_id'] as String?,
-      propertyId: d['property_id']?.toString(),
-      propertyAddressSnapshot: d['property_address_snapshot'] as String?,
-      salePrice: (d['total_amount'] as num?)?.toDouble() ??
-          (d['sale_price'] as num?)?.toDouble(),
-      buyerUserId: d['buyer_user_id']?.toString(),
-      sellerUserId: d['seller_user_id']?.toString(),
-      buyerPhone: d['buyer_phone'] as String?,
-      sellerPhone: d['seller_phone'] as String?,
-      buyerName: d['buyer_name'] as String?,
-      sellerName: d['seller_name'] as String?,
-      lawyerUserId: d['lawyer_user_id']?.toString(),
-      buyerBarcodeUploaded: d['buyer_barcode_uploaded'] as bool? ?? false,
-      sellerBarcodeUploaded: d['seller_barcode_uploaded'] as bool? ?? false,
-      buyerIdentityVerified: d['buyer_identity_verified'] as bool? ?? false,
-      sellerIdentityVerified: d['seller_identity_verified'] as bool? ?? false,
-      buyerSignedContract: d['buyer_signed_contract'] as bool? ?? false,
-      sellerSignedContract: d['seller_signed_contract'] as bool? ?? false,
-      currentStepKey: d['current_step_key'] as String?,
+      type: DealTransactionType.fromWire(asString(d['transaction_type'])),
+      countryCode: asString(d['country_code']) ?? 'IQ',
+      currencyCode: asString(d['currency_code']) ?? 'IQD',
+      workflowId: asString(d['workflow_id']),
+      propertyId: asString(d['property_id']),
+      propertyAddressSnapshot: asString(d['property_address_snapshot']),
+      salePrice: asDouble(d['total_amount']) ?? asDouble(d['sale_price']),
+      buyerUserId: asString(d['buyer_user_id']),
+      sellerUserId: asString(d['seller_user_id']),
+      buyerPhone: asString(d['buyer_phone']),
+      sellerPhone: asString(d['seller_phone']),
+      buyerName: asString(d['buyer_name']),
+      sellerName: asString(d['seller_name']),
+      lawyerUserId: asString(d['lawyer_user_id']),
+      buyerBarcodeUploaded: asBool(d['buyer_barcode_uploaded']),
+      sellerBarcodeUploaded: asBool(d['seller_barcode_uploaded']),
+      buyerIdentityVerified: asBool(d['buyer_identity_verified']),
+      sellerIdentityVerified: asBool(d['seller_identity_verified']),
+      buyerSignedContract: asBool(d['buyer_signed_contract']),
+      sellerSignedContract: asBool(d['seller_signed_contract']),
+      currentStepKey: asString(d['current_step_key']),
       updatedAt: _date(d['updated_at']),
       createdAt: _date(d['created_at']),
       resumeState: d['resume_state'] != null
-          ? TransactionState.fromWire(d['resume_state'] as String?)
+          ? TransactionState.fromWire(asString(d['resume_state']))
           : null,
       raw: d,
     );
