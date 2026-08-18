@@ -1,200 +1,128 @@
 import '../core/app_export.dart';
 import '../core/localization/app_localizations.dart';
+import '../routes/app_routes.dart';
 
-// V2 Floating Pill BottomNav — LOCKED core technique
-// Detached pill container floats above content, extendBody: true in AppScaffold
-
-class _TabSpec {
-  final String label;
-  final String icon;
-  final String selectedIcon;
-  final int? branchIndex;
-
-  const _TabSpec({
-    required this.label,
-    required this.icon,
-    required this.selectedIcon,
-    this.branchIndex,
-  });
-}
-
-class AppNavigation extends StatefulWidget {
+/// Zillow-style flat bottom navigation: Search, Updates, Favorites, Plan, Inbox.
+/// Sits flush at the bottom with a hairline top border and a light-blue pill
+/// behind the active item's icon.
+class AppNavigation extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   const AppNavigation({required this.navigationShell, super.key});
 
-  @override
-  State<AppNavigation> createState() => _AppNavigationState();
-}
-
-class _AppNavigationState extends State<AppNavigation>
-    with SingleTickerProviderStateMixin {
-  int _selectedVisualIndex = 0;
-
-  late AnimationController _animController;
-
-  static const List<_TabSpec> _tabs = [
-    _TabSpec(
-      label: 'Search',
-      icon: 'map_outlined',
-      selectedIcon: 'map',
-      branchIndex: 0,
-    ),
-    _TabSpec(
-      label: 'Deals',
-      icon: 'handshake_outlined',
-      selectedIcon: 'handshake',
-      branchIndex: 1,
-    ),
-    _TabSpec(
-      label: 'Properties',
-      icon: 'home_work_outlined',
-      selectedIcon: 'home_work',
-      branchIndex: 2,
-    ),
-    _TabSpec(
-      label: 'Messages',
-      icon: 'chat_bubble_outline',
-      selectedIcon: 'chat_bubble',
-      branchIndex: 3,
-    ),
-    _TabSpec(
-      label: 'Profile',
-      icon: 'person_outline',
-      selectedIcon: 'person',
-      branchIndex: 4,
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    );
-    _syncVisualIndex();
-  }
-
-  void _syncVisualIndex() {
-    final currentBranch = widget.navigationShell.currentIndex;
-    for (int i = 0; i < _tabs.length; i++) {
-      if (_tabs[i].branchIndex == currentBranch) {
-        _selectedVisualIndex = i;
-        break;
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
-
-  void _onTabTap(int visualIndex) {
-    final tab = _tabs[visualIndex];
-    if (tab.branchIndex == null) return;
-    setState(() => _selectedVisualIndex = visualIndex);
-    widget.navigationShell.goBranch(
-      tab.branchIndex!,
-      initialLocation: tab.branchIndex == widget.navigationShell.currentIndex,
-    );
-  }
+  static const Color _activeBlue = Color(0xFF1565C0);
+  static const Color _activePill = Color(0xFFE3F0FD);
+  static const Color _inactiveIcon = Color(0xFF3C4043);
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
     final loc = AppLocalizations.of(context);
+    final branch = navigationShell.currentIndex;
 
-    final tabLabels = [
-      loc.navSearch,
-      loc.navDeals,
-      loc.navProperties,
-      loc.navMessages,
-      loc.navProfile,
+    final items = <_NavItem>[
+      _NavItem(
+        label: loc.navSearch,
+        icon: Icons.search,
+        active: branch == 0,
+        onTap: () => navigationShell.goBranch(0, initialLocation: branch == 0),
+      ),
+      _NavItem(
+        label: loc.navUpdates,
+        icon: Icons.saved_search,
+        active: false,
+        onTap: () => context.push(AppRoutes.notificationCenter),
+      ),
+      _NavItem(
+        label: loc.navFavorites,
+        icon: Icons.favorite_border,
+        active: branch == 2,
+        onTap: () => navigationShell.goBranch(2, initialLocation: branch == 2),
+      ),
+      _NavItem(
+        label: loc.navPlan,
+        icon: Icons.sell_outlined,
+        active: branch == 1,
+        onTap: () => navigationShell.goBranch(1, initialLocation: branch == 1),
+      ),
+      _NavItem(
+        label: loc.navInbox,
+        icon: Icons.inbox_outlined,
+        active: branch == 3,
+        onTap: () => navigationShell.goBranch(3, initialLocation: branch == 3),
+      ),
     ];
 
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        margin: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16 + bottomPadding),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(32),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(36),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              color: Colors.black.withAlpha(15),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(_tabs.length, (i) {
-            final tab = _tabs[i];
-            final isActive = i == _selectedVisualIndex;
-
-            return GestureDetector(
-              onTap: () => _onTabTap(i),
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-                padding: EdgeInsets.symmetric(
-                  horizontal: isActive ? 16 : 10,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? AppTheme.primary.withAlpha(31)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomIconWidget(
-                      iconName: isActive ? tab.selectedIcon : tab.icon,
-                      color: isActive
-                          ? AppTheme.primary
-                          : theme.colorScheme.onSurfaceVariant,
-                      size: 22,
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFE0E0E0))),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 62,
+          child: Row(
+            children: items
+                .map(
+                  (item) => Expanded(
+                    child: InkWell(
+                      onTap: item.onTap,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeOutCubic,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: item.active
+                                  ? _activePill
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Icon(
+                              item.icon,
+                              size: 24,
+                              color: item.active ? _activeBlue : _inactiveIcon,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            item.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight:
+                                  item.active ? FontWeight.w700 : FontWeight.w500,
+                              color: item.active ? _activeBlue : _inactiveIcon,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOutCubic,
-                      child: isActive
-                          ? Row(
-                              children: [
-                                const SizedBox(width: 6),
-                                Text(
-                                  tabLabels[i],
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.primary,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
+                  ),
+                )
+                .toList(),
+          ),
         ),
       ),
     );
   }
+}
+
+class _NavItem {
+  const _NavItem({
+    required this.label,
+    required this.icon,
+    required this.active,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool active;
+  final VoidCallback onTap;
 }

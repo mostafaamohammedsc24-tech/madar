@@ -20,26 +20,49 @@ class PropertyDocumentMeta {
   final DateTime? uploadedAt;
 }
 
+/// Who published the listing — drives contact routing.
+enum ListingOrigin { madar, office, owner }
+
 class PropertyPublisher {
   const PropertyPublisher({
     this.id,
     this.name,
     this.companyName,
     this.logoUrl,
+    this.photoUrl,
     this.phone,
     this.isVerified = false,
+    this.origin = ListingOrigin.madar,
   });
 
   final String? id;
   final String? name;
   final String? companyName;
   final String? logoUrl;
+  final String? photoUrl;
   final String? phone;
   final bool isVerified;
+  final ListingOrigin origin;
 
   bool get hasIdentity =>
       (name != null && name!.isNotEmpty) ||
       (companyName != null && companyName!.isNotEmpty);
+
+  /// Madar-published (and owner) listings go to Sales Team.
+  bool get routesToSalesTeam => origin != ListingOrigin.office || !hasIdentity;
+
+  bool get routesToAgent => !routesToSalesTeam;
+
+  String? get avatarUrl =>
+      (photoUrl != null && photoUrl!.isNotEmpty) ? photoUrl : logoUrl;
+
+  String get displayName {
+    if (name != null && name!.trim().isNotEmpty) return name!.trim();
+    if (companyName != null && companyName!.trim().isNotEmpty) {
+      return companyName!.trim();
+    }
+    return '';
+  }
 }
 
 enum InquiryType { general, sales, rentToOwn, financing, other }

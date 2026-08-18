@@ -754,19 +754,51 @@ class PropertyReportMapper {
 
   PropertyPublisher? _mapPublisher(Map<String, dynamic> d) {
     final p = _asMap(d['publisher']) ?? _asMap(d['advertiser']);
+    final origin = _listingOrigin(
+      d['listing_source'] ??
+          d['source'] ??
+          d['published_by'] ??
+          p?['origin'] ??
+          p?['source'],
+    );
     if (p == null) {
       final name = d['publisher_name'] as String?;
+      if (name == null && origin == ListingOrigin.madar) return null;
       if (name == null) return null;
-      return PropertyPublisher(name: name);
+      return PropertyPublisher(name: name, origin: origin);
     }
     return PropertyPublisher(
       id: p['id']?.toString(),
-      name: p['name'] as String?,
-      companyName: p['company_name'] as String?,
+      name: p['name'] as String? ?? p['agent_name'] as String?,
+      companyName: p['company_name'] as String? ?? p['office_name'] as String?,
       logoUrl: p['logo_url'] as String?,
+      photoUrl: p['photo_url'] as String? ??
+          p['avatar_url'] as String? ??
+          p['image_url'] as String?,
       phone: p['phone'] as String?,
       isVerified: p['is_verified'] as bool? ?? false,
+      origin: origin,
     );
+  }
+
+  ListingOrigin _listingOrigin(Object? raw) {
+    final value = raw?.toString().trim().toLowerCase() ?? '';
+    switch (value) {
+      case 'office':
+      case 'agent':
+      case 'broker':
+      case 'partner':
+        return ListingOrigin.office;
+      case 'owner':
+      case 'seller':
+        return ListingOrigin.owner;
+      case 'madar':
+      case 'company':
+      case 'us':
+      case 'internal':
+      default:
+        return ListingOrigin.madar;
+    }
   }
 
   PropertyDimensions? _mapDimensions(Map<String, dynamic>? json) {

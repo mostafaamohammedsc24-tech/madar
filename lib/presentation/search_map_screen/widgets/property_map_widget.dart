@@ -7,7 +7,6 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import '../../../core/app_export.dart';
 import '../../../core/maps/map_bounds.dart';
 import '../../../core/maps/marker_cluster_engine.dart';
-import '../../../core/theme/listing_filter_theme.dart';
 import '../search_map_screen.dart';
 
 // Full-screen GoogleMap with custom property type icons, polygon draw support.
@@ -105,132 +104,119 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     }
   }
 
-  /// Compute marker pixel size based on zoom level — large circular pins.
+  /// Deep crimson Zillow-style dot pins — small at low zoom, larger up close.
+  static const Color _pinCrimson = Color(0xFFC8102E);
+  static const Color _pinCrimsonDark = Color(0xFF8E0B20);
+
   double _markerSizeForZoom(double zoom) {
-    final size = 64.0 + (zoom - 8.0) * 6.0;
-    return size.clamp(68.0, 118.0);
+    final size = 28.0 + (zoom - 8.0) * 2.0;
+    return size.clamp(28.0, 46.0);
   }
 
-  // Returns the icon name and color for each property type/listing type
-  Map<String, dynamic> _getIconSpec(String type, String listingType) {
-    final color = ListingFilterTheme.pinColor(
-      propertyType: type,
-      listingType: listingType,
-    );
-    switch (type) {
-      case 'apartment':
-        return {
-          'icon': Icons.apartment,
-          'color': color,
-          'label': listingType == 'rent' ? 'Rent' : 'Apt',
-        };
-      case 'villa':
-        return {
-          'icon': Icons.villa,
-          'color': color,
-          'label': listingType == 'mortgage' ? 'Mortgage' : 'Villa',
-        };
-      case 'land':
-        return {
-          'icon': Icons.landscape,
-          'color': color,
-          'label': 'Land',
-        };
-      case 'commercial':
-        return {
-          'icon': Icons.store,
-          'color': color,
-          'label': 'Shop',
-        };
-      case 'building':
-        return {
-          'icon': Icons.domain,
-          'color': color,
-          'label': 'Bldg',
-        };
-      case 'investment':
-        return {
-          'icon': Icons.trending_up,
-          'color': color,
-          'label': 'Invest',
-        };
-      default:
-        if (listingType == 'mortgage') {
-          return {
-            'icon': Icons.account_balance,
-            'color': color,
-            'label': 'Mortgage',
-          };
-        }
-        return {
-          'icon': Icons.home,
-          'color': color,
-          'label': listingType == 'rent' ? 'Rent' : 'Sale',
-        };
-    }
+  /// Listings created within the last 3 weeks get a "New" pill pin.
+  bool _isNewListing(PropertyData p) {
+    final raw = p.rawData['created_at']?.toString() ??
+        p.rawData['published_at']?.toString();
+    final dt = DateTime.tryParse(raw ?? '');
+    if (dt == null) return false;
+    return DateTime.now().difference(dt).inDays <= 21;
   }
 
-  Future<BitmapDescriptor> _createCustomMarker(
-    String type,
-    String listingType,
+  Future<BitmapDescriptor> _createDotMarker(
     double markerSize, {
     bool selected = false,
+    bool isNew = false,
+    bool starred = false,
   }) async {
     final cacheKey =
-        '${type}_${listingType}_${markerSize.toInt()}_${selected ? 's' : 'n'}';
+        'dot_${markerSize.toInt()}_${selected ? 's' : 'n'}_${isNew ? 'new' : 'std'}_${starred ? 'star' : 'plain'}';
     if (_markerCache.containsKey(cacheKey)) {
       return _markerCache[cacheKey]!;
     }
 
-    final spec = _getIconSpec(type, listingType);
-    final color = spec['color'] as Color;
-    final iconData = spec['icon'] as IconData;
-    final size = selected ? markerSize * 1.18 : markerSize;
+    final size = selected ? markerSize * 1.3 : markerSize;
+    final fill = selected ? _pinCrimsonDark : _pinCrimson;
 
-    final canvasSize = size * 2.0;
-    final circleRadius = size * 0.42;
-    final center = Offset(canvasSize / 2, canvasSize / 2);
+    // "New" pins are wide pills with a badge; standard pins are plain dots.
+    final pillWidth = isNew ? size * 2.1 : size;
+    final canvasW = pillWidth * 2.0;
+    final canvasH = size * 2.0;
+    final center = Offset(canvasW / 2, canvasH / 2);
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
     final shadowPaint = Paint()
-      ..color = Colors.black.withAlpha(50)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
-    canvas.drawCircle(center.translate(0, 2), circleRadius + 1, shadowPaint);
+      ..color = Colors.black.withAlpha(70)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
 
-    canvas.drawCircle(center, circleRadius + (selected ? 4 : 0), Paint()..color = Colors.white);
-    canvas.drawCircle(center, circleRadius, Paint()..color = color);
+    if (isNew) {
+      final rect = RRect.fromRectAndRadius(
+        Rect.fromCenter(
+          center: center,
+          width: pillWidth - 4,
+          height: size * 0.86,
+        ),
+        Radius.circular(size),
+      );
+      canvas.drawRRect(rect.shift(const Offset(0, 2)), shadowPaint);
+      canvas.drawRRect(
+        rect.inflate(2),
+        Paint()..color = Colors.white,
+      );
+      canvas.drawRRect(rect, Paint()..color = fill);
 
-    final iconFontSize = circleRadius * 0.95;
-    final textPainter = TextPainter(textDirection: TextDirection.ltr);
-    textPainter.text = TextSpan(
-      text: String.fromCharCode(iconData.codePoint),
-      style: TextStyle(
-        fontSize: iconFontSize,
-        fontFamily: iconData.fontFamily,
-        package: iconData.fontPackage,
-        color: Colors.white,
-      ),
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        center.dx - textPainter.width / 2,
-        center.dy - textPainter.height / 2,
-      ),
-    );
+      final tp = TextPainter(
+        text: TextSpan(
+          text: 'New',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: size * 0.46,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(
+        canvas,
+        Offset(center.dx - tp.width / 2, center.dy - tp.height / 2),
+      );
+    } else {
+      final radius = size * 0.40;
+      canvas.drawCircle(center.translate(0, 2), radius, shadowPaint);
+      canvas.drawCircle(center, radius + 2, Paint()..color = Colors.white);
+      canvas.drawCircle(center, radius, Paint()..color = fill);
+
+      if (starred) {
+        final starPainter = TextPainter(
+          text: TextSpan(
+            text: String.fromCharCode(Icons.star.codePoint),
+            style: TextStyle(
+              fontSize: radius * 1.2,
+              fontFamily: Icons.star.fontFamily,
+              color: Colors.white,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        starPainter.paint(
+          canvas,
+          Offset(
+            center.dx - starPainter.width / 2,
+            center.dy - starPainter.height / 2,
+          ),
+        );
+      }
+    }
 
     final picture = recorder.endRecording();
-    final imgSize = canvasSize.toInt();
-    final image = await picture.toImage(imgSize, imgSize);
+    final image = await picture.toImage(canvasW.toInt(), canvasH.toInt());
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final bytes = byteData!.buffer.asUint8List();
 
     final descriptor = BitmapDescriptor.bytes(
       bytes,
-      width: size,
+      width: pillWidth,
       height: size,
     );
     _markerCache[cacheKey] = descriptor;
@@ -304,11 +290,11 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
       final p = propsById[id];
       if (p == null) return null;
       final selected = p.id == widget.selectedPropertyId;
-      final icon = await _createCustomMarker(
-        p.type,
-        p.listingType,
+      final icon = await _createDotMarker(
         size,
         selected: selected,
+        isNew: _isNewListing(p),
+        starred: p.isFeatured,
       );
       return Marker(
         markerId: MarkerId(p.id),
@@ -354,7 +340,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     canvas.drawCircle(center, radius + 3, Paint()..color = Colors.white);
-    canvas.drawCircle(center, radius, Paint()..color = AppTheme.primary);
+    canvas.drawCircle(center, radius, Paint()..color = _pinCrimson);
     final label = count > 999 ? '999+' : '$count';
     final tp = TextPainter(
       text: TextSpan(
@@ -591,7 +577,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
           style: _cleanMapStyle,
           markers: widget.isDrawingMode ? {} : _markers,
           polygons: _composedPolygons(),
-          polylines: _polylines,
+          polylines: _composedPolylines(),
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
           compassEnabled: false,
@@ -660,9 +646,26 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
       Polygon(
         polygonId: const PolygonId('area_boundary'),
         points: area,
-        strokeColor: const Color(0xFF1565C0),
-        strokeWidth: 2,
-        fillColor: const Color(0xFF1565C0).withAlpha(18),
+        strokeWidth: 0,
+        strokeColor: Colors.transparent,
+        fillColor: const Color(0xFF1565C0).withAlpha(16),
+      ),
+    };
+  }
+
+  /// Dotted blue boundary around the searched area (dash pattern where the
+  /// platform supports it; web falls back to a solid stroke).
+  Set<Polyline> _composedPolylines() {
+    final area = widget.areaPolygon;
+    if (area == null || area.length < 3) return _polylines;
+    return {
+      ..._polylines,
+      Polyline(
+        polylineId: const PolylineId('area_boundary_line'),
+        points: [...area, area.first],
+        color: const Color(0xFF1565C0),
+        width: 3,
+        patterns: [PatternItem.dash(18), PatternItem.gap(10)],
       ),
     };
   }

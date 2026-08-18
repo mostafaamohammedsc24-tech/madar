@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../theme/app_theme.dart';
 
-/// Expandable section shell — only mount when parent confirms data exists.
+/// Static nested card — Zillow facts cards never use a down-chevron tile.
+/// When [initiallyExpanded] is false, content is revealed with a text "Show more".
 class ReportSection extends StatelessWidget {
   const ReportSection({
     super.key,
@@ -24,39 +26,95 @@ class ReportSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      elevation: 0,
-      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      clipBehavior: Clip.antiAlias,
-      child: Theme(
-        data: theme.copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: initiallyExpanded,
-          tilePadding: const EdgeInsetsDirectional.fromSTEB(16, 4, 12, 4),
-          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          leading: icon != null
-              ? Icon(icon, color: theme.colorScheme.primary, size: 22)
-              : null,
-          title: Text(
-            title,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8ECF0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 10,
+            offset: Offset(0, 3),
           ),
-          subtitle: subtitle != null
-              ? Text(
-                  subtitle!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                )
-              : null,
-          trailing: trailing,
-          children: [child],
-        ),
+        ],
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: const Color(0xFF667085)),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    color: const Color(0xFF101828),
+                  ),
+                ),
+              ),
+              if (trailing != null) trailing!,
+            ],
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          if (initiallyExpanded)
+            child
+          else
+            _ShowMoreBody(child: child),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShowMoreBody extends StatefulWidget {
+  const _ShowMoreBody({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ShowMoreBody> createState() => _ShowMoreBodyState();
+}
+
+class _ShowMoreBodyState extends State<_ShowMoreBody> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_open) widget.child,
+        TextButton(
+          onPressed: () => setState(() => _open = !_open),
+          style: TextButton.styleFrom(
+            foregroundColor: AppTheme.primary,
+            padding: EdgeInsets.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            _open ? loc.showLess : loc.showMore,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -68,42 +126,65 @@ class FactGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FactsIconGrid(
+      items: items
+          .map((item) => (Icons.info_outline, '${item.$2} ${item.$1}'.trim()))
+          .toList(),
+    );
+  }
+}
+
+/// Two-column icon + label rows used by Zillow "Facts & features".
+class FactsIconGrid extends StatelessWidget {
+  const FactsIconGrid({super.key, required this.items});
+
+  final List<(IconData, String)> items;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: items.map((item) {
-        return Container(
-          width: ((MediaQuery.sizeOf(context).width - 64) / 2).clamp(120.0, 400.0),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
-            ),
-          ),
-          child: Column(
+    final tiles = items
+        .map(
+          (item) => Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                item.$1,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                item.$2,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
+              Icon(item.$1, size: 18, color: const Color(0xFF667085)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  item.$2,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1D2939),
+                  ),
                 ),
               ),
             ],
           ),
-        );
-      }).toList(),
-    );
+        )
+        .toList();
+
+    final rows = <Widget>[];
+    for (var i = 0; i < tiles.length; i += 2) {
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: tiles[i]),
+              const SizedBox(width: 12),
+              Expanded(
+                child: i + 1 < tiles.length ? tiles[i + 1] : const SizedBox(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Column(children: rows);
   }
 }
 
@@ -116,7 +197,7 @@ class EmptySectionHint extends StatelessWidget {
     return Text(
       loc.sectionNoDataYet,
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            color: Theme.of(context).textTheme.bodySmall?.color,
           ),
     );
   }

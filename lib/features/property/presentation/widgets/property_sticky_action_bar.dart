@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../theme/app_theme.dart';
+import '../../domain/models/property_documents.dart';
 
 class PropertyStickyActionBar extends StatelessWidget {
   const PropertyStickyActionBar({
@@ -8,69 +10,131 @@ class PropertyStickyActionBar extends StatelessWidget {
     required this.onContact,
     required this.onAskAi,
     required this.onScheduleTour,
+    this.publisher,
   });
 
   final VoidCallback onContact;
   final VoidCallback onAskAi;
   final VoidCallback onScheduleTour;
+  final PropertyPublisher? publisher;
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final bottom = MediaQuery.paddingOf(context).bottom;
+    final toAgent = publisher?.routesToAgent == true;
+    final name = toAgent ? publisher!.displayName : loc.madarSalesTeam;
+    final avatar = publisher?.avatarUrl;
 
     return Material(
-      elevation: 8,
-      color: theme.colorScheme.surface,
+      elevation: 16,
+      color: Colors.white,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottom),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: EdgeInsets.fromLTRB(12, 10, 12, 10 + bottom),
+        child: Row(
           children: [
-            FilledButton.icon(
-              onPressed: onContact,
-              icon: const Icon(Icons.phone_outlined, size: 20),
-              label: Text(
-                loc.contactSalesShort,
-                textAlign: TextAlign.center,
-              ),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            Expanded(
+              flex: 5,
+              child: SizedBox(
+                height: 56,
+                child: OutlinedButton(
+                  onPressed: onContact,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.primary,
+                    side: const BorderSide(color: AppTheme.primary, width: 1.4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: const Color(0xFFE3F2FD),
+                        backgroundImage:
+                            avatar != null ? NetworkImage(avatar) : null,
+                        child: avatar == null
+                            ? Icon(
+                                toAgent
+                                    ? Icons.person_outline
+                                    : Icons.storefront_outlined,
+                                size: 18,
+                                color: AppTheme.primary,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              loc.contactSalesShort,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton.icon(
-                  onPressed: onAskAi,
-                  icon: Icon(
-                    Icons.psychology_outlined,
-                    size: 20,
-                    color: theme.colorScheme.primary,
-                  ),
-                  label: Text(
-                    loc.askAi,
-                    style: TextStyle(color: theme.colorScheme.primary),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                TextButton.icon(
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 6,
+              child: SizedBox(
+                height: 56,
+                child: FilledButton(
                   onPressed: onScheduleTour,
-                  icon: Icon(
-                    Icons.calendar_month_outlined,
-                    size: 20,
-                    color: theme.colorScheme.primary,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
-                  label: Text(
-                    loc.scheduleVisit,
-                    style: TextStyle(color: theme.colorScheme.primary),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        loc.requestTour,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        loc.requestTourHint,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: 0.92),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ],
         ),

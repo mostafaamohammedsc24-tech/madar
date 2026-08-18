@@ -41,6 +41,19 @@ class AppLocalizations {
 
   // ─── Navigation ───────────────────────────────────────────────────────────
   String get navSearch => _t(en: 'Search', ar: 'البحث', ku: 'گەڕان');
+  String get navUpdates =>
+      _t(en: 'Updates', ar: 'التحديثات', ku: 'نوێکارییەکان');
+  String get navFavorites =>
+      _t(en: 'Favorites', ar: 'المفضلة', ku: 'دڵخوازەکان');
+  String get navPlan => _t(en: 'Plan', ar: 'الخطة', ku: 'پلان');
+  String get navInbox => _t(en: 'Inbox', ar: 'الوارد', ku: 'نامەدان');
+  String get searchHere =>
+      _t(en: 'Search here', ar: 'ابحث هنا', ku: 'لێرە بگەڕێ');
+  String get recommendedBySearch => _t(
+    en: 'Recommended based on your search area & price range',
+    ar: 'مقترحة بناءً على منطقة بحثك ونطاق السعر',
+    ku: 'پێشنیارکراوە بەپێی ناوچەی گەڕان و مەودای نرخەکەت',
+  );
   String get navDeals => _t(en: 'Deals', ar: 'الصفقات', ku: 'مامەڵەکان');
   String get navProperties =>
       _t(en: 'Properties', ar: 'الأملاك', ku: 'خانووبەرەکان');
@@ -1434,6 +1447,66 @@ class AppLocalizations {
     en: 'Ask AI about this property',
     ar: 'اسأل الذكاء الاصطناعي عن هذا العقار',
     ku: 'لە ئەی ئای بپرسە دەربارەی ئەم خانووبەرەیە',
+  );
+  String get listedBy => _t(en: 'Listed by', ar: 'معروض بواسطة', ku: 'لیستکراو لەلایەن');
+  String get madarSalesTeam =>
+      _t(en: 'Madar Sales Team', ar: 'فريق مبيعات مدار', ku: 'تیمی فرۆشتنی مەدار');
+  String contactAgentName(String name) => _t(
+    en: 'Contact $name',
+    ar: 'تواصل مع $name',
+    ku: 'پەیوەندی بە $name',
+  );
+  String get requestTour =>
+      _t(en: 'Request a tour', ar: 'اطلب جولة', ku: 'داوای گەشت بکە');
+  String get requestTourHint => _t(
+    en: 'as early as today',
+    ar: 'يمكن اليوم',
+    ku: 'لە ئەمڕۆوە',
+  );
+  String get estMonthlyPayment =>
+      _t(en: 'Est. payment', ar: 'القسط التقديري', ku: 'پارەدانی خەمڵێنراو');
+  String get showMore => _t(en: 'Show more', ar: 'عرض المزيد', ku: 'زیاتر نیشان بدە');
+  String get showLess => _t(en: 'Show less', ar: 'عرض أقل', ku: 'کەمتر نیشان بدە');
+  String get getPreQualified => _t(
+    en: 'Get pre-qualified',
+    ar: 'احصل على موافقة مبدئية',
+    ku: 'پێشوەختە ڕەزامەندی وەربگرە',
+  );
+  String estPaymentAmount(String amount) => _t(
+    en: 'Est. $amount/mo',
+    ar: 'تقديري $amount/شهر',
+    ku: 'خەمڵێنراو $amount/مانگ',
+  );
+  String get hideHome =>
+      _t(en: 'Hide Home', ar: 'إخفاء العقار', ku: 'شاردنەوەی خانوو');
+  String get getDirections =>
+      _t(en: 'Get Directions', ar: 'الاتجاهات', ku: 'ئاراستەکان');
+  String get yourTags => _t(en: 'Your Tags', ar: 'وسومك', ku: 'تاگەکانت');
+  String get reportAProblem => _t(
+    en: 'Report a Problem',
+    ar: 'الإبلاغ عن مشكلة',
+    ku: 'کێشەیەک ڕاپۆرت بکە',
+  );
+  String get priceAndTaxHistory => _t(
+    en: 'Price & tax history',
+    ar: 'تاريخ السعر والضريبة',
+    ku: 'مێژووی نرخ و باج',
+  );
+  String builtInYear(int year) =>
+      _t(en: 'Built in $year', ar: 'بُني عام $year', ku: 'لە $year دروستکراوە');
+  String daysOnMadar(int n) => _t(
+    en: '$n days on Madar',
+    ar: '$n يوماً على مدار',
+    ku: '$n ڕۆژ لەسەر مەدار',
+  );
+  String get showcaseBadge => _t(en: 'Showcase', ar: 'مميز', ku: 'نمایش');
+  String get bedsShort => _t(en: 'beds', ar: 'غرف', ku: 'نووستن');
+  String get bathsShort => _t(en: 'baths', ar: 'حمامات', ku: 'ئاوخانە');
+  String get areaUnitM2 => _t(en: 'm²', ar: 'م²', ku: 'م²');
+  String get listingAgentChatAck => _t(
+    en: 'Thanks for your interest. The listing agent will reply here shortly.',
+    ar: 'شكراً لاهتمامك. سيتواصل معك الوكيل العقاري عبر هذه المحادثة قريباً.',
+    ku: 'سوپاس بۆ گرنگیدانت. بریکاری لیستەکە بەم زووانە لێرە وەڵامت دەداتەوە.',
   );
   String get askAi => _t(en: 'Ask AI', ar: 'اسأل AI', ku: 'بپرسە لە AI');
   String get contactConnect =>
