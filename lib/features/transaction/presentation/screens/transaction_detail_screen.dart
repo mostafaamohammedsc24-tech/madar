@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/currency/currency_registry.dart';
 import '../../../../core/demo/demo_mode.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../features/authentication/routing/auth_globals.dart';
+import '../../../../routes/app_routes.dart';
 import '../../../../services/supabase_service.dart';
 import '../../data/party_deal_store.dart';
 import '../../data/repositories/transaction_repository.dart';
@@ -62,44 +64,55 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   bool get _asBuyer => _p.isBuyer;
 
   void _resolveSide() {
-    final p = _p;
-    if (p.mySide != null) return;
-    final tx = _tx;
-    if (tx == null) return;
-    final userId = SupabaseService.instance.currentUser?.id;
-    final role = tx.roleForUser(userId);
-    if (role == TransactionRole.buyer) {
-      p.mySide = PartySide.buyer;
-      return;
-    }
-    if (role == TransactionRole.seller) {
-      p.mySide = PartySide.seller;
-      return;
-    }
-    final phone = userAuthNotifier.state.fullPhoneNumber.replaceAll(
-      RegExp(r'\D'),
-      '',
-    );
-    if (phone.isEmpty) return;
-    final suffix = phone.length > 8 ? phone.substring(phone.length - 8) : phone;
-    final buyer = tx.buyerPhone?.replaceAll(RegExp(r'\D'), '') ?? '';
-    final seller = tx.sellerPhone?.replaceAll(RegExp(r'\D'), '') ?? '';
-    if (buyer.endsWith(suffix)) {
-      p.mySide = PartySide.buyer;
-    } else if (seller.endsWith(suffix)) {
-      p.mySide = PartySide.seller;
+    try {
+      final p = _p;
+      if (p.mySide != null) return;
+      final tx = _tx;
+      if (tx == null) return;
+      final userId = SupabaseService.instance.isReady
+          ? SupabaseService.instance.currentUser?.id
+          : null;
+      final role = tx.roleForUser(userId);
+      if (role == TransactionRole.buyer) {
+        p.mySide = PartySide.buyer;
+        return;
+      }
+      if (role == TransactionRole.seller) {
+        p.mySide = PartySide.seller;
+        return;
+      }
+      final phone = userAuthNotifier.state.fullPhoneNumber.replaceAll(
+        RegExp(r'\D'),
+        '',
+      );
+      if (phone.isEmpty) return;
+      final suffix = phone.length > 8 ? phone.substring(phone.length - 8) : phone;
+      final buyer = tx.buyerPhone?.replaceAll(RegExp(r'\D'), '') ?? '';
+      final seller = tx.sellerPhone?.replaceAll(RegExp(r'\D'), '') ?? '';
+      if (buyer.isNotEmpty && buyer.endsWith(suffix)) {
+        p.mySide = PartySide.buyer;
+      } else if (seller.isNotEmpty && seller.endsWith(suffix)) {
+        p.mySide = PartySide.seller;
+      }
+    } catch (e) {
+      debugPrint('TransactionDetailScreen role resolve failed: $e');
     }
   }
 
   Future<void> _refresh() async {
-    setState(() => _loading = true);
-    final tx = await _repo.getById(widget.transactionId);
-    if (!mounted) return;
-    setState(() {
-      _tx = tx ?? _tx;
-      _loading = false;
-    });
-    _resolveSide();
+    try {
+      final tx = await _repo.getById(widget.transactionId);
+      if (!mounted) return;
+      setState(() {
+        if (tx != null) _tx = tx;
+        _loading = false;
+      });
+      _resolveSide();
+    } catch (e, st) {
+      debugPrint('TransactionDetailScreen refresh failed: $e\n$st');
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
   }
 
   Future<void> _uploadDocument(String field) async {
@@ -169,7 +182,19 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: Text(tx?.transactionNumber ?? loc.navDeals)),
+      appBar: AppBar(
+        title: Text(tx?.transactionNumber ?? loc.navDeals),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              appRouter.go(AppRoutes.transactionsScreen);
+            }
+          },
+        ),
+      ),
       body: _loading && tx == null
           ? const Center(child: CircularProgressIndicator())
           : tx == null

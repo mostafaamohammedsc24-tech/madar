@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Madar mark: house + M. Stroke color set by CSS/currentColor or override. -->
+  <g stroke="currentColor" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+    <!-- House outline, open at bottom-left where the M begins -->
+    <path d="M96 392 V216 L256 88 L416 216 V392 H96"/>
+    <!-- Stylized M / mountains starting from bottom-left -->
+    <path d="M96 392 L188 236 L256 332 L348 204"/>
+  </g>
+</svg>

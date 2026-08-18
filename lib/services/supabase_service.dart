@@ -30,16 +30,14 @@ class SupabaseService {
 
   bool get isReady {
     try {
-      // ignore: unnecessary_statements
-      Supabase.instance.client;
-      return true;
+      return Supabase.instance.isInitialized;
     } catch (_) {
       return false;
     }
   }
 
   SupabaseClient get client => Supabase.instance.client;
-  User? get currentUser => client.auth.currentUser;
+  User? get currentUser => isReady ? client.auth.currentUser : null;
   bool get isAuthenticated => currentUser != null;
 
   // ─── AUTH ────────────────────────────────────────────────────────────────
@@ -183,9 +181,17 @@ class SupabaseService {
   }
 
   Future<Map<String, dynamic>?> getTransactionById(String txId) async {
+    final wanted = txId.toString();
     if (DemoMode.enabled) {
-      final match = AppDemoSeed.userTransactions().where((t) => t['id'] == txId);
-      if (match.isNotEmpty) return match.first;
+      for (final t in AppDemoSeed.userTransactions()) {
+        if (t['id']?.toString() == wanted) return t;
+      }
+    }
+    if (!isReady) {
+      for (final t in AppDemoSeed.userTransactions()) {
+        if (t['id']?.toString() == wanted) return t;
+      }
+      return null;
     }
     try {
       final response = await client
@@ -197,6 +203,9 @@ class SupabaseService {
           .maybeSingle();
       return response;
     } catch (e) {
+      for (final t in AppDemoSeed.userTransactions()) {
+        if (t['id']?.toString() == wanted) return t;
+      }
       return null;
     }
   }

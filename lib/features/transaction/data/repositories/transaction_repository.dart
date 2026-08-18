@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/demo/demo_mode.dart';
 import '../../../../services/app_demo_seed.dart';
 import '../../../../services/supabase_service.dart';
@@ -13,14 +15,23 @@ class TransactionRepository {
   final SupabaseService _supabase;
 
   Future<List<DealTransaction>> listForCurrentUser() async {
-    final rows = await _supabase.getUserTransactions();
-    return rows.map(DealTransaction.fromMap).toList();
+    try {
+      final rows = await _supabase.getUserTransactions();
+      return rows.map(DealTransaction.fromMap).toList();
+    } catch (e) {
+      return const [];
+    }
   }
 
   Future<DealTransaction?> getById(String id) async {
-    final row = await _supabase.getTransactionById(id);
-    if (row == null) return null;
-    return DealTransaction.fromMap(row);
+    try {
+      final row = await _supabase.getTransactionById(id);
+      if (row == null) return null;
+      return DealTransaction.fromMap(row);
+    } catch (e, st) {
+      debugPrint('TransactionRepository.getById failed: $e\n$st');
+      return null;
+    }
   }
 
   TransactionWorkflowDefinition workflowFor(DealTransaction tx) {

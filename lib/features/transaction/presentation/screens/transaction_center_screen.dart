@@ -9,7 +9,7 @@ import '../../data/repositories/transaction_repository.dart';
 import '../../domain/enums/transaction_enums.dart';
 import '../../domain/models/deal_transaction.dart';
 import '../../domain/workflows/transaction_workflow.dart';
-import 'transaction_detail_screen.dart';
+import '../navigation/open_transaction_detail.dart';
 
 /// Digital Transaction Center — user-facing deals home.
 /// Does not fake stage completion; backend gates drive progress.
@@ -139,15 +139,13 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
     }
 
     if (result.transaction != null) {
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => TransactionDetailScreen(
-            transactionId: result.transaction!.id,
-            initial: result.transaction,
-          ),
-        ),
+      if (!mounted) return;
+      openTransactionDetail(
+        context,
+        transactionId: result.transaction!.id,
+        initial: result.transaction,
       );
-      await _load();
+      return;
     }
   }
 
@@ -291,16 +289,12 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
           return _TransactionCard(
             tx: tx,
             workflow: workflow,
-            onTap: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => TransactionDetailScreen(
-                    transactionId: tx.id,
-                    initial: tx,
-                  ),
-                ),
+            onTap: () {
+              openTransactionDetail(
+                context,
+                transactionId: tx.id,
+                initial: tx,
               );
-              await _load();
             },
           );
         },
