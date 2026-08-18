@@ -21,12 +21,11 @@ import '../../core/maps/map_bounds.dart';
 import '../../services/property_map_repository.dart';
 import '../../services/supabase_service.dart';
 import '../../features/property/presentation/navigation/open_property_report.dart';
-import '../../features/property/presentation/widgets/sheet_grabber.dart';
 import './models/property_data.dart';
 import './widgets/map_preview_carousel.dart';
 import '../../features/authentication/presentation/widgets/demo_auto_advance.dart';
 import './widgets/map_search_bar_widget.dart';
-import './widgets/property_card.dart';
+import './widgets/draggable_property_sheet.dart';
 import './widgets/property_map_widget.dart';
 import './widgets/saved_area_search_widget.dart';
 
@@ -92,7 +91,9 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   final PropertyAiService _propertyAi = PropertyAiService();
   final PropertyMapRepository _mapRepo = PropertyMapRepository();
   Timer? _aiSearchDebounce;
-  Timer? _boundsDebounce;
+  MapBounds? _pendingBounds;
+  bool _mapMoved = false;
+  bool _firstBoundsEvent = true;
   String? _aiSearchInsight;
   int _aiSearchToken = 0;
 
@@ -112,7 +113,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
   void dispose() {
     _aiSearchDebounce?.cancel();
     _placesDebounce?.cancel();
-    _boundsDebounce?.cancel();
     _draggableController.removeListener(_onSheetExtentChanged);
     _draggableController.dispose();
     super.dispose();
@@ -128,11 +128,23 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     await _fetchPropertiesForBounds(bootstrap, showLoading: true);
   }
 
+  /// Camera settled on a new viewport: offer a manual "Search here" refresh
+  /// instead of silently refetching, mirroring the reference UX.
   void _onMapBoundsChanged(MapBounds bounds) {
-    _boundsDebounce?.cancel();
-    _boundsDebounce = Timer(const Duration(milliseconds: 450), () {
-      _fetchPropertiesForBounds(bounds.padded());
-    });
+    _pendingBounds = bounds;
+    if (_firstBoundsEvent) {
+      _firstBoundsEvent = false;
+      return;
+    }
+    if (_isLoading || _mapMoved) return;
+    setState(() => _mapMoved = true);
+  }
+
+  Future<void> _searchHere() async {
+    final bounds = _pendingBounds;
+    setState(() => _mapMoved = false);
+    if (bounds == null) return;
+    await _fetchPropertiesForBounds(bounds.padded(), showLoading: true);
   }
 
   Future<void> _fetchPropertiesForBounds(
@@ -994,7 +1006,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
           final bodyH = constraints.maxHeight;
           final topPad = MediaQuery.paddingOf(context).top;
           final searchBand = topPad + 66.0;
-          final sheetMax = ((bodyH - searchBand) / bodyH).clamp(0.5, 0.95);
+          final sheetMax = ((bodyH - searchBand) / bodyH).clamp(0.5, 0.85);
           final merged = _sheetExtent >= sheetMax - 0.03;
           final listMode = _sheetExtent > 0.45;
           final sheetTopPx = bodyH * _sheetExtent;
@@ -1178,6 +1190,53 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                   ),
                 ),
 
+              // ── Floating "Search here" pill (camera moved) ─────────────
+              if (_mapMoved && !listMode && !_isDrawingMode)
+                Positioned(
+                  top: searchBand + 10,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: PointerInterceptor(
+                      child: Material(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        elevation: 5,
+                        shadowColor: Colors.black38,
+                        child: InkWell(
+                          onTap: _searchHere,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.refresh,
+                                  size: 18,
+                                  color: Color(0xFF1565C0),
+                                ),
+                                const SizedBox(width: 7),
+                                Text(
+                                  loc.searchHere,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF1565C0),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
               // ── Map action row: globe / draw / locate + Save search ────
               if (!listMode)
                 Positioned(
@@ -1283,102 +1342,18 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                   ),
                 ),
 
-              // ── Draggable results sheet ────────────────────────────────
-              DraggableScrollableSheet(
+              // ── Draggable results sheet (hovers above global nav) ──────
+              DraggablePropertySheet(
                 controller: _draggableController,
-                initialChildSize: 0.13,
-                minChildSize: 0.10,
-                maxChildSize: sheetMax,
-                snap: true,
-                snapSizes: [0.13, sheetMax],
-                builder: (context, scrollController) {
-                  return Material(
-                    color: Colors.white,
-                    elevation: 10,
-                    shadowColor: Colors.black26,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(merged ? 0 : 16),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: CustomScrollView(
-                      controller: scrollController,
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Column(
-                            children: [
-                              const SheetGrabber(),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(16, 4, 16, 10),
-                                child: Text(
-                                  _mapZoom < 11
-                                      ? loc.zoomToSeeProperties
-                                      : loc.resultsCountLabel(
-                                          _filteredProperties.length,
-                                        ),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF111111),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (listMode) ...[
-                          SliverToBoxAdapter(
-                            child: Column(
-                              children: [
-                                _buildSheetToolbar(theme, loc),
-                                const Divider(
-                                  height: 16,
-                                  thickness: 1,
-                                  color: Color(0xFFEEEEEE),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (_filteredProperties.isEmpty)
-                            SliverToBoxAdapter(
-                              child: Padding(
-                                padding: const EdgeInsets.all(32),
-                                child: Center(
-                                  child: Text(
-                                    loc.noData,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          else
-                            SliverList.builder(
-                              itemCount: _filteredProperties.length,
-                              itemBuilder: (context, i) {
-                                final property = _filteredProperties[i];
-                                return PropertyCard(
-                                  property: property,
-                                  onTap: () => _openPropertyDetail(property),
-                                );
-                              },
-                            ),
-                          const SliverToBoxAdapter(
-                            child: SizedBox(height: 90),
-                          ),
-                        ] else
-                          const SliverToBoxAdapter(
-                            child: SizedBox(height: 220),
-                          ),
-                      ],
-                    ),
-                  );
-                },
+                maxSize: sheetMax,
+                merged: merged,
+                expanded: listMode,
+                resultsLabel: _mapZoom < 11
+                    ? loc.zoomToSeeProperties
+                    : loc.resultsCountLabel(_filteredProperties.length),
+                toolbar: _buildSheetToolbar(theme, loc),
+                properties: _filteredProperties,
+                onOpen: _openPropertyDetail,
               ),
 
               // ── Dark "Map" FAB (list mode) ─────────────────────────────

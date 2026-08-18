@@ -130,15 +130,26 @@ class _PropertyCardState extends State<PropertyCard> {
                       ),
                     ),
                   ),
-                  // Heart — top end, white circle
+                  // Heart — top end, white circle with soft shadow
                   PositionedDirectional(
                     top: 10,
                     end: 10,
                     child: GestureDetector(
                       onTap: () => setState(() => _liked = !_liked),
-                      child: CircleAvatar(
-                        radius: 17,
-                        backgroundColor: Colors.white,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0x33000000),
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
                         child: Icon(
                           _liked ? Icons.favorite : Icons.favorite_border,
                           size: 20,
@@ -237,9 +248,22 @@ class _PropertyCardState extends State<PropertyCard> {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: Color(0xFF4A4A4A),
                     ),
                   ),
+                  if (_agentLine.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      _agentLine,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: Color(0xFF9E9E9E),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -247,6 +271,17 @@ class _PropertyCardState extends State<PropertyCard> {
         ),
       ),
     );
+  }
+
+  /// "Company, Agent" line from real publisher data — hidden when absent.
+  String get _agentLine {
+    final publisher = widget.property.rawData['publisher'];
+    if (publisher is! Map) return '';
+    final company = publisher['company_name']?.toString().trim() ?? '';
+    final name = publisher['name']?.toString().trim() ?? '';
+    if (company.isEmpty) return name;
+    if (name.isEmpty || name == company) return company;
+    return '$company, $name';
   }
 }
 

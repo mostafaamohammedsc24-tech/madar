@@ -47,6 +47,13 @@ class AppLocalizations {
       _t(en: 'Favorites', ar: 'المفضلة', ku: 'دڵخوازەکان');
   String get navPlan => _t(en: 'Plan', ar: 'الخطة', ku: 'پلان');
   String get navInbox => _t(en: 'Inbox', ar: 'الوارد', ku: 'نامەدان');
+  String get searchHere =>
+      _t(en: 'Search here', ar: 'ابحث هنا', ku: 'لێرە بگەڕێ');
+  String get recommendedBySearch => _t(
+    en: 'Recommended based on your search area & price range',
+    ar: 'مقترحة بناءً على منطقة بحثك ونطاق السعر',
+    ku: 'پێشنیارکراوە بەپێی ناوچەی گەڕان و مەودای نرخەکەت',
+  );
   String get navDeals => _t(en: 'Deals', ar: 'الصفقات', ku: 'مامەڵەکان');
   String get navProperties =>
       _t(en: 'Properties', ar: 'الأملاك', ku: 'خانووبەرەکان');
