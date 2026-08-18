@@ -28,7 +28,7 @@ import '../features/office/presentation/screens/office_transactions_screen.dart'
 import '../features/office/presentation/shell/office_scaffold.dart';
 import '../features/office/routing/office_globals.dart';
 import '../features/office/routing/office_redirect.dart';
-import '../features/property/presentation/screens/property_report_screen.dart';
+import '../presentation/property_detail/zillow_property_detail_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
@@ -272,7 +272,7 @@ final GoRouter appRouter = GoRouter(
         final property = state.extra as Map<String, dynamic>? ?? {};
         return CustomTransitionPage(
           key: state.pageKey,
-          child: ProviderScope(child: PropertyReportScreen(property: property)),
+          child: ProviderScope(child: ZillowPropertyDetailScreen(propertyData: property)),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               SlideTransition(
                 position:
