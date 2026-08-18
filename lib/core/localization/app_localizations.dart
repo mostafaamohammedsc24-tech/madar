@@ -2038,6 +2038,33 @@ class AppLocalizations {
     ar: 'هل أنت المشتري أم البائع؟',
     ku: 'تۆ کڕیاریت یان فرۆشیار؟',
   );
+  String get barcodeRoleFromOfficeOnly => _t(
+    en: 'Your role is set by the office/agent barcode. Use the buyer or seller barcode that was sent to you.',
+    ar: 'دورك يُحدَّد من باركود المكتب/الوكيل. استخدم باركود المشتري أو البائع الذي أُرسل إليك.',
+    ku: 'ڕۆڵەکەت لە بارکۆدی ئۆفیس/بریکار دیاری دەکرێت. ئەو بارکۆدەی بۆت نێردراوە بەکاربهێنە.',
+  );
+  String get yourRoleInDeal =>
+      _t(en: 'Your role in this deal', ar: 'دورك في هذه العملية', ku: 'ڕۆڵت لەم مامەڵەیە');
+  String get identityConfirmedSuccess => _t(
+    en: 'Identity confirmed',
+    ar: 'تم تأكيد الهوية بنجاح',
+    ku: 'ناسنامە پشتڕاستکرایەوە',
+  );
+  String get tapToUploadDocument => _t(
+    en: 'Tap to upload from photos or files',
+    ar: 'انقر للرفع من الصور أو الملفات',
+    ku: 'دەست لێدە بۆ بارکردن لە وێنە/فایل',
+  );
+  String get documentUnderLawyerReview => _t(
+    en: 'Under lawyer review…',
+    ar: 'جاري التحقق من المحامي…',
+    ku: 'لە پێداچوونەوەی پارێزەردایە…',
+  );
+  String get documentApprovedByLawyer => _t(
+    en: 'Approved by lawyer',
+    ar: 'وافق عليها المحامي',
+    ku: 'لەلایەن پارێزەرەوە پەسەندکرا',
+  );
   String get roleBuyer => _t(en: 'Buyer', ar: 'المشتري', ku: 'کڕیار');
   String get roleSeller => _t(en: 'Seller', ar: 'البائع', ku: 'فرۆشیار');
   String get txCurrentStep =>
@@ -2329,9 +2356,9 @@ class AppLocalizations {
   String get officeTransactionNumber =>
       _t(en: 'Transaction', ar: 'رقم العملية', ku: 'ژمارەی مامەڵە');
   String get officeBarcodesDelivered => _t(
-    en: 'Buyer and seller barcodes were sent automatically in Madar.',
-    ar: 'تم إرسال باركود المشتري والبائع تلقائياً داخل مدار.',
-    ku: 'بارکۆدی کڕیار و فرۆشیار خۆکارانە نێردران.',
+    en: 'Buyer and seller barcodes were sent to each party’s agent chat in Madar. A copy stays with the office.',
+    ar: 'أُرسل باركود المشتري والبائع إلى محادثة الوكيل لكل طرف داخل مدار، وتبقى نسخة لدى المكتب.',
+    ku: 'بارکۆدی کڕیار و فرۆشیار نێردران بۆ چاتی بریکار، وە کۆپییەک لای ئۆفیس دەمێنێتەوە.',
   );
   String get officeBuyerBarcode =>
       _t(en: 'Buyer barcode', ar: 'باركود المشتري', ku: 'بارکۆدی کڕیار');

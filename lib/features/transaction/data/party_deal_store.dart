@@ -1,8 +1,14 @@
 import '../../../core/demo/demo_mode.dart';
+import '../domain/enums/transaction_enums.dart';
+
+enum DocReviewStatus { missing, underReview, approved }
 
 /// In-memory party progress so buyer/seller can actually act in the deal UI.
 class PartyDealProgress {
   PartyDealProgress();
+
+  /// Role assigned by the office/agent barcode — not chosen by the user.
+  PartySide? mySide;
 
   bool buyerBarcode = false;
   bool sellerBarcode = false;
@@ -30,16 +36,54 @@ class PartyDealProgress {
     'national_id',
     'proof_of_funds',
   ];
+  final Map<String, DocReviewStatus> buyerDocStatus = {};
+  final Map<String, DocReviewStatus> sellerDocStatus = {};
   final Set<String> buyerUploadedDocs = {};
   final Set<String> sellerUploadedDocs = {};
   final List<Map<String, String>> receipts = [];
   String? buyerSignature;
   String? sellerSignature;
 
+  bool get isBuyer => mySide != PartySide.seller;
+
+  bool get myIdentityDone => isBuyer ? buyerIdentity : sellerIdentity;
+
   bool get bothIdentity => buyerIdentity && sellerIdentity;
   bool get bothDocs => buyerDocs && sellerDocs;
   bool get bothContracts => buyerContractUploaded && sellerContractUploaded;
   bool get bothSigned => buyerSigned && sellerSigned;
+
+  DocReviewStatus docStatusFor(String field, {required bool asBuyer}) {
+    final map = asBuyer ? buyerDocStatus : sellerDocStatus;
+    return map[field] ?? DocReviewStatus.missing;
+  }
+
+  void markDocUnderReview(String field, {required bool asBuyer}) {
+    final map = asBuyer ? buyerDocStatus : sellerDocStatus;
+    map[field] = DocReviewStatus.underReview;
+    final uploaded = asBuyer ? buyerUploadedDocs : sellerUploadedDocs;
+    uploaded.add(field);
+  }
+
+  void markDocApproved(String field, {required bool asBuyer}) {
+    final map = asBuyer ? buyerDocStatus : sellerDocStatus;
+    map[field] = DocReviewStatus.approved;
+    final uploaded = asBuyer ? buyerUploadedDocs : sellerUploadedDocs;
+    uploaded.add(field);
+    _syncDocsFlag(asBuyer: asBuyer);
+  }
+
+  void _syncDocsFlag({required bool asBuyer}) {
+    final map = asBuyer ? buyerDocStatus : sellerDocStatus;
+    final allApproved = lawyerDocFields.every(
+      (f) => map[f] == DocReviewStatus.approved,
+    );
+    if (asBuyer) {
+      buyerDocs = allApproved;
+    } else {
+      sellerDocs = allApproved;
+    }
+  }
 
   int get currentStage {
     if (settlementClosed) return 6;
@@ -79,6 +123,10 @@ abstract final class PartyDealStore {
       p.sellerFace = true;
       p.buyerSigned = true;
       p.sellerSigned = true;
+      for (final f in p.lawyerDocFields) {
+        p.buyerDocStatus[f] = DocReviewStatus.approved;
+        p.sellerDocStatus[f] = DocReviewStatus.approved;
+      }
     }
   }
 }

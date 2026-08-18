@@ -19,6 +19,7 @@ import '../../domain/models/property_report.dart';
 import '../../domain/models/property_surroundings.dart';
 import '../../domain/models/property_translation.dart';
 import '../../../../services/property_catalog_demo.dart';
+import '../../../../presentation/messages/open_sales_chat.dart';
 import '../screens/property_compare_sheet.dart';
 import '../widgets/interactive_floor_plan_view.dart';
 import '../widgets/property_extended_sections.dart';
@@ -1440,19 +1441,26 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
   }
 
   Future<void> _contactSales() async {
-    final loc = AppLocalizations.of(context);
-    final report = _report!;
-    final userId = SupabaseService.instance.currentUser?.id ?? 'anonymous';
-    await _repo.submitSalesInquiry(
-      PropertyInquiryDraft(
-        propertyId: report.id,
-        userId: userId,
-        inquiryType: InquiryType.sales,
-        message: 'Interest in ${report.title}',
-      ),
+    final report = _report;
+    if (report == null) return;
+    await openSalesChat(
+      context,
+      propertyId: report.id,
+      title: report.title,
+      priceLine: report.pricing.currentPrice?.format(),
+      imageUrl: report.media.photos.isNotEmpty
+          ? report.media.photos.first.url
+          : null,
+      address: report.location.displayLine,
+      property: {
+        'id': report.id,
+        'title': report.title,
+        'asking_price': report.pricing.currentPrice?.amount,
+        'address': report.location.displayLine,
+        if (report.media.photos.isNotEmpty)
+          'imageUrl': report.media.photos.first.url,
+      },
     );
-    if (!mounted) return;
-    Fluttertoast.showToast(msg: loc.inquirySentToSales);
   }
 
   Future<void> _scheduleTour(PropertyReport report) async {

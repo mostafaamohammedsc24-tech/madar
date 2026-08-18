@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/currency/currency_registry.dart';
 import '../../../../core/demo/demo_mode.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../features/authentication/routing/auth_globals.dart';
+import '../../../../services/supabase_service.dart';
 import '../../data/party_deal_store.dart';
 import '../../data/repositories/transaction_repository.dart';
 import '../../domain/enums/transaction_enums.dart';
@@ -29,13 +31,13 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   final _otpCtrl = TextEditingController();
   DealTransaction? _tx;
   bool _loading = true;
-  bool _asBuyer = true;
   final List<Offset?> _signature = [];
 
   @override
   void initState() {
     super.initState();
     _tx = widget.initial;
+    _resolveSide();
     _refresh();
   }
 
@@ -57,6 +59,38 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     return progress;
   }
 
+  bool get _asBuyer => _p.isBuyer;
+
+  void _resolveSide() {
+    final p = _p;
+    if (p.mySide != null) return;
+    final tx = _tx;
+    if (tx == null) return;
+    final userId = SupabaseService.instance.currentUser?.id;
+    final role = tx.roleForUser(userId);
+    if (role == TransactionRole.buyer) {
+      p.mySide = PartySide.buyer;
+      return;
+    }
+    if (role == TransactionRole.seller) {
+      p.mySide = PartySide.seller;
+      return;
+    }
+    final phone = userAuthNotifier.state.fullPhoneNumber.replaceAll(
+      RegExp(r'\D'),
+      '',
+    );
+    if (phone.isEmpty) return;
+    final suffix = phone.length > 8 ? phone.substring(phone.length - 8) : phone;
+    final buyer = tx.buyerPhone?.replaceAll(RegExp(r'\D'), '') ?? '';
+    final seller = tx.sellerPhone?.replaceAll(RegExp(r'\D'), '') ?? '';
+    if (buyer.endsWith(suffix)) {
+      p.mySide = PartySide.buyer;
+    } else if (seller.endsWith(suffix)) {
+      p.mySide = PartySide.seller;
+    }
+  }
+
   Future<void> _refresh() async {
     setState(() => _loading = true);
     final tx = await _repo.getById(widget.transactionId);
@@ -64,6 +98,27 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     setState(() {
       _tx = tx ?? _tx;
       _loading = false;
+    });
+    _resolveSide();
+  }
+
+  Future<void> _uploadDocument(String field) async {
+    try {
+      final file = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (file == null) return;
+    } catch (_) {
+      return;
+    }
+    final asBuyer = _asBuyer;
+    setState(() {
+      _p.markDocUnderReview(field, asBuyer: asBuyer);
+    });
+    // Demo / local flow: lawyer reviews shortly after upload.
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    setState(() {
+      _p.markDocApproved(field, asBuyer: asBuyer);
+      _completeOtherIfDemo();
     });
   }
 
@@ -79,6 +134,11 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     if (_asBuyer) {
       p.sellerIdentity = p.sellerIdentity || p.buyerIdentity;
       p.sellerDocs = p.sellerDocs || p.buyerDocs;
+      for (final f in p.lawyerDocFields) {
+        if (p.buyerDocStatus[f] == DocReviewStatus.approved) {
+          p.sellerDocStatus[f] = DocReviewStatus.approved;
+        }
+      }
       p.sellerContractUploaded =
           p.sellerContractUploaded || p.buyerContractUploaded;
       p.sellerOtp = p.sellerOtp || p.buyerOtp;
@@ -87,6 +147,11 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     } else {
       p.buyerIdentity = p.buyerIdentity || p.sellerIdentity;
       p.buyerDocs = p.buyerDocs || p.sellerDocs;
+      for (final f in p.lawyerDocFields) {
+        if (p.sellerDocStatus[f] == DocReviewStatus.approved) {
+          p.buyerDocStatus[f] = DocReviewStatus.approved;
+        }
+      }
       p.buyerContractUploaded =
           p.buyerContractUploaded || p.sellerContractUploaded;
       p.buyerOtp = p.buyerOtp || p.sellerOtp;
@@ -137,22 +202,37 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                       ),
                     ],
                     const SizedBox(height: 12),
-                    SegmentedButton<bool>(
-                      segments: [
-                        ButtonSegment(
-                          value: true,
-                          label: Text(loc.iAmBuyer),
-                          icon: const Icon(Icons.person_outline),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer.withValues(
+                          alpha: 0.35,
                         ),
-                        ButtonSegment(
-                          value: false,
-                          label: Text(loc.iAmSeller),
-                          icon: const Icon(Icons.storefront_outlined),
-                        ),
-                      ],
-                      selected: {_asBuyer},
-                      onSelectionChanged: (s) =>
-                          setState(() => _asBuyer = s.first),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _asBuyer
+                                ? Icons.person_outline
+                                : Icons.storefront_outlined,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              '${loc.yourRoleInDeal}: ${_asBuyer ? loc.roleBuyer : loc.roleSeller}',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -168,30 +248,51 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                       index: 1,
                       title: loc.stepIdentity,
                       hint: loc.txIdentityHint,
-                      done: p.bothIdentity,
+                      done: p.myIdentityDone,
                       locked: false,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          FilledButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                if (_asBuyer) {
-                                  p.buyerIdentity = true;
-                                } else {
-                                  p.sellerIdentity = true;
-                                }
-                                _completeOtherIfDemo();
-                              });
-                            },
-                            icon: const Icon(Icons.verified_user_outlined),
-                            label: Text(loc.confirmIdentity),
-                          ),
-                          if (!p.bothIdentity)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(loc.waitingForOtherPartyAction),
+                          if (!p.myIdentityDone)
+                            FilledButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  if (_asBuyer) {
+                                    p.buyerIdentity = true;
+                                  } else {
+                                    p.sellerIdentity = true;
+                                  }
+                                  _completeOtherIfDemo();
+                                });
+                              },
+                              icon: const Icon(Icons.verified_user_outlined),
+                              label: Text(loc.confirmIdentity),
+                            )
+                          else ...[
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    loc.identityConfirmedSuccess,
+                                    style: TextStyle(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
+                            if (!p.bothIdentity)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(loc.waitingForOtherPartyAction),
+                              ),
+                          ],
                         ],
                       ),
                     ),
@@ -201,38 +302,19 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                       index: 2,
                       title: loc.stepDocuments,
                       hint: loc.txDocumentsHint,
-                      done: p.bothDocs,
+                      done: (_asBuyer ? p.buyerDocs : p.sellerDocs),
                       locked: !p.bothIdentity,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           for (final field in p.lawyerDocFields)
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: const Icon(Icons.description_outlined),
-                              title: Text(_docLabel(loc, field)),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.upload_file),
-                                onPressed: () async {
-                                  await _pickFile();
-                                  setState(() {
-                                    if (_asBuyer) {
-                                      p.buyerUploadedDocs.add(field);
-                                      if (p.buyerUploadedDocs.length >=
-                                          p.lawyerDocFields.length) {
-                                        p.buyerDocs = true;
-                                      }
-                                    } else {
-                                      p.sellerUploadedDocs.add(field);
-                                      if (p.sellerUploadedDocs.length >=
-                                          p.lawyerDocFields.length) {
-                                        p.sellerDocs = true;
-                                      }
-                                    }
-                                    _completeOtherIfDemo();
-                                  });
-                                },
-                              ),
+                            _DocumentUploadTile(
+                              label: _docLabel(loc, field),
+                              status: p.docStatusFor(field, asBuyer: _asBuyer),
+                              underReviewLabel: loc.documentUnderLawyerReview,
+                              approvedLabel: loc.documentApprovedByLawyer,
+                              tapToUploadLabel: loc.tapToUploadDocument,
+                              onUpload: () => _uploadDocument(field),
                             ),
                           TextButton.icon(
                             onPressed: () {
@@ -582,27 +664,33 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 CircleAvatar(
                   radius: 14,
                   backgroundColor: done
-                      ? theme.colorScheme.primary
+                      ? const Color(0xFF2E7D32)
                       : theme.colorScheme.surfaceContainerHighest,
                   foregroundColor: done
                       ? Colors.white
                       : theme.colorScheme.onSurface,
-                  child: Text(
-                    '$index',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12,
-                    ),
-                  ),
+                  child: done
+                      ? const Icon(Icons.check, size: 16)
+                      : Text(
+                          '$index',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 12,
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: done ? const Color(0xFF2E7D32) : null,
+                    ),
                   ),
                 ),
-                if (done) Icon(Icons.check_circle, color: theme.colorScheme.primary),
+                if (done)
+                  const Icon(Icons.check_circle, color: Color(0xFF2E7D32)),
               ],
             ),
             const SizedBox(height: 8),
@@ -617,6 +705,66 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
               child,
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DocumentUploadTile extends StatelessWidget {
+  const _DocumentUploadTile({
+    required this.label,
+    required this.status,
+    required this.underReviewLabel,
+    required this.approvedLabel,
+    required this.tapToUploadLabel,
+    required this.onUpload,
+  });
+
+  final String label;
+  final DocReviewStatus status;
+  final String underReviewLabel;
+  final String approvedLabel;
+  final String tapToUploadLabel;
+  final VoidCallback onUpload;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final canUpload = status == DocReviewStatus.missing;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      child: ListTile(
+        onTap: canUpload ? onUpload : null,
+        leading: Icon(
+          status == DocReviewStatus.approved
+              ? Icons.check_circle
+              : status == DocReviewStatus.underReview
+                  ? Icons.hourglass_top_rounded
+                  : Icons.badge_outlined,
+          color: status == DocReviewStatus.approved
+              ? theme.colorScheme.primary
+              : theme.colorScheme.onSurfaceVariant,
+        ),
+        title: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Text(
+          switch (status) {
+            DocReviewStatus.missing => tapToUploadLabel,
+            DocReviewStatus.underReview => underReviewLabel,
+            DocReviewStatus.approved => approvedLabel,
+          },
+        ),
+        trailing: status == DocReviewStatus.underReview
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : status == DocReviewStatus.approved
+                ? Icon(Icons.verified, color: theme.colorScheme.primary)
+                : const Icon(Icons.upload_file),
       ),
     );
   }

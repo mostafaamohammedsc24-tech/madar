@@ -245,15 +245,30 @@ abstract final class AppDemoSeed {
 
   static Map<String, dynamic>? demoBarcode(String code) {
     final normalized = code.trim().toUpperCase();
+    String? forcedRole;
+    var lookup = normalized;
+    if (normalized.startsWith('BUY-')) {
+      forcedRole = 'buyer';
+      lookup = normalized.substring(4);
+    } else if (normalized.startsWith('SEL-') || normalized.startsWith('SELL-')) {
+      forcedRole = 'seller';
+      lookup = normalized.startsWith('SELL-')
+          ? normalized.substring(5)
+          : normalized.substring(4);
+    }
+
     for (final tx in userTransactions()) {
       final bc = (tx['barcode_code'] ?? tx['transaction_number'])
           .toString()
           .toUpperCase();
-      if (bc == normalized) {
+      if (bc == normalized || bc == lookup || 'BUY-$bc' == normalized || 'SEL-$bc' == normalized) {
         return {
-          'id': 'barcode-${tx['id']}',
-          'barcode_code': bc,
+          'id': 'barcode-${tx['id']}-${forcedRole ?? 'party'}',
+          'barcode_code': normalized,
+          'participant_role': forcedRole,
           'transaction_id': tx['id'],
+          'buyer_phone': tx['buyer_phone'],
+          'seller_phone': tx['seller_phone'],
           'transactions': tx,
           'buyer_redeemed_at': tx['buyer_barcode_uploaded'] == true
               ? DateTime.now().toIso8601String()

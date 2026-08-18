@@ -1,6 +1,8 @@
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../features/property/presentation/navigation/open_property_report.dart';
+import '../../../presentation/messages/open_sales_chat.dart';
+import '../../../routes/app_routes.dart';
 import '../../../services/supabase_service.dart';
 import '../search_map_screen.dart';
 import 'property_card_copy.dart';
@@ -83,8 +85,30 @@ class _PropertyDetailSheetWidgetState extends State<PropertyDetailSheetWidget> {
   }
 
   void _contactSales() {
-    Navigator.pop(context);
-    context.push('/messages');
+    final loc = AppLocalizations.of(context);
+    final property = widget.property;
+    final payload = property.toDetailMap();
+    final title = PropertyCardCopy.title(context, property);
+    final price = PropertyCardCopy.price(context, property);
+    final address = property.localizedAddress(loc.language);
+    final imageUrl = property.imageUrl;
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final navContext = appRouter.routerDelegate.navigatorKey.currentContext;
+      if (navContext == null || !navContext.mounted) return;
+      openSalesChat(
+        navContext,
+        property: payload,
+        propertyId: property.id,
+        title: title,
+        priceLine: price,
+        imageUrl: imageUrl,
+        address: address,
+      );
+    });
   }
 
   @override

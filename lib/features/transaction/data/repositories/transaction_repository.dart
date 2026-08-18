@@ -276,17 +276,37 @@ class TransactionRepository {
     }
   }
 
-  /// Infer party side from phone match / existing linkage when possible.
+  /// Infer party side from the office/agent barcode — never from user choice.
+  /// Prefers `participant_role`, then BUY-/SEL- code prefix, then linked user/phone.
   PartySide? inferPartySide({
     required Map<String, dynamic> barcodeRow,
     required String userId,
     String? userPhone,
   }) {
+    final roleRaw = barcodeRow['participant_role']?.toString().toLowerCase().trim();
+    if (roleRaw == 'buyer') return PartySide.buyer;
+    if (roleRaw == 'seller') return PartySide.seller;
+
+    final code = (barcodeRow['barcode_code'] ?? barcodeRow['code'] ?? '')
+        .toString()
+        .toUpperCase()
+        .trim();
+    if (code.startsWith('BUY-') || code.startsWith('BUY_')) {
+      return PartySide.buyer;
+    }
+    if (code.startsWith('SEL-') ||
+        code.startsWith('SELL-') ||
+        code.startsWith('SEL_')) {
+      return PartySide.seller;
+    }
+
     final tx = barcodeRow['transactions'];
     if (tx is! Map) return null;
     final map = Map<String, dynamic>.from(tx);
-    if (map['buyer_user_id']?.toString() == userId) return PartySide.buyer;
-    if (map['seller_user_id']?.toString() == userId) return PartySide.seller;
+    if (userId.isNotEmpty) {
+      if (map['buyer_user_id']?.toString() == userId) return PartySide.buyer;
+      if (map['seller_user_id']?.toString() == userId) return PartySide.seller;
+    }
 
     final buyerPhone = map['buyer_phone'] as String? ??
         barcodeRow['buyer_phone'] as String?;
@@ -294,20 +314,15 @@ class TransactionRepository {
         barcodeRow['seller_phone'] as String?;
     if (userPhone != null && userPhone.isNotEmpty) {
       final normalized = userPhone.replaceAll(RegExp(r'\D'), '');
+      final suffix = normalized.length > 8
+          ? normalized.substring(normalized.length - 8)
+          : normalized;
       if (buyerPhone != null &&
-          buyerPhone.replaceAll(RegExp(r'\D'), '').endsWith(
-                normalized.length > 8
-                    ? normalized.substring(normalized.length - 8)
-                    : normalized,
-              )) {
+          buyerPhone.replaceAll(RegExp(r'\D'), '').endsWith(suffix)) {
         return PartySide.buyer;
       }
       if (sellerPhone != null &&
-          sellerPhone.replaceAll(RegExp(r'\D'), '').endsWith(
-                normalized.length > 8
-                    ? normalized.substring(normalized.length - 8)
-                    : normalized,
-              )) {
+          sellerPhone.replaceAll(RegExp(r'\D'), '').endsWith(suffix)) {
         return PartySide.seller;
       }
     }

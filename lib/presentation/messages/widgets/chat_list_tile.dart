@@ -86,6 +86,7 @@ class ChatListTile extends StatelessWidget {
       ChatMessageType.location => loc.locationLabel,
       ChatMessageType.voice => loc.voiceNote,
       ChatMessageType.barcode => loc.sendBarcode,
+      ChatMessageType.propertyCard => loc.contactSalesShort,
       ChatMessageType.text => last.content.replaceAll('**', ''),
     };
   }
