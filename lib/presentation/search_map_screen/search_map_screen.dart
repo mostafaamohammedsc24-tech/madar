@@ -1006,10 +1006,17 @@ class _SearchMapScreenState extends State<SearchMapScreen>
           final bodyH = constraints.maxHeight;
           final topPad = MediaQuery.paddingOf(context).top;
           final searchBand = topPad + 66.0;
-          final sheetMax = ((bodyH - searchBand) / bodyH).clamp(0.5, 0.85);
+          // Full-screen takeover: the sheet rises until it meets the pinned
+          // search band, so together they read as one white page.
+          final sheetMax = ((bodyH - searchBand) / bodyH).clamp(0.5, 0.97);
           final merged = _sheetExtent >= sheetMax - 0.03;
           final listMode = _sheetExtent > 0.45;
           final sheetTopPx = bodyH * _sheetExtent;
+          // Map fade while the sheet is being pulled up.
+          final mapFade = _sheetExtent <= 0.45
+              ? 0.0
+              : (((_sheetExtent - 0.45) / (sheetMax - 0.45)) * 0.55)
+                  .clamp(0.0, 0.55);
 
           return Stack(
             children: [
@@ -1033,6 +1040,17 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                 onBackgroundTap: _closePreview,
                 onBoundsChanged: _onMapBoundsChanged,
               ),
+
+              // ── Map fade while the sheet takes over ────────────────────
+              if (mapFade > 0)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Opacity(
+                      opacity: mapFade,
+                      child: const ColoredBox(color: Color(0xFFF5F5F5)),
+                    ),
+                  ),
+                ),
 
               // ── Active area banner ─────────────────────────────────────
               if (_activeAreaLabel != null)

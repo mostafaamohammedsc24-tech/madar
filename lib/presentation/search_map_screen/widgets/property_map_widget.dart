@@ -126,9 +126,10 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
     double markerSize, {
     bool selected = false,
     bool isNew = false,
+    bool starred = false,
   }) async {
     final cacheKey =
-        'dot_${markerSize.toInt()}_${selected ? 's' : 'n'}_${isNew ? 'new' : 'std'}';
+        'dot_${markerSize.toInt()}_${selected ? 's' : 'n'}_${isNew ? 'new' : 'std'}_${starred ? 'star' : 'plain'}';
     if (_markerCache.containsKey(cacheKey)) {
       return _markerCache[cacheKey]!;
     }
@@ -185,6 +186,27 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
       canvas.drawCircle(center.translate(0, 2), radius, shadowPaint);
       canvas.drawCircle(center, radius + 2, Paint()..color = Colors.white);
       canvas.drawCircle(center, radius, Paint()..color = fill);
+
+      if (starred) {
+        final starPainter = TextPainter(
+          text: TextSpan(
+            text: String.fromCharCode(Icons.star.codePoint),
+            style: TextStyle(
+              fontSize: radius * 1.2,
+              fontFamily: Icons.star.fontFamily,
+              color: Colors.white,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        starPainter.paint(
+          canvas,
+          Offset(
+            center.dx - starPainter.width / 2,
+            center.dy - starPainter.height / 2,
+          ),
+        );
+      }
     }
 
     final picture = recorder.endRecording();
@@ -272,6 +294,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
         size,
         selected: selected,
         isNew: _isNewListing(p),
+        starred: p.isFeatured,
       );
       return Marker(
         markerId: MarkerId(p.id),
@@ -554,7 +577,7 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
           style: _cleanMapStyle,
           markers: widget.isDrawingMode ? {} : _markers,
           polygons: _composedPolygons(),
-          polylines: _polylines,
+          polylines: _composedPolylines(),
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
           compassEnabled: false,
@@ -623,9 +646,26 @@ class PropertyMapWidgetState extends State<PropertyMapWidget> {
       Polygon(
         polygonId: const PolygonId('area_boundary'),
         points: area,
-        strokeColor: const Color(0xFF1565C0),
-        strokeWidth: 2,
-        fillColor: const Color(0xFF1565C0).withAlpha(18),
+        strokeWidth: 0,
+        strokeColor: Colors.transparent,
+        fillColor: const Color(0xFF1565C0).withAlpha(16),
+      ),
+    };
+  }
+
+  /// Dotted blue boundary around the searched area (dash pattern where the
+  /// platform supports it; web falls back to a solid stroke).
+  Set<Polyline> _composedPolylines() {
+    final area = widget.areaPolygon;
+    if (area == null || area.length < 3) return _polylines;
+    return {
+      ..._polylines,
+      Polyline(
+        polylineId: const PolylineId('area_boundary_line'),
+        points: [...area, area.first],
+        color: const Color(0xFF1565C0),
+        width: 3,
+        patterns: [PatternItem.dash(18), PatternItem.gap(10)],
       ),
     };
   }
