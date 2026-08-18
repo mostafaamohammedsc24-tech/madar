@@ -308,29 +308,32 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
                   Positioned(
                     bottom: 16,
                     left: 16,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.view_in_ar, color: Colors.white, size: 14),
-                          SizedBox(width: 4),
-                          Text(
-                            '3D Tour',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                    child: GestureDetector(
+                      onTap: _open3DTourViewer,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.view_in_ar, color: Colors.white, size: 14),
+                            SizedBox(width: 4),
+                            Text(
+                              '3D Tour',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -361,21 +364,27 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildPriceSection(theme, loc),
-                _buildMadarEstimate(theme, loc),
-                _buildTabBar(theme, loc),
-                _buildTabContent(theme, loc),
-                _buildActionButtons(theme, loc),
-                const SizedBox(height: 100),
-              ],
-            ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              _buildPriceSection(theme, loc),
+              _buildMadarEstimate(theme, loc),
+              _buildTabBar(theme, loc),
+              _buildTabContent(theme, loc),
+              _buildOfferInsightsCard(theme),
+              _buildMarketValueCard(theme),
+              _buildPriceTaxHistoryCard(theme),
+              _buildClimateRisksCard(theme),
+              _buildTravelTimesCard(theme),
+              _buildNeighborhoodCard(theme),
+              _buildNearbySchoolsCard(theme),
+              _buildHomesForYouCard(theme),
+              _buildContactAgentFormCard(theme),
+              const SizedBox(height: 110), // Bottom padding to prevent overlap with sticky bottom bar
+            ]),
           ),
         ],
       ),
+      bottomNavigationBar: _buildStickyBottomBar(theme, loc),
     );
   }
 
@@ -1628,36 +1637,720 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
     );
   }
 
-  Widget _buildActionButtons(ThemeData theme, AppLocalizations loc) {
+  Widget _buildStickyBottomBar(ThemeData theme, AppLocalizations loc) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        MediaQuery.of(context).padding.bottom + 12,
+      ),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 10,
+            offset: const Offset(0, -3),
+          ),
+        ],
+        border: Border(
+          top: BorderSide(color: theme.colorScheme.outline.withAlpha(40)),
+        ),
+      ),
       child: Row(
         children: [
           Expanded(
-            child: ElevatedButton.icon(
+            child: OutlinedButton(
               onPressed: () {},
-              icon: const Icon(Icons.calendar_today, size: 18),
-              label: Text(loc.scheduleTour),
-              style: ElevatedButton.styleFrom(
+              style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                side: const BorderSide(color: AppTheme.primary, width: 1.5),
+              ),
+              child: const Text(
+                'Contact agent',
+                style: TextStyle(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
                 ),
               ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: OutlinedButton.icon(
+            child: ElevatedButton(
               onPressed: () {},
-              icon: const Icon(Icons.chat_bubble_outline, size: 18),
-              label: Text(loc.contactSales),
-              style: OutlinedButton.styleFrom(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                side: const BorderSide(color: AppTheme.primary),
+              ),
+              child: const Text(
+                'Request a tour',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _open3DTourViewer() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black,
+      transitionDuration: const Duration(milliseconds: 250),
+      pageBuilder: (context, anim1, anim2) {
+        return const _TourViewerModal();
+      },
+    );
+  }
+
+  Widget _buildOfferInsightsCard(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(theme, 'Offer Insights'),
+          const SizedBox(height: 8),
+          Text(
+            'High demand area. Offers on similar homes usually sell within 12 days.',
+            style: theme.textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMarketValueCard(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(theme, 'Market Value'),
+          const SizedBox(height: 8),
+          Text(
+            'Estimated market value: \$${_formatNumber(_propertyPrice.toInt())}',
+            style: theme.textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriceTaxHistoryCard(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(theme, 'Price & tax history'),
+          const SizedBox(height: 8),
+          Text(
+            '2025 Property tax estimated at 1% per annum.',
+            style: theme.textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClimateRisksCard(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(theme, 'Climate risks.'),
+          const SizedBox(height: 8),
+          RichText(
+            text: TextSpan(
+              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black87),
+              children: const [
+                TextSpan(
+                  text:
+                      'Explore flood, wildfire, and other predictive climate risk information for this property on ',
+                ),
+                TextSpan(
+                  text: 'First Street®',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: '.'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Flood zone.',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'In FEMA Zone X (unshaded), a minimal-risk flood area.',
+            style: TextStyle(
+              fontSize: 15,
+              color: Color(0xFF555555),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTravelTimesCard(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildSectionHeader(theme, 'Travel times.'),
+              const Text(
+                'INRIX',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  letterSpacing: 1.1,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F2F2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const TextField(
+              decoration: InputDecoration(
+                icon: Icon(Icons.directions_car_outlined, color: Colors.grey),
+                hintText: 'Add a destination',
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNeighborhoodCard(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(theme, 'Neighborhood: Summerwood.'),
+          const SizedBox(height: 12),
+          Container(
+            height: 180,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Container(
+                    color: const Color(0xFFE8ECEF),
+                    child: CustomPaint(
+                      painter: _MiniMapPainter(),
+                    ),
+                  ),
+                ),
+                const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.home,
+                        color: Colors.blue,
+                        size: 32,
+                      ),
+                      SizedBox(height: 2),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          'Summerwood',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () {},
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              'Show more',
+              style: TextStyle(
+                color: Colors.blue,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildNearbySchoolsCard(ThemeData theme) {
+    final schools = [
+      {
+        'name': 'Granby Elementary School',
+        'sub': 'Grades K-5 • 0.8 miles',
+        'test': 'Test score 6/10',
+        'progress': 'Student progress 3/10',
+        'rating': '5/10',
+      },
+      {
+        'name': 'McCord Middle School',
+        'sub': 'Grades 6-8 • 1.4 miles',
+        'test': 'Test score 8/10',
+        'progress': 'Student progress 6/10',
+        'rating': '7/10',
+      },
+      {
+        'name': 'Worthington Kilbourne High School',
+        'sub': 'Grades 9-12 • 2.1 miles',
+        'test': 'Test score 9/10',
+        'progress': 'Student progress 7/10',
+        'rating': '8/10',
+      },
+    ];
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(theme, 'Nearby Schools.'),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Icon(Icons.info_outline, size: 14, color: Colors.grey),
+              const SizedBox(width: 4),
+              const Text(
+                'Source: GreatSchools®',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...schools.map((school) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          school['name']!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          school['sub']!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${school['test']} • ${school['progress']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF444444),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: const Color(0xFF2C7A5D),
+                    child: Text(
+                      school['rating']!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomesForYouCard(ThemeData theme) {
+    final recommendedHomes = [
+      {
+        'image':
+            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500',
+        'price': '\$349,000',
+        'details': '3 bd | 2.5 ba | 1,465 sqft',
+        'address': '1449 Tall Pine Ct, Columbus...',
+      },
+      {
+        'image':
+            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500',
+        'price': '\$412,500',
+        'details': '4 bd | 3 ba | 2,100 sqft',
+        'address': '7822 Summerwood Dr, Columbus...',
+      },
+      {
+        'image':
+            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500',
+        'price': '\$285,000',
+        'details': '2 bd | 2 ba | 1,120 sqft',
+        'address': '501 Oak Ave, Columbus...',
+      },
+    ];
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(theme, 'Homes for you.'),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 240,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: recommendedHomes.length,
+              itemBuilder: (context, index) {
+                final home = recommendedHomes[index];
+                return Container(
+                  width: 220,
+                  margin: const EdgeInsets.only(right: 14),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: theme.colorScheme.outline.withAlpha(40),
+                    ),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl: home['image']!,
+                            height: 120,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'For sale',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.white70,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.favorite_border,
+                                size: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 6,
+                            right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade900,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: const Text(
+                                'MLS',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              home['price']!,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              home['details']!,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              home['address']!,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade900,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: const Text(
+                  'MLS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Columbus and Central Ohio Regional MLS Rasmus Real Estate Group, Inc...',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'IDX information is provided exclusively for personal, non-commercial use and may not be used for any purpose other than to identify prospective properties consumers may be interested in purchasing.',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactAgentFormCard(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(theme, 'Contact Agent Form'),
+          const SizedBox(height: 12),
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Name',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Phone',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const TextField(
+            decoration: InputDecoration(
+              labelText: 'Email',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const TextField(
+            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: 'Message',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: const Text(
+                'Contact Agent',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -1686,6 +2379,462 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen>
     }
     return n.toString();
   }
+}
+
+class _TourViewerModal extends StatefulWidget {
+  const _TourViewerModal();
+
+  @override
+  State<_TourViewerModal> createState() => _TourViewerModalState();
+}
+
+class _TourViewerModalState extends State<_TourViewerModal> {
+  bool _isFloorPlanView = false;
+  int _selectedFloor = 1; // 1 or 2
+  int _current3DStep = 0; // 0: Entrance, 1: Living room
+  bool _isFavorited = false;
+
+  final List<String> _3dImages = [
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200',
+    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200',
+    'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200',
+  ];
+
+  final List<String> _3dLabels = ['Entrance', 'Living room', 'Kitchen'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Top Bar
+            Container(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              color: Colors.black,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.close, color: Colors.blue, size: 28),
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.image_outlined, color: Colors.white, size: 22),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.crop_free, color: Colors.white, size: 22),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isFloorPlanView = !_isFloorPlanView;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            border: _isFloorPlanView
+                                ? const Border(bottom: BorderSide(color: Colors.blue, width: 2))
+                                : null,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.map_outlined,
+                                color: _isFloorPlanView ? Colors.blue : Colors.white,
+                                size: 22,
+                              ),
+                              if (_isFloorPlanView) ...[
+                                const SizedBox(width: 4),
+                                const Text(
+                                  'Floor plan',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isFavorited = !_isFavorited;
+                          });
+                        },
+                        icon: Icon(
+                          _isFavorited ? Icons.favorite : Icons.favorite_border,
+                          color: _isFavorited ? Colors.red : Colors.white,
+                          size: 22,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Main Content Area
+            Expanded(
+              child: _isFloorPlanView
+                  ? _buildFloorPlanContent()
+                  : _build3DWalkthroughContent(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _build3DWalkthroughContent() {
+    return Stack(
+      children: [
+        InteractiveViewer(
+          minScale: 0.8,
+          maxScale: 3.5,
+          child: SizedBox.expand(
+            child: CachedNetworkImage(
+              imageUrl: _3dImages[_current3DStep],
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        // Floating pill top-center over image
+        Positioned(
+          top: 20,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha(200),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _3dLabels[_current3DStep],
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Bottom interaction layer
+        Positioned(
+          bottom: 30,
+          left: 0,
+          right: 0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Living room button / nav arrow
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _current3DStep = (_current3DStep + 1) % _3dImages.length;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.black45,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _3dLabels[(_current3DStep + 1) % _3dLabels.length],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.white38,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_upward,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Step progress dots
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  _3dImages.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: index == _current3DStep ? 12 : 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: index == _current3DStep
+                          ? Colors.white
+                          : Colors.white38,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFloorPlanContent() {
+    return Column(
+      children: [
+        // Floor Toggle
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          color: const Color(0xFF1E1E1E),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildFloorButton(1, 'Floor 1'),
+              const SizedBox(width: 16),
+              _buildFloorButton(2, 'Floor 2'),
+            ],
+          ),
+        ),
+        // Floor Plan Interactive Map
+        Expanded(
+          child: InteractiveViewer(
+            minScale: 0.8,
+            maxScale: 4.0,
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: AspectRatio(
+                  aspectRatio: 1.2,
+                  child: CustomPaint(
+                    painter: _FloorPlanPainter(floor: _selectedFloor),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFloorButton(int floor, String label) {
+    final isSelected = _selectedFloor == floor;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedFloor = floor),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.white54,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.white70,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FloorPlanPainter extends CustomPainter {
+  final int floor;
+  _FloorPlanPainter({required this.floor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final wallPaint = Paint()
+      ..color = const Color(0xFF0F4C81) // Thick blue walls
+      ..strokeWidth = 6
+      ..style = PaintingStyle.stroke;
+
+    final fillPaint = Paint()
+      ..color = const Color(0xFFF8FAFC)
+      ..style = PaintingStyle.fill;
+
+    final dotPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill;
+
+    // Background room fills and walls
+    if (floor == 1) {
+      // Living Room
+      final rect1 = Rect.fromLTWH(10, 10, size.width * 0.55, size.height * 0.45);
+      canvas.drawRect(rect1, fillPaint);
+      canvas.drawRect(rect1, wallPaint);
+      _drawText(canvas, 'Living Room\n14\'2" x 16\'8"', rect1.center);
+
+      // Dining Room
+      final rect2 = Rect.fromLTWH(size.width * 0.55, 10, size.width * 0.4, size.height * 0.45);
+      canvas.drawRect(rect2, fillPaint);
+      canvas.drawRect(rect2, wallPaint);
+      _drawText(canvas, 'Dining Room\n9\'5" x 10\'6"', rect2.center);
+
+      // Kitchen
+      final rect3 = Rect.fromLTWH(10, size.height * 0.45, size.width * 0.5, size.height * 0.5);
+      canvas.drawRect(rect3, fillPaint);
+      canvas.drawRect(rect3, wallPaint);
+      _drawText(canvas, 'Kitchen\n11\'0" x 12\'4"', rect3.center);
+
+      // Garage
+      final rect4 = Rect.fromLTWH(size.width * 0.5, size.height * 0.45, size.width * 0.45, size.height * 0.5);
+      canvas.drawRect(rect4, fillPaint);
+      canvas.drawRect(rect4, wallPaint);
+      _drawText(canvas, 'Garage\n18\'0" x 20\'0"', rect4.center);
+
+      // Interactive Blue Dots
+      canvas.drawCircle(rect1.center + const Offset(15, 15), 6, dotPaint);
+      canvas.drawCircle(rect3.center + const Offset(-10, 10), 6, dotPaint);
+    } else {
+      // Primary Bedroom
+      final rect1 = Rect.fromLTWH(10, 10, size.width * 0.6, size.height * 0.5);
+      canvas.drawRect(rect1, fillPaint);
+      canvas.drawRect(rect1, wallPaint);
+      _drawText(canvas, 'Primary Bedroom\n15\'0" x 14\'2"', rect1.center);
+
+      // Bathroom
+      final rect2 = Rect.fromLTWH(size.width * 0.6, 10, size.width * 0.35, size.height * 0.3);
+      canvas.drawRect(rect2, fillPaint);
+      canvas.drawRect(rect2, wallPaint);
+      _drawText(canvas, 'Bathroom', rect2.center);
+
+      // Laundry Room
+      final rect3 = Rect.fromLTWH(size.width * 0.6, size.height * 0.3, size.width * 0.35, size.height * 0.2);
+      canvas.drawRect(rect3, fillPaint);
+      canvas.drawRect(rect3, wallPaint);
+      _drawText(canvas, 'Laundry', rect3.center);
+
+      // Bedroom 2
+      final rect4 = Rect.fromLTWH(10, size.height * 0.5, size.width * 0.45, size.height * 0.45);
+      canvas.drawRect(rect4, fillPaint);
+      canvas.drawRect(rect4, wallPaint);
+      _drawText(canvas, 'Bedroom 2\n11\'2" x 10\'8"', rect4.center);
+
+      // Bedroom 3
+      final rect5 = Rect.fromLTWH(size.width * 0.45, size.height * 0.5, size.width * 0.5, size.height * 0.45);
+      canvas.drawRect(rect5, fillPaint);
+      canvas.drawRect(rect5, wallPaint);
+      _drawText(canvas, 'Bedroom 3\n10\'5" x 11\'0"', rect5.center);
+
+      // Interactive Blue Dots
+      canvas.drawCircle(rect1.center + const Offset(0, 10), 6, dotPaint);
+      canvas.drawCircle(rect4.center, 6, dotPaint);
+    }
+  }
+
+  void _drawText(Canvas canvas, String text, Offset position) {
+    final textSpan = TextSpan(
+      text: text,
+      style: const TextStyle(
+        color: Color(0xFF0F4C81),
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(position.dx - textPainter.width / 2, position.dy - textPainter.height / 2),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _FloorPlanPainter oldDelegate) => oldDelegate.floor != floor;
+}
+
+class _MiniMapPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bgPaint = Paint()..color = const Color(0xFFE8ECEF);
+    canvas.drawRect(Offset.zero & size, bgPaint);
+
+    final highwayPaint = Paint()
+      ..color = const Color(0xFFF9D8A7)
+      ..strokeWidth = 10
+      ..style = PaintingStyle.stroke;
+
+    final roadPaint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 5
+      ..style = PaintingStyle.stroke;
+
+    // Highway 270
+    final hPath = Path()
+      ..moveTo(0, size.height * 0.3)
+      ..cubicTo(size.width * 0.3, size.height * 0.25, size.width * 0.7, size.height * 0.45, size.width, size.height * 0.4);
+    canvas.drawPath(hPath, highwayPaint);
+
+    // Other roads
+    final rPath1 = Path()
+      ..moveTo(size.width * 0.5, 0)
+      ..lineTo(size.width * 0.5, size.height);
+    canvas.drawPath(rPath1, roadPaint);
+
+    final rPath2 = Path()
+      ..moveTo(0, size.height * 0.7)
+      ..lineTo(size.width, size.height * 0.7);
+    canvas.drawPath(rPath2, roadPaint);
+
+    // Highway 270 Label
+    const textStyle = TextStyle(
+      color: Color(0xFF8C6430),
+      fontSize: 10,
+      fontWeight: FontWeight.bold,
+    );
+    const textSpan = TextSpan(text: 'Hwy 270', style: textStyle);
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(size.width * 0.2, size.height * 0.22));
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
 }
 
 class _PriceChartPainter extends CustomPainter {
