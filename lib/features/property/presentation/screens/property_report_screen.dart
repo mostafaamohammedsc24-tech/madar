@@ -91,23 +91,33 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
 
   Future<void> _bootstrap() async {
     PropertyReport? report;
+
+    // Paint immediately from the sheet payload so navigation never hangs on
+    // network / mapper edge-cases.
     try {
-      final id = widget.property['id']?.toString();
-      if (id != null && id.isNotEmpty) {
-        report = await _repo.loadById(id, seed: widget.property);
-      } else if (widget.property.isNotEmpty) {
+      if (widget.property.isNotEmpty) {
         report = _repo.fromMap(widget.property);
       }
     } catch (e, st) {
-      debugPrint('PropertyReportScreen bootstrap failed: $e\n$st');
-      try {
-        if (widget.property.isNotEmpty) {
-          report = _repo.fromMap(widget.property);
-        }
-      } catch (_) {
-        report = null;
-      }
+      debugPrint('PropertyReport seed map failed: $e\n$st');
     }
+
+    if (!mounted) return;
+    setState(() {
+      _report = report;
+      _loading = report == null;
+    });
+
+    try {
+      final id = widget.property['id']?.toString();
+      if (id != null && id.isNotEmpty) {
+        final loaded = await _repo.loadById(id, seed: widget.property);
+        if (loaded != null) report = loaded;
+      }
+    } catch (e, st) {
+      debugPrint('PropertyReportScreen bootstrap failed: $e\n$st');
+    }
+
     if (!mounted) return;
     setState(() {
       _report = report;

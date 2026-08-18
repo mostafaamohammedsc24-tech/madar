@@ -28,6 +28,16 @@ class SupabaseService {
     await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   }
 
+  bool get isReady {
+    try {
+      // ignore: unnecessary_statements
+      Supabase.instance.client;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   SupabaseClient get client => Supabase.instance.client;
   User? get currentUser => client.auth.currentUser;
   bool get isAuthenticated => currentUser != null;
@@ -341,6 +351,7 @@ class SupabaseService {
   }
 
   Future<Map<String, dynamic>?> getPropertyById(String id) async {
+    if (!isReady) return AppDemoSeed.propertyById(id);
     try {
       final response = await client
           .from('properties_v3')

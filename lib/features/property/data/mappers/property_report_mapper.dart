@@ -298,6 +298,11 @@ class PropertyReportMapper {
     return null;
   }
 
+  List<dynamic>? _asList(dynamic v) {
+    if (v is List) return v;
+    return null;
+  }
+
   String? _asString(dynamic v) {
     if (v == null) return null;
     if (v is String) {
@@ -332,9 +337,9 @@ class PropertyReportMapper {
   }
 
   PropertyMediaGallery _mapMedia(Map<String, dynamic> d) {
-    final list = d['property_media_v3'] as List? ?? d['media'] as List?;
+    final list = _asList(d['property_media_v3']) ?? _asList(d['media']);
     if (list == null || list.isEmpty) {
-      final fallback = d['imageUrl'] as String?;
+      final fallback = _asString(d['imageUrl']) ?? _asString(d['image_url']);
       if (fallback != null && fallback.isNotEmpty) {
         return PropertyMediaGallery(
           items: [
@@ -355,24 +360,24 @@ class PropertyReportMapper {
       final m = list[i];
       if (m is! Map) continue;
       final map = Map<String, dynamic>.from(m);
-      final url = map['media_url'] as String? ?? map['url'] as String? ?? '';
+      final url = _asString(map['media_url']) ?? _asString(map['url']) ?? '';
       if (url.isEmpty) continue;
       items.add(
         PropertyMediaItem(
           id: map['id']?.toString() ?? 'media_$i',
           url: url,
           kind: MediaKind.fromString(
-            map['media_type'] as String? ?? map['kind'] as String?,
+            _asString(map['media_type']) ?? _asString(map['kind']),
           ),
           category: MediaCategory.fromString(
-            map['category'] as String? ?? map['room_type'] as String?,
+            _asString(map['category']) ?? _asString(map['room_type']),
           ),
-          caption: map['caption'] as String?,
-          sortOrder: (map['sort_order'] as num?)?.toInt() ?? i,
-          thumbnailUrl: map['thumbnail_url'] as String?,
-          externalProvider: map['external_provider'] as String?,
-          externalId: map['external_id'] as String?,
-          roomKey: map['room_key'] as String?,
+          caption: _asString(map['caption']),
+          sortOrder: _asDouble(map['sort_order'])?.toInt() ?? i,
+          thumbnailUrl: _asString(map['thumbnail_url']),
+          externalProvider: _asString(map['external_provider']),
+          externalId: _asString(map['external_id']),
+          roomKey: _asString(map['room_key']),
         ),
       );
     }
@@ -381,12 +386,14 @@ class PropertyReportMapper {
   }
 
   List<String> _mapAmenityTags(Map<String, dynamic> d) {
-    final features = d['property_features_v3'] as List?;
+    final features = _asList(d['property_features_v3']);
     if (features == null) return const [];
     return features
         .map((f) {
-          if (f is Map) return f['feature_name'] as String? ?? '';
-          return '';
+          if (f is Map) {
+            return _asString(f['feature_name']) ?? _asString(f['name']) ?? '';
+          }
+          return f?.toString() ?? '';
         })
         .where((s) => s.isNotEmpty)
         .toList();
@@ -397,24 +404,24 @@ class PropertyReportMapper {
     Map<String, dynamic> d,
   ) {
     if (json != null) {
-      final highlights = (json['highlights'] as List?)
+      final highlights = _asList(json['highlights'])
               ?.map((e) => e.toString())
               .toList() ??
           const <String>[];
-      final notes = (json['investment_notes'] as List?)
+      final notes = _asList(json['investment_notes'])
               ?.map((e) => e.toString())
               .toList() ??
           const <String>[];
       final content = WhatsSpecialContent(
-        headline: json['headline'] as String?,
-        body: json['body'] as String? ?? json['text'] as String?,
+        headline: _asString(json['headline']),
+        body: _asString(json['body']) ?? _asString(json['text']),
         highlights: highlights,
         investmentNotes: notes,
       );
       if (content.hasContent) return content;
     }
     // Fall back to first amenity tags as soft highlights only if description exists.
-    final desc = d['description'] as String?;
+    final desc = _asString(d['description']);
     if (desc != null && desc.trim().length > 40) {
       return null; // description shown separately; don't fabricate What's Special
     }
@@ -729,17 +736,17 @@ class PropertyReportMapper {
   }
 
   List<PropertyDocumentMeta> _mapDocuments(Map<String, dynamic> d) {
-    final list = d['documents'] as List? ??
-        _asMap(d['intelligence'])?['documents'] as List?;
+    final list = _asList(d['documents']) ??
+        _asList(_asMap(d['intelligence'])?['documents']);
     if (list == null) return const [];
     return list.whereType<Map>().map((e) {
       final m = Map<String, dynamic>.from(e);
       return PropertyDocumentMeta(
         id: m['id']?.toString() ?? m['title']?.toString() ?? '',
-        title: m['title'] as String? ?? 'Document',
-        documentType: m['type'] as String? ?? 'other',
-        url: m['url'] as String?,
-        isSensitive: m['is_sensitive'] as bool? ?? true,
+        title: _asString(m['title']) ?? 'Document',
+        documentType: _asString(m['type']) ?? 'other',
+        url: _asString(m['url']),
+        isSensitive: _asBool(m['is_sensitive'], fallback: true),
         uploadedAt: _parseDate(m['uploaded_at']),
       );
     }).toList();

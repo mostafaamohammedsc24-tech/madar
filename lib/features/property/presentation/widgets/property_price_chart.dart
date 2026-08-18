@@ -25,7 +25,9 @@ class PropertyPriceChart extends StatelessWidget {
     final theme = Theme.of(context);
     final minY = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
     final maxY = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
-    final padding = (maxY - minY) * 0.1;
+    final span = (maxY - minY).abs();
+    final padding = span == 0 ? (maxY.abs() * 0.1 + 1) : span * 0.1;
+    final interval = span == 0 ? padding : span / 4;
 
     return SizedBox(
       height: 200,
@@ -36,7 +38,7 @@ class PropertyPriceChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval: (maxY - minY) / 4,
+            horizontalInterval: interval <= 0 ? 1 : interval,
             getDrawingHorizontalLine: (v) => FlLine(
               color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
               strokeWidth: 1,
