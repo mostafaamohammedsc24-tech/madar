@@ -105,14 +105,14 @@ class OtpInputFieldState extends State<OtpInputField> {
                     height: boxH,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF7F9FC),
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: widget.hasError
                             ? AuthColors.errorText
                             : isFocused
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.outline,
+                            ? AuthColors.accent
+                            : const Color(0xFFD0D5DD),
                         width: isFocused ? 2 : 1.2,
                       ),
                     ),

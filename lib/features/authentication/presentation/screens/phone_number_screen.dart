@@ -5,13 +5,14 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../widgets/country_flag_widget.dart';
 import '../../../../widgets/language_selector_sheet.dart';
 import '../../../../widgets/madar_country_selector_sheet.dart';
-import '../../../office/presentation/widgets/partner_entry_section.dart';
 import '../../domain/models/auth_country.dart';
 import '../providers/user_auth_notifier.dart';
 import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/auth_error_banner.dart';
 import '../widgets/auth_header.dart';
+import '../widgets/auth_privacy_agreement.dart';
+import '../widgets/auth_role_login_buttons.dart';
 import '../widgets/demo_auto_advance.dart';
 import '../widgets/phone_input_field.dart';
 import '../widgets/primary_auth_button.dart';
@@ -44,7 +45,6 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
       },
       child: AuthContainer(
         onLanguageTap: () => LanguageSelectorSheet.show(context),
-        footer: const PartnerEntrySection(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -56,7 +56,9 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
             Text(loc.authCountryField, style: AuthTypography.caption(context)),
             const SizedBox(height: 8),
             Material(
-              color: const Color(0xFFF7F9FC),
+              color: Colors.white,
+              elevation: 2,
+              shadowColor: const Color(0x1A000000),
               borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
               child: InkWell(
                 onTap: () async {
@@ -72,9 +74,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+                    border: Border.all(color: const Color(0xFFE6EAF0)),
                   ),
                   child: Row(
                     children: [
@@ -114,41 +114,9 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
               onSubmitted: canContinue ? () => auth.sendOtp() : null,
             ),
             const SizedBox(height: AuthSpacing.md),
-            InkWell(
-              onTap: () => setState(() => _agreed = !_agreed),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Checkbox(
-                      value: _agreed,
-                      onChanged: (v) => setState(() => _agreed = v ?? false),
-                      fillColor: WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected)) {
-                          return AuthColors.accent;
-                        }
-                        return Colors.white;
-                      }),
-                      side: const BorderSide(color: Color(0xFF98A2B3)),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      loc.authAgreePrivacy,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        height: 1.4,
-                        color: AuthColors.muted,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            AuthPrivacyAgreement(
+              agreed: _agreed,
+              onChanged: (v) => setState(() => _agreed = v),
             ),
             if (state.userMessage != null) ...[
               const SizedBox(height: AuthSpacing.md),
@@ -161,6 +129,8 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
               enabled: canContinue,
               onPressed: auth.sendOtp,
             ),
+            const SizedBox(height: AuthSpacing.md),
+            const AuthRoleLoginButtons(),
           ],
         ),
       ),

@@ -30,7 +30,7 @@ class PrimaryAuthButton extends StatelessWidget {
           foregroundColor: Colors.white,
           disabledBackgroundColor: AuthColors.canvas.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
+            borderRadius: BorderRadius.circular(AuthSpacing.radiusPill),
           ),
           elevation: 0,
           shadowColor: Colors.transparent,

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/localization/locale_provider.dart';
-import '../../../../theme/app_theme.dart';
 import '../theme/auth_theme.dart';
+import 'auth_brand_mark.dart';
 import 'auth_language_button.dart';
 
 /// Mobile-first auth below [desktopBreakpoint]; premium split layout on desktop.
@@ -30,17 +28,17 @@ class AuthResponsiveShell extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     if (width >= desktopBreakpoint) {
       return _DesktopAuthShell(
-        child: child,
-        footer: footer,
         showLanguageAction: showLanguageAction,
         onLanguageTap: onLanguageTap,
+        footer: footer,
+        child: child,
       );
     }
     return _MobileAuthShell(
-      child: child,
-      footer: footer,
       showLanguageAction: showLanguageAction,
       onLanguageTap: onLanguageTap,
+      footer: footer,
+      child: child,
     );
   }
 }
@@ -60,7 +58,6 @@ class _MobileAuthShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return Scaffold(
@@ -68,31 +65,17 @@ class _MobileAuthShell extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20, 8, 20, 20 + bottomInset),
+          padding: EdgeInsets.fromLTRB(22, 12, 22, 20 + bottomInset),
           child: Column(
             children: [
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Text(
-                  loc.authBrandName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
+              const AuthBrandMark(fontSize: 36),
+              const SizedBox(height: 22),
               _AuthCard(
                 showLanguageAction: showLanguageAction,
                 onLanguageTap: onLanguageTap,
                 child: child,
               ),
-              if (footer != null) ...[
-                const SizedBox(height: 16),
-                footer!,
-              ],
+              if (footer != null) ...[const SizedBox(height: 16), footer!],
             ],
           ),
         ),
@@ -124,32 +107,16 @@ class _DesktopAuthShell extends StatelessWidget {
         children: [
           Expanded(
             flex: 11,
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF0D47A1),
-                    Color(0xFF1565C0),
-                    Color(0xFF1976D2),
-                  ],
-                ),
-              ),
+            child: ColoredBox(
+              color: AuthColors.canvas,
               child: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(48),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        loc.authBrandName,
-                        style: theme.textTheme.displaySmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                      const AuthBrandMark(fontSize: 44, showIcon: true),
+                      const SizedBox(height: 20),
                       Text(
                         loc.authDesktopTagline,
                         style: theme.textTheme.titleLarge?.copyWith(
@@ -189,7 +156,7 @@ class _DesktopAuthShell extends StatelessWidget {
           Expanded(
             flex: 9,
             child: ColoredBox(
-              color: theme.colorScheme.surface,
+              color: const Color(0xFFF3F6FB),
               child: Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
@@ -204,7 +171,7 @@ class _DesktopAuthShell extends StatelessWidget {
                         _AuthCard(
                           showLanguageAction: showLanguageAction,
                           onLanguageTap: onLanguageTap,
-                          elevation: 2,
+                          elevation: 8,
                           child: child,
                         ),
                         if (footer != null) ...[
@@ -229,7 +196,7 @@ class _AuthCard extends StatelessWidget {
     required this.child,
     required this.showLanguageAction,
     this.onLanguageTap,
-    this.elevation = 0,
+    this.elevation = 10,
   });
 
   final Widget child;
@@ -239,14 +206,13 @@ class _AuthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Material(
-      color: theme.colorScheme.surface,
+      color: Colors.white,
       elevation: elevation,
-      shadowColor: Colors.black26,
-      borderRadius: BorderRadius.circular(24),
+      shadowColor: const Color(0x3D000000),
+      borderRadius: BorderRadius.circular(AuthSpacing.radiusCard),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+        padding: const EdgeInsets.fromLTRB(26, 22, 26, 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
