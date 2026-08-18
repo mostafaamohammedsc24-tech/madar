@@ -8,6 +8,7 @@ import '../theme/auth_theme.dart';
 import '../widgets/auth_container.dart';
 import '../widgets/auth_error_banner.dart';
 import '../widgets/auth_header.dart';
+import '../widgets/auth_role_login_buttons.dart';
 import '../widgets/demo_auto_advance.dart';
 import '../widgets/otp_input_field.dart';
 import '../widgets/primary_auth_button.dart';
@@ -65,6 +66,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   Expanded(
                     child: Text(
                       state.fullPhoneNumber,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
@@ -75,7 +77,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   const Icon(
                     Icons.edit_outlined,
                     size: 18,
-                    color: AuthColors.accent,
+                    color: AuthColors.canvasSoft,
                   ),
                 ],
               ),
@@ -137,6 +139,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 if (code.isNotEmpty) auth.verifyOtp(code);
               },
             ),
+            const SizedBox(height: AuthSpacing.md),
+            const AuthRoleLoginButtons(),
           ],
         ),
       ),

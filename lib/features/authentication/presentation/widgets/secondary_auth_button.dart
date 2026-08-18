@@ -27,7 +27,7 @@ class SecondaryAuthButton extends StatelessWidget {
           foregroundColor: theme.colorScheme.onSurface,
           side: BorderSide(color: theme.colorScheme.outline),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
+            borderRadius: BorderRadius.circular(AuthSpacing.radiusPill),
           ),
         ),
         child: isLoading

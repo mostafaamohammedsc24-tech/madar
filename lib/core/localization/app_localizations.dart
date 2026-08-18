@@ -689,6 +689,47 @@ class AppLocalizations {
     ku: 'پلاتفۆرمی خانووبەرەی پریمیۆم بۆ کڕیار، فرۆشیار و پیشەییەکان.',
   );
   String get authWelcome => _t(en: 'Welcome', ar: 'مرحباً بك', ku: 'بەخێربێیت');
+  String get authWelcomeTo =>
+      _t(en: 'Welcome to', ar: 'أهلاً بك في', ku: 'بەخێربێیت بۆ');
+  String get authWelcomeTagline => _t(
+    en: 'Your platform for buying and selling real estate with ease!',
+    ar: 'منصتك لبيع و شراء العقارات بكل سهولة!',
+    ku: 'پلاتفۆرمەکەت بۆ فرۆشتن و کڕینی خانووبەرە بە ئاسانی!',
+  );
+  String get authWelcomeMessageTitle =>
+      _t(en: 'A message for you:', ar: 'رسالة لك :', ku: 'پەیامێک بۆ تۆ:');
+  String get authWelcomeMessage => _t(
+    en:
+        'From now on, your major real estate deals start and end while you are at home! At Madar, we no longer just display properties — we built the full infrastructure so you can sell, buy, and invest safely without leaving home. We handle the procedural complexity for you. Whether you are a seller seeking the best return or a buyer looking for stability, Madar gives you a documented network that guarantees seriousness and financial transparency in every transaction.',
+    ar:
+        'من الآن فصاعداً.. صفقاتك العقارية الكبرى تبدأ وتنتهي وأنت في منزلك! في مدار لم نعد نعرض العقارات فحسب، بل أنشأنا لك البنية التحتية المتكاملة للبيع والشراء والاستثمار بأمان تام دون مغادرة منزلك. ندير عنك كل التعقيدات الإجرائية، سواء كنت بائعاً تبحث عن أفضل عائد، أو مشترياً تطمح إلى الاستقرار. مدار يمنحك شبكة موثّقة تضمن الجدية المطلقة والشفافية المالية في كل معاملة.',
+    ku:
+        'لەمەودوا مامەڵە گەورەکانی خانووبەرەت لە ماڵەوە دەست پێدەکەن و کۆتاییان پێدێت! لە مەدار تەنها خانووبەرە پیشان نادەین، بەڵکو ژێرخانی تەواومان دروستکردووە بۆ فرۆشتن، کڕین و وەبەرهێنان بە سەلامەتی بێ ئەوەی ماڵ بەجێبهێڵیت. ئاڵۆزیی ڕێکارەکان بۆت بەڕێوەدەبەین. جا فرۆشیار بیت بۆ باشترین قازانج یان کڕیار بیت بۆ جێگیری، مەدار تۆڕێکی بەڵگەدارت پێدەدات کە جددیبوون و ڕوونی دارایی لە هەر مامەڵەیەکدا دەستەبەر دەکات.',
+  );
+  String get authLetsStart =>
+      _t(en: 'Let\'s start!', ar: '!لنبدأ', ku: '!با دەستپێبکەین');
+  String get authEmployeeLoginCta => _t(
+    en: 'Employee Login',
+    ar: 'تسجيل دخول الموظفين',
+    ku: 'چوونەژوورەوەی کارمەندان',
+  );
+  String get authOfficeLoginCta => _t(
+    en: 'Office Login',
+    ar: 'تسجيل دخول المكاتب',
+    ku: 'چوونەژوورەوەی ئۆفیسەکان',
+  );
+  String get authAgreeLead =>
+      _t(en: 'I agree to the ', ar: 'أوافق على ', ku: 'ڕەزامەندم لەسەر ');
+  String get authPrivacyPolicy =>
+      _t(en: 'Privacy Policy', ar: 'سياسة الخصوصية', ku: 'سیاسەتی تایبەتمەندی');
+  String get authAgreeConjunction => _t(en: ' and ', ar: ' و ', ku: ' و ');
+  String get authTermsOfUse =>
+      _t(en: 'Terms of Use', ar: 'شروط الاستخدام', ku: 'مەرجەکانی بەکارهێنان');
+  String get authLegalPlaceholder => _t(
+    en: 'The full legal text will be available here in a later update.',
+    ar: 'سيظهر النص القانوني الكامل هنا في تحديث لاحق.',
+    ku: 'دەقی یاسایی تەواو لێرە لە نوێکردنەوەیەکی دواتر دەردەکەوێت.',
+  );
   String get authPhoneTitle =>
       _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
   String get authPhoneSubtitle => _t(

@@ -17,17 +17,23 @@ class AuthHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (leading != null) ...[
-          leading!,
-          const SizedBox(height: AuthSpacing.lg),
-        ],
-        Text(title, style: AuthTypography.display(context)),
+        if (leading != null) ...[leading!, const SizedBox(height: AuthSpacing.lg)],
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: AuthTypography.display(context),
+        ),
         const SizedBox(height: AuthSpacing.md),
         Text(
           subtitle,
-          style: AuthTypography.body(context).copyWith(color: AuthColors.muted),
+          textAlign: TextAlign.center,
+          style: AuthTypography.body(context).copyWith(
+            color: AuthColors.muted,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

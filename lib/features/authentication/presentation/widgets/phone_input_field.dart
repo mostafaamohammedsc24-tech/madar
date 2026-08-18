@@ -62,9 +62,16 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
     return Container(
       height: AuthSpacing.inputHeight,
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F9FC),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AuthSpacing.radiusMd),
-        border: Border.all(color: theme.colorScheme.outline),
+        border: Border.all(color: const Color(0xFFE6EAF0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [

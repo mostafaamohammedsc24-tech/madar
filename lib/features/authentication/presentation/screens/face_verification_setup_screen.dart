@@ -31,12 +31,12 @@ class FaceVerificationSetupScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const Center(child: _FaceFrameMark()),
+            const SizedBox(height: AuthSpacing.xl),
             AuthHeader(
               title: loc.authFaceTitle,
               subtitle: loc.authFaceSubtitle,
             ),
-            const SizedBox(height: AuthSpacing.xl),
-            const Center(child: _FaceFrameMark()),
             if (state.userMessage != null) ...[
               const SizedBox(height: AuthSpacing.md),
               AuthErrorBanner(message: state.userMessage!),
@@ -64,37 +64,72 @@ class _FaceFrameMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const ink = Color(0xFF0D47A1);
     return SizedBox(
-      width: 148,
-      height: 148,
+      width: 168,
+      height: 168,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Container(
-            width: 128,
-            height: 128,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: const Color(0xFF90CAF9), width: 2),
-            ),
-            child: const Icon(
-              Icons.face_retouching_natural,
-              size: 64,
-              color: Color(0xFF1565C0),
-            ),
+          CustomPaint(
+            size: const Size(148, 148),
+            painter: _ViewfinderPainter(color: ink),
           ),
-          const Positioned(
-            right: 8,
-            bottom: 8,
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: Color(0xFF2E7D32),
-              child: Icon(Icons.check, color: Colors.white, size: 18),
+          const Icon(Icons.person_outline_rounded, size: 78, color: ink),
+          Positioned(
+            right: 10,
+            bottom: 10,
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: const BoxDecoration(
+                color: Color(0xFF2E7D32),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.check, color: Colors.white, size: 18),
             ),
           ),
         ],
       ),
     );
   }
+}
+
+class _ViewfinderPainter extends CustomPainter {
+  const _ViewfinderPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 3.4
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    const arm = 28.0;
+    final w = size.width;
+    final h = size.height;
+
+    final path = Path()
+      ..moveTo(0, arm)
+      ..lineTo(0, 0)
+      ..lineTo(arm, 0)
+      ..moveTo(w - arm, 0)
+      ..lineTo(w, 0)
+      ..lineTo(w, arm)
+      ..moveTo(w, h - arm)
+      ..lineTo(w, h)
+      ..lineTo(w - arm, h)
+      ..moveTo(arm, h)
+      ..lineTo(0, h)
+      ..lineTo(0, h - arm);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ViewfinderPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

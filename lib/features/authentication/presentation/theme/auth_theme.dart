@@ -19,6 +19,8 @@ abstract final class AuthSpacing {
   static const double radiusSm = 14;
   static const double radiusMd = 18;
   static const double radiusLg = 24;
+  static const double radiusCard = 36;
+  static const double radiusPill = 999;
 }
 
 /// Typography helpers for auth screens — uses theme text styles.
@@ -28,10 +30,10 @@ abstract final class AuthTypography {
 
   static TextStyle display(BuildContext context) {
     return const TextStyle(
-      fontSize: 24,
+      fontSize: 26,
       fontWeight: FontWeight.w800,
       letterSpacing: -0.3,
-      height: 1.25,
+      height: 1.3,
       color: AuthColors.ink,
     );
   }
