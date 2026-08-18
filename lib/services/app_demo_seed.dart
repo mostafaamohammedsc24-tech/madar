@@ -544,6 +544,7 @@ abstract final class AppDemoSeed {
     for (final p in PropertyCatalogDemo.listings()) {
       if (p.id == id) {
         return {
+          ...p.rawData,
           'id': p.id,
           'title': p.title,
           'address': p.address,
@@ -552,7 +553,6 @@ abstract final class AppDemoSeed {
           'property_media_v3': [
             {'media_url': p.imageUrl},
           ],
-          ...p.rawData,
         };
       }
     }

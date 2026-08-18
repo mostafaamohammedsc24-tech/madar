@@ -32,7 +32,16 @@ class PropertyReportRepository {
       isSaved = favorites.contains(id);
     } catch (_) {}
 
-    return _mapper.fromSupabaseMap(source, isSaved: isSaved);
+    try {
+      return _mapper.fromSupabaseMap(source, isSaved: isSaved);
+    } catch (_) {
+      if (seed != null && !identical(seed, source)) {
+        try {
+          return _mapper.fromSupabaseMap(seed, isSaved: isSaved);
+        } catch (_) {}
+      }
+      return null;
+    }
   }
 
   PropertyReport fromMap(Map<String, dynamic> seed, {bool isSaved = false}) {

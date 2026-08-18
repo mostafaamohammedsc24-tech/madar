@@ -74,7 +74,7 @@ class FactGrid extends StatelessWidget {
       runSpacing: 10,
       children: items.map((item) {
         return Container(
-          width: (MediaQuery.sizeOf(context).width - 64) / 2,
+          width: ((MediaQuery.sizeOf(context).width - 64) / 2).clamp(120.0, 400.0),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,

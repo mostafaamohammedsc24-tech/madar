@@ -90,20 +90,43 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
   }
 
   Future<void> _bootstrap() async {
-    final id = widget.property['id']?.toString();
     PropertyReport? report;
-    if (id != null && id.isNotEmpty) {
-      report = await _repo.loadById(id, seed: widget.property);
-    } else {
-      report = _repo.fromMap(widget.property);
+
+    // Paint immediately from the sheet payload so navigation never hangs on
+    // network / mapper edge-cases.
+    try {
+      if (widget.property.isNotEmpty) {
+        report = _repo.fromMap(widget.property);
+      }
+    } catch (e, st) {
+      debugPrint('PropertyReport seed map failed: $e\n$st');
     }
+
+    if (!mounted) return;
+    setState(() {
+      _report = report;
+      _loading = report == null;
+    });
+
+    try {
+      final id = widget.property['id']?.toString();
+      if (id != null && id.isNotEmpty) {
+        final loaded = await _repo.loadById(id, seed: widget.property);
+        if (loaded != null) report = loaded;
+      }
+    } catch (e, st) {
+      debugPrint('PropertyReportScreen bootstrap failed: $e\n$st');
+    }
+
     if (!mounted) return;
     setState(() {
       _report = report;
       _loading = false;
     });
     if (report != null) {
-      await _warmTranslationCache(report);
+      try {
+        await _warmTranslationCache(report);
+      } catch (_) {}
     }
   }
 
@@ -176,10 +199,50 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
-    if (_loading || _report == null) {
+    if (_loading) {
       return Scaffold(
         body: Center(
           child: CircularProgressIndicator(color: theme.colorScheme.primary),
+        ),
+      );
+    }
+
+    if (_report == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const DirectionalBackIcon(),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 40,
+                  color: theme.colorScheme.error,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  loc.sectionNoDataYet,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () {
+                    setState(() => _loading = true);
+                    _bootstrap();
+                  },
+                  child: Text(loc.retry),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
@@ -300,7 +363,10 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showDescription)
                   SliverToBoxAdapter(
-                    key: _keyFor('details'),
+                    // 'details' key already used by whatsSpecial when present.
+                    key: report.showWhatsSpecial
+                        ? null
+                        : _keyFor('details'),
                     child: ReportSection(
                       title: loc.description,
                       icon: Icons.notes_outlined,
@@ -340,7 +406,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showSalesHistory)
                   SliverToBoxAdapter(
-                    key: _keyFor('history'),
+                    key: report.showPriceHistory
+                        ? null
+                        : _keyFor('history'),
                     child: ReportSection(
                       title: loc.salesHistory,
                       icon: Icons.history,
@@ -474,7 +542,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showBuilder && report.builder != null)
                   SliverToBoxAdapter(
-                    key: _keyFor('construction'),
+                    key: report.showConstruction
+                        ? null
+                        : _keyFor('construction'),
                     child: ReportSection(
                       title: loc.builderSection,
                       icon: Icons.engineering_outlined,
@@ -514,7 +584,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showMap)
                   SliverToBoxAdapter(
-                    key: _keyFor('location'),
+                    key: report.showNeighborhood
+                        ? null
+                        : _keyFor('location'),
                     child: ReportSection(
                       title: loc.mapSection,
                       icon: Icons.map_outlined,
@@ -527,7 +599,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showLocationIntelligence)
                   SliverToBoxAdapter(
-                    key: _keyFor('location'),
+                    key: (report.showNeighborhood || report.showMap)
+                        ? null
+                        : _keyFor('location'),
                     child: ReportSection(
                       title: loc.locationIntelligence,
                       icon: Icons.my_location_outlined,
