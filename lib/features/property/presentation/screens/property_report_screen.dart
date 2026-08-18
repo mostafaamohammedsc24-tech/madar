@@ -363,7 +363,10 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showDescription)
                   SliverToBoxAdapter(
-                    key: _keyFor('details'),
+                    // 'details' key already used by whatsSpecial when present.
+                    key: report.showWhatsSpecial
+                        ? null
+                        : _keyFor('details'),
                     child: ReportSection(
                       title: loc.description,
                       icon: Icons.notes_outlined,
@@ -403,7 +406,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showSalesHistory)
                   SliverToBoxAdapter(
-                    key: _keyFor('history'),
+                    key: report.showPriceHistory
+                        ? null
+                        : _keyFor('history'),
                     child: ReportSection(
                       title: loc.salesHistory,
                       icon: Icons.history,
@@ -537,7 +542,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showBuilder && report.builder != null)
                   SliverToBoxAdapter(
-                    key: _keyFor('construction'),
+                    key: report.showConstruction
+                        ? null
+                        : _keyFor('construction'),
                     child: ReportSection(
                       title: loc.builderSection,
                       icon: Icons.engineering_outlined,
@@ -577,7 +584,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showMap)
                   SliverToBoxAdapter(
-                    key: _keyFor('location'),
+                    key: report.showNeighborhood
+                        ? null
+                        : _keyFor('location'),
                     child: ReportSection(
                       title: loc.mapSection,
                       icon: Icons.map_outlined,
@@ -590,7 +599,9 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
                   ),
                 if (report.showLocationIntelligence)
                   SliverToBoxAdapter(
-                    key: _keyFor('location'),
+                    key: (report.showNeighborhood || report.showMap)
+                        ? null
+                        : _keyFor('location'),
                     child: ReportSection(
                       title: loc.locationIntelligence,
                       icon: Icons.my_location_outlined,
