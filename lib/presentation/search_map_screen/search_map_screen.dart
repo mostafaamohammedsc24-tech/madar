@@ -22,6 +22,7 @@ import '../../core/maps/map_bounds.dart';
 import '../../services/property_map_repository.dart';
 import '../../services/supabase_service.dart';
 import '../../features/property/presentation/navigation/open_property_report.dart';
+import '../../features/property/presentation/widgets/sheet_grabber.dart';
 import './models/property_data.dart';
 import './widgets/ai_recommendations_sheet.dart';
 import './widgets/map_filter_chips_widget.dart';
@@ -1051,62 +1052,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               onBoundsChanged: _onMapBoundsChanged,
             ),
 
-            // Top overlay: search bar + filter chips (merges with the sheet)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                color: sheetMerged
-                    ? theme.colorScheme.surface
-                    : Colors.transparent,
-                child: SafeArea(
-                  bottom: false,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(
-                          16,
-                          12,
-                          16,
-                          0,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: MapSearchBarWidget(
-                                onFilterTap: () => _showFilterPanel(context),
-                                onVoiceSearch: _onVoiceSearch,
-                                onSearch: _onSearch,
-                                suggestions: _searchSuggestions,
-                                onSuggestionTap: _onSuggestionTap,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 180),
-                        child: sheetMerged
-                            ? const SizedBox(height: 8)
-                            : Column(
-                                children: [
-                                  const SizedBox(height: 8),
-                                  MapFilterChipsWidget(
-                                    options: _filterOptions,
-                                    selected: _selectedFilter,
-                                    onChanged: _onFilterChanged,
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
             // Active area label banner
             if (_activeAreaLabel != null)
               Positioned(
@@ -1164,7 +1109,8 @@ class _SearchMapScreenState extends State<SearchMapScreen>
             PositionedDirectional(
               end: 16,
               bottom: bottomNavHeight + 180,
-              child: Column(
+              child: PointerInterceptor(
+                child: Column(
                 children: [
                   _MapControlButton(
                     iconName: 'my_location',
@@ -1198,6 +1144,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                     isActive: false,
                   ),
                 ],
+                ),
               ),
             ),
 
@@ -1323,8 +1270,7 @@ class _SearchMapScreenState extends State<SearchMapScreen>
               builder: (context, scrollController) {
                 final expanded = _sheetExtent > 0.3;
                 final listMode = _sheetExtent > 0.52;
-                return PointerInterceptor(
-                  child: Material(
+                return Material(
                   color: theme.colorScheme.surface,
                   elevation: 8,
                   shadowColor: Colors.black26,
@@ -1336,19 +1282,9 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                     physics: const AlwaysScrollableScrollPhysics(
                       parent: ClampingScrollPhysics(),
                     ),
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 24),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 24),
                     children: [
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFBDBDBD),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
+                      const SheetGrabber(),
                       Text(
                         _mapZoom < 11
                             ? loc.zoomToSeeProperties
@@ -1374,7 +1310,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                         const SizedBox(height: 160),
                     ],
                   ),
-                ),
                 );
               },
             ),
@@ -1433,6 +1368,64 @@ class _SearchMapScreenState extends State<SearchMapScreen>
                   ),
                 ),
               ),
+
+            // Top overlay: search bar + filter chips (merges with the sheet)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: PointerInterceptor(
+                child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                color: sheetMerged
+                    ? theme.colorScheme.surface
+                    : Colors.transparent,
+                child: SafeArea(
+                  bottom: false,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          16,
+                          12,
+                          16,
+                          0,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: MapSearchBarWidget(
+                                onFilterTap: () => _showFilterPanel(context),
+                                onVoiceSearch: _onVoiceSearch,
+                                onSearch: _onSearch,
+                                suggestions: _searchSuggestions,
+                                onSuggestionTap: _onSuggestionTap,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 180),
+                        child: sheetMerged
+                            ? const SizedBox(height: 8)
+                            : Column(
+                                children: [
+                                  const SizedBox(height: 8),
+                                  MapFilterChipsWidget(
+                                    options: _filterOptions,
+                                    selected: _selectedFilter,
+                                    onChanged: _onFilterChanged,
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+                ),
+              ),
+            ),
           ],
         ),
       );
@@ -1448,69 +1441,55 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       'newest': loc.sortNewest,
     };
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: [
-          Expanded(
-            child: PopupMenuButton<String>(
-              initialValue: _sortMode,
-              onSelected: _setSortMode,
-              itemBuilder: (_) => sortLabels.entries
-                  .map(
-                    (e) => PopupMenuItem<String>(
-                      value: e.key,
-                      child: Text(e.value),
+          PopupMenuButton<String>(
+            initialValue: _sortMode,
+            onSelected: _setSortMode,
+            itemBuilder: (_) => sortLabels.entries
+                .map(
+                  (e) => PopupMenuItem<String>(
+                    value: e.key,
+                    child: Text(e.value),
+                  ),
+                )
+                .toList(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${loc.sort}: ${sortLabels[_sortMode]}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.primary,
                     ),
-                  )
-                  .toList(),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.sort, size: 18, color: AppTheme.primary),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${loc.sort}: ${sortLabels[_sortMode]}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const Icon(Icons.keyboard_arrow_down, size: 18),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.swap_vert,
+                    size: 18,
+                    color: AppTheme.primary,
+                  ),
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          FilledButton.icon(
+          const Spacer(),
+          TextButton.icon(
             onPressed: _saveCurrentSearch,
-            style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 10,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
             ),
-            icon: const Icon(Icons.bookmark_add_outlined, size: 18),
+            icon: const Icon(Icons.saved_search, size: 20),
             label: Text(
               loc.saveSearch,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
             ),

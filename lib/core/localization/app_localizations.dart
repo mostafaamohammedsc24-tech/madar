@@ -1453,6 +1453,39 @@ class AppLocalizations {
   String get estMonthlyPayment =>
       _t(en: 'Est. payment', ar: 'القسط التقديري', ku: 'پارەدانی خەمڵێنراو');
   String get showMore => _t(en: 'Show more', ar: 'عرض المزيد', ku: 'زیاتر نیشان بدە');
+  String get showLess => _t(en: 'Show less', ar: 'عرض أقل', ku: 'کەمتر نیشان بدە');
+  String get getPreQualified => _t(
+    en: 'Get pre-qualified',
+    ar: 'احصل على موافقة مبدئية',
+    ku: 'پێشوەختە ڕەزامەندی وەربگرە',
+  );
+  String estPaymentAmount(String amount) => _t(
+    en: 'Est. $amount/mo',
+    ar: 'تقديري $amount/شهر',
+    ku: 'خەمڵێنراو $amount/مانگ',
+  );
+  String get hideHome =>
+      _t(en: 'Hide Home', ar: 'إخفاء العقار', ku: 'شاردنەوەی خانوو');
+  String get getDirections =>
+      _t(en: 'Get Directions', ar: 'الاتجاهات', ku: 'ئاراستەکان');
+  String get yourTags => _t(en: 'Your Tags', ar: 'وسومك', ku: 'تاگەکانت');
+  String get reportAProblem => _t(
+    en: 'Report a Problem',
+    ar: 'الإبلاغ عن مشكلة',
+    ku: 'کێشەیەک ڕاپۆرت بکە',
+  );
+  String get priceAndTaxHistory => _t(
+    en: 'Price & tax history',
+    ar: 'تاريخ السعر والضريبة',
+    ku: 'مێژووی نرخ و باج',
+  );
+  String builtInYear(int year) =>
+      _t(en: 'Built in $year', ar: 'بُني عام $year', ku: 'لە $year دروستکراوە');
+  String daysOnMadar(int n) => _t(
+    en: '$n days on Madar',
+    ar: '$n يوماً على مدار',
+    ku: '$n ڕۆژ لەسەر مەدار',
+  );
   String get showcaseBadge => _t(en: 'Showcase', ar: 'مميز', ku: 'نمایش');
   String get bedsShort => _t(en: 'beds', ar: 'غرف', ku: 'نووستن');
   String get bathsShort => _t(en: 'baths', ar: 'حمامات', ku: 'ئاوخانە');
