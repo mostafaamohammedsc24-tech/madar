@@ -20,14 +20,12 @@ class SearchSuggestionItem {
 
 // Smart search bar with mixed suggestions (queries, areas, landmarks).
 class MapSearchBarWidget extends StatefulWidget {
-  final VoidCallback onFilterTap;
   final VoidCallback? onVoiceSearch;
   final Function(String)? onSearch;
   final List<SearchSuggestionItem> suggestions;
   final ValueChanged<SearchSuggestionItem>? onSuggestionTap;
 
   const MapSearchBarWidget({
-    required this.onFilterTap,
     this.onVoiceSearch,
     this.onSearch,
     this.suggestions = const [],
@@ -170,32 +168,28 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          height: 52,
+          height: 48,
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(100),
-            boxShadow: [
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFCFCFCF)),
+            boxShadow: const [
               BoxShadow(
-                color: Colors.black.withAlpha(31),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-              BoxShadow(
-                color: Colors.black.withAlpha(13),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
+                color: Color(0x14000000),
+                blurRadius: 6,
+                offset: Offset(0, 2),
               ),
             ],
           ),
           child: Row(
             children: [
-              const SizedBox(width: 16),
-              CustomIconWidget(
-                iconName: 'search',
-                color: AppTheme.primary,
-                size: 20,
+              const SizedBox(width: 12),
+              const Icon(
+                Icons.search,
+                color: Color(0xFF5F6368),
+                size: 22,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: _controller,
@@ -203,10 +197,10 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
                   decoration: InputDecoration(
                     hintText: _listening ? loc.voiceListening : loc.searchHint,
                     hintStyle: TextStyle(
-                      fontSize: 13,
+                      fontSize: 15,
                       color: _listening
                           ? AppTheme.primary
-                          : theme.colorScheme.onSurfaceVariant,
+                          : const Color(0xFF5F6368),
                     ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -216,7 +210,7 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
                     filled: false,
                   ),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 15,
                     color: theme.colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
@@ -256,27 +250,7 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
                     ),
                   ),
                 ),
-              Container(width: 1, height: 24, color: AppTheme.borderLight),
-              GestureDetector(
-                onTap: widget.onFilterTap,
-                child: Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withAlpha(20),
-                    borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(100),
-                    ),
-                  ),
-                  child: Center(
-                    child: CustomIconWidget(
-                      iconName: 'tune',
-                      color: AppTheme.primary,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ),
+              const SizedBox(width: 4),
             ],
           ),
         ),
@@ -285,7 +259,7 @@ class _MapSearchBarWidgetState extends State<MapSearchBarWidget> {
             margin: const EdgeInsets.only(top: 4),
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withAlpha(25),

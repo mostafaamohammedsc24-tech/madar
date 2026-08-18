@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -24,13 +23,10 @@ import '../../services/supabase_service.dart';
 import '../../features/property/presentation/navigation/open_property_report.dart';
 import '../../features/property/presentation/widgets/sheet_grabber.dart';
 import './models/property_data.dart';
-import './widgets/ai_recommendations_sheet.dart';
-import './widgets/map_filter_chips_widget.dart';
 import './widgets/map_preview_carousel.dart';
-import './widgets/property_card_copy.dart';
 import '../../features/authentication/presentation/widgets/demo_auto_advance.dart';
 import './widgets/map_search_bar_widget.dart';
-import './widgets/property_listing_card.dart';
+import './widgets/property_card.dart';
 import './widgets/property_map_widget.dart';
 import './widgets/saved_area_search_widget.dart';
 
@@ -85,16 +81,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 
   // Sort
   String _sortMode = 'for_you';
-
-  final List<String> _filterOptions = [
-    'All',
-    'Sale',
-    'Rent',
-    'Mortgage',
-    'Land',
-    'Commercial',
-    'Investment',
-  ];
 
   final List<String> _cities = [
     'All',
@@ -697,12 +683,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     _applyFilters();
   }
 
-  void _onFilterChanged(String filter) {
-    setState(() => _selectedFilter = filter);
-    _applyFilters();
-    _addToFilterHistory();
-  }
-
   void _onSearch(String query) {
     setState(() {
       _searchQuery = query;
@@ -956,20 +936,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
     return pX < xIntersect;
   }
 
-  void _showAiRecommendations() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => ProviderScope(
-        child: AiRecommendationsSheet(
-          allProperties: _allProperties,
-          onPropertyTap: _onPropertySelected,
-        ),
-      ),
-    );
-  }
-
   void _showAreaSearch() {
     showModalBottomSheet(
       context: context,
@@ -1019,416 +985,521 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context);
-    final isTablet = MediaQuery.of(context).size.width >= 600;
-    const bottomNavHeight = 0.0;
-    final media = MediaQuery.of(context);
-    final searchBand = media.padding.top + 76;
-    final sheetMax = (1.0 - searchBand / media.size.height).clamp(0.82, 0.93);
-    final sheetMerged = _sheetExtent >= sheetMax - 0.04;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF5F5F5),
       resizeToAvoidBottomInset: false,
-      body: Stack(
-          children: [
-            // Full-screen map
-            PropertyMapWidget(
-              key: _mapKey,
-              properties: _filteredProperties,
-              onPropertyTap: _onPropertySelected,
-              mapType: _mapType,
-              isDrawingMode: _isDrawingMode,
-              onPolygonDrawn: _onPolygonDrawn,
-              selectedPropertyId: _selectedProperty?.id,
-              areaPolygon: _areaPolygon,
-              landmarkLocation: _activeLandmark?.location,
-              landmarkLabel: _activeLandmark?.name,
-              onZoomChanged: (z) {
-                if ((z - _mapZoom).abs() > 0.15) {
-                  setState(() => _mapZoom = z);
-                }
-              },
-              onBackgroundTap: _closePreview,
-              onBoundsChanged: _onMapBoundsChanged,
-            ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final bodyH = constraints.maxHeight;
+          final topPad = MediaQuery.paddingOf(context).top;
+          final searchBand = topPad + 66.0;
+          final sheetMax = ((bodyH - searchBand) / bodyH).clamp(0.5, 0.95);
+          final merged = _sheetExtent >= sheetMax - 0.03;
+          final listMode = _sheetExtent > 0.45;
+          final sheetTopPx = bodyH * _sheetExtent;
 
-            // Active area label banner
-            if (_activeAreaLabel != null)
-              Positioned(
-                top: MediaQuery.of(context).padding.top + 130,
-                left: 16,
-                right: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primary.withAlpha(80),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.map_rounded,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          loc.areaLabel(_activeAreaLabel!, _filteredProperties.length),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: _clearAreaFocus,
-                        child: const Icon(
-                          Icons.close_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+          return Stack(
+            children: [
+              // ── Map layer ──────────────────────────────────────────────
+              PropertyMapWidget(
+                key: _mapKey,
+                properties: _filteredProperties,
+                onPropertyTap: _onPropertySelected,
+                mapType: _mapType,
+                isDrawingMode: _isDrawingMode,
+                onPolygonDrawn: _onPolygonDrawn,
+                selectedPropertyId: _selectedProperty?.id,
+                areaPolygon: _areaPolygon,
+                landmarkLocation: _activeLandmark?.location,
+                landmarkLabel: _activeLandmark?.name,
+                onZoomChanged: (z) {
+                  if ((z - _mapZoom).abs() > 0.15) {
+                    setState(() => _mapZoom = z);
+                  }
+                },
+                onBackgroundTap: _closePreview,
+                onBoundsChanged: _onMapBoundsChanged,
               ),
 
-            // Map controls — end side
-            PositionedDirectional(
-              end: 16,
-              bottom: bottomNavHeight + 180,
-              child: PointerInterceptor(
-                child: Column(
-                children: [
-                  _MapControlButton(
-                    iconName: 'my_location',
-                    onTap: _goToMyLocation,
-                    tooltip: loc.nearMe,
-                  ),
-                  const SizedBox(height: 8),
-                  _MapControlButton(
-                    iconName: 'layers',
-                    onTap: () => _showMapTypeSheet(context),
-                    tooltip: loc.mapType,
-                  ),
-                  const SizedBox(height: 8),
-                  _MapControlButton(
-                    iconName: _isDrawingMode ? 'close' : 'draw',
-                    onTap: () {
-                      setState(() {
-                        _isDrawingMode = !_isDrawingMode;
-                        if (!_isDrawingMode) _applyFilters();
-                      });
-                    },
-                    tooltip: _isDrawingMode ? loc.cancelDraw : loc.drawArea,
-                    isActive: _isDrawingMode,
-                  ),
-                  const SizedBox(height: 8),
-                  // AI Recommendations button
-                  _MapControlButton(
-                    iconName: 'auto_awesome',
-                    onTap: _showAiRecommendations,
-                    tooltip: loc.aiPicks,
-                    isActive: false,
-                  ),
-                ],
-                ),
-              ),
-            ),
-
-            // Drawing mode banner
-            if (_isDrawingMode)
-              Positioned(
-                top: MediaQuery.of(context).padding.top + 130,
-                left: 16,
-                right: 16,
-                child: PointerInterceptor(
-                  child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primary.withAlpha(80),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+              // ── Active area banner ─────────────────────────────────────
+              if (_activeAreaLabel != null)
+                Positioned(
+                  top: searchBand + 8,
+                  left: 16,
+                  right: 16,
+                  child: PointerInterceptor(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.gesture, color: Colors.white, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          loc.drawAreaHint,
-                          style: const TextStyle(
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.map_rounded,
                             color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            size: 16,
                           ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          _mapKey.currentState?.completeDrawing();
-                          setState(() => _isDrawingMode = false);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              loc.areaLabel(
+                                _activeAreaLabel!,
+                                _filteredProperties.length,
+                              ),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(40),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            loc.done,
-                            style: const TextStyle(
+                          GestureDetector(
+                            onTap: _clearAreaFocus,
+                            child: const Icon(
+                              Icons.close_rounded,
                               color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              size: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ── Drawing banner ─────────────────────────────────────────
+              if (_isDrawingMode)
+                Positioned(
+                  top: searchBand + 8,
+                  left: 16,
+                  right: 16,
+                  child: PointerInterceptor(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.gesture,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              loc.drawAreaHint,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _mapKey.currentState?.completeDrawing();
+                              setState(() => _isDrawingMode = false);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withAlpha(40),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                loc.done,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ── Loading pill ───────────────────────────────────────────
+              if (_isLoading)
+                Positioned(
+                  top: searchBand + 8,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(color: Color(0x14000000), blurRadius: 8),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            loc.loadingProperties,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ── Map action row: globe / draw / locate + Save search ────
+              if (!listMode)
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: sheetTopPx + 12,
+                  child: PointerInterceptor(
+                    child: Row(
+                      children: [
+                        _RoundMapButton(
+                          icon: Icons.public,
+                          tooltip: loc.mapType,
+                          onTap: () => _showMapTypeSheet(context),
+                        ),
+                        const SizedBox(width: 10),
+                        _RoundMapButton(
+                          icon: _isDrawingMode
+                              ? Icons.close
+                              : Icons.back_hand_outlined,
+                          tooltip:
+                              _isDrawingMode ? loc.cancelDraw : loc.drawArea,
+                          active: _isDrawingMode,
+                          onTap: () {
+                            setState(() {
+                              _isDrawingMode = !_isDrawingMode;
+                              if (!_isDrawingMode) _applyFilters();
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 10),
+                        _RoundMapButton(
+                          icon: Icons.my_location,
+                          tooltip: loc.nearMe,
+                          onTap: _goToMyLocation,
+                        ),
+                        const Spacer(),
+                        Material(
+                          color: const Color(0xFF1565C0),
+                          borderRadius: BorderRadius.circular(24),
+                          elevation: 4,
+                          shadowColor: Colors.black38,
+                          child: InkWell(
+                            onTap: _saveCurrentSearch,
+                            borderRadius: BorderRadius.circular(24),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 11,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.saved_search,
+                                    color: Colors.white,
+                                    size: 19,
+                                  ),
+                                  const SizedBox(width: 7),
+                                  Text(
+                                    loc.saveSearch,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                ),
-              ),
-
-            // Loading indicator
-            if (_isLoading)
-              Positioned(
-                top: MediaQuery.of(context).padding.top + 130,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(20),
-                          blurRadius: 8,
-                        ),
                       ],
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppTheme.primary,
+                  ),
+                ),
+
+              // ── Pin preview carousel ───────────────────────────────────
+              if (_showPreview && _previewProperties.isNotEmpty)
+                Positioned(
+                  left: 12,
+                  right: 12,
+                  bottom: sheetTopPx + 64,
+                  child: PointerInterceptor(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: MapPreviewCarousel(
+                        key: ValueKey(_previewProperties.first.id),
+                        properties: _previewProperties,
+                        initialIndex: _selectedProperty == null
+                            ? 0
+                            : _previewProperties
+                                .indexWhere(
+                                  (p) => p.id == _selectedProperty!.id,
+                                )
+                                .clamp(0, _previewProperties.length - 1),
+                        onPageChanged: _onPreviewPageChanged,
+                        onOpen: _openPropertyDetail,
+                        onClose: _closePreview,
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ── Draggable results sheet ────────────────────────────────
+              DraggableScrollableSheet(
+                controller: _draggableController,
+                initialChildSize: 0.13,
+                minChildSize: 0.10,
+                maxChildSize: sheetMax,
+                snap: true,
+                snapSizes: [0.13, sheetMax],
+                builder: (context, scrollController) {
+                  return Material(
+                    color: Colors.white,
+                    elevation: 10,
+                    shadowColor: Colors.black26,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(merged ? 0 : 16),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: CustomScrollView(
+                      controller: scrollController,
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: Column(
+                            children: [
+                              const SheetGrabber(),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 4, 16, 10),
+                                child: Text(
+                                  _mapZoom < 11
+                                      ? loc.zoomToSeeProperties
+                                      : loc.resultsCountLabel(
+                                          _filteredProperties.length,
+                                        ),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF111111),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          loc.loadingProperties,
-                          style: const TextStyle(fontSize: 12),
-                        ),
+                        if (listMode) ...[
+                          SliverToBoxAdapter(
+                            child: Column(
+                              children: [
+                                _buildSheetToolbar(theme, loc),
+                                const Divider(
+                                  height: 16,
+                                  thickness: 1,
+                                  color: Color(0xFFEEEEEE),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (_filteredProperties.isEmpty)
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.all(32),
+                                child: Center(
+                                  child: Text(
+                                    loc.noData,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            SliverList.builder(
+                              itemCount: _filteredProperties.length,
+                              itemBuilder: (context, i) {
+                                final property = _filteredProperties[i];
+                                return PropertyCard(
+                                  property: property,
+                                  onTap: () => _openPropertyDetail(property),
+                                );
+                              },
+                            ),
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 90),
+                          ),
+                        ] else
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 220),
+                          ),
                       ],
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
 
-            // ─── BOTTOM PANEL: collapsed = stats, expanded = categorized rows ───
-            DraggableScrollableSheet(
-              controller: _draggableController,
-              initialChildSize: 0.14,
-              minChildSize: 0.12,
-              maxChildSize: sheetMax,
-              snap: true,
-              snapSizes: [0.14, 0.45, sheetMax],
-              builder: (context, scrollController) {
-                final expanded = _sheetExtent > 0.3;
-                final listMode = _sheetExtent > 0.52;
-                return Material(
-                  color: theme.colorScheme.surface,
-                  elevation: 8,
-                  shadowColor: Colors.black26,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(sheetMerged ? 0 : 24),
-                  ),
-                  child: ListView(
-                    controller: scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: ClampingScrollPhysics(),
-                    ),
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 24),
-                    children: [
-                      const SheetGrabber(),
-                      Text(
-                        _mapZoom < 11
-                            ? loc.zoomToSeeProperties
-                            : loc.resultsCountLabel(
-                                _filteredProperties.length,
+              // ── Dark "Map" FAB (list mode) ─────────────────────────────
+              if (listMode)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 14,
+                  child: Center(
+                    child: Material(
+                      color: const Color(0xFF2A2A2A),
+                      borderRadius: BorderRadius.circular(24),
+                      elevation: 6,
+                      shadowColor: Colors.black45,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        onTap: () {
+                          _draggableController.animateTo(
+                            0.13,
+                            duration: const Duration(milliseconds: 320),
+                            curve: Curves.easeOutCubic,
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 13,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.map_outlined,
+                                color: Colors.white,
+                                size: 20,
                               ),
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: theme.colorScheme.onSurface,
+                              const SizedBox(width: 8),
+                              Text(
+                                loc.backToMap,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      if (expanded) ...[
-                        const SizedBox(height: 8),
-                        _buildSheetToolbar(theme, loc),
-                        const Divider(height: 20),
-                        if (listMode)
-                          ..._buildVerticalFeed(theme, loc)
-                        else
-                          ..._buildCategorySections(theme, loc),
-                        const SizedBox(height: 60),
-                      ] else
-                        const SizedBox(height: 160),
-                    ],
+                    ),
                   ),
-                );
-              },
-            ),
+                ),
 
-            // Floating "back to map" button when the sheet covers the map
-            if (_sheetExtent > 0.4)
+              // ── Pinned top search band (always on top) ─────────────────
               Positioned(
+                top: 0,
                 left: 0,
                 right: 0,
-                bottom: 20,
-                child: Center(
-                  child: PointerInterceptor(
-                    child: FloatingActionButton.extended(
-                      heroTag: 'back_to_map',
-                      backgroundColor: const Color(0xFF212121),
-                      foregroundColor: Colors.white,
-                      onPressed: () {
-                        _draggableController.animateTo(
-                          0.14,
-                          duration: const Duration(milliseconds: 320),
-                          curve: Curves.easeOutCubic,
-                        );
-                      },
-                      icon: const Icon(Icons.map_outlined, size: 20),
-                      label: Text(
-                        loc.backToMap,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-            if (_showPreview && _previewProperties.isNotEmpty)
-              Positioned(
-                left: 12,
-                right: 12,
-                bottom: (MediaQuery.sizeOf(context).height * _sheetExtent) + 8,
                 child: PointerInterceptor(
-                  child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  child: MapPreviewCarousel(
-                    key: ValueKey(_previewProperties.first.id),
-                    properties: _previewProperties,
-                    initialIndex: _selectedProperty == null
-                        ? 0
-                        : _previewProperties
-                            .indexWhere((p) => p.id == _selectedProperty!.id)
-                            .clamp(0, _previewProperties.length - 1),
-                    onPageChanged: _onPreviewPageChanged,
-                    onOpen: _openPropertyDetail,
-                    onClose: _closePreview,
-                  ),
-                  ),
-                ),
-              ),
-
-            // Top overlay: search bar + filter chips (merges with the sheet)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: PointerInterceptor(
-                child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                color: sheetMerged
-                    ? theme.colorScheme.surface
-                    : Colors.transparent,
-                child: SafeArea(
-                  bottom: false,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(
-                          16,
-                          12,
-                          16,
-                          0,
-                        ),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    decoration: BoxDecoration(
+                      color: merged ? Colors.white : Colors.transparent,
+                      border: merged
+                          ? const Border(
+                              bottom: BorderSide(color: Color(0xFFE0E0E0)),
+                            )
+                          : null,
+                    ),
+                    child: SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding:
+                            const EdgeInsetsDirectional.fromSTEB(16, 10, 16, 8),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: MapSearchBarWidget(
-                                onFilterTap: () => _showFilterPanel(context),
                                 onVoiceSearch: _onVoiceSearch,
                                 onSearch: _onSearch,
                                 suggestions: _searchSuggestions,
                                 onSuggestionTap: _onSuggestionTap,
                               ),
                             ),
+                            const SizedBox(width: 10),
+                            Material(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              child: InkWell(
+                                onTap: () => _showFilterPanel(context),
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: const Color(0xFFCFCFCF),
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.tune,
+                                    color: Color(0xFF1565C0),
+                                    size: 22,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 180),
-                        child: sheetMerged
-                            ? const SizedBox(height: 8)
-                            : Column(
-                                children: [
-                                  const SizedBox(height: 8),
-                                  MapFilterChipsWidget(
-                                    options: _filterOptions,
-                                    selected: _selectedFilter,
-                                    onChanged: _onFilterChanged,
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-                ),
               ),
-            ),
-          ],
-        ),
-      );
+            ],
+          );
+        },
+      ),
+    );
   }
 
   // ─── Expanded sheet: sort bar + save search ─────────────────────────────────
@@ -1497,98 +1568,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         ],
       ),
     );
-  }
-
-  // ─── Expanded sheet: categorized horizontal rows ────────────────────────────
-  List<Widget> _buildCategorySections(ThemeData theme, AppLocalizations loc) {
-    final items = _filteredProperties;
-    if (items.isEmpty) {
-      return [
-        Padding(
-          padding: const EdgeInsets.all(32),
-          child: Center(
-            child: Text(
-              loc.noData,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ),
-      ];
-    }
-
-    final aiPicks = items.where((p) => p.isFeatured || p.isVerified).toList();
-    final popular = List<PropertyData>.from(items)
-      ..sort((a, b) {
-        int score(PropertyData p) =>
-            (p.isFeatured ? 2 : 0) + (p.isVerified ? 1 : 0) + p.tags.length;
-        return score(b).compareTo(score(a));
-      });
-    final newest = List<PropertyData>.from(items)
-      ..sort((a, b) => b.yearBuilt.compareTo(a.yearBuilt));
-
-    Widget section(String title, List<PropertyData> list) {
-      if (list.isEmpty) return const SizedBox.shrink();
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 10),
-            child: Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 232,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
-              itemCount: list.length.clamp(0, 10),
-              itemBuilder: (context, i) => _HorizontalPropertyCard(
-                property: list[i],
-                onTap: () => _openPropertyDetail(list[i]),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return [
-      section(loc.aiPicksForYou, aiPicks),
-      section(loc.mostPopular, popular),
-      section(loc.recentlyAdded, newest),
-    ];
-  }
-
-  List<Widget> _buildVerticalFeed(ThemeData theme, AppLocalizations loc) {
-    final items = _filteredProperties;
-    if (items.isEmpty) {
-      return [
-        Padding(
-          padding: const EdgeInsets.all(32),
-          child: Center(
-            child: Text(
-              loc.noData,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ),
-      ];
-    }
-    return [
-      for (final property in items)
-        PropertyListingCard(
-          property: property,
-          onTap: () => _openPropertyDetail(property),
-        ),
-    ];
   }
 
   void _showFilterPanel(BuildContext context) {
@@ -1683,234 +1662,38 @@ class _SearchMapScreenState extends State<SearchMapScreen>
 }
 
 // ─── Horizontal property card (categorized rows) ─────────────────────────────
-class _HorizontalPropertyCard extends StatelessWidget {
-  const _HorizontalPropertyCard({required this.property, required this.onTap});
-
-  final PropertyData property;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final loc = AppLocalizations.of(context);
-    final p = property;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 210,
-        margin: const EdgeInsetsDirectional.only(end: 12),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outlineVariant),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 110,
-              width: double.infinity,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    p.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      child: const Icon(Icons.home_work_outlined),
-                    ),
-                  ),
-                  PositionedDirectional(
-                    top: 8,
-                    start: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 7,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: p.listingTypeColor,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        PropertyCardCopy.listing(context, p),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (p.isVerified)
-                    PositionedDirectional(
-                      top: 8,
-                      end: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.92),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          loc.verified,
-                          style: const TextStyle(
-                            color: Color(0xFF1565C0),
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    PropertyCardCopy.price(context, p),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    PropertyCardCopy.title(context, p),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      if (p.bedrooms > 0) ...[
-                        const Icon(Icons.bed_outlined, size: 13),
-                        const SizedBox(width: 2),
-                        Text('${p.bedrooms}',
-                            style: const TextStyle(fontSize: 11)),
-                        const SizedBox(width: 8),
-                      ],
-                      if (p.bathrooms > 0) ...[
-                        const Icon(Icons.bathtub_outlined, size: 13),
-                        const SizedBox(width: 2),
-                        Text('${p.bathrooms}',
-                            style: const TextStyle(fontSize: 11)),
-                        const SizedBox(width: 8),
-                      ],
-                      const Icon(Icons.square_foot, size: 13),
-                      const SizedBox(width: 2),
-                      Text(
-                        '${p.area.toStringAsFixed(0)}م²',
-                        style: const TextStyle(fontSize: 11),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    PropertyCardCopy.address(context, p),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Top Icon Button ──────────────────────────────────────────────────────────
-class _TopIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _TopIconButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(30),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(icon, color: AppTheme.primary, size: 22),
-      ),
-    );
-  }
-}
-
-// ─── Map Control Button ───────────────────────────────────────────────────────
-class _MapControlButton extends StatelessWidget {
-  final String iconName;
-  final VoidCallback onTap;
-  final String tooltip;
-  final bool isActive;
-
-  const _MapControlButton({
-    required this.iconName,
+class _RoundMapButton extends StatelessWidget {
+  const _RoundMapButton({
+    required this.icon,
     required this.onTap,
     required this.tooltip,
-    this.isActive = false,
+    this.active = false,
   });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final String tooltip;
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: isActive ? AppTheme.primary : theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        color: active ? const Color(0xFF1565C0) : Colors.white,
+        shape: const CircleBorder(),
         elevation: 4,
-        shadowColor: Colors.black.withAlpha(38),
+        shadowColor: Colors.black38,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          customBorder: const CircleBorder(),
           child: SizedBox(
-            width: 44,
-            height: 44,
-            child: Center(
-              child: CustomIconWidget(
-                iconName: iconName,
-                color: isActive ? Colors.white : AppTheme.primary,
-                size: 22,
-              ),
+            width: 46,
+            height: 46,
+            child: Icon(
+              icon,
+              size: 22,
+              color: active ? Colors.white : const Color(0xFF212121),
             ),
           ),
         ),
@@ -1919,7 +1702,6 @@ class _MapControlButton extends StatelessWidget {
   }
 }
 
-// ─── Map Type Sheet ───────────────────────────────────────────────────────────
 class _MapTypeSheet extends StatelessWidget {
   final String current;
   final Function(String) onSelect;
