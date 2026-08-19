@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 /// Zillow Clone - Pixel-Perfect Property Detail Screen
 class ZillowPropertyDetailScreen extends StatefulWidget {
@@ -48,10 +49,14 @@ class _ZillowPropertyDetailScreenState
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
   late TextEditingController _messageController;
+  late TextEditingController _destinationController;
 
   final String _address = "7761 Sagemeadow Ct, Columbus, OH 43235";
   final String _propertyImageUrl =
       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80";
+
+  // Coordinates for 7761 Sagemeadow Ct, Columbus, OH
+  static const LatLng _propertyLocation = LatLng(40.1167, -83.0822);
 
   @override
   void initState() {
@@ -62,6 +67,7 @@ class _ZillowPropertyDetailScreenState
     _messageController = TextEditingController(
       text: "I am interested in $_address.",
     );
+    _destinationController = TextEditingController();
   }
 
   @override
@@ -70,6 +76,7 @@ class _ZillowPropertyDetailScreenState
     _phoneController.dispose();
     _emailController.dispose();
     _messageController.dispose();
+    _destinationController.dispose();
     super.dispose();
   }
 
@@ -143,6 +150,23 @@ class _ZillowPropertyDetailScreenState
     overlay.insert(entry);
   }
 
+  void _open3dTourAndFloorPlanModal({bool startOnFloorPlan = false}) {
+    if (widget.onOpen3dHome != null && !startOnFloorPlan) {
+      widget.onOpen3dHome!();
+    }
+    showDialog(
+      context: context,
+      useSafeArea: false,
+      builder: (context) => ThreeDTourAndFloorPlanViewerDialog(
+        initialShowFloorPlan: startOnFloorPlan,
+        isFavorite: _isFavorite,
+        onFavoriteToggle: () {
+          setState(() => _isFavorite = !_isFavorite);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,6 +212,18 @@ class _ZillowPropertyDetailScreenState
                     const SizedBox(height: 12),
                     _buildCard10PriceAndTaxHistory(),
                     const SizedBox(height: 12),
+                    // Addendums 1 - 5 placed AFTER Price & Tax History
+                    _buildAddendum1ClimateRisks(),
+                    const SizedBox(height: 12),
+                    _buildAddendum2TravelTimes(),
+                    const SizedBox(height: 12),
+                    _buildAddendum3Neighborhood(),
+                    const SizedBox(height: 12),
+                    _buildAddendum4NearbySchools(),
+                    const SizedBox(height: 12),
+                    _buildAddendum5HomesForYou(),
+                    const SizedBox(height: 12),
+                    // Original tour booking and contact agent form
                     _buildCard11TourBooking(),
                     const SizedBox(height: 12),
                     _buildCard12ContactAgentForm(),
@@ -422,13 +458,7 @@ class _ZillowPropertyDetailScreenState
                   const SizedBox(height: 6),
                   // Capsule 2: 3D Home (black capsule with 3D cube)
                   InkWell(
-                    onTap: () {
-                      if (widget.onOpen3dHome != null) {
-                        widget.onOpen3dHome!();
-                      } else {
-                        Fluttertoast.showToast(msg: "Opening 3D Home Tour...");
-                      }
-                    },
+                    onTap: () => _open3dTourAndFloorPlanModal(),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -1998,6 +2028,584 @@ class _ZillowPropertyDetailScreenState
     );
   }
 
+  // ── ADDENDUM 1: CLIMATE RISKS ─────────────────────────────────────────────
+  Widget _buildAddendum1ClimateRisks() {
+    return Card(
+      color: cardBg,
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Climate risks",
+              style: TextStyle(
+                color: textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            RichText(
+              text: const TextSpan(
+                style: TextStyle(
+                  color: textPrimary,
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+                children: [
+                  TextSpan(
+                    text:
+                        "Explore flood, wildfire, and other predictive climate risk information for this property on ",
+                  ),
+                  TextSpan(
+                    text: "First Street®",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(text: "."),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "Flood zone",
+              style: TextStyle(
+                color: textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              "In FEMA Zone X (unshaded), a minimal-risk flood area.",
+              style: TextStyle(
+                color: Color(0xFF616161),
+                fontSize: 15,
+                height: 1.3,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── ADDENDUM 2: TRAVEL TIMES ──────────────────────────────────────────────
+  Widget _buildAddendum2TravelTimes() {
+    return Card(
+      color: cardBg,
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Travel times",
+                  style: TextStyle(
+                    color: textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                // INRIX Logo Badge
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: bgGrey,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    "INRIX",
+                    style: TextStyle(
+                      color: textPrimary,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Large rounded input field
+            Container(
+              decoration: BoxDecoration(
+                color: bgGrey,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: TextField(
+                controller: _destinationController,
+                style: const TextStyle(color: textPrimary, fontSize: 14),
+                decoration: const InputDecoration(
+                  hintText: "Add a destination",
+                  hintStyle: TextStyle(color: textSecondary, fontSize: 14),
+                  prefixIcon: Icon(
+                    Icons.directions_car_outlined,
+                    color: textSecondary,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── ADDENDUM 3: NEIGHBORHOOD ──────────────────────────────────────────────
+  Widget _buildAddendum3Neighborhood() {
+    return Card(
+      color: cardBg,
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Neighborhood: Summerwood",
+              style: TextStyle(
+                color: textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Miniature GoogleMap Widget container
+            Container(
+              height: 180,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: GoogleMap(
+                initialCameraPosition: const CameraPosition(
+                  target: _propertyLocation,
+                  zoom: 14.5,
+                ),
+                zoomControlsEnabled: false,
+                myLocationButtonEnabled: false,
+                mapToolbarEnabled: false,
+                compassEnabled: false,
+                markers: {
+                  Marker(
+                    markerId: const MarkerId("property_marker"),
+                    position: _propertyLocation,
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueBlue,
+                    ),
+                    infoWindow: const InfoWindow(
+                      title: "7761 Sagemeadow Ct",
+                      snippet: "Summerwood, Columbus",
+                    ),
+                  ),
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: () {
+                Fluttertoast.showToast(msg: "Loading Summerwood neighborhood info...");
+              },
+              child: const Text(
+                "Show more",
+                style: TextStyle(
+                  color: primaryBlue,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── ADDENDUM 4: NEARBY SCHOOLS ───────────────────────────────────────────
+  Widget _buildAddendum4NearbySchools() {
+    final schools = [
+      {
+        "name": "Granby Elementary School",
+        "grades": "Grades K-5 • 0.8 miles",
+        "testScore": "Test score 6/10",
+        "progress": "Student progress 3/10",
+        "rating": "5/10",
+      },
+      {
+        "name": "McCord Middle School",
+        "grades": "Grades 6-8 • 1.2 miles",
+        "testScore": "Test score 7/10",
+        "progress": "Student progress 6/10",
+        "rating": "7/10",
+      },
+      {
+        "name": "Worthington Kilbourne High School",
+        "grades": "Grades 9-12 • 2.1 miles",
+        "testScore": "Test score 8/10",
+        "progress": "Student progress 7/10",
+        "rating": "8/10",
+      },
+    ];
+
+    return Card(
+      color: cardBg,
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Nearby Schools",
+              style: TextStyle(
+                color: textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Row(
+              children: [
+                Icon(Icons.info_outline, color: textSecondary, size: 14),
+                SizedBox(width: 4),
+                Text(
+                  "Source: GreatSchools®",
+                  style: TextStyle(color: textSecondary, fontSize: 12),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...schools.map((school) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12.0),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: bgGrey,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            school["name"]!,
+                            style: const TextStyle(
+                              color: textPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            school["grades"]!,
+                            style: const TextStyle(
+                              color: textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Text(
+                                school["testScore"]!,
+                                style: const TextStyle(
+                                  color: textSecondary,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text("•", style: TextStyle(color: textSecondary)),
+                              const SizedBox(width: 8),
+                              Text(
+                                school["progress"]!,
+                                style: const TextStyle(
+                                  color: textSecondary,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // CircleAvatar with dark green background Color(0xFF2C7A5D)
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: const Color(0xFF2C7A5D),
+                      child: Text(
+                        school["rating"]!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── ADDENDUM 5: HOMES FOR YOU ─────────────────────────────────────────────
+  Widget _buildAddendum5HomesForYou() {
+    final homes = [
+      {
+        "price": "\$325,000",
+        "details": "3 bd | 2.5 ba | 1,465 sqft",
+        "address": "1449 Tall Pine Ct, Columbus, OH",
+        "image":
+            "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&q=80",
+      },
+      {
+        "price": "\$350,000",
+        "details": "4 bd | 2.5 ba | 1,820 sqft",
+        "address": "7812 Oakmeadows Dr, Columbus, OH",
+        "image":
+            "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80",
+      },
+      {
+        "price": "\$315,000",
+        "details": "3 bd | 2.0 ba | 1,390 sqft",
+        "address": "1205 Sagemeadow Way, Columbus, OH",
+        "image":
+            "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=80",
+      },
+    ];
+
+    return Card(
+      color: cardBg,
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Homes for you",
+              style: TextStyle(
+                color: textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Horizontal ListView for homes
+            SizedBox(
+              height: 230,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: homes.length,
+                itemBuilder: (context, index) {
+                  final item = homes[index];
+                  return Container(
+                    width: 220,
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      color: cardBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Image Stack
+                        Stack(
+                          children: [
+                            Image.network(
+                              item["image"]!,
+                              height: 120,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                            // Top Left: For sale black pill badge
+                            Positioned(
+                              top: 8,
+                              left: 8,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withAlpha(204),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Text(
+                                  "For sale",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Top Right: Heart Icon
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.favorite_border,
+                                  size: 16,
+                                  color: textPrimary,
+                                ),
+                              ),
+                            ),
+                            // Bottom Right: MLS logo
+                            Positioned(
+                              bottom: 6,
+                              right: 6,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withAlpha(230),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                                child: const Text(
+                                  "MLS",
+                                  style: TextStyle(
+                                    color: primaryBlue,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 9,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item["price"]!,
+                                style: const TextStyle(
+                                  color: textPrimary,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                item["details"]!,
+                                style: const TextStyle(
+                                  color: textPrimary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                item["address"]!,
+                                style: const TextStyle(
+                                  color: textSecondary,
+                                  fontSize: 11,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 16),
+            // MLS Provider logo & info
+            Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: primaryBlue,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    "COLUMBUS MLS",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    "Columbus and Central Ohio Regional MLS Rasmus Real Estate Group, Inc.",
+                    style: TextStyle(
+                      color: textSecondary,
+                      fontSize: 11,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "IDX information is provided exclusively for personal, non-commercial use and may not be used for any purpose other than to identify prospective properties consumers may be interested in purchasing.",
+              style: TextStyle(
+                color: textSecondary,
+                fontSize: 10,
+                height: 1.3,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── CARD 11: TOUR WITH A BUYER'S AGENT ─────────────────────────────────
   Widget _buildCard11TourBooking() {
     final dates = [
@@ -2436,5 +3044,631 @@ class _ZillowPropertyDetailScreenState
         ],
       ),
     );
+  }
+}
+
+// ── ADDENDUM 6: 3D TOUR & FLOOR PLAN VIEWER DIALOG ──────────────────────────
+class ThreeDTourAndFloorPlanViewerDialog extends StatefulWidget {
+  final bool initialShowFloorPlan;
+  final bool isFavorite;
+  final VoidCallback onFavoriteToggle;
+
+  const ThreeDTourAndFloorPlanViewerDialog({
+    super.key,
+    this.initialShowFloorPlan = false,
+    required this.isFavorite,
+    required this.onFavoriteToggle,
+  });
+
+  @override
+  State<ThreeDTourAndFloorPlanViewerDialog> createState() =>
+      _ThreeDTourAndFloorPlanViewerDialogState();
+}
+
+class _ThreeDTourAndFloorPlanViewerDialogState
+    extends State<ThreeDTourAndFloorPlanViewerDialog> {
+  late bool _showFloorPlan;
+  int _selectedFloor = 1; // 1 for Floor 1, 2 for Floor 2
+  int _currentTourStep = 0; // 0: Entrance, 1: Living Room, 2: Kitchen
+  late bool _isFav;
+
+  final List<Map<String, String>> _tourSteps = [
+    {
+      "label": "Entrance",
+      "next": "Living room",
+      "image":
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
+    },
+    {
+      "label": "Living room",
+      "next": "Kitchen",
+      "image":
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
+    },
+    {
+      "label": "Kitchen",
+      "next": "Entrance",
+      "image":
+          "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=1200&q=80",
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _showFloorPlan = widget.initialShowFloorPlan;
+    _isFav = widget.isFavorite;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog.fullscreen(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // Main Viewer Content
+              Positioned.fill(
+                child: _showFloorPlan
+                    ? _buildFloorPlanViewer()
+                    : _build3dWalkthroughViewer(),
+              ),
+
+              // Top Bar Layout: 5 Icons Row
+              Positioned(
+                top: 12,
+                left: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(178),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 1. Close Button (Blue X)
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Color(0xFF0052CC), size: 24),
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      // 2. Photos Icon
+                      IconButton(
+                        icon: const Icon(Icons.image_outlined, color: Colors.white, size: 22),
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          setState(() => _showFloorPlan = false);
+                          Fluttertoast.showToast(msg: "Switched to Photo Walkthrough");
+                        },
+                      ),
+                      // 3. Fullscreen Icon
+                      IconButton(
+                        icon: const Icon(Icons.crop_free, color: Colors.white, size: 22),
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          Fluttertoast.showToast(msg: "Fullscreen View");
+                        },
+                      ),
+                      // 4. Floor plan Button (active indicator: blue border/underline)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() => _showFloorPlan = !_showFloorPlan);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _showFloorPlan
+                                ? const Color(0xFF0052CC).withAlpha(51)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: _showFloorPlan
+                                  ? const Color(0xFF0052CC)
+                                  : Colors.transparent,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.map_outlined,
+                                color: _showFloorPlan
+                                    ? const Color(0xFF0052CC)
+                                    : Colors.white,
+                                size: 20,
+                              ),
+                              if (_showFloorPlan) ...[
+                                const SizedBox(width: 4),
+                                const Text(
+                                  "Floor plan",
+                                  style: TextStyle(
+                                    color: Color(0xFF0052CC),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      // 5. Heart Favorite Icon
+                      IconButton(
+                        icon: Icon(
+                          _isFav ? Icons.favorite : Icons.favorite_border,
+                          color: _isFav ? Colors.red : Colors.white,
+                          size: 22,
+                        ),
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          setState(() => _isFav = !_isFav);
+                          widget.onFavoriteToggle();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── 3D WALKTHROUGH VIEW ───────────────────────────────────────────────────
+  Widget _build3dWalkthroughViewer() {
+    final step = _tourSteps[_currentTourStep];
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Background High-Quality Interior Image
+        InteractiveViewer(
+          minScale: 1.0,
+          maxScale: 3.0,
+          child: Image.network(
+            step["image"]!,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+        ),
+
+        // Floating pill over image: "Entrance" / current location label
+        Positioned(
+          top: 75,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha(204),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black45, blurRadius: 6),
+                ],
+              ),
+              child: Text(
+                step["label"]!,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // Bottom Center Navigation Arrow + Room Label
+        Positioned(
+          bottom: 60,
+          left: 0,
+          right: 0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _currentTourStep =
+                        (_currentTourStep + 1) % _tourSteps.length;
+                  });
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withAlpha(153),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white70, width: 1.5),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_upward,
+                        color: Colors.white,
+                        size: 26,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withAlpha(178),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        step["next"]!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Bottom Progress Bar with Active Dot & Empty Dots
+        Positioned(
+          bottom: 20,
+          left: 40,
+          right: 40,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_tourSteps.length, (index) {
+              final isActive = _currentTourStep == index;
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: isActive ? 24 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: isActive ? Colors.white : Colors.white38,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              );
+            }),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── FLOOR PLAN VIEWER ─────────────────────────────────────────────────────
+  Widget _buildFloorPlanViewer() {
+    return Container(
+      color: const Color(0xFF121212),
+      child: Column(
+        children: [
+          const SizedBox(height: 70),
+          // Floor Switcher Toggle (Floor 1 vs Floor 2)
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(25),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => _selectedFloor = 1),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _selectedFloor == 1
+                          ? const Color(0xFF0052CC)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "Floor 1",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: _selectedFloor == 1
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => setState(() => _selectedFloor = 2),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _selectedFloor == 2
+                          ? const Color(0xFF0052CC)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "Floor 2",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: _selectedFloor == 2
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Interactive Zoomable Floor Plan Diagram Canvas
+          Expanded(
+            child: InteractiveViewer(
+              minScale: 0.8,
+              maxScale: 4.0,
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAFAFA),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
+                    width: 320,
+                    height: 420,
+                    child: CustomPaint(
+                      painter: FloorPlanCustomPainter(floor: _selectedFloor),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+          // Interactive areas hint
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(20),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 5,
+                  backgroundColor: Color(0xFF0052CC),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  "Blue dots indicate interactive 3D tour viewpoints",
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── CUSTOM FLOOR PLAN PAINTER ──────────────────────────────────────────────
+class FloorPlanCustomPainter extends CustomPainter {
+  final int floor;
+
+  FloorPlanCustomPainter({required this.floor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final wallPaint = Paint()
+      ..color = const Color(0xFF0F4C81) // Thick Blue Walls
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0
+      ..strokeCap = StrokeCap.square;
+
+    final fillPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    final dotPaint = Paint()
+      ..color = const Color(0xFF0052CC)
+      ..style = PaintingStyle.fill;
+
+    final dotBorderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    if (floor == 1) {
+      // ── FLOOR 1 SCHEMATIC ─────────────────────────────────────────────────
+      // 1. Living Room (Top Left)
+      final livingRect = Rect.fromLTWH(10, 10, 150, 160);
+      canvas.drawRect(livingRect, fillPaint);
+      canvas.drawRect(livingRect, wallPaint);
+      _drawText(
+        canvas,
+        "Living Room\n15'0\" x 18'2\"",
+        Offset(livingRect.center.dx, livingRect.center.dy),
+      );
+
+      // 2. Dining Room (Top Right)
+      final diningRect = Rect.fromLTWH(160, 10, 140, 100);
+      canvas.drawRect(diningRect, fillPaint);
+      canvas.drawRect(diningRect, wallPaint);
+      _drawText(
+        canvas,
+        "Dining Room\n9'5\" x 10'6\"",
+        Offset(diningRect.center.dx, diningRect.center.dy),
+      );
+
+      // 3. Kitchen (Middle Right)
+      final kitchenRect = Rect.fromLTWH(160, 110, 140, 120);
+      canvas.drawRect(kitchenRect, fillPaint);
+      canvas.drawRect(kitchenRect, wallPaint);
+      _drawText(
+        canvas,
+        "Kitchen\n12'0\" x 12'4\"",
+        Offset(kitchenRect.center.dx, kitchenRect.center.dy),
+      );
+
+      // 4. Garage (Bottom Left)
+      final garageRect = Rect.fromLTWH(10, 170, 150, 180);
+      canvas.drawRect(garageRect, fillPaint);
+      canvas.drawRect(garageRect, wallPaint);
+      _drawText(
+        canvas,
+        "Garage\n19'0\" x 20'0\"",
+        Offset(garageRect.center.dx, garageRect.center.dy),
+      );
+
+      // 5. Foyer / Laundry / Bath (Bottom Right)
+      final foyerRect = Rect.fromLTWH(160, 230, 140, 120);
+      canvas.drawRect(foyerRect, fillPaint);
+      canvas.drawRect(foyerRect, wallPaint);
+      _drawText(
+        canvas,
+        "Foyer / Bath",
+        Offset(foyerRect.center.dx, foyerRect.center.dy),
+      );
+
+      // Interactive Blue Dots
+      final dots = [
+        Offset(85, 90), // Living Room
+        Offset(230, 60), // Dining Room
+        Offset(230, 170), // Kitchen
+        Offset(230, 290), // Foyer
+      ];
+
+      for (final dot in dots) {
+        canvas.drawCircle(dot, 7, dotPaint);
+        canvas.drawCircle(dot, 7, dotBorderPaint);
+      }
+    } else {
+      // ── FLOOR 2 SCHEMATIC ─────────────────────────────────────────────────
+      // 1. Primary Bedroom (Top Left & Center)
+      final primaryRect = Rect.fromLTWH(10, 10, 170, 170);
+      canvas.drawRect(primaryRect, fillPaint);
+      canvas.drawRect(primaryRect, wallPaint);
+      _drawText(
+        canvas,
+        "Primary Bedroom\n14'0\" x 16'0\"",
+        Offset(primaryRect.center.dx, primaryRect.center.dy),
+      );
+
+      // 2. Primary Bath & Walk-In Closet (Top Right)
+      final bathRect = Rect.fromLTWH(180, 10, 120, 170);
+      canvas.drawRect(bathRect, fillPaint);
+      canvas.drawRect(bathRect, wallPaint);
+      _drawText(
+        canvas,
+        "Primary Bath\n& W.I.C.",
+        Offset(bathRect.center.dx, bathRect.center.dy),
+      );
+
+      // 3. Bedroom 2 (Bottom Left)
+      final bed2Rect = Rect.fromLTWH(10, 180, 140, 160);
+      canvas.drawRect(bed2Rect, fillPaint);
+      canvas.drawRect(bed2Rect, wallPaint);
+      _drawText(
+        canvas,
+        "Bedroom 2\n11'0\" x 12'0\"",
+        Offset(bed2Rect.center.dx, bed2Rect.center.dy),
+      );
+
+      // 4. Bedroom 3 (Bottom Right)
+      final bed3Rect = Rect.fromLTWH(150, 180, 150, 160);
+      canvas.drawRect(bed3Rect, fillPaint);
+      canvas.drawRect(bed3Rect, wallPaint);
+      _drawText(
+        canvas,
+        "Bedroom 3\n10'6\" x 11'6\"",
+        Offset(bed3Rect.center.dx, bed3Rect.center.dy),
+      );
+
+      // Interactive Blue Dots
+      final dots = [
+        Offset(95, 95), // Primary Bedroom
+        Offset(240, 95), // Primary Bath
+        Offset(80, 260), // Bedroom 2
+        Offset(225, 260), // Bedroom 3
+      ];
+
+      for (final dot in dots) {
+        canvas.drawCircle(dot, 7, dotPaint);
+        canvas.drawCircle(dot, 7, dotBorderPaint);
+      }
+    }
+  }
+
+  void _drawText(Canvas canvas, String text, Offset center) {
+    final textSpan = TextSpan(
+      text: text,
+      style: const TextStyle(
+        color: Color(0xFF212121),
+        fontSize: 11,
+        fontWeight: FontWeight.bold,
+        height: 1.2,
+      ),
+    );
+
+    final textPainter = TextPainter(
+      text: textSpan,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant FloorPlanCustomPainter oldDelegate) {
+    return oldDelegate.floor != floor;
   }
 }
