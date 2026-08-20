@@ -1,3 +1,5 @@
+import 'package:pointer_interceptor/pointer_interceptor.dart';
+
 import '../../../core/app_export.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../features/property/presentation/widgets/sheet_grabber.dart';
@@ -33,6 +35,32 @@ class DraggablePropertySheet extends StatelessWidget {
   final List<PropertyData> properties;
   final ValueChanged<PropertyData> onOpen;
 
+  void _dragSheet(DragUpdateDetails details, BuildContext context) {
+    if (!controller.isAttached) return;
+    final box = context.findRenderObject() as RenderBox?;
+    final parentHeight = box?.size.height;
+    // Prefer full screen height for delta scaling when available.
+    final mediaH = MediaQuery.sizeOf(context).height;
+    final height = (parentHeight != null && parentHeight > 0)
+        ? mediaH
+        : mediaH;
+    if (height <= 0) return;
+    final delta = details.primaryDelta ?? 0;
+    // Dragging up (negative dy) increases sheet size.
+    final next = (controller.size - delta / height).clamp(0.12, maxSize);
+    controller.jumpTo(next.toDouble());
+  }
+
+  void _snapSheet() {
+    if (!controller.isAttached) return;
+    final mid = (0.12 + maxSize) / 2;
+    controller.animateTo(
+      controller.size >= mid ? maxSize : 0.12,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -46,115 +74,125 @@ class DraggablePropertySheet extends StatelessWidget {
       snap: true,
       snapSizes: [0.12, maxSize],
       builder: (context, scrollController) {
-        return Material(
-          color: Colors.white,
-          elevation: 10,
-          shadowColor: Colors.black26,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(merged ? 0 : 16),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: CustomScrollView(
-            controller: scrollController,
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
+        // PointerInterceptor must wrap sheet *content* on web so the Google
+        // Map HtmlElementView does not steal vertical drags. Do not wrap the
+        // DraggableScrollableSheet itself.
+        return PointerInterceptor(
+          child: Material(
+            color: Colors.white,
+            elevation: 10,
+            shadowColor: Colors.black26,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(merged ? 0 : 16),
             ),
-            slivers: [
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    const SheetGrabber(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
-                      child: Text(
-                        resultsLabel,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111111),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            clipBehavior: Clip.antiAlias,
+            child: CustomScrollView(
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
               ),
-              if (expanded) ...[
+              slivers: [
                 SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onVerticalDragUpdate: (d) => _dragSheet(d, context),
+                    onVerticalDragEnd: (_) => _snapSheet(),
+                    child: Column(
+                      children: [
+                        const SheetGrabber(),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+                          child: Text(
+                            resultsLabel,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF111111),
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE8F1FC),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.auto_awesome,
-                                size: 16,
-                                color: Color(0xFF1565C0),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  loc.recommendedBySearch,
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF1565C0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (expanded) ...[
+                  SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F1FC),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.auto_awesome,
+                                  size: 16,
+                                  color: Color(0xFF1565C0),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    loc.recommendedBySearch,
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1565C0),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      toolbar,
-                      const Divider(
-                        height: 16,
-                        thickness: 1,
-                        color: Color(0xFFEEEEEE),
-                      ),
-                    ],
-                  ),
-                ),
-                if (properties.isEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Center(
-                        child: Text(
-                          loc.noData,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                        toolbar,
+                        const Divider(
+                          height: 16,
+                          thickness: 1,
+                          color: Color(0xFFEEEEEE),
                         ),
-                      ),
+                      ],
                     ),
-                  )
-                else
-                  SliverList.builder(
-                    itemCount: properties.length,
-                    itemBuilder: (context, i) {
-                      final property = properties[i];
-                      return PropertyCard(
-                        property: property,
-                        onTap: () => onOpen(property),
-                      );
-                    },
                   ),
-                const SliverToBoxAdapter(child: SizedBox(height: 90)),
-              ] else
-                const SliverToBoxAdapter(child: SizedBox(height: 220)),
-            ],
+                  if (properties.isEmpty)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Center(
+                          child: Text(
+                            loc.noData,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    SliverList.builder(
+                      itemCount: properties.length,
+                      itemBuilder: (context, i) {
+                        final property = properties[i];
+                        return PropertyCard(
+                          property: property,
+                          onTap: () => onOpen(property),
+                        );
+                      },
+                    ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 90)),
+                ] else
+                  const SliverToBoxAdapter(child: SizedBox(height: 220)),
+              ],
+            ),
           ),
         );
       },

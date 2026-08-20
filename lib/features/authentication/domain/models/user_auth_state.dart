@@ -37,6 +37,7 @@ class UserAuthState {
     this.selectedCurrencyCode = 'IQD',
     this.detectedLatitude,
     this.detectedLongitude,
+    this.otpDeliveryChannel,
   }) : selectedCountry = selectedCountry ?? CountryRegistry.fallback;
 
   final UserAuthStatus status;
@@ -52,6 +53,9 @@ class UserAuthState {
   final String selectedCurrencyCode;
   final double? detectedLatitude;
   final double? detectedLongitude;
+
+  /// `whatsapp` | `sms` | `seed` | `legacy` after send.
+  final String? otpDeliveryChannel;
 
   String get fullPhoneNumber {
     final digits = phoneNumber.replaceAll(RegExp(r'\D'), '');
@@ -82,6 +86,8 @@ class UserAuthState {
     String? selectedCurrencyCode,
     double? detectedLatitude,
     double? detectedLongitude,
+    String? otpDeliveryChannel,
+    bool clearOtpDeliveryChannel = false,
   }) {
     return UserAuthState(
       status: status ?? this.status,
@@ -98,6 +104,9 @@ class UserAuthState {
       selectedCurrencyCode: selectedCurrencyCode ?? this.selectedCurrencyCode,
       detectedLatitude: detectedLatitude ?? this.detectedLatitude,
       detectedLongitude: detectedLongitude ?? this.detectedLongitude,
+      otpDeliveryChannel: clearOtpDeliveryChannel
+          ? null
+          : (otpDeliveryChannel ?? this.otpDeliveryChannel),
     );
   }
 }

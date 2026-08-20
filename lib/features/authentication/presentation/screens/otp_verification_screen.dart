@@ -56,7 +56,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           children: [
             AuthHeader(
               title: loc.authOtpTitle,
-              subtitle: loc.authOtpSubtitle(state.maskedPhoneNumber),
+              subtitle: state.otpDeliveryChannel == 'sms'
+                  ? loc.authOtpSentViaSms
+                  : loc.authOtpSubtitle(state.maskedPhoneNumber),
             ),
             const SizedBox(height: AuthSpacing.md),
             InkWell(
@@ -122,6 +124,25 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ),
               ),
             ),
+            if (state.otpDeliveryChannel != 'sms')
+              Center(
+                child: TextButton(
+                  onPressed: state.canResendOtp && !state.isBusy
+                      ? auth.sendOtpViaSms
+                      : null,
+                  child: Text(
+                    loc.authSendViaSms,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: state.canResendOtp
+                          ? AuthColors.canvasSoft
+                          : AuthColors.muted,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
             if (state.userMessage != null) ...[
               const SizedBox(height: AuthSpacing.md),
               AuthErrorBanner(message: state.userMessage!),
