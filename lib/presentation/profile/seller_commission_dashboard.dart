@@ -54,56 +54,13 @@ class _SellerCommissionDashboardState extends State<SellerCommissionDashboard>
         });
       }
     } catch (_) {
-      // Use mock data for demo
-      _loadMockData();
+      if (!mounted) return;
+      setState(() {
+        _transactions = [];
+        _computeStats();
+        _isLoading = false;
+      });
     }
-  }
-
-  void _loadMockData() {
-    _transactions = [
-      {
-        'id': 'txn_001',
-        'status': 'completed',
-        'property_price': 185000,
-        'commission_rate': 0.01,
-        'created_at': '2025-03-15',
-        'property_title': 'Modern Apartment — Karrada',
-      },
-      {
-        'id': 'txn_002',
-        'status': 'completed',
-        'property_price': 420000,
-        'commission_rate': 0.01,
-        'created_at': '2025-04-22',
-        'property_title': 'Villa — Mansour District',
-      },
-      {
-        'id': 'txn_003',
-        'status': 'pending',
-        'property_price': 260000,
-        'commission_rate': 0.01,
-        'created_at': '2025-05-10',
-        'property_title': 'Townhouse — Jadriya',
-      },
-      {
-        'id': 'txn_004',
-        'status': 'in_progress',
-        'property_price': 95000,
-        'commission_rate': 0.01,
-        'created_at': '2025-06-01',
-        'property_title': 'Land — Adhamiya',
-      },
-      {
-        'id': 'txn_005',
-        'status': 'completed',
-        'property_price': 75000,
-        'commission_rate': 0.01,
-        'created_at': '2025-06-18',
-        'property_title': 'Apartment — Kadhimiya',
-      },
-    ];
-    _computeStats();
-    if (mounted) setState(() => _isLoading = false);
   }
 
   void _computeStats() {

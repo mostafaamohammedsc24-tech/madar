@@ -33,7 +33,9 @@ pubspec.lock
 .pub-cache/
 .pub/
 /build/
-/web/
+
+# Keep web/ platform entry files tracked (maps script, index.html, icons).
+# Ignore generated web build output only under /build/web via /build/ above.
 
 # Symbolication related
 app.*.symbols

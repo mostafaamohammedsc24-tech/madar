@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../core/demo/demo_mode.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../services/supabase_service.dart';
 import '../../../theme/app_theme.dart';
@@ -154,7 +153,7 @@ class _AddPropertySheetWidgetState extends State<AddPropertySheetWidget> {
       _toast(loc.locationRequired);
       return;
     }
-    if (_image == null && !DemoMode.enabled) {
+    if (_image == null) {
       _toast(loc.photoRequired);
       return;
     }
