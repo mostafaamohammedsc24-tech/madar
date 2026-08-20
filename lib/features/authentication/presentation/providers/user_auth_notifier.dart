@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../../../core/geo/country_registry.dart';
 import '../../../../core/geo/region_detection_service.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../services/otp_delivery_service.dart';
 import '../../../../services/supabase_service.dart';
 import '../../../../services/mixpanel_service.dart';
 import '../../data/local/auth_session_storage.dart';
@@ -271,7 +272,7 @@ class UserAuthNotifier extends ChangeNotifier {
     );
   }
 
-  Future<void> sendOtp() async {
+  Future<void> sendOtp({OtpDeliveryChannel channel = OtpDeliveryChannel.auto}) async {
     final digits = _state.phoneNumber.replaceAll(RegExp(r'\D'), '');
     if (digits.length < _state.selectedCountry.minPhoneLength) return;
 
@@ -295,12 +296,17 @@ class UserAuthNotifier extends ChangeNotifier {
             status: UserAuthStatus.awaitingOtpVerification,
             isBusy: false,
             clearMessage: true,
+            otpDeliveryChannel:
+                channel == OtpDeliveryChannel.sms ? 'sms' : 'whatsapp',
           ),
         );
         return;
       }
 
-      await _repository.sendPhoneOtp(_state.fullPhoneNumber);
+      await _repository.sendPhoneOtp(
+        _state.fullPhoneNumber,
+        channel: channel,
+      );
 
       MixpanelService.instance.trackOtpSent(
         countryCode: _state.selectedCountry.dialCode,
@@ -311,6 +317,8 @@ class UserAuthNotifier extends ChangeNotifier {
         _state.copyWith(
           status: UserAuthStatus.awaitingOtpVerification,
           isBusy: false,
+          otpDeliveryChannel: _repository.lastDeliveryChannel ??
+              (channel == OtpDeliveryChannel.sms ? 'sms' : 'whatsapp'),
         ),
       );
     } on AuthRepositoryException catch (e) {
@@ -331,6 +339,9 @@ class UserAuthNotifier extends ChangeNotifier {
       );
     }
   }
+
+  /// User-requested SMS fallback (does not dual-send with WhatsApp).
+  Future<void> sendOtpViaSms() => sendOtp(channel: OtpDeliveryChannel.sms);
 
   Future<void> verifyOtp(String otp) async {
     if (otp.length < 6) return;

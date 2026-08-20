@@ -94,21 +94,29 @@ class SupabaseService {
     double? longitude,
     String locationPermission = 'not_requested',
   }) async {
-    await client.from('user_profiles').upsert({
-      'id': userId,
-      'phone': phone,
-      'phone_country_code': phoneCountryCode,
-      'phone_verified': true,
-      'country_code': countryCode,
-      'preferred_language': preferredLanguage,
-      'preferred_currency': preferredCurrency,
-      'status': 'active',
-      'last_login_at': DateTime.now().toIso8601String(),
-    });
+    try {
+      await client.from('user_profiles').upsert({
+        'id': userId,
+        'phone': phone,
+        'phone_country_code': phoneCountryCode,
+        'phone_verified': true,
+        'country_code': countryCode,
+        'preferred_language': preferredLanguage,
+        'preferred_currency': preferredCurrency,
+        'status': 'active',
+        'last_login_at': DateTime.now().toIso8601String(),
+      });
+    } catch (e) {
+      debugPrint('[Supabase] user_profiles upsert failed: $e');
+    }
 
-    await client.from('user_preferences').upsert({
-      'user_id': userId,
-    });
+    try {
+      await client.from('user_preferences').upsert({
+        'user_id': userId,
+      });
+    } catch (e) {
+      debugPrint('[Supabase] user_preferences upsert failed: $e');
+    }
 
     if (latitude != null && longitude != null) {
       try {

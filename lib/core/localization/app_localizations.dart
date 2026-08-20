@@ -58,7 +58,8 @@ class AppLocalizations {
   String get navProperties =>
       _t(en: 'Properties', ar: 'الأملاك', ku: 'خانووبەرەکان');
   String get navMessages => _t(en: 'Messages', ar: 'الرسائل', ku: 'نامەکان');
-  String get navProfile => _t(en: 'Profile', ar: 'الشخصية', ku: 'پرۆفایل');
+  String get navProfile =>
+      _t(en: 'My account', ar: 'حسابي', ku: 'هەژمارەکەم');
 
   // ─── Search Screen ────────────────────────────────────────────────────────
   String get propertiesFound =>
@@ -746,9 +747,9 @@ class AppLocalizations {
   String get authPhoneTitle =>
       _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
   String get authPhoneSubtitle => _t(
-    en: 'Choose your country and enter your mobile number. We will send you a verification code.',
-    ar: 'اختر بلدك وأدخل رقم هاتفك المحمول، وسنرسل لك رمز التحقق',
-    ku: 'وڵاتەکەت هەڵبژێرە و ژمارەی مۆبایل بنووسە، کۆدی پشتڕاستکردنەوە دەنێرین.',
+    en: 'Choose your country and enter your mobile number. We will send a verification code on WhatsApp.',
+    ar: 'اختر بلدك وأدخل رقم هاتفك المحمول، وسنرسل رمز التحقق عبر واتساب',
+    ku: 'وڵاتەکەت هەڵبژێرە و ژمارەی مۆبایل بنووسە، کۆدی پشتڕاستکردنەوە لە واتسئەپ دەنێرین.',
   );
   String get authContinue =>
       _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
@@ -770,9 +771,19 @@ class AppLocalizations {
   String get authOtpTitle =>
       _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
   String authOtpSubtitle(String phone) => _t(
+    en: 'A verification code was sent to WhatsApp!',
+    ar: 'تم إرسال رمز التحقق إلى واتساب!',
+    ku: 'کۆدی پشتڕاستکردنەوە بۆ واتسئەپ نێردرا!',
+  );
+  String get authOtpSentViaSms => _t(
     en: 'A verification code was sent via SMS!',
-    ar: 'تم إرسال رمز التحقق عبر SMS!',
-    ku: 'کۆدی پشتڕاستکردنەوە بە SMS نێردرا!',
+    ar: 'تم إرسال رمز التحقق عبر الرسائل النصية!',
+    ku: 'کۆدی پشتڕاستکردنەوە بە کورتەنامە نێردرا!',
+  );
+  String get authSendViaSms => _t(
+    en: "Didn't get the code? Send via SMS",
+    ar: 'لم يصلك الرمز؟ إرسال عبر الرسائل النصية',
+    ku: 'کۆدەکەت پێنەگەیشت؟ بە کورتەنامە بنێرە',
   );
   String get authVerifyContinue =>
       _t(en: 'Login', ar: 'تسجيل الدخول', ku: 'چوونەژوورەوە');
