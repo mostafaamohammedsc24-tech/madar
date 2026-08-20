@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../core/demo/demo_mode.dart';
 import '../../../../../core/localization/app_localizations.dart';
 import '../../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../../authentication/presentation/widgets/auth_container.dart';
@@ -21,12 +20,8 @@ class EmployeeLoginScreen extends StatefulWidget {
 }
 
 class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
-  final _idCtrl = TextEditingController(
-    text: DemoMode.enabled ? DemoMode.employeeCode : '',
-  );
-  final _secretCtrl = TextEditingController(
-    text: DemoMode.enabled ? DemoMode.secret : '',
-  );
+  final _idCtrl = TextEditingController();
+  final _secretCtrl = TextEditingController();
   bool _obscure = true;
 
   @override
@@ -111,15 +106,6 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
             onChanged: (_) => setState(() {}),
             onSubmitted: canSubmit ? (_) => _submit(auth) : null,
           ),
-          if (DemoMode.enabled) ...[
-            const SizedBox(height: AuthSpacing.md),
-            Text(
-              '${DemoMode.employeeCode} / ${DemoMode.secret}',
-              style: AuthTypography.caption(
-                context,
-              ).copyWith(color: theme.colorScheme.primary),
-            ),
-          ],
           if (auth.message != null) ...[
             const SizedBox(height: AuthSpacing.md),
             AuthErrorBanner(message: _error(loc, auth.message)),

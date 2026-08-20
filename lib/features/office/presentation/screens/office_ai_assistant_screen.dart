@@ -7,7 +7,6 @@ import '../../../../presentation/search_map_screen/models/property_data.dart';
 import '../../../../presentation/search_map_screen/widgets/ai_property_suggestion_card.dart';
 import '../../../../presentation/search_map_screen/widgets/property_detail_sheet_widget.dart';
 import '../../../../services/property_ai_service.dart';
-import '../../../../services/property_catalog_demo.dart';
 import '../../../../services/supabase_service.dart';
 import '../../../../theme/app_theme.dart';
 import '../providers/office_auth_notifier.dart';
@@ -58,9 +57,6 @@ class _OfficeAiAssistantScreenState extends State<OfficeAiAssistantScreen> {
           _catalog = data.map(PropertyData.fromSupabase).toList();
         }
       } catch (_) {}
-    }
-    if (_catalog.isEmpty) {
-      _catalog = PropertyCatalogDemo.listings();
     }
     if (!mounted) return;
     setState(() {

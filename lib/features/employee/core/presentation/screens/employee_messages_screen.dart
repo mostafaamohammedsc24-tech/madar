@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../core/demo/demo_mode.dart';
 import '../../../../../core/localization/app_localizations.dart';
-import '../../../../../services/app_demo_seed.dart';
 import '../../../../../services/supabase_service.dart';
 import '../providers/employee_auth_notifier.dart';
 
@@ -46,17 +44,13 @@ class _EmployeeMessagesScreenState extends State<EmployeeMessagesScreen> {
       }).toList();
       if (!mounted) return;
       setState(() {
-        _items = scoped.isEmpty && DemoMode.enabled
-            ? AppDemoSeed.employeeConversations()
-            : scoped;
+        _items = scoped;
         _loading = false;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _items = DemoMode.enabled
-            ? AppDemoSeed.employeeConversations()
-            : const [];
+        _items = const [];
         _loading = false;
       });
     }

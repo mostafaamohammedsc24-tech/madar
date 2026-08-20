@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../core/demo/demo_mode.dart';
 import '../../../../../core/localization/app_localizations.dart';
-import '../../../../../services/app_demo_seed.dart';
 import '../../domain/employee_models.dart';
 import '../../domain/employee_permissions.dart';
 import '../providers/employee_auth_notifier.dart';
@@ -186,14 +184,14 @@ List<WorkQueueItem> workQueuesFor(
       ];
     case EmployeeDepartmentCode.sales:
       return [
-        WorkQueueItem(
+        const WorkQueueItem(
           title: 'Leads',
-          count: DemoMode.enabled ? AppDemoSeed.salesLeads().length : 0,
+          count: 0,
           route: '/employee/sales/leads',
         ),
-        WorkQueueItem(
+        const WorkQueueItem(
           title: 'Follow-ups',
-          count: DemoMode.enabled ? AppDemoSeed.salesFollowUps().length : 0,
+          count: 0,
           route: '/employee/sales/followups',
         ),
         const WorkQueueItem(
@@ -201,13 +199,9 @@ List<WorkQueueItem> workQueuesFor(
           count: 0,
           route: '/employee/publishing/create',
         ),
-        WorkQueueItem(
+        const WorkQueueItem(
           title: 'Deals / handoff',
-          count: DemoMode.enabled
-              ? AppDemoSeed.salesLeads()
-                  .where((l) => l['status'] == 'ready_for_closing')
-                  .length
-              : 0,
+          count: 0,
           route: '/employee/sales/deals',
         ),
       ];

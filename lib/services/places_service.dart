@@ -50,9 +50,7 @@ class AreaResult {
   final LatLng center;
 }
 
-/// Google Places (Autocomplete + Details + Nearby) on the Maps API key,
-/// with a Baghdad demo registry fallback when the REST API is unreachable
-/// (e.g. CORS on flutter web debug builds).
+/// Google Places (Autocomplete + Details + Nearby) on the Maps API key.
 class PlacesService {
   PlacesService({Dio? dio}) : _dio = dio ?? Dio();
 
@@ -71,7 +69,7 @@ class PlacesService {
 
   // ─── Public API ────────────────────────────────────────────────────────────
 
-  /// Mixed suggestions for the query: Google Places first, demo registry after.
+  /// Mixed suggestions for the query via Google Places when an API key is set.
   Future<List<PlaceSuggestion>> suggest(
     String query, {
     LatLng? near,
@@ -92,8 +90,7 @@ class PlacesService {
     String trimmed,
     LatLng? near,
   ) async {
-    final local = _localSuggestions(trimmed);
-    if (_apiKey.isEmpty) return local;
+    if (_apiKey.isEmpty) return const [];
 
     try {
       final response = await _dio.get(
@@ -130,9 +127,9 @@ class PlacesService {
           landmarkType: isArea ? null : _landmarkTypeFromTypes(types),
         );
       }).where((s) => s.label.isNotEmpty);
-      return [...remote, ...local].take(8).toList();
+      return remote.take(8).toList();
     } catch (_) {
-      return local;
+      return const [];
     }
   }
 
@@ -145,8 +142,6 @@ class PlacesService {
         center: suggestion.location!,
       );
     }
-    final registryArea = demoAreaByName(suggestion.label);
-    if (registryArea != null) return registryArea;
     if (suggestion.placeId == null || _apiKey.isEmpty) return null;
 
     final cacheKey = 'area:${suggestion.placeId}';
@@ -205,8 +200,6 @@ class PlacesService {
         location: suggestion.location!,
       );
     }
-    final registry = demoLandmarkByName(suggestion.label);
-    if (registry != null) return registry;
     if (suggestion.placeId == null || _apiKey.isEmpty) return null;
 
     final cacheKey = 'landmark:${suggestion.placeId}';
@@ -362,6 +355,8 @@ class PlacesService {
 
   // ─── Local demo registry (Baghdad) ─────────────────────────────────────────
 
+  // Kept for compile compatibility; production suggest/resolve never uses it.
+  // ignore: unused_element
   List<PlaceSuggestion> _localSuggestions(String query) {
     final q = query.toLowerCase();
     final out = <PlaceSuggestion>[];

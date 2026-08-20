@@ -2,10 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:typed_data';
 
-import '../core/demo/demo_mode.dart';
-import 'app_demo_seed.dart';
-import 'property_catalog_demo.dart';
-
 class SupabaseService {
   static SupabaseService? _instance;
   static SupabaseService get instance => _instance ??= SupabaseService._();
@@ -61,7 +57,6 @@ class SupabaseService {
   // ─── USER PROFILE ────────────────────────────────────────────────────────
 
   Future<Map<String, dynamic>?> getUserProfile() async {
-    if (DemoMode.enabled) return AppDemoSeed.userProfile();
     final userId = currentUser?.id;
     if (userId == null) return null;
     try {
@@ -70,9 +65,9 @@ class SupabaseService {
           .select()
           .eq('id', userId)
           .maybeSingle();
-      return response ?? (DemoMode.enabled ? AppDemoSeed.userProfile() : null);
+      return response;
     } catch (e) {
-      return DemoMode.enabled ? AppDemoSeed.userProfile() : null;
+      return null;
     }
   }
 
@@ -153,7 +148,6 @@ class SupabaseService {
   // ─── TRANSACTIONS ─────────────────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> getUserTransactions() async {
-    if (DemoMode.enabled) return AppDemoSeed.userTransactions();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -162,20 +156,16 @@ class SupabaseService {
           .select('*, transaction_stages(*), transaction_barcodes(*)')
           .or('buyer_user_id.eq.$userId,seller_user_id.eq.$userId')
           .order('created_at', ascending: false);
-      final rows = List<Map<String, dynamic>>.from(response);
-      return rows.isEmpty ? AppDemoSeed.userTransactions() : rows;
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      return DemoMode.enabled ? AppDemoSeed.userTransactions() : [];
+      return [];
     }
   }
 
   Future<Map<String, dynamic>?> getTransactionByBarcode(
     String barcodeCode,
   ) async {
-    if (DemoMode.enabled) {
-      final demo = AppDemoSeed.demoBarcode(barcodeCode);
-      if (demo != null) return demo;
-    }
+    if (!isReady) return null;
     try {
       final barcode = await client
           .from('transaction_barcodes')
@@ -189,18 +179,7 @@ class SupabaseService {
   }
 
   Future<Map<String, dynamic>?> getTransactionById(String txId) async {
-    final wanted = txId.toString();
-    if (DemoMode.enabled) {
-      for (final t in AppDemoSeed.userTransactions()) {
-        if (t['id']?.toString() == wanted) return t;
-      }
-    }
-    if (!isReady) {
-      for (final t in AppDemoSeed.userTransactions()) {
-        if (t['id']?.toString() == wanted) return t;
-      }
-      return null;
-    }
+    if (!isReady) return null;
     try {
       final response = await client
           .from('transactions')
@@ -211,9 +190,6 @@ class SupabaseService {
           .maybeSingle();
       return response;
     } catch (e) {
-      for (final t in AppDemoSeed.userTransactions()) {
-        if (t['id']?.toString() == wanted) return t;
-      }
       return null;
     }
   }
@@ -264,10 +240,8 @@ class SupabaseService {
     int limit = 20,
     int offset = 0,
   }) async {
+    if (!isReady) return [];
     try {
-      if (DemoMode.enabled) {
-        return PropertyCatalogDemo.listings().map((p) => p.rawData).toList();
-      }
       var query = client
           .from('properties_v3')
           .select('*, property_media_v3(*), property_features_v3(*)');
@@ -282,11 +256,9 @@ class SupabaseService {
       final response = await query
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
-      final rows = List<Map<String, dynamic>>.from(response);
-      if (rows.isNotEmpty) return rows;
-      return PropertyCatalogDemo.listings().map((p) => p.rawData).toList();
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      return PropertyCatalogDemo.listings().map((p) => p.rawData).toList();
+      return [];
     }
   }
 
@@ -301,23 +273,8 @@ class SupabaseService {
     String? propertyType,
     int limit = 120,
   }) async {
+    if (!isReady) return [];
     try {
-      if (DemoMode.enabled) {
-        return PropertyCatalogDemo.listings()
-            .where((p) {
-              if (p.lat < swLat || p.lat > neLat) return false;
-              if (p.lng < swLng || p.lng > neLng) return false;
-              if (listingType != null && p.listingType != listingType) {
-                return false;
-              }
-              if (propertyType != null && p.type != propertyType) return false;
-              return true;
-            })
-            .map((p) => p.rawData)
-            .take(limit)
-            .toList();
-      }
-
       var query = client
           .from('properties_v3')
           .select('id, title, asking_price, price, currency, total_area_sqm, area, '
@@ -342,61 +299,38 @@ class SupabaseService {
       final response = await query
           .order('created_at', ascending: false)
           .limit(limit);
-      final rows = List<Map<String, dynamic>>.from(response);
-      if (rows.isNotEmpty) return rows;
-
-      return PropertyCatalogDemo.listings()
-          .where((p) =>
-              p.lat >= swLat &&
-              p.lat <= neLat &&
-              p.lng >= swLng &&
-              p.lng <= neLng)
-          .map((p) => p.rawData)
-          .take(limit)
-          .toList();
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      return PropertyCatalogDemo.listings()
-          .where((p) =>
-              p.lat >= swLat &&
-              p.lat <= neLat &&
-              p.lng >= swLng &&
-              p.lng <= neLng)
-          .map((p) => p.rawData)
-          .take(limit)
-          .toList();
+      return [];
     }
   }
 
   Future<Map<String, dynamic>?> getPropertyById(String id) async {
-    if (!isReady) return AppDemoSeed.propertyById(id);
+    if (!isReady) return null;
     try {
       final response = await client
           .from('properties_v3')
           .select('*, property_media_v3(*), property_features_v3(*)')
           .eq('id', id)
           .maybeSingle();
-      return response ?? AppDemoSeed.propertyById(id);
+      return response;
     } catch (e) {
-      return AppDemoSeed.propertyById(id);
+      return null;
     }
   }
 
   Future<List<Map<String, dynamic>>> getUserProperties() async {
-    if (DemoMode.enabled) return AppDemoSeed.userProperties();
     final userId = currentUser?.id;
-    if (userId == null) return DemoMode.enabled ? AppDemoSeed.userProperties() : [];
+    if (userId == null) return [];
     try {
       final response = await client
           .from('properties_v3')
           .select('*, property_media_v3(*)')
           .eq('owner_user_id', userId)
           .order('created_at', ascending: false);
-      final rows = List<Map<String, dynamic>>.from(response);
-      return rows.isEmpty && DemoMode.enabled
-          ? AppDemoSeed.userProperties()
-          : rows;
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      return DemoMode.enabled ? AppDemoSeed.userProperties() : [];
+      return [];
     }
   }
 
@@ -459,7 +393,6 @@ class SupabaseService {
   }
 
   Future<List<Map<String, dynamic>>> getPropertySubmissions() async {
-    if (DemoMode.enabled) return AppDemoSeed.propertySubmissions();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -468,12 +401,9 @@ class SupabaseService {
           .select()
           .eq('user_id', userId)
           .order('created_at', ascending: false);
-      final rows = List<Map<String, dynamic>>.from(response);
-      return rows.isEmpty && DemoMode.enabled
-          ? AppDemoSeed.propertySubmissions()
-          : rows;
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      return DemoMode.enabled ? AppDemoSeed.propertySubmissions() : [];
+      return [];
     }
   }
 
@@ -495,19 +425,16 @@ class SupabaseService {
   }
 
   Future<List<Map<String, dynamic>>> getMessages(String conversationId) async {
-    if (DemoMode.enabled) return AppDemoSeed.messagesFor(conversationId);
+    if (!isReady) return [];
     try {
       final response = await client
           .from('messages')
           .select()
           .eq('conversation_id', conversationId)
           .order('created_at', ascending: true);
-      final rows = List<Map<String, dynamic>>.from(response);
-      return rows.isEmpty && DemoMode.enabled
-          ? AppDemoSeed.messagesFor(conversationId)
-          : rows;
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      return DemoMode.enabled ? AppDemoSeed.messagesFor(conversationId) : [];
+      return [];
     }
   }
 
@@ -535,7 +462,6 @@ class SupabaseService {
   // ─── NOTIFICATIONS ────────────────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> getNotifications() async {
-    if (DemoMode.enabled) return AppDemoSeed.userNotifications();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -545,12 +471,9 @@ class SupabaseService {
           .eq('user_id', userId)
           .order('created_at', ascending: false)
           .limit(30);
-      final rows = List<Map<String, dynamic>>.from(response);
-      return rows.isEmpty && DemoMode.enabled
-          ? AppDemoSeed.userNotifications()
-          : rows;
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      return DemoMode.enabled ? AppDemoSeed.userNotifications() : [];
+      return [];
     }
   }
 
@@ -564,6 +487,7 @@ class SupabaseService {
   // ─── SEARCH ───────────────────────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> searchProperties(String query) async {
+    if (!isReady) return [];
     try {
       final response = await client
           .from('property_search_index')
@@ -616,11 +540,6 @@ class SupabaseService {
   }
 
   Future<Set<String>> getFavoritePropertyIds() async {
-    if (DemoMode.enabled) {
-      return AppDemoSeed.favoriteProperties()
-          .map((e) => e['property_id'] as String)
-          .toSet();
-    }
     final userId = currentUser?.id;
     if (userId == null) return {};
     try {
@@ -637,7 +556,6 @@ class SupabaseService {
   }
 
   Future<List<Map<String, dynamic>>> getFavoriteProperties() async {
-    if (DemoMode.enabled) return AppDemoSeed.favoriteProperties();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -646,12 +564,9 @@ class SupabaseService {
           .select('property_id, properties_v3(*, property_media_v3(*))')
           .eq('user_id', userId)
           .order('created_at', ascending: false);
-      final rows = List<Map<String, dynamic>>.from(response);
-      return rows.isEmpty && DemoMode.enabled
-          ? AppDemoSeed.favoriteProperties()
-          : rows;
+      return List<Map<String, dynamic>>.from(response);
     } catch (_) {
-      return DemoMode.enabled ? AppDemoSeed.favoriteProperties() : [];
+      return [];
     }
   }
 
@@ -672,7 +587,6 @@ class SupabaseService {
   }
 
   Future<List<Map<String, dynamic>>> getSavedSearches() async {
-    if (DemoMode.enabled) return AppDemoSeed.savedSearches();
     final userId = currentUser?.id;
     if (userId == null) return [];
     try {
@@ -682,12 +596,9 @@ class SupabaseService {
           .eq('user_id', userId)
           .order('saved_at', ascending: false)
           .limit(20);
-      final rows = List<Map<String, dynamic>>.from(response);
-      return rows.isEmpty && DemoMode.enabled
-          ? AppDemoSeed.savedSearches()
-          : rows;
+      return List<Map<String, dynamic>>.from(response);
     } catch (_) {
-      return DemoMode.enabled ? AppDemoSeed.savedSearches() : [];
+      return [];
     }
   }
 

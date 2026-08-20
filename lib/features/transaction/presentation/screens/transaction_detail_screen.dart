@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/currency/currency_registry.dart';
-import '../../../../core/demo/demo_mode.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../features/authentication/routing/auth_globals.dart';
 import '../../../../routes/app_routes.dart';
@@ -131,7 +130,6 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     if (!mounted) return;
     setState(() {
       _p.markDocApproved(field, asBuyer: asBuyer);
-      _completeOtherIfDemo();
     });
   }
 
@@ -139,38 +137,6 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     try {
       await ImagePicker().pickImage(source: ImageSource.gallery);
     } catch (_) {}
-  }
-
-  void _completeOtherIfDemo() {
-    if (!DemoMode.enabled) return;
-    final p = _p;
-    if (_asBuyer) {
-      p.sellerIdentity = p.sellerIdentity || p.buyerIdentity;
-      p.sellerDocs = p.sellerDocs || p.buyerDocs;
-      for (final f in p.lawyerDocFields) {
-        if (p.buyerDocStatus[f] == DocReviewStatus.approved) {
-          p.sellerDocStatus[f] = DocReviewStatus.approved;
-        }
-      }
-      p.sellerContractUploaded =
-          p.sellerContractUploaded || p.buyerContractUploaded;
-      p.sellerOtp = p.sellerOtp || p.buyerOtp;
-      p.sellerFace = p.sellerFace || p.buyerFace;
-      p.sellerSigned = p.sellerSigned || p.buyerSigned;
-    } else {
-      p.buyerIdentity = p.buyerIdentity || p.sellerIdentity;
-      p.buyerDocs = p.buyerDocs || p.sellerDocs;
-      for (final f in p.lawyerDocFields) {
-        if (p.sellerDocStatus[f] == DocReviewStatus.approved) {
-          p.buyerDocStatus[f] = DocReviewStatus.approved;
-        }
-      }
-      p.buyerContractUploaded =
-          p.buyerContractUploaded || p.sellerContractUploaded;
-      p.buyerOtp = p.buyerOtp || p.sellerOtp;
-      p.buyerFace = p.buyerFace || p.sellerFace;
-      p.buyerSigned = p.buyerSigned || p.sellerSigned;
-    }
   }
 
   @override
@@ -287,7 +253,6 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                                   } else {
                                     p.sellerIdentity = true;
                                   }
-                                  _completeOtherIfDemo();
                                 });
                               },
                               icon: const Icon(Icons.verified_user_outlined),
@@ -396,8 +361,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                                 } else {
                                   p.sellerContractUploaded = true;
                                 }
-                                _completeOtherIfDemo();
-                              });
+                                                        });
                             },
                             icon: const Icon(Icons.upload_file),
                             label: Text(loc.uploadSignedContract),
@@ -409,24 +373,20 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 labelText: loc.enterOtpCode,
-                                hintText: DemoMode.enabled ? '123456' : null,
+                                hintText: null,
                                 border: const OutlineInputBorder(),
                               ),
                             ),
                             const SizedBox(height: 8),
                             FilledButton(
                               onPressed: () {
-                                final ok = !DemoMode.enabled ||
-                                    _otpCtrl.text.trim() == '123456' ||
-                                    _otpCtrl.text.trim().isNotEmpty;
-                                if (!ok) return;
+                                if (_otpCtrl.text.trim().isEmpty) return;
                                 setState(() {
                                   if (_asBuyer) {
                                     p.buyerOtp = true;
                                   } else {
                                     p.sellerOtp = true;
                                   }
-                                  _completeOtherIfDemo();
                                 });
                               },
                               child: Text(loc.enterOtpCode),
@@ -440,7 +400,6 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                                   } else {
                                     p.sellerFace = true;
                                   }
-                                  _completeOtherIfDemo();
                                 });
                               },
                               child: Text(loc.verifyFaceCta),
@@ -485,8 +444,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                                             p.sellerSigned = true;
                                             p.sellerSignature = 'signed';
                                           }
-                                          _completeOtherIfDemo();
-                                        });
+                                                });
                                       },
                                 child: Text(loc.sendSignature),
                               ),

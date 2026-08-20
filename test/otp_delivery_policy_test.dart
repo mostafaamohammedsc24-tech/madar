@@ -11,20 +11,6 @@ void main() {
     });
   });
 
-  group('seed phone detection helpers', () {
-    bool isSeedPhone(String phone) {
-      final clean = phone.replaceAll(RegExp(r'\D'), '');
-      return clean == '7740080310' || clean == '9647740080310';
-    }
-
-    test('accepts Iraq seed local and E.164 forms', () {
-      expect(isSeedPhone('+9647740080310'), isTrue);
-      expect(isSeedPhone('7740080310'), isTrue);
-      expect(isSeedPhone('9647740080310'), isTrue);
-      expect(isSeedPhone('+9647900000000'), isFalse);
-    });
-  });
-
   group('WhatsApp fallback policy', () {
     bool shouldFallbackToSms({
       required bool whatsappOk,

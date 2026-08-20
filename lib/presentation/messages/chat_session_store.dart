@@ -1,4 +1,3 @@
-import '../../../services/app_demo_seed.dart';
 import 'models/chat_models.dart';
 
 /// Session-scoped chat transcripts so popping a room does not lose messages.
@@ -22,9 +21,7 @@ class ChatSessionStore {
           ),
         ];
       }
-      return AppDemoSeed.messagesFor(
-        threadId,
-      ).map(ChatMessage.fromMap).toList();
+      return <ChatMessage>[];
     });
   }
 

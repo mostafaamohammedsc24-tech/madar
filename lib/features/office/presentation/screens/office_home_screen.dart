@@ -9,7 +9,6 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../presentation/search_map_screen/search_map_screen.dart';
 import '../../../../presentation/search_map_screen/widgets/property_map_widget.dart';
 import '../../../../services/property_ai_service.dart';
-import '../../../../services/property_catalog_demo.dart';
 import '../../../../theme/app_theme.dart';
 import '../../domain/models/office_models.dart';
 import '../providers/office_auth_notifier.dart';
@@ -59,9 +58,6 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
     final summary = await auth.repository.salesSummaryThisMonth();
     if (!mounted) return;
     var props = rows.map(PropertyData.fromSupabase).toList();
-    if (props.isEmpty) {
-      props = PropertyCatalogDemo.listings();
-    }
     setState(() {
       _all = props;
       _filtered = props;

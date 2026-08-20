@@ -1,4 +1,3 @@
-import '../../../core/demo/demo_mode.dart';
 import '../domain/enums/transaction_enums.dart';
 
 enum DocReviewStatus { missing, underReview, approved }
@@ -108,25 +107,5 @@ abstract final class PartyDealStore {
   static void seedIfNeeded(String transactionId, {required bool agricultural}) {
     final p = of(transactionId);
     p.skipDeed = agricultural;
-    if (!DemoMode.enabled) return;
-    if (transactionId == 'demo_txn_001') {
-      p.buyerIdentity = true;
-      p.sellerIdentity = true;
-      p.buyerDocs = true;
-      p.sellerDocs = true;
-      p.contractSent = true;
-      p.buyerContractUploaded = true;
-      p.sellerContractUploaded = true;
-      p.buyerOtp = true;
-      p.sellerOtp = true;
-      p.buyerFace = true;
-      p.sellerFace = true;
-      p.buyerSigned = true;
-      p.sellerSigned = true;
-      for (final f in p.lawyerDocFields) {
-        p.buyerDocStatus[f] = DocReviewStatus.approved;
-        p.sellerDocStatus[f] = DocReviewStatus.approved;
-      }
-    }
   }
 }
