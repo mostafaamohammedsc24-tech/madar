@@ -537,20 +537,6 @@ class _EscrowBankConfirmationWidgetState
             }),
           ),
           const SizedBox(height: 8),
-          // Demo hint
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey.withAlpha(20),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Text(
-              'رمز تجريبي: 123456',
-              style: TextStyle(fontSize: 11, color: Colors.grey),
-            ),
-          ),
-          const SizedBox(height: 20),
-
           Row(
             children: [
               Expanded(

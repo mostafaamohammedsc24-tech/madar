@@ -61,15 +61,9 @@ class _BankTransactionDetailScreenState
         twilioOk = sms.success;
         if (sms.success) {
           message = '${loc.empOtpSent} (Twilio SMS)';
-        } else if (res.debugOtp != null) {
-          message =
-              '${loc.empOtpSent} ${res.phoneMasked ?? ''} · lab code ${res.debugOtp}';
         } else {
           message = sms.message ?? 'SMS gateway unavailable';
         }
-      } else if (res.debugOtp != null) {
-        message =
-            '${loc.empOtpSent} ${res.phoneMasked ?? ''} · lab code ${res.debugOtp}';
       }
     }
     if (!mounted) return;

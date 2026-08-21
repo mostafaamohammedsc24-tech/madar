@@ -15,6 +15,8 @@ import '../features/property/presentation/screens/property_report_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../features/transaction/presentation/screens/transaction_detail_screen.dart';
 import '../features/transaction/domain/models/deal_transaction.dart';
+import '../features/workflow/presentation/barcode_reader_screen.dart';
+import '../features/workflow/presentation/deal_workflow_board_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
 import '../presentation/messages/messages_screen.dart';
 import '../presentation/reviews/ratings_reviews_screen.dart';
@@ -52,6 +54,8 @@ class AppRoutes {
   static const String employeeLogin = '/employee-login';
   static const String officeHome = '/office/home';
   static const String employeeHome = '/employee/home';
+  static const String barcodeReader = '/barcode-reader';
+  static const String dealWorkflow = '/deal-workflow';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -69,7 +73,9 @@ final GoRouter appRouter = GoRouter(
     if (employeeAuthNotifier.isAuthenticated &&
         (location.startsWith('/employee') ||
             location == AppRoutes.employeeLogin ||
-            location == AppRoutes.employeePortal)) {
+            location == AppRoutes.employeePortal ||
+            location == '/barcode-reader' ||
+            location.startsWith('/deal-workflow'))) {
       return null;
     }
 
@@ -81,7 +87,18 @@ final GoRouter appRouter = GoRouter(
 
     // Office session owns its shell — do not bounce to user OTP auth.
     if (officeAuthNotifier.isAuthenticated &&
-        (location.startsWith('/office') || location == AppRoutes.officeLogin)) {
+        (location.startsWith('/office') ||
+            location == AppRoutes.officeLogin ||
+            location == '/barcode-reader' ||
+            location.startsWith('/deal-workflow'))) {
+      return null;
+    }
+
+    // Shared cross-role workflow tools (barcode + pipeline board)
+    if (location == '/barcode-reader' ||
+        location == '/deal-workflow' ||
+        location.startsWith('/deal-workflow?') ||
+        location.startsWith('/barcode-reader?')) {
       return null;
     }
 
@@ -126,6 +143,16 @@ final GoRouter appRouter = GoRouter(
     ),
     ...buildEmployeeRoutes(),
     ...buildOfficeRoutes(),
+    GoRoute(
+      path: AppRoutes.barcodeReader,
+      builder: (context, state) => const BarcodeReaderScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.dealWorkflow,
+      builder: (context, state) => DealWorkflowBoardScreen(
+        initialDealId: state.uri.queryParameters['deal'],
+      ),
+    ),
     GoRoute(
       path: AppRoutes.propertyDetail,
       pageBuilder: (context, state) {

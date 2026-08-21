@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../core/demo/demo_mode.dart';
-import '../../../../services/app_demo_seed.dart';
+import '../../../../services/office_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../../domain/models/office_models.dart';
 
@@ -21,6 +20,8 @@ class OfficeRepository {
   OfficeAccount? get currentOffice => _office;
   bool get isAuthenticated =>
       _token != null && _token!.isNotEmpty && _office != null;
+
+  bool get _isSeedSession => OfficeSeed.isSeedToken(_token);
 
   Future<void> restoreSession() async {
     final prefs = await SharedPreferences.getInstance();
@@ -108,13 +109,9 @@ class OfficeRepository {
     required String officeCode,
     required String secretCode,
   }) async {
-    if (DemoMode.enabled &&
-        officeCode.trim().toUpperCase() == DemoMode.officeCode &&
-        secretCode == DemoMode.secret) {
-      final session = OfficeSession(
-        token: 'demo-office-token',
-        office: AppDemoSeed.officeAccount(),
-      );
+    // Local seed login for exploring the office portal.
+    if (OfficeSeed.matches(officeCode, secretCode)) {
+      final session = OfficeSeed.session();
       await _persistSession(session);
       return (success: true, message: null, session: session);
     }
@@ -155,6 +152,7 @@ class OfficeRepository {
   Future<List<Map<String, dynamic>>> loadDiscoverableProperties({
     String? countryCode,
   }) async {
+    if (_isSeedSession) return OfficeSeed.discoverableProperties();
     return _supabase.getProperties(
       countryCode: countryCode ?? _office?.countryCode,
       limit: 80,
@@ -162,7 +160,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> loadOfficeAssignedProperties() async {
-    if (DemoMode.enabled) return AppDemoSeed.officeAssignedProperties();
+    if (_isSeedSession) return OfficeSeed.assignedProperties();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -276,7 +274,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeReferral>> listReferrals() async {
-    if (DemoMode.enabled) return AppDemoSeed.officeReferrals();
+    if (_isSeedSession) return OfficeSeed.referrals();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -294,7 +292,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficePropertyReport>> listReports() async {
-    if (DemoMode.enabled) return AppDemoSeed.officeReports();
+    if (_isSeedSession) return [];
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -314,7 +312,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeConversation>> listConversations() async {
-    if (DemoMode.enabled) return AppDemoSeed.officeConversations();
+    if (_isSeedSession) return OfficeSeed.conversations();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -332,7 +330,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeMessage>> listMessages(String conversationId) async {
-    if (DemoMode.enabled) return AppDemoSeed.officeMessages(conversationId);
+    if (_isSeedSession) return OfficeSeed.messagesFor(conversationId);
     try {
       final rows = await _supabase.client
           .from('office_messages')
@@ -352,6 +350,7 @@ class OfficeRepository {
     required String conversationId,
     required String body,
   }) async {
+    if (_isSeedSession) return true;
     if (_office == null) return false;
     try {
       await _supabase.client.from('office_messages').insert({
@@ -373,7 +372,7 @@ class OfficeRepository {
   }
 
   Future<OfficeSalesSummary> salesSummaryThisMonth() async {
-    if (DemoMode.enabled) return AppDemoSeed.officeSalesSummary();
+    if (_isSeedSession) return OfficeSeed.salesSummary();
     if (_office == null) {
       return const OfficeSalesSummary(
         salesThisMonth: 0,
@@ -424,7 +423,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listOfficeTransactions() async {
-    if (DemoMode.enabled) return AppDemoSeed.officeTransactions();
+    if (_isSeedSession) return OfficeSeed.transactions();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -449,6 +448,20 @@ class OfficeRepository {
       return const OfficeBarcodeCreateResult(
         success: false,
         message: 'unauthorized',
+      );
+    }
+    if (_isSeedSession) {
+      final id = 'seed-live-${DateTime.now().millisecondsSinceEpoch}';
+      final number =
+          'IQ-BGD-${transactionType.toUpperCase()}-SEED-${id.substring(id.length - 6)}';
+      final buy = 'BUY-LIVE-${id.substring(id.length - 6)}';
+      final sel = 'SEL-LIVE-${id.substring(id.length - 6)}';
+      return OfficeBarcodeCreateResult(
+        success: true,
+        transactionId: id,
+        transactionNumber: number,
+        buyerBarcode: buy,
+        sellerBarcode: sel,
       );
     }
     try {
@@ -494,7 +507,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listNotifications() async {
-    if (DemoMode.enabled) return AppDemoSeed.officeNotifications();
+    if (_isSeedSession) return OfficeSeed.notifications();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -522,7 +535,6 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listDocuments() async {
-    if (DemoMode.enabled) return AppDemoSeed.officeDocuments();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client

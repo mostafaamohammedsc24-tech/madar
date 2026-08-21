@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../core/demo/demo_mode.dart';
-import '../../../../services/app_demo_seed.dart';
+import '../../../../services/publisher_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../domain/employee_models.dart';
 import '../domain/employee_permissions.dart';
@@ -22,6 +21,8 @@ class EmployeeRepository {
   EmployeeAccount? get currentEmployee => _employee;
   bool get isAuthenticated =>
       _token != null && _token!.isNotEmpty && _employee != null;
+
+  bool get isPublisherSeedSession => PublisherSeed.isSeedToken(_token);
 
   bool can(String permission) => _employee?.can(permission) ?? false;
 
@@ -122,13 +123,8 @@ class EmployeeRepository {
     required String employeeCode,
     required String secretCode,
   }) async {
-    if (DemoMode.enabled &&
-        employeeCode.trim().toUpperCase() == DemoMode.employeeCode &&
-        secretCode == DemoMode.secret) {
-      final session = EmployeeSession(
-        token: 'demo-employee-token',
-        employee: AppDemoSeed.employeeAccount(),
-      );
+    if (PublisherSeed.matches(employeeCode, secretCode)) {
+      final session = PublisherSeed.session();
       await _persist(session);
       return (success: true, message: null, session: session);
     }
@@ -200,18 +196,14 @@ class EmployeeRepository {
       }
       final rows =
           await built.order('updated_at', ascending: false).limit(limit);
-      final list = List<Map<String, dynamic>>.from(rows);
-      if (list.isEmpty && DemoMode.enabled) {
-        return AppDemoSeed.officeTransactions();
-      }
-      return list;
+      return List<Map<String, dynamic>>.from(rows);
     } catch (_) {
-      return DemoMode.enabled ? AppDemoSeed.officeTransactions() : [];
+      return [];
     }
   }
 
   Future<List<Map<String, dynamic>>> listNotifications() async {
-    if (DemoMode.enabled) return AppDemoSeed.employeeNotifications();
+    if (isPublisherSeedSession) return PublisherSeed.notifications();
     if (_employee == null) return [];
     try {
       final rows = await _supabase.client
@@ -686,7 +678,7 @@ class EmployeeRepository {
         phoneMasked: result['phone_masked']?.toString(),
         phoneE164: result['phone_e164']?.toString(),
         delivery: result['delivery']?.toString(),
-        debugOtp: result['debug_otp']?.toString(),
+        debugOtp: null,
       );
     } catch (_) {
       return (

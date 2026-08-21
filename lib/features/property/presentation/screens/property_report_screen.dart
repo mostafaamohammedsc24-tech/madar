@@ -23,8 +23,8 @@ import '../../domain/models/property_report.dart';
 import '../../domain/models/property_surroundings.dart';
 import '../../domain/models/property_translation.dart';
 import '../../domain/value_objects/money_amount.dart';
-import '../../../../services/property_catalog_demo.dart';
 import '../../../../presentation/messages/open_listing_contact.dart';
+import '../../../../presentation/search_map_screen/models/property_data.dart';
 import '../screens/property_compare_sheet.dart';
 import '../widgets/interactive_floor_plan_view.dart';
 import '../widgets/property_extended_sections.dart';
@@ -1561,12 +1561,23 @@ class _PropertyReportScreenState extends ConsumerState<PropertyReportScreen> {
             ),
             ListTile(
               title: Text(loc.compareProperty),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(ctx);
+                List<PropertyData> candidates = const [];
+                try {
+                  final rows = await SupabaseService.instance.getProperties(
+                    limit: 20,
+                  );
+                  candidates = rows
+                      .map(PropertyData.fromSupabase)
+                      .where((p) => p.id != report.id)
+                      .toList();
+                } catch (_) {}
+                if (!mounted) return;
                 PropertyCompareSheet.show(
                   context,
                   base: report,
-                  candidates: PropertyCatalogDemo.listings(),
+                  candidates: candidates,
                 );
               },
             ),

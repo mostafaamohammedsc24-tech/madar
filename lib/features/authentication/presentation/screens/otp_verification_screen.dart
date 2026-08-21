@@ -152,11 +152,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               label: loc.authVerifyContinue,
               isLoading: state.isBusy,
               onPressed: () {
-                final code = _code.length >= 4
-                    ? _code
-                    : (const bool.fromEnvironment('DEMO_ENTER_USER_UI')
-                          ? '123456'
-                          : _code);
+                final code = _code;
                 if (code.isNotEmpty) auth.verifyOtp(code);
               },
             ),

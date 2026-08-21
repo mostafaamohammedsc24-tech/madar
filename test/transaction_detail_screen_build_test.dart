@@ -6,13 +6,24 @@ import 'package:madar/core/localization/app_localizations.dart';
 import 'package:madar/core/localization/locale_provider.dart';
 import 'package:madar/features/transaction/domain/models/deal_transaction.dart';
 import 'package:madar/features/transaction/presentation/screens/transaction_detail_screen.dart';
-import 'package:madar/services/app_demo_seed.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('TransactionDetailScreen opens from demo seed', (tester) async {
-    final map = AppDemoSeed.userTransactions().first;
+  testWidgets('TransactionDetailScreen opens from transaction map', (
+    tester,
+  ) async {
+    final map = <String, dynamic>{
+      'id': 'tx-test-001',
+      'transaction_number': 'TX-TEST-001',
+      'lifecycle_state': 'waiting_for_parties',
+      'transaction_type': 'residential_sale',
+      'country_code': 'IQ',
+      'currency_code': 'IQD',
+      'sale_price': 100000000,
+      'buyer_phone': '+9647900000001',
+      'seller_phone': '+9647900000002',
+    };
     final tx = DealTransaction.fromMap(map);
 
     FlutterError.onError = (details) {

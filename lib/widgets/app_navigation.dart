@@ -3,8 +3,7 @@ import '../core/localization/app_localizations.dart';
 
 /// Shifting bottom navigation: active item expands into a light-blue pill
 /// with icon + label; inactive items show outline icons only.
-/// Order matches product mockups (LTR & RTL via [Directionality]):
-/// Search · Properties · Messages · Deals · Profile.
+/// On narrow screens the active label is omitted so the pill never overflows.
 class AppNavigation extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   const AppNavigation({required this.navigationShell, super.key});
@@ -13,12 +12,16 @@ class AppNavigation extends StatelessWidget {
   static const Color _activePill = Color(0xFFE3F0FD);
   static const Color _inactiveIcon = Color(0xFF3C4043);
 
+  /// Below this width, active tabs stay icon-only (pill still highlights).
+  static const double _labelMinWidth = 390;
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final branch = navigationShell.currentIndex;
+    final showLabels =
+        MediaQuery.sizeOf(context).width >= _labelMinWidth;
 
-    // Shell indices: 0 search, 1 deals/transactions, 2 properties, 3 messages, 4 profile
     final items = <_NavItem>[
       _NavItem(
         label: loc.navSearch,
@@ -65,7 +68,7 @@ class AppNavigation extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 64,
+          height: 56,
           child: Row(
             children: items
                 .map(
@@ -75,50 +78,53 @@ class AppNavigation extends StatelessWidget {
                       splashColor: _activePill,
                       highlightColor: Colors.transparent,
                       child: Center(
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOutCubic,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: item.active ? 12 : 10,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: item.active
-                                ? _activePill
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(22),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                item.active ? item.selectedIcon : item.icon,
-                                size: 24,
-                                color: item.active
-                                    ? _activeBlue
-                                    : _inactiveIcon,
-                              ),
-                              AnimatedSize(
-                                duration: const Duration(milliseconds: 220),
-                                curve: Curves.easeOutCubic,
-                                child: item.active
-                                    ? Padding(
-                                        padding: const EdgeInsetsDirectional
-                                            .only(start: 8),
-                                        child: Text(
-                                          item.label,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w700,
-                                            color: _activeBlue,
-                                          ),
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
-                              ),
-                            ],
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 96),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeOutCubic,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: item.active && showLabels ? 10 : 8,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: item.active
+                                  ? _activePill
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  item.active
+                                      ? item.selectedIcon
+                                      : item.icon,
+                                  size: 22,
+                                  color: item.active
+                                      ? _activeBlue
+                                      : _inactiveIcon,
+                                ),
+                                if (item.active && showLabels) ...[
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      item.label,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: false,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: _activeBlue,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

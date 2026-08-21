@@ -16,14 +16,12 @@ import '../../providers/country_context_provider.dart';
 import '../../core/performance/performance_monitor.dart';
 import '../../services/places_service.dart';
 import '../../services/property_ai_service.dart';
-import '../../services/property_catalog_demo.dart';
 import '../../core/maps/map_bounds.dart';
 import '../../services/property_map_repository.dart';
 import '../../services/supabase_service.dart';
 import '../../features/property/presentation/navigation/open_property_report.dart';
 import './models/property_data.dart';
 import './widgets/map_preview_carousel.dart';
-import '../../features/authentication/presentation/widgets/demo_auto_advance.dart';
 import './widgets/map_search_bar_widget.dart';
 import './widgets/draggable_property_sheet.dart';
 import './widgets/property_map_widget.dart';
@@ -44,7 +42,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       DraggableScrollableController();
   final GlobalKey<PropertyMapWidgetState> _mapKey =
       GlobalKey<PropertyMapWidgetState>();
-  bool _demoCardFlowStarted = false;
   String? _loadedCountryCode;
   String _selectedFilter = 'All';
   PropertyData? _selectedProperty;
@@ -172,11 +169,13 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         _isLoading = false;
       });
       _applySortLocked();
-      _maybePlayDemoCardFlow();
     } catch (_) {
       if (mounted) {
-        _loadMockData();
-        setState(() => _isLoading = false);
+        setState(() {
+          _allProperties = [];
+          _filteredProperties = [];
+          _isLoading = false;
+        });
       }
     }
   }
@@ -205,64 +204,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
       );
       await _loadProperties();
     } catch (_) {}
-  }
-
-  void _maybePlayDemoCardFlow() {
-    if (!DemoAutoAdvance.enabled || _demoCardFlowStarted) return;
-    if (_filteredProperties.isEmpty) return;
-    _demoCardFlowStarted = true;
-    Future<void>(() async {
-      Future<void> wait(int ms) =>
-          Future<void>.delayed(Duration(milliseconds: ms));
-
-      // 1) Pin tap → floating card strip
-      await wait(2200);
-      if (!mounted) return;
-      _onPropertySelected(_filteredProperties.first);
-
-      // 2) Open the full listing sheet
-      await wait(3000);
-      if (!mounted || _selectedProperty == null) return;
-      _openPropertyDetail(_selectedProperty!);
-
-      // 3) Close listing + preview
-      await wait(3600);
-      if (!mounted) return;
-      Navigator.of(context).popUntil((route) => route.isFirst);
-      _closePreview();
-
-      // 4) Area polygon focus (الكرادة)
-      await wait(1200);
-      if (!mounted) return;
-      final karrada = PlacesService.demoAreaByName('الكرادة');
-      if (karrada != null) _applyAreaFocus(karrada);
-
-      // 5) Landmark focus (جامعة بغداد)
-      await wait(3800);
-      if (!mounted) return;
-      _clearAreaFocus();
-      final uni = PlacesService.demoLandmarkByName('جامعة بغداد');
-      if (uni != null) _applyLandmarkFocus(uni);
-
-      // 6) Expanded sheet with categorized rows
-      await wait(3800);
-      if (!mounted) return;
-      _clearAreaFocus();
-      _draggableController.animateTo(
-        0.92,
-        duration: const Duration(milliseconds: 450),
-        curve: Curves.easeOutCubic,
-      );
-
-      // 7) Back to map
-      await wait(4200);
-      if (!mounted) return;
-      _draggableController.animateTo(
-        0.14,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutCubic,
-      );
-    });
   }
 
   Future<void> _loadSavedSearches() async {
@@ -431,15 +372,6 @@ class _SearchMapScreenState extends State<SearchMapScreen>
         },
       ),
     );
-  }
-
-  void _loadMockData() {
-    final props = PropertyCatalogDemo.listings();
-    setState(() {
-      _allProperties = props;
-      _filteredProperties = List.from(props);
-    });
-    _maybePlayDemoCardFlow();
   }
 
   void _applyFilters() {

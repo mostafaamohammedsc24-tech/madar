@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../core/demo/demo_mode.dart';
 import '../../../../../core/localization/app_localizations.dart';
+import '../../../../../services/publisher_seed.dart';
+import '../../../../../widgets/language_selector_sheet.dart';
 import '../../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../../authentication/presentation/widgets/auth_container.dart';
 import '../../../../authentication/presentation/widgets/auth_error_banner.dart';
 import '../../../../authentication/presentation/widgets/auth_header.dart';
 import '../../../../authentication/presentation/widgets/auth_text_field.dart';
 import '../../../../authentication/presentation/widgets/primary_auth_button.dart';
-import '../../../../../widgets/language_selector_sheet.dart';
 import '../providers/employee_auth_notifier.dart';
 
 class EmployeeLoginScreen extends StatefulWidget {
@@ -21,12 +21,8 @@ class EmployeeLoginScreen extends StatefulWidget {
 }
 
 class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
-  final _idCtrl = TextEditingController(
-    text: DemoMode.enabled ? DemoMode.employeeCode : '',
-  );
-  final _secretCtrl = TextEditingController(
-    text: DemoMode.enabled ? DemoMode.secret : '',
-  );
+  final _idCtrl = TextEditingController(text: PublisherSeed.code);
+  final _secretCtrl = TextEditingController(text: PublisherSeed.secret);
   bool _obscure = true;
 
   @override
@@ -37,7 +33,13 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
       final auth = context.read<EmployeeAuthNotifier>();
       await auth.ensureInitialized();
       if (!mounted) return;
-      if (auth.isAuthenticated) context.go('/employee/home');
+      if (auth.isAuthenticated) {
+        context.go(
+          auth.employee?.isPublishing == true
+              ? '/employee/publishing/properties'
+              : '/employee/home',
+        );
+      }
     });
   }
 
@@ -54,7 +56,13 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
       secretCode: _secretCtrl.text,
     );
     if (!mounted) return;
-    if (ok) context.go('/employee/home');
+    if (ok) {
+      context.go(
+        auth.employee?.isPublishing == true
+            ? '/employee/publishing/properties'
+            : '/employee/home',
+      );
+    }
   }
 
   String _error(AppLocalizations loc, String? code) {
@@ -111,15 +119,15 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
             onChanged: (_) => setState(() {}),
             onSubmitted: canSubmit ? (_) => _submit(auth) : null,
           ),
-          if (DemoMode.enabled) ...[
-            const SizedBox(height: AuthSpacing.md),
-            Text(
-              '${DemoMode.employeeCode} / ${DemoMode.secret}',
-              style: AuthTypography.caption(
-                context,
-              ).copyWith(color: theme.colorScheme.primary),
+          const SizedBox(height: AuthSpacing.md),
+          Text(
+            '${PublisherSeed.code} / ${PublisherSeed.secret}',
+            textAlign: TextAlign.center,
+            style: AuthTypography.caption(context).copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w700,
             ),
-          ],
+          ),
           if (auth.message != null) ...[
             const SizedBox(height: AuthSpacing.md),
             AuthErrorBanner(message: _error(loc, auth.message)),

@@ -17,6 +17,16 @@ class OfficeMoreScreen extends StatelessWidget {
     final office = auth.office;
 
     final items = <({IconData icon, String label, String route})>[
+      (
+        icon: Icons.qr_code_scanner,
+        label: loc.scanBarcode,
+        route: '/barcode-reader',
+      ),
+      (
+        icon: Icons.account_tree_outlined,
+        label: 'Deal workflow',
+        route: '/deal-workflow',
+      ),
       (icon: Icons.insights_outlined, label: loc.officePerformance, route: '/office/performance'),
       (icon: Icons.notifications_outlined, label: loc.officeNotifications, route: '/office/notifications'),
       (icon: Icons.business_outlined, label: loc.officeProfile, route: '/office/profile'),

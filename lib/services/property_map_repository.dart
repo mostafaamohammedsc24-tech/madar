@@ -1,7 +1,6 @@
 import '../core/cache/request_cache.dart';
 import '../core/maps/map_bounds.dart';
 import '../../presentation/search_map_screen/models/property_data.dart';
-import '../../services/property_catalog_demo.dart';
 import '../../services/supabase_service.dart';
 
 /// Bounds-aware property loading with session cache + deduplication.
@@ -41,38 +40,13 @@ class PropertyMapRepository {
       limit: limit,
     );
 
-    if (rows.isEmpty) {
-      return _filterDemo(bounds, listingFilter).take(limit).toList();
-    }
+    if (rows.isEmpty) return const [];
 
     return rows
         .map(PropertyData.fromSupabase)
         .where((p) => p.lat != 0 && p.lng != 0)
         .where((p) => bounds.containsProperty(p.lat, p.lng))
         .toList();
-  }
-
-  List<PropertyData> _filterDemo(MapBounds bounds, String? filter) {
-    return PropertyCatalogDemo.listings().where((p) {
-      if (!bounds.containsProperty(p.lat, p.lng)) return false;
-      if (filter == null || filter == 'All') return true;
-      switch (filter) {
-        case 'Sale':
-          return p.listingType == 'sale';
-        case 'Rent':
-          return p.listingType == 'rent';
-        case 'Mortgage':
-          return p.listingType == 'mortgage';
-        case 'Land':
-          return p.type == 'land' || p.type == 'agricultural';
-        case 'Commercial':
-          return p.type == 'commercial';
-        case 'Investment':
-          return p.listingType == 'investment';
-        default:
-          return true;
-      }
-    }).toList();
   }
 
   String? _listingTypeFromFilter(String? filter) {

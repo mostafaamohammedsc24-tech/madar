@@ -1,5 +1,3 @@
-import '../../../../core/demo/demo_mode.dart';
-import '../../../../services/app_demo_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../../core/data/employee_repository.dart';
 import '../../core/domain/employee_permissions.dart';
@@ -15,11 +13,6 @@ class SalesRepository {
   String? get _employeeId => _employeeRepo.currentEmployee?.id;
 
   Future<List<Map<String, dynamic>>> listLeads({String? status}) async {
-    if (DemoMode.enabled) {
-      final all = AppDemoSeed.salesLeads();
-      if (status == null) return all;
-      return all.where((l) => l['status'] == status).toList();
-    }
     try {
       var q = _supabase.client.from('sales_leads').select();
       if (_employeeId != null) {
@@ -34,7 +27,6 @@ class SalesRepository {
   }
 
   Future<List<Map<String, dynamic>>> listFollowUpsToday() async {
-    if (DemoMode.enabled) return AppDemoSeed.salesFollowUps();
     if (_employeeId == null) return [];
     try {
       final start = DateTime.now();

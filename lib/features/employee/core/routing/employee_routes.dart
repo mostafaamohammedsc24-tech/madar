@@ -159,6 +159,11 @@ List<RouteBase> buildEmployeeRoutes({
               gated(() => portal.PublishingRequestsScreen()),
         ),
         GoRoute(
+          path: '/employee/publishing/properties',
+          builder: (context, state) =>
+              gated(() => portal.PublisherPropertiesScreen()),
+        ),
+        GoRoute(
           path: '/employee/publishing/create',
           builder: (context, state) =>
               gated(() => portal.PublishingCreateRequestScreen()),

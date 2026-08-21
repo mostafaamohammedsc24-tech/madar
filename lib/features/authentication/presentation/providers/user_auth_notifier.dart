@@ -40,34 +40,7 @@ class UserAuthNotifier extends ChangeNotifier {
 
   UserAuthState get state => _state;
 
-  bool get _isDemoUi => const bool.fromEnvironment(
-        'DEMO_ENTER_USER_UI',
-        defaultValue: false,
-      );
-
-  /// Local preview only: walk the real auth screens, then enter the user shell.
-  /// Enabled with `--dart-define=DEMO_ENTER_USER_UI=true`.
-  Future<void> enterDemoUserInterface() async {
-    if (!_isDemoUi) return;
-    _setState(
-      _state.copyWith(
-        status: UserAuthStatus.awaitingLocationPermission,
-        phoneNumber: '7901234567',
-        selectedCountry: authCountryByIso('IQ'),
-        selectedLanguage: AppLanguage.arabic,
-        selectedCurrencyCode: 'IQD',
-        isBusy: false,
-        clearMessage: true,
-      ),
-    );
-  }
-
   Future<void> initialize() async {
-    if (_isDemoUi) {
-      await enterDemoUserInterface();
-      return;
-    }
-
     _setState(_state.copyWith(status: UserAuthStatus.initializing, isBusy: true));
 
     _sessionSubscription ??= _repository.watchAuthSession().listen((_) {
@@ -289,20 +262,6 @@ class UserAuthNotifier extends ChangeNotifier {
         countryCode: _state.selectedCountry.dialCode,
       );
 
-      if (_isDemoUi) {
-        _startResendCountdown();
-        _setState(
-          _state.copyWith(
-            status: UserAuthStatus.awaitingOtpVerification,
-            isBusy: false,
-            clearMessage: true,
-            otpDeliveryChannel:
-                channel == OtpDeliveryChannel.sms ? 'sms' : 'whatsapp',
-          ),
-        );
-        return;
-      }
-
       await _repository.sendPhoneOtp(
         _state.fullPhoneNumber,
         channel: channel,
@@ -349,20 +308,6 @@ class UserAuthNotifier extends ChangeNotifier {
     _setState(_state.copyWith(isBusy: true, clearMessage: true));
 
     try {
-      if (_isDemoUi) {
-        const userId = 'demo-user-local';
-        _stopResendCountdown();
-        _setState(
-          _state.copyWith(
-            status: UserAuthStatus.awaitingFaceVerification,
-            userId: userId,
-            isBusy: false,
-            clearMessage: true,
-          ),
-        );
-        return;
-      }
-
       final userId = await _repository.verifyPhoneOtp(
         fullPhoneNumber: _state.fullPhoneNumber,
         otp: otp,

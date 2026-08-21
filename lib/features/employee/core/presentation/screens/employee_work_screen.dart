@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../core/demo/demo_mode.dart';
 import '../../../../../core/localization/app_localizations.dart';
-import '../../../../../services/app_demo_seed.dart';
+import '../../../../../services/publisher_seed.dart';
 import '../../domain/employee_models.dart';
 import '../../domain/employee_permissions.dart';
 import '../providers/employee_auth_notifier.dart';
@@ -30,35 +29,51 @@ class EmployeeWorkScreen extends StatelessWidget {
         Text(
           loc.empWorkTitle,
           style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Cross-role tools',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.qr_code_scanner),
+          title: Text(loc.scanBarcode),
+          subtitle: const Text('Read published deal & property barcodes'),
+          trailing: const Icon(Icons.chevron_right, size: 18),
+          onTap: () => context.push('/barcode-reader'),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.account_tree_outlined),
+          title: const Text('Deal workflow'),
+          subtitle: const Text('Office → lawyers → finance → closing → publish'),
+          trailing: const Icon(Icons.chevron_right, size: 18),
+          onTap: () => context.push('/deal-workflow'),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'My queues',
+          style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          loc.empWorkSubtitle,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          loc.empTodaysWork,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 8),
         ...queues.map(
           (q) => _QueueTile(
             title: q.title,
-            subtitle: q.subtitle,
             count: q.count,
+            subtitle: q.subtitle,
             onTap: () => context.push(q.route),
           ),
         ),
         if (queues.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
+            padding: const EdgeInsets.only(top: 12),
             child: Text(
               loc.empNoWorkQueues,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -149,15 +164,27 @@ List<WorkQueueItem> workQueuesFor(
       ];
     case EmployeeDepartmentCode.publishing:
       return [
-        const WorkQueueItem(
+        WorkQueueItem(
+          title: 'Properties workspace',
+          count: PublisherSeed.assets().length,
+          route: '/employee/publishing/properties',
+        ),
+        WorkQueueItem(
           title: 'Publishing requests',
-          count: 0,
+          count: PublisherSeed.assets().length,
           route: '/employee/publishing/requests',
         ),
         const WorkQueueItem(
           title: 'New request',
           count: 0,
           route: '/employee/publishing/create',
+        ),
+        WorkQueueItem(
+          title: 'Ready to publish',
+          count: PublisherSeed.assets()
+              .where((a) => a.pipelineStatus == 'ready_for_publication')
+              .length,
+          route: '/employee/publishing/requests',
         ),
       ];
     case EmployeeDepartmentCode.information:
@@ -186,14 +213,14 @@ List<WorkQueueItem> workQueuesFor(
       ];
     case EmployeeDepartmentCode.sales:
       return [
-        WorkQueueItem(
+        const WorkQueueItem(
           title: 'Leads',
-          count: DemoMode.enabled ? AppDemoSeed.salesLeads().length : 0,
+          count: 0,
           route: '/employee/sales/leads',
         ),
-        WorkQueueItem(
+        const WorkQueueItem(
           title: 'Follow-ups',
-          count: DemoMode.enabled ? AppDemoSeed.salesFollowUps().length : 0,
+          count: 0,
           route: '/employee/sales/followups',
         ),
         const WorkQueueItem(
@@ -201,13 +228,9 @@ List<WorkQueueItem> workQueuesFor(
           count: 0,
           route: '/employee/publishing/create',
         ),
-        WorkQueueItem(
+        const WorkQueueItem(
           title: 'Deals / handoff',
-          count: DemoMode.enabled
-              ? AppDemoSeed.salesLeads()
-                  .where((l) => l['status'] == 'ready_for_closing')
-                  .length
-              : 0,
+          count: 0,
           route: '/employee/sales/deals',
         ),
       ];

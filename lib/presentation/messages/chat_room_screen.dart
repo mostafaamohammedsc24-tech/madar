@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/localization/app_localizations.dart';
 import '../../services/property_ai_service.dart';
-import '../../services/property_catalog_demo.dart';
 import '../../services/supabase_service.dart';
 import '../../theme/app_theme.dart';
 import '../search_map_screen/models/property_data.dart';
@@ -66,7 +65,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             .toList();
       }
     } catch (_) {}
-    if (_catalog.isEmpty) _catalog = PropertyCatalogDemo.listings();
   }
 
   void _scrollToEnd() {

@@ -6,9 +6,11 @@ import '../../../../../core/localization/app_localizations.dart';
 import '../../../../../theme/app_theme.dart';
 import '../providers/employee_auth_notifier.dart';
 import 'employee_nav_config.dart';
+import '../../../publishing/presentation/shell/publisher_shell.dart';
 
 /// Single employee platform shell: Logo · Search · avatar header +
 /// Home / Work / Messages / Notifications / Profile.
+/// Publishing department uses the Stitch Publisher shell.
 class EmployeeShell extends StatelessWidget {
   const EmployeeShell({required this.child, super.key});
 
@@ -20,6 +22,10 @@ class EmployeeShell extends StatelessWidget {
     final employee = auth.employee;
     if (employee == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (employee.isPublishing) {
+      return PublisherShell(child: child);
     }
 
     final width = MediaQuery.sizeOf(context).width;

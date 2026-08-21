@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../presentation/messages/open_sales_chat.dart';
 import '../../../../theme/app_theme.dart';
+import '../../../workflow/data/deal_workflow_store.dart';
 import '../../domain/models/office_models.dart';
 import '../providers/office_auth_notifier.dart';
 
@@ -65,6 +66,21 @@ class _OfficeCreateTransactionScreenState
         SnackBar(content: Text(result.message ?? loc.officeActionFailed)),
       );
     } else if (result.buyerBarcode != null && result.sellerBarcode != null) {
+      if (result.transactionId != null) {
+        DealWorkflowStore.instance.registerLiveDealBarcodes(
+          transactionId: result.transactionId!,
+          buyerBarcode: result.buyerBarcode!,
+          sellerBarcode: result.sellerBarcode!,
+          transactionMap: {
+            'id': result.transactionId,
+            'transaction_number': result.transactionNumber,
+            'property_address_snapshot': _buyerCtrl.text.trim().isEmpty
+                ? result.transactionNumber
+                : 'Deal ${_buyerCtrl.text.trim()}',
+            'lifecycle_state': 'waiting_for_parties',
+          },
+        );
+      }
       deliverOfficeBarcodesToAgentChat(
         transactionNumber: result.transactionNumber ?? '',
         buyerBarcode: result.buyerBarcode!,
