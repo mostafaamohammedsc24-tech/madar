@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../services/office_seed.dart';
 import '../../../../widgets/language_selector_sheet.dart';
 import '../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../authentication/presentation/widgets/auth_container.dart';
@@ -20,8 +21,8 @@ class OfficeLoginScreen extends StatefulWidget {
 }
 
 class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
-  final _codeCtrl = TextEditingController();
-  final _secretCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController(text: OfficeSeed.code);
+  final _secretCtrl = TextEditingController(text: OfficeSeed.secret);
   bool _obscure = true;
 
   @override
@@ -110,6 +111,15 @@ class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
             ),
             onChanged: (_) => setState(() {}),
             onSubmitted: canSubmit ? (_) => _submit(auth) : null,
+          ),
+          const SizedBox(height: AuthSpacing.md),
+          Text(
+            '${OfficeSeed.code} / ${OfficeSeed.secret}',
+            textAlign: TextAlign.center,
+            style: AuthTypography.caption(context).copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           if (auth.message != null) ...[
             const SizedBox(height: AuthSpacing.md),

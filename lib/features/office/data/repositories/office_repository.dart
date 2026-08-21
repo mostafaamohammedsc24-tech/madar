@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../services/office_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../../domain/models/office_models.dart';
 
@@ -19,6 +20,8 @@ class OfficeRepository {
   OfficeAccount? get currentOffice => _office;
   bool get isAuthenticated =>
       _token != null && _token!.isNotEmpty && _office != null;
+
+  bool get _isSeedSession => OfficeSeed.isSeedToken(_token);
 
   Future<void> restoreSession() async {
     final prefs = await SharedPreferences.getInstance();
@@ -106,6 +109,12 @@ class OfficeRepository {
     required String officeCode,
     required String secretCode,
   }) async {
+    // Local seed login for exploring the office portal.
+    if (OfficeSeed.matches(officeCode, secretCode)) {
+      final session = OfficeSeed.session();
+      await _persistSession(session);
+      return (success: true, message: null, session: session);
+    }
     try {
       final result = await _supabase.client.rpc(
         'office_login',
@@ -143,6 +152,7 @@ class OfficeRepository {
   Future<List<Map<String, dynamic>>> loadDiscoverableProperties({
     String? countryCode,
   }) async {
+    if (_isSeedSession) return OfficeSeed.discoverableProperties();
     return _supabase.getProperties(
       countryCode: countryCode ?? _office?.countryCode,
       limit: 80,
@@ -150,6 +160,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> loadOfficeAssignedProperties() async {
+    if (_isSeedSession) return OfficeSeed.assignedProperties();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -263,6 +274,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeReferral>> listReferrals() async {
+    if (_isSeedSession) return OfficeSeed.referrals();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -280,6 +292,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficePropertyReport>> listReports() async {
+    if (_isSeedSession) return [];
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -299,6 +312,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeConversation>> listConversations() async {
+    if (_isSeedSession) return OfficeSeed.conversations();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -316,6 +330,7 @@ class OfficeRepository {
   }
 
   Future<List<OfficeMessage>> listMessages(String conversationId) async {
+    if (_isSeedSession) return OfficeSeed.messagesFor(conversationId);
     try {
       final rows = await _supabase.client
           .from('office_messages')
@@ -335,6 +350,7 @@ class OfficeRepository {
     required String conversationId,
     required String body,
   }) async {
+    if (_isSeedSession) return true;
     if (_office == null) return false;
     try {
       await _supabase.client.from('office_messages').insert({
@@ -356,6 +372,7 @@ class OfficeRepository {
   }
 
   Future<OfficeSalesSummary> salesSummaryThisMonth() async {
+    if (_isSeedSession) return OfficeSeed.salesSummary();
     if (_office == null) {
       return const OfficeSalesSummary(
         salesThisMonth: 0,
@@ -406,6 +423,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listOfficeTransactions() async {
+    if (_isSeedSession) return OfficeSeed.transactions();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
@@ -475,6 +493,7 @@ class OfficeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listNotifications() async {
+    if (_isSeedSession) return OfficeSeed.notifications();
     if (_office == null) return [];
     try {
       final rows = await _supabase.client
