@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/locale_provider.dart';
 import '../../../../services/office_seed.dart';
 import '../../../../widgets/language_selector_sheet.dart';
 import '../../../authentication/presentation/theme/auth_theme.dart';
@@ -50,7 +51,11 @@ class _OfficeLoginScreenState extends State<OfficeLoginScreen> {
       secretCode: _secretCtrl.text,
     );
     if (!mounted) return;
-    if (ok) context.go('/office/home');
+    if (ok) {
+      await context.read<LocaleProvider>().setLanguage(AppLanguage.arabic);
+      if (!mounted) return;
+      context.go('/office/home');
+    }
   }
 
   String _friendlyError(AppLocalizations loc, String? code) {

@@ -43,7 +43,6 @@ class _OfficeConversationsScreenState extends State<OfficeConversationsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
-      appBar: AppBar(title: Text(loc.officeNavConversations)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -54,24 +53,36 @@ class _OfficeConversationsScreenState extends State<OfficeConversationsScreen> {
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, i) {
                   if (i == 0) {
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: const Color(0xFFFFF3E0),
-                        child: Icon(
-                          Icons.auto_awesome,
-                          color: Colors.orange.shade800,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          loc.officeNavConversations,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: theme.colorScheme.outlineVariant,
+                        const SizedBox(height: 12),
+                        ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: const Color(0xFFFFF3E0),
+                            child: Icon(
+                              Icons.auto_awesome,
+                              color: Colors.orange.shade800,
+                            ),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: theme.colorScheme.outlineVariant,
+                            ),
+                          ),
+                          title: Text(loc.officeAiAssistantTitle),
+                          subtitle: Text(loc.officeAiPinnedSubtitle),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push('/office/ai'),
                         ),
-                      ),
-                      title: Text(loc.officeAiAssistantTitle),
-                      subtitle: Text(loc.officeAiPinnedSubtitle),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.push('/office/ai'),
+                      ],
                     );
                   }
                   final c = _items[i - 1];

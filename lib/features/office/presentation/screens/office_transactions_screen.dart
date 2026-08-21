@@ -42,16 +42,6 @@ class _OfficeTransactionsScreenState extends State<OfficeTransactionsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
-      appBar: AppBar(
-        title: Text(loc.officeNavTransactions),
-        actions: [
-          IconButton(
-            onPressed: () => context.push('/office/history'),
-            icon: const Icon(Icons.history),
-            tooltip: loc.officeSalesHistory,
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/office/create-transaction'),
         icon: const Icon(Icons.qr_code_2),
@@ -63,17 +53,55 @@ class _OfficeTransactionsScreenState extends State<OfficeTransactionsScreen> {
               onRefresh: _load,
               child: _items.isEmpty
                   ? ListView(
+                      padding: const EdgeInsets.all(16),
                       children: [
-                        const SizedBox(height: 100),
-                        Center(child: Text(loc.officeNoTransactions)),
+                        Text(
+                          loc.officeNavTransactions,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          loc.officeNoTransactions,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'أنشئ معاملة عند توفر بائع ومشترٍ موثّقين.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
                       ],
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
-                      itemCount: _items.length,
+                      itemCount: _items.length + 1,
                       separatorBuilder: (_, __) => const SizedBox(height: 8),
                       itemBuilder: (context, i) {
-                        final t = _items[i];
+                        if (i == 0) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  loc.officeNavTransactions,
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () =>
+                                    context.push('/office/history'),
+                                icon: const Icon(Icons.history),
+                                tooltip: loc.officeSalesHistory,
+                              ),
+                            ],
+                          );
+                        }
+                        final t = _items[i - 1];
                         final number = t['transaction_number']?.toString() ??
                             t['reference_number']?.toString() ??
                             '—';

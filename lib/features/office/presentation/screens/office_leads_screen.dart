@@ -82,105 +82,125 @@ class _OfficeLeadsScreenState extends State<OfficeLeadsScreen>
     }
   }
 
+  Widget _buildReferrals(AppLocalizations loc) {
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: _referrals.isEmpty
+          ? ListView(
+              children: [
+                const SizedBox(height: 80),
+                Center(child: Text(loc.officeNoLeads)),
+              ],
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+              itemCount: _referrals.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, i) {
+                final r = _referrals[i];
+                return ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                  ),
+                  title: Text(loc.officeBuyerLead),
+                  subtitle: Text(
+                    '${_refStatus(loc, r.status)}\n'
+                    '${r.createdAt?.toLocal().toString().split('.').first ?? ''}',
+                  ),
+                  isThreeLine: true,
+                  onTap: r.conversationId == null
+                      ? null
+                      : () => context.push(
+                            '/office/chat/${r.conversationId}',
+                          ),
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _buildReports(AppLocalizations loc) {
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: _reports.isEmpty
+          ? ListView(
+              children: [
+                const SizedBox(height: 80),
+                Center(child: Text(loc.officeNoReports)),
+              ],
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+              itemCount: _reports.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, i) {
+                final r = _reports[i];
+                return ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                  ),
+                  title: Text(r.addressText ?? loc.officeReportProperty),
+                  subtitle: Text(
+                    '${_reportStatus(loc, r.status)} · '
+                    '${r.propertyType ?? ''} · ${r.listingType ?? ''}',
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
-      appBar: AppBar(
-        title: Text(loc.officeNavLeads),
-        bottom: TabBar(
-          controller: _tabs,
-          tabs: [
-            Tab(text: loc.officeBuyerLeads),
-            Tab(text: loc.officePropertyReports),
-          ],
-        ),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabs,
-              children: [
-                RefreshIndicator(
-                  onRefresh: _load,
-                  child: _referrals.isEmpty
-                      ? ListView(
-                          children: [
-                            const SizedBox(height: 80),
-                            Center(child: Text(loc.officeNoLeads)),
-                          ],
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _referrals.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 8),
-                          itemBuilder: (context, i) {
-                            final r = _referrals[i];
-                            return ListTile(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outlineVariant,
-                                ),
-                              ),
-                              title: Text(loc.officeBuyerLead),
-                              subtitle: Text(
-                                '${_refStatus(loc, r.status)}\n'
-                                '${r.createdAt?.toLocal().toString().split('.').first ?? ''}',
-                              ),
-                              isThreeLine: true,
-                              onTap: r.conversationId == null
-                                  ? null
-                                  : () => context.push(
-                                        '/office/chat/${r.conversationId}',
-                                      ),
-                            );
-                          },
-                        ),
-                ),
-                RefreshIndicator(
-                  onRefresh: _load,
-                  child: _reports.isEmpty
-                      ? ListView(
-                          children: [
-                            const SizedBox(height: 80),
-                            Center(child: Text(loc.officeNoReports)),
-                          ],
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _reports.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 8),
-                          itemBuilder: (context, i) {
-                            final r = _reports[i];
-                            return ListTile(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outlineVariant,
-                                ),
-                              ),
-                              title: Text(
-                                r.addressText ?? loc.officeReportProperty,
-                              ),
-                              subtitle: Text(
-                                '${_reportStatus(loc, r.status)} · '
-                                '${r.propertyType ?? ''} · ${r.listingType ?? ''}',
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                loc.officeNavLeads,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
             ),
+          ),
+          TabBar(
+            controller: _tabs,
+            tabs: [
+              Tab(text: loc.officeBuyerLeads),
+              Tab(text: loc.officePropertyReports),
+            ],
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : TabBarView(
+                    controller: _tabs,
+                    children: [
+                      _buildReferrals(loc),
+                      _buildReports(loc),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/office/report-property'),
+        icon: const Icon(Icons.add_home_work_outlined),
+        label: Text(loc.officeReportProperty),
+      ),
     );
   }
 }

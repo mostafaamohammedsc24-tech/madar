@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/localization/app_localizations.dart';
 import '../../../../../services/publisher_seed.dart';
 import '../../../../../services/supabase_service.dart';
+import '../../../publishing/presentation/theme/publisher_tokens.dart';
 import '../providers/employee_auth_notifier.dart';
 
 /// Permission-scoped internal messages (employee_internal_* tables).
@@ -44,7 +46,6 @@ class _EmployeeMessagesScreenState extends State<EmployeeMessagesScreen> {
           .order('last_message_at', ascending: false)
           .limit(40);
       final list = List<Map<String, dynamic>>.from(rows);
-      // Scope: same department conversations or ones the employee created.
       final scoped = list.where((c) {
         final dept = c['department_code']?.toString();
         final createdBy = c['created_by_employee_id']?.toString();
@@ -70,53 +71,92 @@ class _EmployeeMessagesScreenState extends State<EmployeeMessagesScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    return _loading
-        ? const Center(child: CircularProgressIndicator())
-        : RefreshIndicator(
-            onRefresh: _load,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text(
-                  loc.empNavMessages,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  loc.empMessagesHint,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (_items.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 40),
-                    child: Text(
-                      loc.empMessagesEmpty,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  )
-                else
-                  ..._items.map(
-                    (c) => ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.forum_outlined),
-                      title: Text(c['title']?.toString() ?? loc.empConversation),
-                      subtitle: Text(c['department_code']?.toString() ?? ''),
-                      trailing: Text(
-                        c['last_message_at']?.toString().split('T').first ?? '',
-                        style: theme.textTheme.labelSmall,
-                      ),
-                    ),
-                  ),
-              ],
+    final isPublisher =
+        context.watch<EmployeeAuthNotifier>().employee?.isPublishing == true;
+
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            loc.empNavMessages,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: isPublisher ? PublisherTokens.onSurface : null,
             ),
-          );
+          ),
+          const SizedBox(height: 8),
+          Text(
+            loc.empMessagesHint,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.only(top: 40),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 40),
+              child: Text(
+                loc.empMessagesEmpty,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            )
+          else
+            ..._items.map((c) {
+              final id = c['id']?.toString() ?? '';
+              final title = c['title']?.toString() ?? loc.empConversation;
+              return Material(
+                color: isPublisher
+                    ? PublisherTokens.card
+                    : theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: theme.colorScheme.outlineVariant
+                          .withValues(alpha: 0.6),
+                    ),
+                  ),
+                  leading: CircleAvatar(
+                    backgroundColor: isPublisher
+                        ? PublisherTokens.primaryContainer
+                        : theme.colorScheme.primaryContainer,
+                    child: Icon(
+                      Icons.forum_outlined,
+                      color: isPublisher
+                          ? PublisherTokens.onPrimaryContainer
+                          : theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  title: Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: Text(
+                    c['subtitle']?.toString() ??
+                        c['department_code']?.toString() ??
+                        '',
+                  ),
+                  trailing: const Icon(Icons.chevron_right, size: 18),
+                  onTap: () => context.push(
+                    '/employee/messages/$id',
+                    extra: {'title': title},
+                  ),
+                ),
+              );
+            }),
+        ],
+      ),
+    );
   }
 }

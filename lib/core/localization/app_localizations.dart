@@ -445,6 +445,7 @@ class AppLocalizations {
       _t(en: 'Staff Assignment', ar: 'تعيين الموظفين', ku: 'دانانی ستاف');
   String get save => _t(en: 'Save', ar: 'حفظ', ku: 'پاشەکەوت');
   String get cancel => _t(en: 'Cancel', ar: 'إلغاء', ku: 'هەڵوەشاندنەوە');
+  String get orLabel => _t(en: 'Or', ar: 'أو', ku: 'یان');
   String get confirm => _t(en: 'Confirm', ar: 'تأكيد', ku: 'پشتڕاستکردنەوە');
   String get edit => _t(en: 'Edit', ar: 'تعديل', ku: 'دەستکاری');
   String get delete => _t(en: 'Delete', ar: 'حذف', ku: 'سڕینەوە');
@@ -2316,15 +2317,81 @@ class AppLocalizations {
     ar: 'هذه النقطة مخصصة لموظفي مدار (المحامون، المالية، العمليات). نظام الموظفين غير متاح بعد.',
     ku: 'ئەم خاڵە بۆ کارمەندانی مەدارە. سیستەمی کارمەندان هێشتا ئامادە نییە.',
   );
-  String get officeNavHome => _t(en: 'Home', ar: 'الرئيسية', ku: 'سەرەکی');
+  String get officeNavHome => _t(en: 'Map', ar: 'الخريطة', ku: 'نەخشە');
   String get officeNavProperties =>
-      _t(en: 'Properties', ar: 'العقارات', ku: 'موڵکەکان');
+      _t(en: 'My Properties', ar: 'عقاراتي', ku: 'موڵکەکانم');
   String get officeNavTransactions =>
-      _t(en: 'Deals', ar: 'العمليات', ku: 'مامەڵەکان');
-  String get officeNavLeads => _t(en: 'Leads', ar: 'الفرص', ku: 'دەرفەتەکان');
+      _t(en: 'Transactions', ar: 'المعاملات', ku: 'مامەڵەکان');
+  String get officeNavLeads =>
+      _t(en: 'Requests', ar: 'الطلبات', ku: 'داواکارییەکان');
   String get officeNavConversations =>
-      _t(en: 'Chats', ar: 'المحادثات', ku: 'گفتوگۆکان');
-  String get officeNavMore => _t(en: 'More', ar: 'المزيد', ku: 'زیاتر');
+      _t(en: 'Messages', ar: 'الرسائل', ku: 'نامەکان');
+  String get officeNavMore => _t(en: 'Profile', ar: 'الملف', ku: 'پرۆفایل');
+  String get officeNavProfile =>
+      _t(en: 'Profile', ar: 'الملف', ku: 'پرۆفایل');
+  String get officeSearchNaturalHint => _t(
+        en: 'House near university under 200 million…',
+        ar: 'بيت قرب الجامعة أقل من 200 مليون…',
+        ku: 'خانوو لە نزیک زانکۆ کەمتر لە ٢٠٠ ملیۆن…',
+      );
+  String get officeMapType =>
+      _t(en: 'Map type', ar: 'نوع الخريطة', ku: 'جۆری نەخشە');
+  String get officeMyLocation =>
+      _t(en: 'My location', ar: 'موقعي', ku: 'شوێنی من');
+  String get officeFoundBuyerTitle => _t(
+        en: 'Buyer details',
+        ar: 'تفاصيل المشتري',
+        ku: 'وردەکاری کڕیار',
+      );
+  String get officeFoundBuyerHint => _t(
+        en: 'Enter the buyer’s Madar phone number or account ID to link the request.',
+        ar: 'يرجى إدخال رقم هاتف المشتري المسجل في مدار أو معرف الحساب الخاص به لربط المعاملة.',
+        ku: 'ژمارەی تەلەفۆنی کڕیار یان ناسنامەی هەژمار لە مەدار بنووسە.',
+      );
+  String get officeFoundBuyerPhone => _t(
+        en: 'Buyer phone (Madar)',
+        ar: 'رقم هاتف المشتري (مدار)',
+        ku: 'تەلەفۆنی کڕیار (مەدار)',
+      );
+  String get officeFoundBuyerId => _t(
+        en: 'Buyer ID',
+        ar: 'معرف المشتري (Buyer ID)',
+        ku: 'ناسنامەی کڕیار',
+      );
+  String get officeFoundBuyerInfo => _t(
+        en: 'An immediate notification will be sent to the buyer. The deal is not complete until both parties confirm.',
+        ar: 'سيتم إرسال إشعار فوري للمشتري لتأكيد الرغبة بالشراء. لا تعتبر المعاملة مكتملة إلا بعد تأكيد الطرفين.',
+        ku: 'ئاگاداری دەنێردرێت بۆ کڕیار. مامەڵە تەواو نابێت تا هەردوو لایەن پشتڕاست بکەنەوە.',
+      );
+  String get officeFoundBuyerSubmit => _t(
+        en: 'Send request',
+        ar: 'إرسال الطلب',
+        ku: 'ناردنی داواکاری',
+      );
+  String get officeAddProperty =>
+      _t(en: 'Add property', ar: 'إضافة عقار', ku: 'زیادکردنی موڵک');
+  String get officeManagePropertiesSubtitle => _t(
+        en: 'Manage and track your properties',
+        ar: 'إدارة ومتابعة العقارات الخاصة بك',
+        ku: 'بەڕێوەبردن و شوێنکەوتنی موڵکەکانت',
+      );
+  String get officeFilterAll => _t(en: 'All', ar: 'الكل', ku: 'هەموو');
+  String get officeFilterAvailable =>
+      _t(en: 'Available', ar: 'متاح', ku: 'بەردەست');
+  String get officeFilterInProgress =>
+      _t(en: 'In progress', ar: 'قيد الإعداد', ku: 'لە ئامادەکاریدایە');
+  String get officeFilterSold => _t(en: 'Sold', ar: 'مباع', ku: 'فرۆشراو');
+  String get officeFilterForSale => _t(en: 'For sale', ar: 'للبيع', ku: 'بۆ فرۆشتن');
+  String get officeFilterForRent =>
+      _t(en: 'For rent', ar: 'للإيجار', ku: 'بۆ کرێ');
+  String get officeFilterCommercial =>
+      _t(en: 'Commercial', ar: 'تجاري', ku: 'بازرگانی');
+  String get officeFilterLand => _t(en: 'Land', ar: 'أراضي', ku: 'زەوی');
+  String get officeNoTransactionsYet => _t(
+        en: 'No completed transactions yet.',
+        ar: 'لا توجد معاملات مكتملة بعد.',
+        ku: 'هێشتا مامەڵەی تەواو نییە.',
+      );
   String get officeSearchHint => _t(
     en: 'Search by area, price, schools, features…',
     ar: 'ابحث بالمنطقة أو السعر أو المدارس أو المواصفات…',
@@ -2349,7 +2416,6 @@ class AppLocalizations {
       _t(en: 'Show on map', ar: 'عرض على الخريطة', ku: 'پیشاندان لەسەر نەخشە');
   String get officeAiFabLabel =>
       _t(en: 'AI search', ar: 'بحث ذكي', ku: 'گەڕانی زیر');
-  String get officeFilterAll => _t(en: 'All', ar: 'الكل', ku: 'هەموو');
   String get officeFilterSale => _t(en: 'Sale', ar: 'بيع', ku: 'فرۆشتن');
   String get officeFilterRent => _t(en: 'Rent', ar: 'إيجار', ku: 'کرێ');
   String get officeFilterMortgage => _t(en: 'Mortgage', ar: 'رهن', ku: 'ڕەهن');

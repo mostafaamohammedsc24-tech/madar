@@ -2,6 +2,7 @@
 library;
 
 export '../presentation/screens/employee_audit_screen.dart';
+export '../presentation/screens/employee_chat_screen.dart';
 export '../presentation/screens/employee_home_screen.dart';
 export '../presentation/screens/employee_login_screen.dart';
 export '../presentation/screens/employee_messages_screen.dart';
