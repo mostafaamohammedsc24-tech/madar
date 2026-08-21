@@ -34,5 +34,6 @@ export '../../publishing/presentation/screens/property_command_center_screen.dar
 export '../../publishing/presentation/screens/publishing_create_request_screen.dart';
 export '../../publishing/presentation/screens/publishing_requests_screen.dart';
 export '../../publishing/presentation/screens/publisher_properties_screen.dart';
+export '../../publishing/presentation/screens/publisher_work_screen.dart';
 export '../../publishing/presentation/shell/publisher_shell.dart';
 export '../../sales/presentation/screens/sales_screens.dart';

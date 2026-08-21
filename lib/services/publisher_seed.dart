@@ -1,5 +1,6 @@
 import '../features/employee/core/domain/employee_models.dart';
 import '../features/employee/core/domain/employee_permissions.dart';
+import '../features/employee/publishing/domain/publisher_ops_models.dart';
 import '../features/employee/publishing/domain/publishing_models.dart';
 
 /// Local publisher (publishing dept) preview seed.
@@ -9,6 +10,9 @@ abstract final class PublisherSeed {
   static const String secret = '123456';
   static const String token = 'seed-publisher-token';
   static const String employeeId = 'seed-publisher-001';
+
+  /// Session-created assets (create request flow).
+  static final List<PropertyAsset> _live = [];
 
   static bool matches(String employeeCode, String secretCode) {
     return employeeCode.trim().toUpperCase() == code &&
@@ -22,9 +26,10 @@ abstract final class PublisherSeed {
       id: employeeId,
       employeeCode: code,
       fullName: 'نور الكاظم',
-      jobTitle: 'ناشر عقارات',
+      jobTitle: 'Property Publisher',
       countryCode: 'IQ',
       branchCode: 'BGH',
+      employmentStatus: 'active',
       department: const EmployeeDepartment(
         id: 'dept-publishing',
         code: 'publishing',
@@ -34,8 +39,8 @@ abstract final class PublisherSeed {
       role: const EmployeeRole(
         id: 'role-publisher',
         code: 'publisher',
-        nameEn: 'Publisher',
-        nameAr: 'ناشر',
+        nameEn: 'Property Publisher',
+        nameAr: 'ناشر عقارات',
       ),
       permissions: {
         EmployeePermission.publishingView,
@@ -69,6 +74,85 @@ abstract final class PublisherSeed {
 
   static EmployeeSession session() {
     return EmployeeSession(token: token, employee: account());
+  }
+
+  static List<PropertyAsset> allAssets() => [..._live, ...assets()];
+
+  static void registerLive(PropertyAsset asset) {
+    _live.insert(0, asset);
+  }
+
+  static OfficeLookupResult? lookupOffice(String code) {
+    final c = code.trim().toUpperCase().replaceAll(' ', '');
+    final map = {
+      'OFF001': const OfficeLookupResult(
+        code: 'OFF001',
+        name: 'مكتب مدار — الكرادة',
+        id: 'seed-office-001',
+        ownerName: 'حسين العبودي',
+        region: 'Baghdad · Karrada',
+        status: 'Active',
+      ),
+      'OFC-88421': const OfficeLookupResult(
+        code: 'OFC-88421',
+        name: 'Al-Rafidain Realty',
+        id: 'seed-office-002',
+        ownerName: 'سارة عبد الكريم',
+        region: 'Baghdad · Mansour',
+        status: 'Active',
+      ),
+      'OFC-1024': const OfficeLookupResult(
+        code: 'OFC-1024',
+        name: 'Jadriya Partners',
+        id: 'seed-office-003',
+        ownerName: 'ليث المنصور',
+        region: 'Baghdad · Jadriya',
+        status: 'Active',
+      ),
+    };
+    return map[c];
+  }
+
+  static UserLookupResult? lookupUser({String? phone, String? userId}) {
+    final users = [
+      const UserLookupResult(
+        id: 'USR-10021',
+        name: 'أحمد الراشدي',
+        phone: '+9647701112233',
+        location: 'Baghdad',
+      ),
+      const UserLookupResult(
+        id: 'USR-10044',
+        name: 'مريم خليل',
+        phone: '+9647803334455',
+        location: 'Baghdad · Karrada',
+      ),
+      const UserLookupResult(
+        id: 'USR-10088',
+        name: 'نور الساعدي',
+        phone: '+9647502223344',
+        location: 'Baghdad · Mansour',
+      ),
+    ];
+    if (userId != null && userId.trim().isNotEmpty) {
+      final id = userId.trim().toUpperCase();
+      for (final u in users) {
+        if (u.id == id) return u;
+      }
+    }
+    if (phone != null && phone.trim().isNotEmpty) {
+      final p = phone.replaceAll(RegExp(r'[^\d+]'), '');
+      for (final u in users) {
+        final up = u.phone.replaceAll(RegExp(r'[^\d+]'), '');
+        if (up.endsWith(p) || p.endsWith(up) || up == p) return u;
+      }
+    }
+    return null;
+  }
+
+  static String nextPublicId() {
+    final n = 48000000 + (DateTime.now().millisecondsSinceEpoch % 9999999);
+    return n.toString().padLeft(8, '0').substring(0, 8);
   }
 
   static List<PropertyAsset> assets() {

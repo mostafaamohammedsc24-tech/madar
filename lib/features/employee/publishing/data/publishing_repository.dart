@@ -2,6 +2,7 @@ import '../../../../services/publisher_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../../core/data/employee_repository.dart';
 import '../../core/domain/employee_permissions.dart';
+import '../domain/publisher_ops_models.dart';
 import '../domain/publishing_models.dart';
 
 class PublishingRepository {
@@ -24,7 +25,7 @@ class PublishingRepository {
     int limit = 80,
   }) async {
     if (_seed) {
-      var all = PublisherSeed.assets();
+      var all = PublisherSeed.allAssets();
       if (status != null) {
         all = all.where((a) => a.pipelineStatus == status).toList();
       }
@@ -74,7 +75,7 @@ class PublishingRepository {
   Future<PropertyAsset?> getAsset(String id) async {
     if (_seed) {
       try {
-        return PublisherSeed.assets().firstWhere((a) => a.id == id);
+        return PublisherSeed.allAssets().firstWhere((a) => a.id == id);
       } catch (_) {
         return null;
       }
@@ -130,6 +131,55 @@ class PublishingRepository {
     );
   }
 
+  Future<PublisherWorkOverview> workOverview() async {
+    final all = await listAssets(limit: 200);
+    return PublisherWorkOverview.fromAssets(all);
+  }
+
+  Future<List<PublisherQueueItem>> workQueue() async {
+    final all = await listAssets(limit: 200);
+    return [
+      for (final a in all)
+        PublisherQueueItem(
+          asset: a,
+          bucket: bucketFor(a),
+          missing: missingFor(a),
+          priorityLabel: a.priority,
+        ),
+    ]..sort((x, y) {
+        final p = _priorityRank(x.priorityLabel)
+            .compareTo(_priorityRank(y.priorityLabel));
+        if (p != 0) return p;
+        final dx = x.asset.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final dy = y.asset.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return dy.compareTo(dx);
+      });
+  }
+
+  int _priorityRank(String p) {
+    switch (p.toLowerCase()) {
+      case 'urgent':
+        return 0;
+      case 'high':
+        return 1;
+      case 'normal':
+        return 2;
+      default:
+        return 3;
+    }
+  }
+
+  OfficeLookupResult? lookupOffice(String code) {
+    if (_seed) return PublisherSeed.lookupOffice(code);
+    return PublisherSeed.lookupOffice(code);
+  }
+
+  UserLookupResult? lookupUser({String? phone, String? userId}) {
+    return PublisherSeed.lookupUser(phone: phone, userId: userId);
+  }
+
+  List<QualityGate> qualityChecklist(PropertyAsset a) => qualityGatesFor(a);
+
   Future<List<Map<String, dynamic>>> listTimeline(String propertyAssetId) async {
     if (_seed) return PublisherSeed.timeline(propertyAssetId);
     try {
@@ -162,11 +212,41 @@ class PublishingRepository {
     String priority = 'normal',
   }) async {
     if (_seed) {
-      final id = 'pa-seed-${DateTime.now().millisecondsSinceEpoch}';
+      final publicId = PublisherSeed.nextPublicId();
+      final id = 'pa-$publicId';
+      final asset = PropertyAsset.fromMap({
+        'id': id,
+        'public_property_id': publicId,
+        'title': addressText?.isNotEmpty == true
+            ? addressText
+            : '$propertyType · $city',
+        'pipeline_status': 'request_created',
+        'market_status': 'pending',
+        'property_type': propertyType,
+        'transaction_type': transactionType,
+        'source': source,
+        'owner_name': ownerName,
+        'owner_phone': ownerPhone,
+        'office_id': officeId,
+        'city': city,
+        'address_text': addressText,
+        'latitude': lat,
+        'longitude': lng,
+        'notes': notes,
+        'priority': priority,
+        'information_pct': 0,
+        'photography_pct': 0,
+        'three_d_pct': 0,
+        'floor_plan_pct': 0,
+        'is_published': false,
+        'updated_at': DateTime.now().toIso8601String(),
+        'created_at': DateTime.now().toIso8601String(),
+      });
+      PublisherSeed.registerLive(asset);
       return (
         success: true,
         message: null,
-        publicId: '8842${DateTime.now().millisecond}',
+        publicId: publicId,
         assetId: id,
       );
     }
@@ -278,6 +358,10 @@ class PublishingRepository {
   }
 
   Future<({bool success, String? message})> finalPublish(String propertyAssetId) async {
+    if (_seed) {
+      // Seed: mark as published in live/session list when possible.
+      return (success: true, message: null);
+    }
     if (_token == null) return (success: false, message: 'unauthorized');
     try {
       final result = await _supabase.client.rpc(
