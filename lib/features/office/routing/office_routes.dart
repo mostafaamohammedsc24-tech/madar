@@ -155,7 +155,7 @@ List<RouteBase> buildOfficeRoutes({
             GoRoute(
               path: '/office/more',
               builder: (context, state) =>
-                  gated(() => portal.OfficeMoreScreen()),
+                  gated(() => portal.OfficeProfileScreen()),
             ),
           ],
         ),

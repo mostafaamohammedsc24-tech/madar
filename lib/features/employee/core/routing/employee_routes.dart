@@ -49,6 +49,24 @@ List<RouteBase> buildEmployeeRoutes({
           path: '/employee/messages',
           builder: (context, state) =>
               gated(() => portal.EmployeeMessagesScreen()),
+          routes: [
+            GoRoute(
+              path: ':id',
+              builder: (context, state) {
+                final extra = state.extra;
+                String? title;
+                if (extra is Map) {
+                  title = extra['title']?.toString();
+                }
+                return gated(
+                  () => portal.EmployeeChatScreen(
+                    conversationId: state.pathParameters['id'] ?? '',
+                    title: title,
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/employee/profile',

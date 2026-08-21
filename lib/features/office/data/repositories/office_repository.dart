@@ -180,6 +180,13 @@ class OfficeRepository {
     String? message,
   }) async {
     if (_office == null) return null;
+    if (_isSeedSession) {
+      return OfficeSeed.createFoundBuyer(
+        propertyId: propertyId,
+        buyerPhone: buyerPhone,
+        message: message,
+      );
+    }
     try {
       // Ensure management conversation
       final conv = await _supabase.client
@@ -350,7 +357,13 @@ class OfficeRepository {
     required String conversationId,
     required String body,
   }) async {
-    if (_isSeedSession) return true;
+    if (_isSeedSession) {
+      OfficeSeed.appendSeedMessage(
+        conversationId: conversationId,
+        body: body,
+      );
+      return true;
+    }
     if (_office == null) return false;
     try {
       await _supabase.client.from('office_messages').insert({

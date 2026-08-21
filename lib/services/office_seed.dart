@@ -5,12 +5,20 @@ import '../features/office/domain/enums/office_enums.dart';
 /// live Supabase office credentials. Credentials: [code] / [secret].
 abstract final class OfficeSeed {
   static const String code = 'OFF001';
+  static const String displayCode = 'OFF-2048';
   static const String secret = '123456';
   static const String token = 'seed-office-token';
   static const String officeId = 'seed-office-001';
 
+  /// Mutable seed conversation threads (Found Buyer + chat send).
+  static final List<OfficeConversation> _extraConversations = [];
+  static final Map<String, List<OfficeMessage>> _extraMessages = {};
+  static final List<OfficeReferral> _extraReferrals = [];
+
   static bool matches(String officeCode, String secretCode) {
-    return officeCode.trim().toUpperCase() == code && secretCode == secret;
+    final c = officeCode.trim().toUpperCase().replaceAll(' ', '');
+    return (c == code || c == displayCode || c == 'OFF2048') &&
+        secretCode == secret;
   }
 
   static bool isSeedToken(String? token) => token == OfficeSeed.token;
@@ -18,8 +26,8 @@ abstract final class OfficeSeed {
   static OfficeAccount account() {
     return const OfficeAccount(
       id: officeId,
-      officeCode: code,
-      name: 'مكتب مدار — الكرادة',
+      officeCode: displayCode,
+      name: 'مركز مدار بغداد',
       countryCode: 'IQ',
       currencyCode: 'IQD',
       address: 'شارع النضال، الكرادة، بغداد',
@@ -236,6 +244,7 @@ abstract final class OfficeSeed {
         conversationId: 'seed-conv-002',
         createdAt: DateTime.now().subtract(const Duration(days: 1)),
       ),
+      ..._extraReferrals,
     ];
   }
 
@@ -257,10 +266,14 @@ abstract final class OfficeSeed {
         propertyId: 'seed-prop-002',
         lastMessageAt: DateTime.now().subtract(const Duration(hours: 8)),
       ),
+      ..._extraConversations,
     ];
   }
 
   static List<OfficeMessage> messagesFor(String conversationId) {
+    if (_extraMessages.containsKey(conversationId)) {
+      return List<OfficeMessage>.from(_extraMessages[conversationId]!);
+    }
     return [
       OfficeMessage(
         id: 'm1',
@@ -287,6 +300,91 @@ abstract final class OfficeSeed {
         createdAt: DateTime.now().subtract(const Duration(hours: 2)),
       ),
     ];
+  }
+
+  static void appendSeedMessage({
+    required String conversationId,
+    required String body,
+  }) {
+    final list = _extraMessages.putIfAbsent(
+      conversationId,
+      () => List<OfficeMessage>.from(messagesFor(conversationId)),
+    );
+    // If we just copied defaults into extras, fine; then append.
+    if (!_extraMessages.containsKey(conversationId)) {
+      // unreachable due to putIfAbsent
+    }
+    // Ensure we don't double-seed defaults every time: only seed once.
+    list.add(
+      OfficeMessage(
+        id: 'local-${DateTime.now().millisecondsSinceEpoch}',
+        conversationId: conversationId,
+        senderSide: 'office',
+        messageType: 'text',
+        body: body,
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  static OfficeReferral createFoundBuyer({
+    required String propertyId,
+    String? buyerPhone,
+    String? message,
+  }) {
+    final convId = 'seed-conv-fb-${DateTime.now().millisecondsSinceEpoch}';
+    final refId = 'seed-ref-fb-${DateTime.now().millisecondsSinceEpoch}';
+    final conv = OfficeConversation(
+      id: convId,
+      officeId: officeId,
+      teamKey: 'office_management',
+      title: 'وجدت مشتريًا — #$propertyId',
+      propertyId: propertyId,
+      lastMessageAt: DateTime.now(),
+    );
+    _extraConversations.insert(0, conv);
+    final body = message ??
+        'لدينا مشتري مهتم بهذا العقار. الهاتف: ${buyerPhone ?? '—'}';
+    _extraMessages[convId] = [
+      OfficeMessage(
+        id: 'fb-1',
+        conversationId: convId,
+        senderSide: 'office',
+        messageType: 'property_card',
+        body: body,
+        propertyId: propertyId,
+        createdAt: DateTime.now(),
+      ),
+      OfficeMessage(
+        id: 'fb-2',
+        conversationId: convId,
+        senderSide: 'office',
+        messageType: 'text',
+        body: body,
+        propertyId: propertyId,
+        createdAt: DateTime.now(),
+      ),
+      OfficeMessage(
+        id: 'fb-3',
+        conversationId: convId,
+        senderSide: 'madar',
+        messageType: 'text',
+        body: 'تم استلام طلب المشتري. فريق إدارة المكاتب سيتابع معكم.',
+        createdAt: DateTime.now().add(const Duration(seconds: 1)),
+      ),
+    ];
+    final referral = OfficeReferral(
+      id: refId,
+      officeId: officeId,
+      propertyId: propertyId,
+      status: OfficeReferralStatus.neu,
+      buyerPhone: buyerPhone,
+      message: body,
+      conversationId: convId,
+      createdAt: DateTime.now(),
+    );
+    _extraReferrals.insert(0, referral);
+    return referral;
   }
 
   static List<Map<String, dynamic>> notifications() {

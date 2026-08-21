@@ -349,7 +349,8 @@ abstract final class PublisherSeed {
       {
         'id': 'pub-m1',
         'title': 'فريق المعلومات',
-        'department_code': 'publishing',
+        'department_code': 'information',
+        'subtitle': 'بخصوص عقار #88421011',
         'last_message_at': DateTime.now()
             .subtract(const Duration(hours: 1))
             .toIso8601String(),
@@ -357,11 +358,106 @@ abstract final class PublisherSeed {
       {
         'id': 'pub-m2',
         'title': 'فريق التصوير',
-        'department_code': 'publishing',
+        'department_code': 'photography',
+        'subtitle': 'بخصوص عقار #88421022',
         'last_message_at': DateTime.now()
             .subtract(const Duration(hours: 6))
             .toIso8601String(),
       },
+      {
+        'id': 'pub-m3',
+        'title': 'فريق الهندسة',
+        'department_code': 'engineering',
+        'subtitle': 'مخططات الطوابق',
+        'last_message_at': DateTime.now()
+            .subtract(const Duration(days: 1))
+            .toIso8601String(),
+      },
     ];
+  }
+
+  static final Map<String, List<Map<String, dynamic>>> _threads = {};
+
+  static List<Map<String, dynamic>> threadMessages(String conversationId) {
+    return List<Map<String, dynamic>>.from(
+      _threads.putIfAbsent(conversationId, () {
+        if (conversationId == 'pub-m1') {
+          return [
+            {
+              'id': 't1',
+              'sender_side': 'them',
+              'sender_label': 'فريق المعلومات',
+              'body':
+                  'تم إكمال تقرير المعلومات لعقار #88421011. يرجى المراجعة.',
+              'created_at': DateTime.now()
+                  .subtract(const Duration(hours: 2))
+                  .toIso8601String(),
+            },
+            {
+              'id': 't2',
+              'sender_side': 'me',
+              'sender_label': 'الناشر',
+              'body': 'استلمت التقرير. سأراجع الأبعاد والغرف الآن.',
+              'created_at': DateTime.now()
+                  .subtract(const Duration(hours: 1, minutes: 20))
+                  .toIso8601String(),
+            },
+            {
+              'id': 't3',
+              'sender_side': 'them',
+              'sender_label': 'فريق المعلومات',
+              'body': 'هل تحتاج زيارة ميدانية إضافية للسطح؟',
+              'created_at': DateTime.now()
+                  .subtract(const Duration(hours: 1))
+                  .toIso8601String(),
+            },
+          ];
+        }
+        if (conversationId == 'pub-m2') {
+          return [
+            {
+              'id': 'p1',
+              'sender_side': 'them',
+              'sender_label': 'فريق التصوير',
+              'body': 'اكتملت جلسة التصوير لفيلا المنصور (#88421022).',
+              'created_at': DateTime.now()
+                  .subtract(const Duration(hours: 7))
+                  .toIso8601String(),
+            },
+            {
+              'id': 'p2',
+              'sender_side': 'me',
+              'sender_label': 'الناشر',
+              'body': 'ممتاز. أرسلوا الصورة الرئيسية للمراجعة.',
+              'created_at': DateTime.now()
+                  .subtract(const Duration(hours: 6))
+                  .toIso8601String(),
+            },
+          ];
+        }
+        return [
+          {
+            'id': 'e1',
+            'sender_side': 'them',
+            'sender_label': 'فريق الهندسة',
+            'body': 'مخطط الطابق جاهز للمراجعة.',
+            'created_at': DateTime.now()
+                .subtract(const Duration(days: 1))
+                .toIso8601String(),
+          },
+        ];
+      }),
+    );
+  }
+
+  static void sendThreadMessage(String conversationId, String body) {
+    final list = _threads.putIfAbsent(conversationId, () => []);
+    list.add({
+      'id': 'local-${DateTime.now().millisecondsSinceEpoch}',
+      'sender_side': 'me',
+      'sender_label': 'الناشر',
+      'body': body,
+      'created_at': DateTime.now().toIso8601String(),
+    });
   }
 }

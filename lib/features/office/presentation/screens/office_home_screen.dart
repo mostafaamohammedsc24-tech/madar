@@ -10,10 +10,9 @@ import '../../../../presentation/search_map_screen/search_map_screen.dart';
 import '../../../../presentation/search_map_screen/widgets/property_map_widget.dart';
 import '../../../../services/property_ai_service.dart';
 import '../../../../theme/app_theme.dart';
-import '../../domain/models/office_models.dart';
 import '../providers/office_auth_notifier.dart';
+import '../widgets/found_buyer_sheet.dart';
 import '../widgets/office_property_card.dart';
-import '../widgets/office_sales_summary_card.dart';
 
 /// Map-first office discovery with full AI search.
 class OfficeHomeScreen extends StatefulWidget {
@@ -30,10 +29,10 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
   List<PropertyData> _all = [];
   List<PropertyData> _filtered = [];
   PropertyData? _selected;
-  OfficeSalesSummary? _summary;
   bool _loading = true;
   bool _aiSearching = false;
   String _listingFilter = 'all';
+  String _mapType = 'normal';
   String? _aiInsight;
   Timer? _aiDebounce;
   int _aiToken = 0;
@@ -55,13 +54,11 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
     final auth = context.read<OfficeAuthNotifier>();
     setState(() => _loading = true);
     final rows = await auth.repository.loadDiscoverableProperties();
-    final summary = await auth.repository.salesSummaryThisMonth();
     if (!mounted) return;
     var props = rows.map(PropertyData.fromSupabase).toList();
     setState(() {
       _all = props;
       _filtered = props;
-      _summary = summary;
       _loading = false;
     });
   }
@@ -143,24 +140,31 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
   Future<void> _foundBuyer(PropertyData p) async {
     final loc = AppLocalizations.of(context);
     final auth = context.read<OfficeAuthNotifier>();
-    final referral = await auth.repository.createFoundBuyerReferral(
-      propertyId: p.id,
-      message: loc.officeFoundBuyerDefaultMessage,
+    await FoundBuyerSheet.show(
+      context,
+      property: p,
+      onSubmit: (phoneOrId) async {
+        final referral = await auth.repository.createFoundBuyerReferral(
+          propertyId: p.id,
+          buyerPhone: phoneOrId,
+          message: loc.officeFoundBuyerDefaultMessage,
+        );
+        if (!mounted) return;
+        if (referral == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(loc.officeActionFailed)),
+          );
+          return;
+        }
+        if (referral.conversationId != null) {
+          context.push('/office/chat/${referral.conversationId}');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(loc.officeReferralCreated)),
+          );
+        }
+      },
     );
-    if (!mounted) return;
-    if (referral == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.officeActionFailed)),
-      );
-      return;
-    }
-    if (referral.conversationId != null) {
-      context.push('/office/chat/${referral.conversationId}');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.officeReferralCreated)),
-      );
-    }
   }
 
   @override
@@ -171,66 +175,63 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/office/ai'),
-        icon: const Icon(Icons.auto_awesome),
-        label: Text(loc.officeAiFabLabel),
-      ),
       body: Stack(
         children: [
           Positioned.fill(
             child: PropertyMapWidget(
               key: _mapKey,
               properties: _filtered,
-              mapType: 'normal',
+              mapType: _mapType,
               onPropertyTap: (p) => setState(() => _selected = p),
             ),
           ),
-          SafeArea(
+          Positioned(
+            top: 8,
+            left: 12,
+            right: 12,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: Material(
-                    elevation: 1,
-                    borderRadius: BorderRadius.circular(14),
-                    color: theme.colorScheme.surface,
-                    child: TextField(
-                      controller: _searchCtrl,
-                      onChanged: (_) => _applyFilters(),
-                      decoration: InputDecoration(
-                        hintText: loc.officeSearchHint,
-                        prefixIcon: const Icon(Icons.search, size: 20),
-                        suffixIcon: _aiSearching
-                            ? const Padding(
-                                padding: EdgeInsets.all(12),
-                                child: SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
+                Material(
+                  elevation: 2,
+                  shadowColor: Colors.black26,
+                  borderRadius: BorderRadius.circular(14),
+                  color: theme.colorScheme.surface,
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (_) => _applyFilters(),
+                    decoration: InputDecoration(
+                      hintText: loc.officeSearchNaturalHint,
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      suffixIcon: _aiSearching
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
-                              )
-                            : IconButton(
-                                tooltip: loc.officeAiFabLabel,
-                                onPressed: () => context.push('/office/ai'),
-                                icon: const Icon(Icons.auto_awesome, size: 20),
                               ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 14,
-                        ),
+                            )
+                          : IconButton(
+                              tooltip: loc.officeAiFabLabel,
+                              onPressed: () => context.push('/office/ai'),
+                              icon: const Icon(Icons.auto_awesome, size: 20),
+                            ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
                       ),
                     ),
                   ),
                 ),
                 if (_aiInsight != null && _aiInsight!.trim().isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    padding: const EdgeInsets.only(top: 8),
                     child: Material(
-                      color: theme.colorScheme.surface.withValues(alpha: 0.95),
+                      color: theme.colorScheme.surface.withValues(alpha: 0.96),
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
@@ -245,12 +246,11 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
                       ),
                     ),
                   ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 SizedBox(
                   height: 36,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
                       for (final f in [
                         ('all', loc.officeFilterAll),
@@ -260,9 +260,12 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
                       ])
                         Padding(
                           padding: const EdgeInsetsDirectional.only(end: 8),
-                          child: ChoiceChip(
+                          child: FilterChip(
                             label: Text(f.$2),
                             selected: _listingFilter == f.$1,
+                            selectedColor: const Color(0xFF0041C8)
+                                .withValues(alpha: 0.12),
+                            checkmarkColor: const Color(0xFF0041C8),
                             onSelected: (_) {
                               setState(() => _listingFilter = f.$1);
                               _applyFilters(scheduleAi: false);
@@ -272,24 +275,44 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
                     ],
                   ),
                 ),
-                if (_summary != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                    child: OfficeSalesSummaryCard(summary: _summary!),
-                  ),
-                if (office != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(
-                        office.name,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ),
+              ],
+            ),
+          ),
+          Positioned.directional(
+            textDirection: Directionality.of(context),
+            end: 12,
+            bottom: _selected != null ? 220 : 24,
+            child: Column(
+              children: [
+                _MapFab(
+                  icon: Icons.layers_outlined,
+                  tooltip: loc.officeMapType,
+                  onTap: () {
+                    setState(() {
+                      _mapType = _mapType == 'normal'
+                          ? 'satellite'
+                          : _mapType == 'satellite'
+                              ? 'hybrid'
+                              : 'normal';
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
+                _MapFab(
+                  icon: Icons.my_location,
+                  tooltip: loc.officeMyLocation,
+                  onTap: () {
+                    _mapKey.currentState?.moveToLocation(
+                      const LatLng(33.3152, 44.3661),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                _MapFab(
+                  icon: Icons.add_home_work_outlined,
+                  tooltip: loc.officeReportProperty,
+                  onTap: () => context.push('/office/report-property'),
+                ),
               ],
             ),
           ),
@@ -298,7 +321,7 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
             Positioned(
               left: 0,
               right: 0,
-              bottom: 12,
+              bottom: 8,
               child: OfficePropertyCard(
                 property: _selected!,
                 officeName: office?.name,
@@ -311,6 +334,33 @@ class _OfficeHomeScreenState extends State<OfficeHomeScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _MapFab extends StatelessWidget {
+  const _MapFab({
+    required this.icon,
+    required this.onTap,
+    required this.tooltip,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 2,
+      shadowColor: Colors.black26,
+      color: Theme.of(context).colorScheme.surface,
+      shape: const CircleBorder(),
+      child: IconButton(
+        tooltip: tooltip,
+        onPressed: onTap,
+        icon: Icon(icon, color: const Color(0xFF0041C8)),
       ),
     );
   }
