@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../features/authentication/routing/auth_globals.dart';
+import '../../../../features/workflow/data/deal_workflow_store.dart';
+import '../../../../features/workflow/domain/deal_workflow_models.dart';
 import '../../../../presentation/transactions_screen/widgets/barcode_upload_widget.dart';
 import '../../../../services/supabase_service.dart';
 import '../../data/party_deal_store.dart';
@@ -77,6 +80,22 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
   Future<void> _handleBarcode(String code) async {
     final loc = AppLocalizations.of(context);
     final phone = userAuthNotifier.state.fullPhoneNumber;
+
+    // Local seed / published barcodes — open workflow without live redeem.
+    final local = DealWorkflowStore.instance.resolve(code);
+    if (local != null &&
+        (local.kind == BarcodeKind.publishingAsset ||
+            local.transactionId != null)) {
+      if (!mounted) return;
+      if (local.kind == BarcodeKind.publishingAsset) {
+        context.push('/deal-workflow');
+        return;
+      }
+      context.push(
+        '/deal-workflow?deal=${Uri.encodeComponent(local.transactionId!)}',
+      );
+      return;
+    }
 
     // Peek barcode to infer party side
     final peek = await SupabaseService.instance.getTransactionByBarcode(code);
@@ -171,6 +190,16 @@ class _TransactionCenterScreenState extends State<TransactionCenterScreen>
                         fontWeight: FontWeight.w800,
                       ),
                     ),
+                  ),
+                  IconButton(
+                    tooltip: loc.scanBarcode,
+                    onPressed: () => context.push('/barcode-reader'),
+                    icon: const Icon(Icons.qr_code_scanner),
+                  ),
+                  IconButton(
+                    tooltip: 'Workflow',
+                    onPressed: () => context.push('/deal-workflow'),
+                    icon: const Icon(Icons.account_tree_outlined),
                   ),
                   IconButton(
                     onPressed: _loading ? null : _load,

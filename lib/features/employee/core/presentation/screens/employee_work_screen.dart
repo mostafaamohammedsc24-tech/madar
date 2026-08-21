@@ -29,35 +29,51 @@ class EmployeeWorkScreen extends StatelessWidget {
         Text(
           loc.empWorkTitle,
           style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Cross-role tools',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.qr_code_scanner),
+          title: Text(loc.scanBarcode),
+          subtitle: const Text('Read published deal & property barcodes'),
+          trailing: const Icon(Icons.chevron_right, size: 18),
+          onTap: () => context.push('/barcode-reader'),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.account_tree_outlined),
+          title: const Text('Deal workflow'),
+          subtitle: const Text('Office → lawyers → finance → closing → publish'),
+          trailing: const Icon(Icons.chevron_right, size: 18),
+          onTap: () => context.push('/deal-workflow'),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'My queues',
+          style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          loc.empWorkSubtitle,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          loc.empTodaysWork,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 8),
         ...queues.map(
           (q) => _QueueTile(
             title: q.title,
-            subtitle: q.subtitle,
             count: q.count,
+            subtitle: q.subtitle,
             onTap: () => context.push(q.route),
           ),
         ),
         if (queues.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
+            padding: const EdgeInsets.only(top: 12),
             child: Text(
               loc.empNoWorkQueues,
               style: theme.textTheme.bodyMedium?.copyWith(

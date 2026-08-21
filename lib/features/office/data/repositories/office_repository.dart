@@ -450,6 +450,20 @@ class OfficeRepository {
         message: 'unauthorized',
       );
     }
+    if (_isSeedSession) {
+      final id = 'seed-live-${DateTime.now().millisecondsSinceEpoch}';
+      final number =
+          'IQ-BGD-${transactionType.toUpperCase()}-SEED-${id.substring(id.length - 6)}';
+      final buy = 'BUY-LIVE-${id.substring(id.length - 6)}';
+      final sel = 'SEL-LIVE-${id.substring(id.length - 6)}';
+      return OfficeBarcodeCreateResult(
+        success: true,
+        transactionId: id,
+        transactionNumber: number,
+        buyerBarcode: buy,
+        sellerBarcode: sel,
+      );
+    }
     try {
       final result = await _supabase.client.rpc(
         'office_create_transaction_with_barcodes',
