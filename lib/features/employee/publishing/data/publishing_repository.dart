@@ -1,3 +1,4 @@
+import '../../../../services/publisher_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../../core/data/employee_repository.dart';
 import '../../core/domain/employee_permissions.dart';
@@ -13,6 +14,8 @@ class PublishingRepository {
   String? get _token => _employeeRepo.sessionToken;
   String? get _employeeId => _employeeRepo.currentEmployee?.id;
 
+  bool get _seed => _employeeRepo.isPublisherSeedSession;
+
   bool can(String p) => _employeeRepo.can(p);
 
   Future<List<PropertyAsset>> listAssets({
@@ -20,6 +23,13 @@ class PublishingRepository {
     bool assignedOnly = false,
     int limit = 80,
   }) async {
+    if (_seed) {
+      var all = PublisherSeed.assets();
+      if (status != null) {
+        all = all.where((a) => a.pipelineStatus == status).toList();
+      }
+      return all.take(limit).toList();
+    }
     try {
       if (assignedOnly && _employeeId != null) {
         final assigns = await _supabase.client
@@ -62,6 +72,13 @@ class PublishingRepository {
   }
 
   Future<PropertyAsset?> getAsset(String id) async {
+    if (_seed) {
+      try {
+        return PublisherSeed.assets().firstWhere((a) => a.id == id);
+      } catch (_) {
+        return null;
+      }
+    }
     try {
       final row = await _supabase.client
           .from('property_assets')
@@ -114,6 +131,7 @@ class PublishingRepository {
   }
 
   Future<List<Map<String, dynamic>>> listTimeline(String propertyAssetId) async {
+    if (_seed) return PublisherSeed.timeline(propertyAssetId);
     try {
       final rows = await _supabase.client
           .from('property_pipeline_events')
@@ -143,6 +161,15 @@ class PublishingRepository {
     String? notes,
     String priority = 'normal',
   }) async {
+    if (_seed) {
+      final id = 'pa-seed-${DateTime.now().millisecondsSinceEpoch}';
+      return (
+        success: true,
+        message: null,
+        publicId: '8842${DateTime.now().millisecond}',
+        assetId: id,
+      );
+    }
     if (_token == null) {
       return (success: false, message: 'unauthorized', publicId: null, assetId: null);
     }

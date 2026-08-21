@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/localization/app_localizations.dart';
+import '../../../../../services/publisher_seed.dart';
 import '../../domain/employee_models.dart';
 import '../../domain/employee_permissions.dart';
 import '../providers/employee_auth_notifier.dart';
@@ -147,15 +148,22 @@ List<WorkQueueItem> workQueuesFor(
       ];
     case EmployeeDepartmentCode.publishing:
       return [
-        const WorkQueueItem(
+        WorkQueueItem(
           title: 'Publishing requests',
-          count: 0,
+          count: PublisherSeed.assets().length,
           route: '/employee/publishing/requests',
         ),
         const WorkQueueItem(
           title: 'New request',
           count: 0,
           route: '/employee/publishing/create',
+        ),
+        WorkQueueItem(
+          title: 'Ready to publish',
+          count: PublisherSeed.assets()
+              .where((a) => a.pipelineStatus == 'ready_for_publication')
+              .length,
+          route: '/employee/publishing/requests',
         ),
       ];
     case EmployeeDepartmentCode.information:

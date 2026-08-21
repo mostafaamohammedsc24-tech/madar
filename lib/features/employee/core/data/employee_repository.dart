@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../services/publisher_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../domain/employee_models.dart';
 import '../domain/employee_permissions.dart';
@@ -20,6 +21,8 @@ class EmployeeRepository {
   EmployeeAccount? get currentEmployee => _employee;
   bool get isAuthenticated =>
       _token != null && _token!.isNotEmpty && _employee != null;
+
+  bool get isPublisherSeedSession => PublisherSeed.isSeedToken(_token);
 
   bool can(String permission) => _employee?.can(permission) ?? false;
 
@@ -120,6 +123,11 @@ class EmployeeRepository {
     required String employeeCode,
     required String secretCode,
   }) async {
+    if (PublisherSeed.matches(employeeCode, secretCode)) {
+      final session = PublisherSeed.session();
+      await _persist(session);
+      return (success: true, message: null, session: session);
+    }
     try {
       final result = await _supabase.client.rpc(
         'employee_login',
@@ -195,6 +203,7 @@ class EmployeeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listNotifications() async {
+    if (isPublisherSeedSession) return PublisherSeed.notifications();
     if (_employee == null) return [];
     try {
       final rows = await _supabase.client
