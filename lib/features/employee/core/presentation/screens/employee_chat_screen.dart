@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/localization/app_localizations.dart';
+import '../../../../../services/bank_seed.dart';
 import '../../../../../services/publisher_seed.dart';
 import '../../../../../theme/app_theme.dart';
 import '../providers/employee_auth_notifier.dart';
@@ -50,6 +51,12 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
       });
       return;
     }
+    if (auth.repository.isBankSeedSession) {
+      setState(() {
+        _messages = BankSeed.threadMessages(widget.conversationId);
+      });
+      return;
+    }
     setState(() => _messages = const []);
   }
 
@@ -59,6 +66,21 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
     final auth = context.read<EmployeeAuthNotifier>();
     if (auth.repository.isPublisherSeedSession) {
       PublisherSeed.sendThreadMessage(widget.conversationId, text);
+      _ctrl.clear();
+      _reload();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scroll.hasClients) {
+          _scroll.animateTo(
+            _scroll.position.maxScrollExtent + 80,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+      return;
+    }
+    if (auth.repository.isBankSeedSession) {
+      BankSeed.sendThreadMessage(widget.conversationId, text);
       _ctrl.clear();
       _reload();
       WidgetsBinding.instance.addPostFrameCallback((_) {

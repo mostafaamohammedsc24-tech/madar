@@ -141,10 +141,31 @@ List<RouteBase> buildEmployeeRoutes({
         GoRoute(
           path: '/employee/bank/transaction/:id',
           builder: (context, state) {
-            final tx = state.extra as Map<String, dynamic>? ??
-                {'id': state.pathParameters['id']};
+            var tx = state.extra as Map<String, dynamic>?;
+            final id = state.pathParameters['id'] ?? '';
+            if (tx == null || tx['transaction_number'] == null) {
+              // Seed / deep-link fallback
+              tx = {
+                'id': id,
+                ...?tx,
+              };
+            }
             return gated(
-              () => portal.BankTransactionDetailScreen(transaction: tx),
+              () => portal.BankTransactionDetailScreen(transaction: tx!),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/employee/bank/receipt/:id',
+          builder: (context, state) {
+            final extra = state.extra;
+            Map<String, dynamic>? receipt;
+            if (extra is Map<String, dynamic>) receipt = extra;
+            return gated(
+              () => portal.BankReceiptDetailScreen(
+                receiptNumber: state.pathParameters['id'] ?? '',
+                receipt: receipt,
+              ),
             );
           },
         ),

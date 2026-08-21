@@ -7,6 +7,7 @@ import '../../../../../theme/app_theme.dart';
 import '../providers/employee_auth_notifier.dart';
 import 'employee_nav_config.dart';
 import '../../../publishing/presentation/shell/publisher_shell.dart';
+import '../../../bank/presentation/shell/bank_shell.dart';
 
 /// Single employee platform shell: Logo · Search · avatar header +
 /// Home / Work / Messages / Notifications / Profile.
@@ -26,6 +27,9 @@ class EmployeeShell extends StatelessWidget {
 
     if (employee.isPublishing) {
       return PublisherShell(child: child);
+    }
+    if (employee.isBank) {
+      return BankShell(child: child);
     }
 
     final width = MediaQuery.sizeOf(context).width;

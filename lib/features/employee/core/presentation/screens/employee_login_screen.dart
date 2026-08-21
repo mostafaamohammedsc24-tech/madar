@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/localization/app_localizations.dart';
+import '../../../../../core/localization/locale_provider.dart';
+import '../../../../../services/bank_seed.dart';
 import '../../../../../services/publisher_seed.dart';
 import '../../../../../widgets/language_selector_sheet.dart';
 import '../../../../authentication/presentation/theme/auth_theme.dart';
@@ -21,9 +23,16 @@ class EmployeeLoginScreen extends StatefulWidget {
 }
 
 class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
-  final _idCtrl = TextEditingController(text: PublisherSeed.code);
-  final _secretCtrl = TextEditingController(text: PublisherSeed.secret);
+  final _idCtrl = TextEditingController(text: BankSeed.code);
+  final _secretCtrl = TextEditingController(text: BankSeed.secret);
   bool _obscure = true;
+
+  String _homeFor(EmployeeAuthNotifier auth) {
+    if (auth.employee?.isPublishing == true || auth.employee?.isBank == true) {
+      return '/employee/work';
+    }
+    return '/employee/home';
+  }
 
   @override
   void initState() {
@@ -34,11 +43,7 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
       await auth.ensureInitialized();
       if (!mounted) return;
       if (auth.isAuthenticated) {
-        context.go(
-          auth.employee?.isPublishing == true
-              ? '/employee/work'
-              : '/employee/home',
-        );
+        context.go(_homeFor(auth));
       }
     });
   }
@@ -57,11 +62,11 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
     );
     if (!mounted) return;
     if (ok) {
-      context.go(
-        auth.employee?.isPublishing == true
-            ? '/employee/work'
-            : '/employee/home',
-      );
+      if (auth.employee?.isBank == true) {
+        await context.read<LocaleProvider>().setLanguage(AppLanguage.arabic);
+      }
+      if (!mounted) return;
+      context.go(_homeFor(auth));
     }
   }
 
@@ -121,7 +126,7 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
           ),
           const SizedBox(height: AuthSpacing.md),
           Text(
-            '${PublisherSeed.code} / ${PublisherSeed.secret}',
+            'Bank: ${BankSeed.code} / ${BankSeed.secret}  ·  Publisher: ${PublisherSeed.code}',
             textAlign: TextAlign.center,
             style: AuthTypography.caption(context).copyWith(
               color: theme.colorScheme.primary,
