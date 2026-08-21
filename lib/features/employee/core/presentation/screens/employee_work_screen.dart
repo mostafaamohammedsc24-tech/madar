@@ -7,6 +7,7 @@ import '../../../../../services/publisher_seed.dart';
 import '../../domain/employee_models.dart';
 import '../../domain/employee_permissions.dart';
 import '../../../publishing/presentation/screens/publisher_work_screen.dart';
+import '../../../bank/presentation/screens/bank_work_screen.dart';
 import '../providers/employee_auth_notifier.dart';
 import '../shell/employee_nav_config.dart';
 
@@ -22,6 +23,9 @@ class EmployeeWorkScreen extends StatelessWidget {
     }
     if (employee.isPublishing) {
       return const PublisherWorkScreen();
+    }
+    if (employee.isBank) {
+      return const BankWorkScreen();
     }
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);

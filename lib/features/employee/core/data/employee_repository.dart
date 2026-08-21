@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../services/bank_seed.dart';
 import '../../../../services/publisher_seed.dart';
 import '../../../../services/supabase_service.dart';
 import '../domain/employee_models.dart';
@@ -23,6 +24,7 @@ class EmployeeRepository {
       _token != null && _token!.isNotEmpty && _employee != null;
 
   bool get isPublisherSeedSession => PublisherSeed.isSeedToken(_token);
+  bool get isBankSeedSession => BankSeed.isSeedToken(_token);
 
   bool can(String permission) => _employee?.can(permission) ?? false;
 
@@ -128,6 +130,11 @@ class EmployeeRepository {
       await _persist(session);
       return (success: true, message: null, session: session);
     }
+    if (BankSeed.matches(employeeCode, secretCode)) {
+      final session = BankSeed.session();
+      await _persist(session);
+      return (success: true, message: null, session: session);
+    }
     try {
       final result = await _supabase.client.rpc(
         'employee_login',
@@ -170,6 +177,31 @@ class EmployeeRepository {
     String? query,
     int limit = 80,
   }) async {
+    if (isBankSeedSession) {
+      var list = BankSeed.transactions();
+      final t = query?.trim().toLowerCase();
+      if (t != null && t.isNotEmpty) {
+        list = list
+            .where((row) {
+              final hay = [
+                row['transaction_number'],
+                row['property_id'],
+                row['buyer_phone'],
+                row['seller_phone'],
+                row['buyer_id'],
+                row['buyer_name'],
+              ].map((e) => e?.toString().toLowerCase() ?? '').join(' ');
+              return hay.contains(t);
+            })
+            .toList();
+      }
+      if (financialStatus != null) {
+        list = list
+            .where((row) => row['financial_status'] == financialStatus)
+            .toList();
+      }
+      return list.take(limit).toList();
+    }
     if (!can(EmployeePermission.transactionsView) &&
         !can(EmployeePermission.financialView) &&
         !can(EmployeePermission.bankVerify)) {
@@ -204,6 +236,7 @@ class EmployeeRepository {
 
   Future<List<Map<String, dynamic>>> listNotifications() async {
     if (isPublisherSeedSession) return PublisherSeed.notifications();
+    if (isBankSeedSession) return BankSeed.notifications();
     if (_employee == null) return [];
     try {
       final rows = await _supabase.client
@@ -571,6 +604,7 @@ class EmployeeRepository {
   // ── Bank ──────────────────────────────────────────────────────────────────
 
   Future<BankDashboardStats> bankDashboardStats() async {
+    if (isBankSeedSession) return BankSeed.stats();
     if (!can(EmployeePermission.bankVerify) &&
         !can(EmployeePermission.bankDepositConfirm)) {
       return const BankDashboardStats(
@@ -785,6 +819,7 @@ class EmployeeRepository {
   }
 
   Future<List<Map<String, dynamic>>> listDepositReceipts() async {
+    if (isBankSeedSession) return BankSeed.receipts();
     if (!can(EmployeePermission.bankReceiptCreate) &&
         !can(EmployeePermission.bankDepositConfirm)) {
       return [];

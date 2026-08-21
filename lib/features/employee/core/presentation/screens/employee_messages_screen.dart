@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/localization/app_localizations.dart';
+import '../../../../../services/bank_seed.dart';
 import '../../../../../services/publisher_seed.dart';
 import '../../../../../services/supabase_service.dart';
 import '../../../publishing/presentation/theme/publisher_tokens.dart';
@@ -34,6 +35,14 @@ class _EmployeeMessagesScreenState extends State<EmployeeMessagesScreen> {
       if (!mounted) return;
       setState(() {
         _items = PublisherSeed.messages();
+        _loading = false;
+      });
+      return;
+    }
+    if (auth.repository.isBankSeedSession) {
+      if (!mounted) return;
+      setState(() {
+        _items = BankSeed.messages();
         _loading = false;
       });
       return;
