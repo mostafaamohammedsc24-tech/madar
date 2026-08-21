@@ -36,7 +36,7 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
       if (auth.isAuthenticated) {
         context.go(
           auth.employee?.isPublishing == true
-              ? '/employee/publishing/requests'
+              ? '/employee/publishing/properties'
               : '/employee/home',
         );
       }
@@ -59,7 +59,7 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
     if (ok) {
       context.go(
         auth.employee?.isPublishing == true
-            ? '/employee/publishing/requests'
+            ? '/employee/publishing/properties'
             : '/employee/home',
       );
     }

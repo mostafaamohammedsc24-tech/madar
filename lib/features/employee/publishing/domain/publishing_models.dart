@@ -23,6 +23,11 @@ class PropertyAsset {
     this.publishedAt,
     this.createdAt,
     this.updatedAt,
+    this.title,
+    this.askingPrice,
+    this.currencyCode = 'USD',
+    this.coverImageUrl,
+    this.marketStatus,
   });
 
   final String id;
@@ -48,10 +53,75 @@ class PropertyAsset {
   final DateTime? publishedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? title;
+  final double? askingPrice;
+  final String currencyCode;
+  final String? coverImageUrl;
+  /// active | pending | sold
+  final String? marketStatus;
 
   int get overallPct {
     final sum = informationPct + photographyPct + threeDPct + floorPlanPct;
     return (sum / 4).round();
+  }
+
+  String get shortId {
+    final raw = publicPropertyId;
+    if (raw.length <= 6) return 'MR-$raw';
+    return 'MR-${raw.substring(raw.length - 3)}';
+  }
+
+  String get displayTitle {
+    if (title != null && title!.trim().isNotEmpty) return title!;
+    final type = propertyType ?? 'Property';
+    final place = city ?? addressText ?? publicPropertyId;
+    return '${type[0].toUpperCase()}${type.substring(1)} · $place';
+  }
+
+  String get displayAddress {
+    if (addressText != null && addressText!.trim().isNotEmpty) {
+      return addressText!;
+    }
+    return city ?? '—';
+  }
+
+  String get displayMarketStatus {
+    final explicit = marketStatus?.toLowerCase().trim();
+    if (explicit == 'active' ||
+        explicit == 'pending' ||
+        explicit == 'sold') {
+      return explicit!;
+    }
+    switch (pipelineStatus) {
+      case 'published':
+        return 'sold';
+      case 'ready_for_publication':
+      case 'quality_review':
+        return 'active';
+      default:
+        return 'pending';
+    }
+  }
+
+  String get priceLabel {
+    if (displayMarketStatus == 'sold') return 'Sold Price';
+    if (transactionType == 'rent') return 'Lease/Yr';
+    return 'List Price';
+  }
+
+  String get formattedPrice {
+    final p = askingPrice;
+    if (p == null) return '—';
+    final whole = p.round();
+    final digits = whole.toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      final fromEnd = digits.length - i;
+      if (i > 0 && fromEnd % 3 == 0) buf.write(',');
+      buf.write(digits[i]);
+    }
+    final symbol = currencyCode == 'IQD' ? 'IQD ' : '\$';
+    return '$symbol$buf';
   }
 
   factory PropertyAsset.fromMap(Map<String, dynamic> d) {
@@ -85,6 +155,13 @@ class PropertyAsset {
       updatedAt: d['updated_at'] != null
           ? DateTime.tryParse(d['updated_at'].toString())
           : null,
+      title: d['title'] as String?,
+      askingPrice: (d['asking_price'] as num?)?.toDouble() ??
+          (d['list_price'] as num?)?.toDouble(),
+      currencyCode: d['currency_code'] as String? ?? 'USD',
+      coverImageUrl: d['cover_image_url'] as String? ??
+          d['image_url'] as String?,
+      marketStatus: d['market_status'] as String?,
     );
   }
 }

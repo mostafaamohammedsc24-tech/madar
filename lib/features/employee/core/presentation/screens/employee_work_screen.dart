@@ -165,6 +165,11 @@ List<WorkQueueItem> workQueuesFor(
     case EmployeeDepartmentCode.publishing:
       return [
         WorkQueueItem(
+          title: 'Properties workspace',
+          count: PublisherSeed.assets().length,
+          route: '/employee/publishing/properties',
+        ),
+        WorkQueueItem(
           title: 'Publishing requests',
           count: PublisherSeed.assets().length,
           route: '/employee/publishing/requests',
