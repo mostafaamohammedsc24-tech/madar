@@ -236,7 +236,7 @@ class DealWorkflowStore extends ChangeNotifier {
 
   List<PropertyAsset> publishingQueue() {
     ensureSeeded();
-    return PublisherSeed.assets();
+    return PublisherSeed.allAssets();
   }
 
   OfficeAccount office() {

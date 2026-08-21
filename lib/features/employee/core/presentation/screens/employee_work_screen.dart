@@ -6,6 +6,7 @@ import '../../../../../core/localization/app_localizations.dart';
 import '../../../../../services/publisher_seed.dart';
 import '../../domain/employee_models.dart';
 import '../../domain/employee_permissions.dart';
+import '../../../publishing/presentation/screens/publisher_work_screen.dart';
 import '../providers/employee_auth_notifier.dart';
 import '../shell/employee_nav_config.dart';
 
@@ -18,6 +19,9 @@ class EmployeeWorkScreen extends StatelessWidget {
     final employee = context.watch<EmployeeAuthNotifier>().employee;
     if (employee == null) {
       return const Center(child: CircularProgressIndicator());
+    }
+    if (employee.isPublishing) {
+      return const PublisherWorkScreen();
     }
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
