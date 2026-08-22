@@ -9,6 +9,7 @@ import './features/authentication/routing/auth_globals.dart';
 import './features/office/routing/office_globals.dart';
 import './features/legal/routing/legal_globals.dart';
 import './features/closing/routing/closing_globals.dart';
+import './features/mapping/routing/mapping_globals.dart';
 import './services/mixpanel_service.dart';
 import './services/supabase_service.dart';
 import './widgets/custom_error_widget.dart';
@@ -33,9 +34,11 @@ void main() async {
   wireOfficeAuthIntoRouter();
   wireLegalAuthIntoRouter();
   wireClosingAuthIntoRouter();
+  wireMappingAuthIntoRouter();
   await officeAuthNotifier.initialize();
   await legalAuthNotifier.initialize();
   await closingAuthNotifier.initialize();
+  await mappingAuthNotifier.initialize();
 
   bool hasShownError = false;
 
@@ -64,6 +67,7 @@ void main() async {
           provider.ChangeNotifierProvider.value(value: officeAuthNotifier),
           provider.ChangeNotifierProvider.value(value: legalAuthNotifier),
           provider.ChangeNotifierProvider.value(value: closingAuthNotifier),
+          provider.ChangeNotifierProvider.value(value: mappingAuthNotifier),
         ],
         child: const MyApp(),
       ),

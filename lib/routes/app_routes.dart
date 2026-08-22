@@ -42,6 +42,13 @@ import '../features/closing/presentation/screens/closing_work_screen.dart';
 import '../features/closing/presentation/shell/closing_scaffold.dart';
 import '../features/closing/routing/closing_globals.dart';
 import '../features/closing/routing/closing_workspace_globals.dart';
+import '../features/mapping/presentation/screens/mapping_case_screen.dart';
+import '../features/mapping/presentation/screens/mapping_list_screens.dart';
+import '../features/mapping/presentation/screens/mapping_login_screen.dart';
+import '../features/mapping/presentation/screens/mapping_work_screen.dart';
+import '../features/mapping/presentation/shell/mapping_scaffold.dart';
+import '../features/mapping/routing/mapping_globals.dart';
+import '../features/mapping/routing/mapping_workspace_globals.dart';
 import '../presentation/property_detail/zillow_property_detail_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
@@ -82,6 +89,8 @@ class AppRoutes {
   static const String legalWork = '/legal/work';
   static const String closingLogin = '/closing-login';
   static const String closingWork = '/closing/work';
+  static const String mappingLogin = '/mapping-login';
+  static const String mappingWork = '/mapping/work';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -124,11 +133,23 @@ final GoRouter appRouter = GoRouter(
       return null;
     }
 
+    final mappingRedirect = resolveMappingAuthRedirect(
+      status: mappingAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (mappingRedirect != null) return mappingRedirect;
+
+    if (mappingAuthNotifier.isAuthenticated &&
+        (location.startsWith('/mapping') || location == AppRoutes.mappingLogin)) {
+      return null;
+    }
+
     // Public partner entry points
     if (location == AppRoutes.officeLogin ||
         location == AppRoutes.employeePortal ||
         location == AppRoutes.legalLogin ||
-        location == AppRoutes.closingLogin) {
+        location == AppRoutes.closingLogin ||
+        location == AppRoutes.mappingLogin) {
       return null;
     }
 
@@ -141,6 +162,7 @@ final GoRouter appRouter = GoRouter(
       if (officeAuthNotifier.isAuthenticated) return AppRoutes.officeHome;
       if (legalAuthNotifier.isAuthenticated) return AppRoutes.legalWork;
       if (closingAuthNotifier.isAuthenticated) return AppRoutes.closingWork;
+      if (mappingAuthNotifier.isAuthenticated) return AppRoutes.mappingWork;
       return authRouterRefresh.notifier.state.status ==
               UserAuthStatus.authenticated
           ? AppRoutes.searchMapScreen
@@ -188,6 +210,13 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => provider.ChangeNotifierProvider.value(
         value: closingAuthNotifier,
         child: const ClosingLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.mappingLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: mappingAuthNotifier,
+        child: const MappingLoginScreen(),
       ),
     ),
     GoRoute(
@@ -364,6 +393,43 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
+      ],
+    ),
+    GoRoute(
+      path: '/mapping/property/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: mappingAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: mappingWorkspaceController),
+          ],
+          child: MappingWorkspaceLoader(child: MappingCaseScreen(jobId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: mappingAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: mappingWorkspaceController),
+          ],
+          child: MappingWorkspaceLoader(
+            child: MappingScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/work', builder: (context, state) => const MappingWorkScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/properties', builder: (context, state) => const MappingPropertiesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/plans', builder: (context, state) => const MappingPlansScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/connections', builder: (context, state) => const MappingConnectionsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/measurements', builder: (context, state) => const MappingMeasurementsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/review', builder: (context, state) => const MappingReviewScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/archive', builder: (context, state) => const MappingArchiveScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/messages', builder: (context, state) => const MappingMessagesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/profile', builder: (context, state) => const MappingProfileScreen())]),
       ],
     ),
     GoRoute(

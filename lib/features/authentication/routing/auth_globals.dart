@@ -4,6 +4,7 @@ import '../presentation/providers/user_auth_notifier.dart';
 import '../../office/presentation/providers/office_auth_notifier.dart';
 import '../../legal/presentation/providers/legal_auth_notifier.dart';
 import '../../closing/presentation/providers/closing_auth_notifier.dart';
+import '../../mapping/presentation/providers/mapping_auth_notifier.dart';
 
 /// Bridges auth notifiers to GoRouter refreshListenable.
 class AuthRouterRefresh extends ChangeNotifier {
@@ -15,6 +16,7 @@ class AuthRouterRefresh extends ChangeNotifier {
   OfficeAuthNotifier? _office;
   LegalAuthNotifier? _legal;
   ClosingAuthNotifier? _closing;
+  MappingAuthNotifier? _mapping;
 
   UserAuthNotifier get notifier => _notifier;
 
@@ -39,12 +41,20 @@ class AuthRouterRefresh extends ChangeNotifier {
     _closing!.addListener(notifyListeners);
   }
 
+  void attachMapping(MappingAuthNotifier mapping) {
+    if (_mapping == mapping) return;
+    _mapping?.removeListener(notifyListeners);
+    _mapping = mapping;
+    _mapping!.addListener(notifyListeners);
+  }
+
   @override
   void dispose() {
     _notifier.removeListener(notifyListeners);
     _office?.removeListener(notifyListeners);
     _legal?.removeListener(notifyListeners);
     _closing?.removeListener(notifyListeners);
+    _mapping?.removeListener(notifyListeners);
     super.dispose();
   }
 }

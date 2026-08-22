@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/legal_strings.dart';
 import '../../../../core/localization/closing_strings.dart';
+import '../../../../core/localization/mapping_strings.dart';
 import '../../../../widgets/language_selector_sheet.dart';
 import '../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../authentication/presentation/widgets/auth_container.dart';
@@ -20,6 +21,7 @@ class EmployeePortalPlaceholderScreen extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final legal = LegalStrings.of(loc);
     final closing = ClosingStrings.of(loc);
+    final mapping = MappingStrings.of(loc);
     final theme = Theme.of(context);
 
     return AuthContainer(
@@ -40,6 +42,11 @@ class EmployeePortalPlaceholderScreen extends StatelessWidget {
           PrimaryAuthButton(
             label: closing.enterClosing,
             onPressed: () => context.go('/closing-login'),
+          ),
+          const SizedBox(height: AuthSpacing.md),
+          PrimaryAuthButton(
+            label: mapping.enterMapping,
+            onPressed: () => context.go('/mapping-login'),
           ),
           const SizedBox(height: AuthSpacing.md),
           _DisabledCard(text: legal.financeUnavailable, theme: theme),
