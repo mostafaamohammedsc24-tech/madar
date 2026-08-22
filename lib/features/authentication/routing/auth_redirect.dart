@@ -19,7 +19,9 @@ String? resolveUserAuthRedirect({
       matchedLocation == '/mapping-login' ||
       matchedLocation.startsWith('/mapping') ||
       matchedLocation == '/field-login' ||
-      matchedLocation.startsWith('/field')) {
+      matchedLocation.startsWith('/field') ||
+      matchedLocation == '/photo-login' ||
+      matchedLocation.startsWith('/photo')) {
     return null;
   }
 

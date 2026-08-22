@@ -56,6 +56,13 @@ import '../features/field/presentation/screens/field_work_screen.dart';
 import '../features/field/presentation/shell/field_scaffold.dart';
 import '../features/field/routing/field_globals.dart';
 import '../features/field/routing/field_workspace_globals.dart';
+import '../features/photo/presentation/screens/photo_case_screen.dart';
+import '../features/photo/presentation/screens/photo_list_screens.dart';
+import '../features/photo/presentation/screens/photo_login_screen.dart';
+import '../features/photo/presentation/screens/photo_work_screen.dart';
+import '../features/photo/presentation/shell/photo_scaffold.dart';
+import '../features/photo/routing/photo_globals.dart';
+import '../features/photo/routing/photo_workspace_globals.dart';
 import '../presentation/property_detail/zillow_property_detail_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
@@ -100,6 +107,8 @@ class AppRoutes {
   static const String mappingWork = '/mapping/work';
   static const String fieldLogin = '/field-login';
   static const String fieldWork = '/field/work';
+  static const String photoLogin = '/photo-login';
+  static const String photoWork = '/photo/work';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -164,13 +173,25 @@ final GoRouter appRouter = GoRouter(
       return null;
     }
 
+    final photoRedirect = resolvePhotoAuthRedirect(
+      status: photoAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (photoRedirect != null) return photoRedirect;
+
+    if (photoAuthNotifier.isAuthenticated &&
+        (location.startsWith('/photo') || location == AppRoutes.photoLogin)) {
+      return null;
+    }
+
     // Public partner entry points
     if (location == AppRoutes.officeLogin ||
         location == AppRoutes.employeePortal ||
         location == AppRoutes.legalLogin ||
         location == AppRoutes.closingLogin ||
         location == AppRoutes.mappingLogin ||
-        location == AppRoutes.fieldLogin) {
+        location == AppRoutes.fieldLogin ||
+        location == AppRoutes.photoLogin) {
       return null;
     }
 
@@ -185,6 +206,7 @@ final GoRouter appRouter = GoRouter(
       if (closingAuthNotifier.isAuthenticated) return AppRoutes.closingWork;
       if (mappingAuthNotifier.isAuthenticated) return AppRoutes.mappingWork;
       if (fieldAuthNotifier.isAuthenticated) return AppRoutes.fieldWork;
+      if (photoAuthNotifier.isAuthenticated) return AppRoutes.photoWork;
       return authRouterRefresh.notifier.state.status ==
               UserAuthStatus.authenticated
           ? AppRoutes.searchMapScreen
@@ -246,6 +268,13 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => provider.ChangeNotifierProvider.value(
         value: fieldAuthNotifier,
         child: const FieldLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.photoLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: photoAuthNotifier,
+        child: const PhotoLoginScreen(),
       ),
     ),
     GoRoute(
@@ -494,6 +523,41 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(routes: [GoRoute(path: '/field/messages', builder: (context, state) => const FieldMessagesScreen())]),
         StatefulShellBranch(routes: [GoRoute(path: '/field/archive', builder: (context, state) => const FieldArchiveScreen())]),
         StatefulShellBranch(routes: [GoRoute(path: '/field/profile', builder: (context, state) => const FieldProfileScreen())]),
+      ],
+    ),
+    GoRoute(
+      path: '/photo/property/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: photoAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: photoWorkspaceController),
+          ],
+          child: PhotoWorkspaceLoader(child: PhotoCaseScreen(jobId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: photoAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: photoWorkspaceController),
+          ],
+          child: PhotoWorkspaceLoader(
+            child: PhotoScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/work', builder: (context, state) => const PhotoWorkScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/assignments', builder: (context, state) => const PhotoAssignmentsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/media', builder: (context, state) => const PhotoMediaScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/tours', builder: (context, state) => const PhotoToursScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/messages', builder: (context, state) => const PhotoMessagesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/archive', builder: (context, state) => const PhotoArchiveScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/profile', builder: (context, state) => const PhotoProfileScreen())]),
       ],
     ),
     GoRoute(

@@ -6,6 +6,7 @@ import '../../../../core/localization/legal_strings.dart';
 import '../../../../core/localization/closing_strings.dart';
 import '../../../../core/localization/mapping_strings.dart';
 import '../../../../core/localization/field_strings.dart';
+import '../../../../core/localization/photo_strings.dart';
 import '../../../../widgets/language_selector_sheet.dart';
 import '../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../authentication/presentation/widgets/auth_container.dart';
@@ -24,6 +25,7 @@ class EmployeePortalPlaceholderScreen extends StatelessWidget {
     final closing = ClosingStrings.of(loc);
     final mapping = MappingStrings.of(loc);
     final field = FieldStrings.of(loc);
+    final photo = PhotoStrings.of(loc);
     final theme = Theme.of(context);
 
     return AuthContainer(
@@ -54,6 +56,11 @@ class EmployeePortalPlaceholderScreen extends StatelessWidget {
           PrimaryAuthButton(
             label: field.enterField,
             onPressed: () => context.go('/field-login'),
+          ),
+          const SizedBox(height: AuthSpacing.md),
+          PrimaryAuthButton(
+            label: photo.enterPhoto,
+            onPressed: () => context.go('/photo-login'),
           ),
           const SizedBox(height: AuthSpacing.md),
           _DisabledCard(text: legal.financeUnavailable, theme: theme),

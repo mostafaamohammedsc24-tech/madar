@@ -6,6 +6,7 @@ import '../../legal/presentation/providers/legal_auth_notifier.dart';
 import '../../closing/presentation/providers/closing_auth_notifier.dart';
 import '../../mapping/presentation/providers/mapping_auth_notifier.dart';
 import '../../field/presentation/providers/field_auth_notifier.dart';
+import '../../photo/presentation/providers/photo_auth_notifier.dart';
 
 /// Bridges auth notifiers to GoRouter refreshListenable.
 class AuthRouterRefresh extends ChangeNotifier {
@@ -19,6 +20,7 @@ class AuthRouterRefresh extends ChangeNotifier {
   ClosingAuthNotifier? _closing;
   MappingAuthNotifier? _mapping;
   FieldAuthNotifier? _field;
+  PhotoAuthNotifier? _photo;
 
   UserAuthNotifier get notifier => _notifier;
 
@@ -57,6 +59,13 @@ class AuthRouterRefresh extends ChangeNotifier {
     _field!.addListener(notifyListeners);
   }
 
+  void attachPhoto(PhotoAuthNotifier photo) {
+    if (_photo == photo) return;
+    _photo?.removeListener(notifyListeners);
+    _photo = photo;
+    _photo!.addListener(notifyListeners);
+  }
+
   @override
   void dispose() {
     _notifier.removeListener(notifyListeners);
@@ -65,6 +74,7 @@ class AuthRouterRefresh extends ChangeNotifier {
     _closing?.removeListener(notifyListeners);
     _mapping?.removeListener(notifyListeners);
     _field?.removeListener(notifyListeners);
+    _photo?.removeListener(notifyListeners);
     super.dispose();
   }
 }
