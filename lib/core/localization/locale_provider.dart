@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import './app_localizations.dart';
 
 class LocaleProvider extends ChangeNotifier {
-  AppLanguage _language = AppLanguage.english;
+  AppLanguage _language = AppLanguage.arabic;
   bool _isDarkMode = false;
 
   AppLanguage get language => _language;
@@ -28,7 +28,9 @@ class LocaleProvider extends ChangeNotifier {
             langIndex.clamp(0, AppLanguage.values.length - 1)];
       } else {
         final preAuthLang = prefs.getString('pre_auth_language');
-        _language = _languageFromCode(preAuthLang);
+        _language = preAuthLang == null
+            ? AppLanguage.arabic
+            : _languageFromCode(preAuthLang);
       }
       _isDarkMode = prefs.getBool('dark_mode') ?? false;
       notifyListeners();
