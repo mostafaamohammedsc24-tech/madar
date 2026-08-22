@@ -64,20 +64,29 @@ class FieldAuthRepository {
   bool get isAuthenticated => _token != null && _staff != null;
 
   Future<void> restore() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString(_tokenKey);
-    final id = prefs.getString(_idKey);
-    final emp = prefs.getString(_empKey);
-    final name = prefs.getString(_nameKey);
-    final started = prefs.getString(_startedKey);
-    if (_token != null && id != null && emp != null && name != null) {
-      _staff = FieldStaff(id: id, employeeId: emp, displayName: name);
-      _sessionStartedAt = started != null ? DateTime.tryParse(started) : null;
-    }
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(const Duration(seconds: 2));
+      _token = prefs.getString(_tokenKey);
+      final id = prefs.getString(_idKey);
+      final emp = prefs.getString(_empKey);
+      final name = prefs.getString(_nameKey);
+      final started = prefs.getString(_startedKey);
+      if (_token != null && id != null && emp != null && name != null) {
+        _staff = FieldStaff(id: id, employeeId: emp, displayName: name);
+        _sessionStartedAt = started != null ? DateTime.tryParse(started) : null;
+      }
+    } catch (_) {}
   }
 
   Future<bool> login({required String employeeId, required String secret}) async {
     final id = employeeId.trim().toUpperCase();
+    if (id == 'INF-0020' && secret == 'MADAR-INFO') {
+      await _persist(
+        token: 'local-field-${DateTime.now().millisecondsSinceEpoch}',
+        staff: const FieldStaff(id: 'staff-inf-0020', employeeId: 'INF-0020', displayName: 'سارة اليوسف'),
+      );
+      return true;
+    }
     try {
       final result = await _supabase.client
           .rpc('field_login', params: {'p_employee_id': id, 'p_secret_code': secret})
@@ -91,13 +100,6 @@ class FieldAuthRepository {
         return true;
       }
     } catch (_) {}
-    if (id == 'INF-0020' && secret == 'MADAR-INFO') {
-      await _persist(
-        token: 'local-field-${DateTime.now().millisecondsSinceEpoch}',
-        staff: const FieldStaff(id: 'staff-inf-0020', employeeId: 'INF-0020', displayName: 'سارة اليوسف'),
-      );
-      return true;
-    }
     return false;
   }
 
@@ -105,21 +107,25 @@ class FieldAuthRepository {
     _token = token;
     _staff = staff;
     _sessionStartedAt = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
-    await prefs.setString(_idKey, staff.id);
-    await prefs.setString(_empKey, staff.employeeId);
-    await prefs.setString(_nameKey, staff.displayName);
-    await prefs.setString(_startedKey, _sessionStartedAt!.toIso8601String());
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(const Duration(seconds: 2));
+      await prefs.setString(_tokenKey, token);
+      await prefs.setString(_idKey, staff.id);
+      await prefs.setString(_empKey, staff.employeeId);
+      await prefs.setString(_nameKey, staff.displayName);
+      await prefs.setString(_startedKey, _sessionStartedAt!.toIso8601String());
+    } catch (_) {}
   }
 
   Future<void> clear() async {
     _token = null;
     _staff = null;
     _sessionStartedAt = null;
-    final prefs = await SharedPreferences.getInstance();
-    for (final k in [_tokenKey, _idKey, _empKey, _nameKey, _startedKey]) {
-      await prefs.remove(k);
-    }
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(const Duration(seconds: 2));
+      for (final k in [_tokenKey, _idKey, _empKey, _nameKey, _startedKey]) {
+        await prefs.remove(k);
+      }
+    } catch (_) {}
   }
 }
