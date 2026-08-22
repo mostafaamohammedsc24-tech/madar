@@ -101,8 +101,11 @@ class _LegalCaseScreenState extends State<LegalCaseScreen> with SingleTickerProv
     final lang = AppLocalizations.of(context).languageCode;
     final wide = MediaQuery.sizeOf(context).width >= 1100;
     final tablet = MediaQuery.sizeOf(context).width >= 768;
+    final dark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
+    return Scaffold(
+      backgroundColor: dark ? LegalTheme.darkBg : LegalTheme.paper,
+      body: Column(
       children: [
         _Header(c: c, loc: loc, onBack: () => context.pop()),
         TabBar(
@@ -141,6 +144,7 @@ class _LegalCaseScreenState extends State<LegalCaseScreen> with SingleTickerProv
           ),
         ),
       ],
+      ),
     );
   }
 
@@ -691,6 +695,7 @@ class _ExecutionWatch extends StatelessWidget {
           title: Text(l),
         );
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
