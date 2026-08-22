@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/models/user_auth_state.dart';
@@ -91,6 +93,16 @@ class AuthSessionStorage {
     await prefs.setString('$_facePrefix$userId', status.name);
   }
 
+  Future<void> saveFacePhoto(String userId, List<int> bytes) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_face_photo_$userId', base64Encode(bytes));
+  }
+
+  Future<String?> getFacePhoto(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_face_photo_$userId');
+  }
+
   Future<void> savePhoneDraft({
     required String countryIso,
     required String phoneNumber,
@@ -113,6 +125,7 @@ class AuthSessionStorage {
     await prefs.remove('$_onboardingPrefix$userId');
     await prefs.remove('$_locationPrefix$userId');
     await prefs.remove('$_facePrefix$userId');
+    await prefs.remove('auth_face_photo_$userId');
   }
 
   LocationPermissionStatus _parseLocation(String? value) {

@@ -115,9 +115,9 @@ class UserAuthNotifier extends ChangeNotifier {
     }
 
     final faceStatus = await _storage.getFaceStatus(userId);
-    final nextStatus = faceStatus == FaceVerificationStatus.none
-        ? UserAuthStatus.awaitingFaceVerification
-        : UserAuthStatus.authenticated;
+    final nextStatus = faceStatus == FaceVerificationStatus.completed
+        ? UserAuthStatus.authenticated
+        : UserAuthStatus.awaitingFaceVerification;
 
     if (nextStatus == UserAuthStatus.authenticated) {
       await _storage.markOnboardingComplete(userId);
@@ -364,85 +364,46 @@ class UserAuthNotifier extends ChangeNotifier {
   Future<void> setupFaceVerification() async {
     final userId = _state.userId;
     if (userId == null) return;
-
     _setState(_state.copyWith(isBusy: true, clearMessage: true));
-
-    if (!_faceVerification.isAvailable) {
-      await _storage.saveFaceStatus(userId, FaceVerificationStatus.skipped);
-      await _completeOnboarding(userId);
-      _setState(
-        _state.copyWith(
-          isBusy: false,
-          faceVerificationStatus: FaceVerificationStatus.skipped,
-          userMessage: null,
-        ),
-      );
-      return;
-    }
-
     try {
       final result = await _faceVerification.enroll();
-      switch (result) {
-        case FaceVerificationResult.success:
-          await _storage.saveFaceStatus(
-            userId,
-            FaceVerificationStatus.completed,
-          );
-          await _updateFaceVerificationRemote(userId, 'verified');
-          await _completeOnboarding(userId);
-          _setState(
-            _state.copyWith(
-              isBusy: false,
-              faceVerificationStatus: FaceVerificationStatus.completed,
-            ),
-          );
-        case FaceVerificationResult.cancelled:
-          _setState(_state.copyWith(isBusy: false));
-        case FaceVerificationResult.unavailable:
-          await _storage.saveFaceStatus(userId, FaceVerificationStatus.skipped);
-          await _updateFaceVerificationRemote(userId, 'skipped');
-          await _completeOnboarding(userId);
-          _setState(
-            _state.copyWith(
-              isBusy: false,
-              faceVerificationStatus: FaceVerificationStatus.skipped,
-            ),
-          );
-        case FaceVerificationResult.failure:
-          await _storage.saveFaceStatus(userId, FaceVerificationStatus.failed);
-          await _updateFaceVerificationRemote(userId, 'failed');
-          _setState(
-            _state.copyWith(
-              isBusy: false,
-              faceVerificationStatus: FaceVerificationStatus.failed,
-              userMessage:
-                  'Face verification could not be completed. You can try again or skip for now.',
-            ),
-          );
+      if (result != FaceVerificationResult.success) {
+        _setState(
+          _state.copyWith(
+            isBusy: false,
+            userMessage: null,
+          ),
+        );
       }
     } catch (e) {
-      debugPrint('[UserAuth] face verification error: $e');
-      _setState(
-        _state.copyWith(
-          isBusy: false,
-          userMessage:
-              'Face verification is temporarily unavailable. You can skip for now.',
-        ),
-      );
+      debugPrint('[UserAuth] face provider error: $e');
     }
+    _setState(_state.copyWith(isBusy: false));
   }
 
-  Future<void> skipFaceVerification() async {
+  /// Completes required face enrollment after a live photo is captured.
+  Future<void> completeFaceCapture(List<int> photoBytes) async {
     final userId = _state.userId;
     if (userId == null) return;
-
-    await _storage.saveFaceStatus(userId, FaceVerificationStatus.skipped);
-    await _updateFaceVerificationRemote(userId, 'skipped');
+    _setState(_state.copyWith(isBusy: true, clearMessage: true));
+    await _storage.saveFacePhoto(userId, photoBytes);
+    await _storage.saveFaceStatus(userId, FaceVerificationStatus.completed);
+    await _updateFaceVerificationRemote(userId, 'pending');
+    try {
+      await SupabaseService.instance.client.from('user_face_captures').insert({
+        'user_id': userId,
+        'storage_path': 'local://face/$userId',
+        'provider': 'pending_aws',
+        'match_status': 'captured',
+      });
+    } catch (e) {
+      debugPrint('[UserAuth] face capture remote insert: $e');
+    }
     await _completeOnboarding(userId);
     _setState(
       _state.copyWith(
-        faceVerificationStatus: FaceVerificationStatus.skipped,
-        clearMessage: true,
+        isBusy: false,
+        faceVerificationStatus: FaceVerificationStatus.completed,
       ),
     );
   }

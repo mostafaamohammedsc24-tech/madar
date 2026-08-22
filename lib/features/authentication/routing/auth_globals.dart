@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../presentation/providers/user_auth_notifier.dart';
 import '../../office/presentation/providers/office_auth_notifier.dart';
+import '../../legal/presentation/providers/legal_auth_notifier.dart';
+import '../../closing/presentation/providers/closing_auth_notifier.dart';
+import '../../mapping/presentation/providers/mapping_auth_notifier.dart';
+import '../../field/presentation/providers/field_auth_notifier.dart';
+import '../../photo/presentation/providers/photo_auth_notifier.dart';
 
 /// Bridges auth notifiers to GoRouter refreshListenable.
 class AuthRouterRefresh extends ChangeNotifier {
@@ -11,6 +16,11 @@ class AuthRouterRefresh extends ChangeNotifier {
 
   final UserAuthNotifier _notifier;
   OfficeAuthNotifier? _office;
+  LegalAuthNotifier? _legal;
+  ClosingAuthNotifier? _closing;
+  MappingAuthNotifier? _mapping;
+  FieldAuthNotifier? _field;
+  PhotoAuthNotifier? _photo;
 
   UserAuthNotifier get notifier => _notifier;
 
@@ -21,10 +31,50 @@ class AuthRouterRefresh extends ChangeNotifier {
     _office!.addListener(notifyListeners);
   }
 
+  void attachLegal(LegalAuthNotifier legal) {
+    if (_legal == legal) return;
+    _legal?.removeListener(notifyListeners);
+    _legal = legal;
+    _legal!.addListener(notifyListeners);
+  }
+
+  void attachClosing(ClosingAuthNotifier closing) {
+    if (_closing == closing) return;
+    _closing?.removeListener(notifyListeners);
+    _closing = closing;
+    _closing!.addListener(notifyListeners);
+  }
+
+  void attachMapping(MappingAuthNotifier mapping) {
+    if (_mapping == mapping) return;
+    _mapping?.removeListener(notifyListeners);
+    _mapping = mapping;
+    _mapping!.addListener(notifyListeners);
+  }
+
+  void attachField(FieldAuthNotifier field) {
+    if (_field == field) return;
+    _field?.removeListener(notifyListeners);
+    _field = field;
+    _field!.addListener(notifyListeners);
+  }
+
+  void attachPhoto(PhotoAuthNotifier photo) {
+    if (_photo == photo) return;
+    _photo?.removeListener(notifyListeners);
+    _photo = photo;
+    _photo!.addListener(notifyListeners);
+  }
+
   @override
   void dispose() {
     _notifier.removeListener(notifyListeners);
     _office?.removeListener(notifyListeners);
+    _legal?.removeListener(notifyListeners);
+    _closing?.removeListener(notifyListeners);
+    _mapping?.removeListener(notifyListeners);
+    _field?.removeListener(notifyListeners);
+    _photo?.removeListener(notifyListeners);
     super.dispose();
   }
 }

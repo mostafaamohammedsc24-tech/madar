@@ -28,6 +28,41 @@ import '../features/office/presentation/screens/office_transactions_screen.dart'
 import '../features/office/presentation/shell/office_scaffold.dart';
 import '../features/office/routing/office_globals.dart';
 import '../features/office/routing/office_redirect.dart';
+import '../features/legal/presentation/screens/legal_case_screen.dart';
+import '../features/legal/presentation/screens/legal_list_screens.dart';
+import '../features/legal/presentation/screens/legal_login_screen.dart';
+import '../features/legal/presentation/screens/legal_work_screen.dart';
+import '../features/legal/presentation/shell/legal_scaffold.dart';
+import '../features/legal/routing/legal_globals.dart';
+import '../features/legal/routing/legal_workspace_globals.dart';
+import '../features/closing/presentation/screens/closing_case_screen.dart';
+import '../features/closing/presentation/screens/closing_list_screens.dart';
+import '../features/closing/presentation/screens/closing_login_screen.dart';
+import '../features/closing/presentation/screens/closing_work_screen.dart';
+import '../features/closing/presentation/shell/closing_scaffold.dart';
+import '../features/closing/routing/closing_globals.dart';
+import '../features/closing/routing/closing_workspace_globals.dart';
+import '../features/mapping/presentation/screens/mapping_case_screen.dart';
+import '../features/mapping/presentation/screens/mapping_list_screens.dart';
+import '../features/mapping/presentation/screens/mapping_login_screen.dart';
+import '../features/mapping/presentation/screens/mapping_work_screen.dart';
+import '../features/mapping/presentation/shell/mapping_scaffold.dart';
+import '../features/mapping/routing/mapping_globals.dart';
+import '../features/mapping/routing/mapping_workspace_globals.dart';
+import '../features/field/presentation/screens/field_case_screen.dart';
+import '../features/field/presentation/screens/field_list_screens.dart';
+import '../features/field/presentation/screens/field_login_screen.dart';
+import '../features/field/presentation/screens/field_work_screen.dart';
+import '../features/field/presentation/shell/field_scaffold.dart';
+import '../features/field/routing/field_globals.dart';
+import '../features/field/routing/field_workspace_globals.dart';
+import '../features/photo/presentation/screens/photo_case_screen.dart';
+import '../features/photo/presentation/screens/photo_list_screens.dart';
+import '../features/photo/presentation/screens/photo_login_screen.dart';
+import '../features/photo/presentation/screens/photo_work_screen.dart';
+import '../features/photo/presentation/shell/photo_scaffold.dart';
+import '../features/photo/routing/photo_globals.dart';
+import '../features/photo/routing/photo_workspace_globals.dart';
 import '../presentation/property_detail/zillow_property_detail_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
@@ -64,6 +99,16 @@ class AppRoutes {
   static const String officeLogin = '/office-login';
   static const String employeePortal = '/employee-portal';
   static const String officeHome = '/office/home';
+  static const String legalLogin = '/legal-login';
+  static const String legalWork = '/legal/work';
+  static const String closingLogin = '/closing-login';
+  static const String closingWork = '/closing/work';
+  static const String mappingLogin = '/mapping-login';
+  static const String mappingWork = '/mapping/work';
+  static const String fieldLogin = '/field-login';
+  static const String fieldWork = '/field/work';
+  static const String photoLogin = '/photo-login';
+  static const String photoWork = '/photo/work';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -84,9 +129,69 @@ final GoRouter appRouter = GoRouter(
       return null;
     }
 
+    final legalRedirect = resolveLegalAuthRedirect(
+      status: legalAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (legalRedirect != null) return legalRedirect;
+
+    if (legalAuthNotifier.isAuthenticated &&
+        (location.startsWith('/legal') || location == AppRoutes.legalLogin)) {
+      return null;
+    }
+
+    final closingRedirect = resolveClosingAuthRedirect(
+      status: closingAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (closingRedirect != null) return closingRedirect;
+
+    if (closingAuthNotifier.isAuthenticated &&
+        (location.startsWith('/closing') || location == AppRoutes.closingLogin)) {
+      return null;
+    }
+
+    final mappingRedirect = resolveMappingAuthRedirect(
+      status: mappingAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (mappingRedirect != null) return mappingRedirect;
+
+    if (mappingAuthNotifier.isAuthenticated &&
+        (location.startsWith('/mapping') || location == AppRoutes.mappingLogin)) {
+      return null;
+    }
+
+    final fieldRedirect = resolveFieldAuthRedirect(
+      status: fieldAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (fieldRedirect != null) return fieldRedirect;
+
+    if (fieldAuthNotifier.isAuthenticated &&
+        (location.startsWith('/field') || location == AppRoutes.fieldLogin)) {
+      return null;
+    }
+
+    final photoRedirect = resolvePhotoAuthRedirect(
+      status: photoAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (photoRedirect != null) return photoRedirect;
+
+    if (photoAuthNotifier.isAuthenticated &&
+        (location.startsWith('/photo') || location == AppRoutes.photoLogin)) {
+      return null;
+    }
+
     // Public partner entry points
     if (location == AppRoutes.officeLogin ||
-        location == AppRoutes.employeePortal) {
+        location == AppRoutes.employeePortal ||
+        location == AppRoutes.legalLogin ||
+        location == AppRoutes.closingLogin ||
+        location == AppRoutes.mappingLogin ||
+        location == AppRoutes.fieldLogin ||
+        location == AppRoutes.photoLogin) {
       return null;
     }
 
@@ -97,6 +202,11 @@ final GoRouter appRouter = GoRouter(
     if (authRedirect != null) return authRedirect;
     if (location == '/') {
       if (officeAuthNotifier.isAuthenticated) return AppRoutes.officeHome;
+      if (legalAuthNotifier.isAuthenticated) return AppRoutes.legalWork;
+      if (closingAuthNotifier.isAuthenticated) return AppRoutes.closingWork;
+      if (mappingAuthNotifier.isAuthenticated) return AppRoutes.mappingWork;
+      if (fieldAuthNotifier.isAuthenticated) return AppRoutes.fieldWork;
+      if (photoAuthNotifier.isAuthenticated) return AppRoutes.photoWork;
       return authRouterRefresh.notifier.state.status ==
               UserAuthStatus.authenticated
           ? AppRoutes.searchMapScreen
@@ -131,6 +241,324 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.employeePortal,
       builder: (context, state) => const EmployeePortalPlaceholderScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.legalLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: legalAuthNotifier,
+        child: const LegalLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.closingLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: closingAuthNotifier,
+        child: const ClosingLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.mappingLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: mappingAuthNotifier,
+        child: const MappingLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.fieldLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: fieldAuthNotifier,
+        child: const FieldLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.photoLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: photoAuthNotifier,
+        child: const PhotoLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/legal/transaction/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: legalAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: legalWorkspaceController),
+          ],
+          child: LegalWorkspaceLoader(child: LegalCaseScreen(caseId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: legalAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: legalWorkspaceController),
+          ],
+          child: LegalWorkspaceLoader(
+            child: LegalScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/work',
+              builder: (context, state) => const LegalWorkScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/transactions',
+              builder: (context, state) => const LegalTransactionsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/contracts',
+              builder: (context, state) => const LegalContractsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/documents',
+              builder: (context, state) => const LegalDocumentsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/messages',
+              builder: (context, state) => const LegalMessagesScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/archive',
+              builder: (context, state) => const LegalArchiveScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/profile',
+              builder: (context, state) => const LegalProfileScreen(),
+            ),
+          ],
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/closing/transaction/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: closingAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: closingWorkspaceController),
+          ],
+          child: ClosingWorkspaceLoader(child: ClosingCaseScreen(caseId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: closingAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: closingWorkspaceController),
+          ],
+          child: ClosingWorkspaceLoader(
+            child: ClosingScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/work',
+              builder: (context, state) => const ClosingWorkScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/transactions',
+              builder: (context, state) => const ClosingTransactionsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/finance',
+              builder: (context, state) => const ClosingFinanceScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/government',
+              builder: (context, state) => const ClosingGovListScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/documents',
+              builder: (context, state) => const ClosingDocumentsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/messages',
+              builder: (context, state) => const ClosingMessagesScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/archive',
+              builder: (context, state) => const ClosingArchiveScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/profile',
+              builder: (context, state) => const ClosingProfileScreen(),
+            ),
+          ],
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/mapping/property/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: mappingAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: mappingWorkspaceController),
+          ],
+          child: MappingWorkspaceLoader(child: MappingCaseScreen(jobId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: mappingAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: mappingWorkspaceController),
+          ],
+          child: MappingWorkspaceLoader(
+            child: MappingScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/work', builder: (context, state) => const MappingWorkScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/properties', builder: (context, state) => const MappingPropertiesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/plans', builder: (context, state) => const MappingPlansScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/connections', builder: (context, state) => const MappingConnectionsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/measurements', builder: (context, state) => const MappingMeasurementsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/review', builder: (context, state) => const MappingReviewScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/archive', builder: (context, state) => const MappingArchiveScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/messages', builder: (context, state) => const MappingMessagesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/mapping/profile', builder: (context, state) => const MappingProfileScreen())]),
+      ],
+    ),
+    GoRoute(
+      path: '/field/property/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: fieldAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: fieldWorkspaceController),
+          ],
+          child: FieldWorkspaceLoader(child: FieldCaseScreen(jobId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: fieldAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: fieldWorkspaceController),
+          ],
+          child: FieldWorkspaceLoader(
+            child: FieldScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(routes: [GoRoute(path: '/field/work', builder: (context, state) => const FieldWorkScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/assignments', builder: (context, state) => const FieldAssignmentsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/properties', builder: (context, state) => const FieldPropertiesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/reports', builder: (context, state) => const FieldReportsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/messages', builder: (context, state) => const FieldMessagesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/archive', builder: (context, state) => const FieldArchiveScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/profile', builder: (context, state) => const FieldProfileScreen())]),
+      ],
+    ),
+    GoRoute(
+      path: '/photo/property/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: photoAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: photoWorkspaceController),
+          ],
+          child: PhotoWorkspaceLoader(child: PhotoCaseScreen(jobId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: photoAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: photoWorkspaceController),
+          ],
+          child: PhotoWorkspaceLoader(
+            child: PhotoScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/work', builder: (context, state) => const PhotoWorkScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/assignments', builder: (context, state) => const PhotoAssignmentsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/media', builder: (context, state) => const PhotoMediaScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/tours', builder: (context, state) => const PhotoToursScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/messages', builder: (context, state) => const PhotoMessagesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/archive', builder: (context, state) => const PhotoArchiveScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/photo/profile', builder: (context, state) => const PhotoProfileScreen())]),
+      ],
     ),
     GoRoute(
       path: '/office/create-transaction',
