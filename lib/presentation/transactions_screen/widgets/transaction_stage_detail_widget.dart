@@ -1,6 +1,7 @@
 import '../../../core/app_export.dart';
 import '../../../core/layout/directional_layout.dart';
 import '../../../services/supabase_service.dart';
+import '../../../widgets/electronic_signature_pad.dart';
 import '../../transactions_screen/settlement_payout_receipt_screen.dart';
 import './escrow_bank_confirmation_widget.dart';
 
@@ -29,9 +30,7 @@ class _TransactionStageDetailWidgetState
     extends State<TransactionStageDetailWidget>
     with SingleTickerProviderStateMixin {
   bool _isActing = false;
-  bool _signatureMode = false;
   bool _hasSigned = false;
-  List<Offset> _signaturePoints = [];
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -499,8 +498,10 @@ class _TransactionStageDetailWidgetState
         const SizedBox(height: 12),
         _buildContractPreviewCard(theme),
         const SizedBox(height: 12),
-        if (!_isCompleted && !_hasSigned) _buildSignatureArea(theme),
-        if (_hasSigned) _buildSignatureConfirmed(theme),
+        if (!_isCompleted && !_hasSigned)
+          ElectronicSignaturePad(
+            onDone: () => setState(() => _hasSigned = true),
+          ),
         const SizedBox(height: 12),
         _buildNotificationChannelCard(
           theme,
@@ -649,168 +650,6 @@ class _TransactionStageDetailWidgetState
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSignatureArea(ThemeData theme) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primary.withAlpha(60)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.draw, color: AppTheme.primary, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  'التوقيع الإلكتروني',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const Spacer(),
-                if (_signaturePoints.isNotEmpty)
-                  TextButton(
-                    onPressed: () => setState(() => _signaturePoints = []),
-                    child: Text(
-                      'مسح',
-                      style: TextStyle(color: AppTheme.error, fontSize: 12),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Container(
-            height: 140,
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withAlpha(60),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _signatureMode ? AppTheme.primary : theme.dividerColor,
-                width: _signatureMode ? 2 : 1,
-              ),
-            ),
-            child: GestureDetector(
-              onPanStart: (_) => setState(() => _signatureMode = true),
-              onPanUpdate: (d) {
-                final box = context.findRenderObject() as RenderBox?;
-                if (box != null) {
-                  setState(() => _signaturePoints.add(d.localPosition));
-                }
-              },
-              onPanEnd: (_) => setState(() => _signatureMode = false),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: CustomPaint(
-                  painter: _SignaturePainter(
-                    points: _signaturePoints,
-                    color: AppTheme.primary,
-                  ),
-                  child: _signaturePoints.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.gesture,
-                                size: 32,
-                                color: Colors.grey.withAlpha(120),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'ارسم توقيعك هنا',
-                                style: TextStyle(
-                                  color: Colors.grey.withAlpha(150),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : null,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _signaturePoints.length > 10
-                    ? () {
-                        setState(() => _hasSigned = true);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('تم حفظ توقيعك بنجاح'),
-                            backgroundColor: AppTheme.success,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        );
-                      }
-                    : null,
-                icon: const Icon(Icons.check, size: 18),
-                label: const Text('تأكيد التوقيع'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSignatureConfirmed(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.success.withAlpha(15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.success.withAlpha(60)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.verified, color: AppTheme.success, size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'تم التوقيع بنجاح',
-                  style: TextStyle(
-                    color: AppTheme.success,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  'في انتظار توقيع الطرف الآخر',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ],
             ),
           ),
         ],
@@ -1800,35 +1639,6 @@ class _TransactionStageDetailWidgetState
     }
     return '${amount.toStringAsFixed(0)} د.ع';
   }
-}
-
-// ─── Signature Painter ────────────────────────────────────────────────────────
-
-class _SignaturePainter extends CustomPainter {
-  final List<Offset> points;
-  final Color color;
-
-  _SignaturePainter({required this.points, required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    for (int i = 0; i < points.length - 1; i++) {
-      final p1 = points[i];
-      final p2 = points[i + 1];
-      if ((p1 - p2).distance < 50) {
-        canvas.drawLine(p1, p2, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_SignaturePainter old) => old.points != points;
 }
 
 // ─── Data Classes ─────────────────────────────────────────────────────────────
