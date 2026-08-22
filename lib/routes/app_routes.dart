@@ -28,6 +28,13 @@ import '../features/office/presentation/screens/office_transactions_screen.dart'
 import '../features/office/presentation/shell/office_scaffold.dart';
 import '../features/office/routing/office_globals.dart';
 import '../features/office/routing/office_redirect.dart';
+import '../features/legal/presentation/screens/legal_case_screen.dart';
+import '../features/legal/presentation/screens/legal_list_screens.dart';
+import '../features/legal/presentation/screens/legal_login_screen.dart';
+import '../features/legal/presentation/screens/legal_work_screen.dart';
+import '../features/legal/presentation/shell/legal_scaffold.dart';
+import '../features/legal/routing/legal_globals.dart';
+import '../features/legal/routing/legal_workspace_globals.dart';
 import '../presentation/property_detail/zillow_property_detail_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
@@ -64,6 +71,8 @@ class AppRoutes {
   static const String officeLogin = '/office-login';
   static const String employeePortal = '/employee-portal';
   static const String officeHome = '/office/home';
+  static const String legalLogin = '/legal-login';
+  static const String legalWork = '/legal/work';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -84,9 +93,21 @@ final GoRouter appRouter = GoRouter(
       return null;
     }
 
+    final legalRedirect = resolveLegalAuthRedirect(
+      status: legalAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (legalRedirect != null) return legalRedirect;
+
+    if (legalAuthNotifier.isAuthenticated &&
+        (location.startsWith('/legal') || location == AppRoutes.legalLogin)) {
+      return null;
+    }
+
     // Public partner entry points
     if (location == AppRoutes.officeLogin ||
-        location == AppRoutes.employeePortal) {
+        location == AppRoutes.employeePortal ||
+        location == AppRoutes.legalLogin) {
       return null;
     }
 
@@ -97,6 +118,7 @@ final GoRouter appRouter = GoRouter(
     if (authRedirect != null) return authRedirect;
     if (location == '/') {
       if (officeAuthNotifier.isAuthenticated) return AppRoutes.officeHome;
+      if (legalAuthNotifier.isAuthenticated) return AppRoutes.legalWork;
       return authRouterRefresh.notifier.state.status ==
               UserAuthStatus.authenticated
           ? AppRoutes.searchMapScreen
@@ -131,6 +153,97 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.employeePortal,
       builder: (context, state) => const EmployeePortalPlaceholderScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.legalLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: legalAuthNotifier,
+        child: const LegalLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/legal/transaction/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: legalAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: legalWorkspaceController),
+          ],
+          child: LegalWorkspaceLoader(child: LegalCaseScreen(caseId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: legalAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: legalWorkspaceController),
+          ],
+          child: LegalWorkspaceLoader(
+            child: LegalScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/work',
+              builder: (context, state) => const LegalWorkScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/transactions',
+              builder: (context, state) => const LegalTransactionsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/contracts',
+              builder: (context, state) => const LegalContractsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/documents',
+              builder: (context, state) => const LegalDocumentsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/messages',
+              builder: (context, state) => const LegalMessagesScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/archive',
+              builder: (context, state) => const LegalArchiveScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/legal/profile',
+              builder: (context, state) => const LegalProfileScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: '/office/create-transaction',
