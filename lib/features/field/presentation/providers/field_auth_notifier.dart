@@ -79,7 +79,9 @@ class FieldAuthRepository {
   Future<bool> login({required String employeeId, required String secret}) async {
     final id = employeeId.trim().toUpperCase();
     try {
-      final result = await _supabase.client.rpc('field_login', params: {'p_employee_id': id, 'p_secret_code': secret});
+      final result = await _supabase.client
+          .rpc('field_login', params: {'p_employee_id': id, 'p_secret_code': secret})
+          .timeout(const Duration(seconds: 4));
       if (result is Map && result['success'] == true) {
         final m = Map<String, dynamic>.from(result['staff'] as Map);
         await _persist(
