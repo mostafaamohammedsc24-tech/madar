@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/legal_strings.dart';
+import '../../../../core/localization/closing_strings.dart';
 import '../../../../widgets/language_selector_sheet.dart';
 import '../../../authentication/presentation/theme/auth_theme.dart';
 import '../../../authentication/presentation/widgets/auth_container.dart';
@@ -18,11 +19,13 @@ class EmployeePortalPlaceholderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final legal = LegalStrings.of(loc);
+    final closing = ClosingStrings.of(loc);
     final theme = Theme.of(context);
 
     return AuthContainer(
       onLanguageTap: () => LanguageSelectorSheet.show(context),
-      child: Column(
+      child: SingleChildScrollView(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AuthHeader(title: legal.staffHubTitle, subtitle: legal.staffHubBody),
@@ -34,17 +37,23 @@ class EmployeePortalPlaceholderScreen extends StatelessWidget {
             onPressed: () => context.go('/legal-login'),
           ),
           const SizedBox(height: AuthSpacing.md),
+          PrimaryAuthButton(
+            label: closing.enterClosing,
+            onPressed: () => context.go('/closing-login'),
+          ),
+          const SizedBox(height: AuthSpacing.md),
           _DisabledCard(text: legal.financeUnavailable, theme: theme),
           const SizedBox(height: 8),
           _DisabledCard(text: legal.bankUnavailable, theme: theme),
           const SizedBox(height: 8),
           _DisabledCard(text: legal.officeUnavailable, theme: theme),
-          const Spacer(),
+          const SizedBox(height: 24),
           TextButton(
             onPressed: () => context.go('/auth'),
             child: Text(loc.officeBackToUserLogin),
           ),
         ],
+        ),
       ),
     );
   }

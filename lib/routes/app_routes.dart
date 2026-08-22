@@ -35,6 +35,13 @@ import '../features/legal/presentation/screens/legal_work_screen.dart';
 import '../features/legal/presentation/shell/legal_scaffold.dart';
 import '../features/legal/routing/legal_globals.dart';
 import '../features/legal/routing/legal_workspace_globals.dart';
+import '../features/closing/presentation/screens/closing_case_screen.dart';
+import '../features/closing/presentation/screens/closing_list_screens.dart';
+import '../features/closing/presentation/screens/closing_login_screen.dart';
+import '../features/closing/presentation/screens/closing_work_screen.dart';
+import '../features/closing/presentation/shell/closing_scaffold.dart';
+import '../features/closing/routing/closing_globals.dart';
+import '../features/closing/routing/closing_workspace_globals.dart';
 import '../presentation/property_detail/zillow_property_detail_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
@@ -73,6 +80,8 @@ class AppRoutes {
   static const String officeHome = '/office/home';
   static const String legalLogin = '/legal-login';
   static const String legalWork = '/legal/work';
+  static const String closingLogin = '/closing-login';
+  static const String closingWork = '/closing/work';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -104,10 +113,22 @@ final GoRouter appRouter = GoRouter(
       return null;
     }
 
+    final closingRedirect = resolveClosingAuthRedirect(
+      status: closingAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (closingRedirect != null) return closingRedirect;
+
+    if (closingAuthNotifier.isAuthenticated &&
+        (location.startsWith('/closing') || location == AppRoutes.closingLogin)) {
+      return null;
+    }
+
     // Public partner entry points
     if (location == AppRoutes.officeLogin ||
         location == AppRoutes.employeePortal ||
-        location == AppRoutes.legalLogin) {
+        location == AppRoutes.legalLogin ||
+        location == AppRoutes.closingLogin) {
       return null;
     }
 
@@ -119,6 +140,7 @@ final GoRouter appRouter = GoRouter(
     if (location == '/') {
       if (officeAuthNotifier.isAuthenticated) return AppRoutes.officeHome;
       if (legalAuthNotifier.isAuthenticated) return AppRoutes.legalWork;
+      if (closingAuthNotifier.isAuthenticated) return AppRoutes.closingWork;
       return authRouterRefresh.notifier.state.status ==
               UserAuthStatus.authenticated
           ? AppRoutes.searchMapScreen
@@ -159,6 +181,13 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => provider.ChangeNotifierProvider.value(
         value: legalAuthNotifier,
         child: const LegalLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.closingLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: closingAuthNotifier,
+        child: const ClosingLoginScreen(),
       ),
     ),
     GoRoute(
@@ -240,6 +269,98 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/legal/profile',
               builder: (context, state) => const LegalProfileScreen(),
+            ),
+          ],
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/closing/transaction/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: closingAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: closingWorkspaceController),
+          ],
+          child: ClosingWorkspaceLoader(child: ClosingCaseScreen(caseId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: closingAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: closingWorkspaceController),
+          ],
+          child: ClosingWorkspaceLoader(
+            child: ClosingScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/work',
+              builder: (context, state) => const ClosingWorkScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/transactions',
+              builder: (context, state) => const ClosingTransactionsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/finance',
+              builder: (context, state) => const ClosingFinanceScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/government',
+              builder: (context, state) => const ClosingGovListScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/documents',
+              builder: (context, state) => const ClosingDocumentsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/messages',
+              builder: (context, state) => const ClosingMessagesScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/archive',
+              builder: (context, state) => const ClosingArchiveScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/closing/profile',
+              builder: (context, state) => const ClosingProfileScreen(),
             ),
           ],
         ),
