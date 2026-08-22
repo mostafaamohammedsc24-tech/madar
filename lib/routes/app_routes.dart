@@ -49,6 +49,13 @@ import '../features/mapping/presentation/screens/mapping_work_screen.dart';
 import '../features/mapping/presentation/shell/mapping_scaffold.dart';
 import '../features/mapping/routing/mapping_globals.dart';
 import '../features/mapping/routing/mapping_workspace_globals.dart';
+import '../features/field/presentation/screens/field_case_screen.dart';
+import '../features/field/presentation/screens/field_list_screens.dart';
+import '../features/field/presentation/screens/field_login_screen.dart';
+import '../features/field/presentation/screens/field_work_screen.dart';
+import '../features/field/presentation/shell/field_scaffold.dart';
+import '../features/field/routing/field_globals.dart';
+import '../features/field/routing/field_workspace_globals.dart';
 import '../presentation/property_detail/zillow_property_detail_screen.dart';
 import '../features/transaction/presentation/screens/transaction_center_screen.dart';
 import '../presentation/analytics/property_analytics_screen.dart';
@@ -91,6 +98,8 @@ class AppRoutes {
   static const String closingWork = '/closing/work';
   static const String mappingLogin = '/mapping-login';
   static const String mappingWork = '/mapping/work';
+  static const String fieldLogin = '/field-login';
+  static const String fieldWork = '/field/work';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -144,12 +153,24 @@ final GoRouter appRouter = GoRouter(
       return null;
     }
 
+    final fieldRedirect = resolveFieldAuthRedirect(
+      status: fieldAuthNotifier.status,
+      matchedLocation: location,
+    );
+    if (fieldRedirect != null) return fieldRedirect;
+
+    if (fieldAuthNotifier.isAuthenticated &&
+        (location.startsWith('/field') || location == AppRoutes.fieldLogin)) {
+      return null;
+    }
+
     // Public partner entry points
     if (location == AppRoutes.officeLogin ||
         location == AppRoutes.employeePortal ||
         location == AppRoutes.legalLogin ||
         location == AppRoutes.closingLogin ||
-        location == AppRoutes.mappingLogin) {
+        location == AppRoutes.mappingLogin ||
+        location == AppRoutes.fieldLogin) {
       return null;
     }
 
@@ -163,6 +184,7 @@ final GoRouter appRouter = GoRouter(
       if (legalAuthNotifier.isAuthenticated) return AppRoutes.legalWork;
       if (closingAuthNotifier.isAuthenticated) return AppRoutes.closingWork;
       if (mappingAuthNotifier.isAuthenticated) return AppRoutes.mappingWork;
+      if (fieldAuthNotifier.isAuthenticated) return AppRoutes.fieldWork;
       return authRouterRefresh.notifier.state.status ==
               UserAuthStatus.authenticated
           ? AppRoutes.searchMapScreen
@@ -217,6 +239,13 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => provider.ChangeNotifierProvider.value(
         value: mappingAuthNotifier,
         child: const MappingLoginScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.fieldLogin,
+      builder: (context, state) => provider.ChangeNotifierProvider.value(
+        value: fieldAuthNotifier,
+        child: const FieldLoginScreen(),
       ),
     ),
     GoRoute(
@@ -430,6 +459,41 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(routes: [GoRoute(path: '/mapping/archive', builder: (context, state) => const MappingArchiveScreen())]),
         StatefulShellBranch(routes: [GoRoute(path: '/mapping/messages', builder: (context, state) => const MappingMessagesScreen())]),
         StatefulShellBranch(routes: [GoRoute(path: '/mapping/profile', builder: (context, state) => const MappingProfileScreen())]),
+      ],
+    ),
+    GoRoute(
+      path: '/field/property/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: fieldAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: fieldWorkspaceController),
+          ],
+          child: FieldWorkspaceLoader(child: FieldCaseScreen(jobId: id)),
+        );
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return provider.MultiProvider(
+          providers: [
+            provider.ChangeNotifierProvider.value(value: fieldAuthNotifier),
+            provider.ChangeNotifierProvider.value(value: fieldWorkspaceController),
+          ],
+          child: FieldWorkspaceLoader(
+            child: FieldScaffold(navigationShell: navigationShell),
+          ),
+        );
+      },
+      branches: [
+        StatefulShellBranch(routes: [GoRoute(path: '/field/work', builder: (context, state) => const FieldWorkScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/assignments', builder: (context, state) => const FieldAssignmentsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/properties', builder: (context, state) => const FieldPropertiesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/reports', builder: (context, state) => const FieldReportsScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/messages', builder: (context, state) => const FieldMessagesScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/archive', builder: (context, state) => const FieldArchiveScreen())]),
+        StatefulShellBranch(routes: [GoRoute(path: '/field/profile', builder: (context, state) => const FieldProfileScreen())]),
       ],
     ),
     GoRoute(

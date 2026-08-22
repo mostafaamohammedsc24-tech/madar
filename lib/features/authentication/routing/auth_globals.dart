@@ -5,6 +5,7 @@ import '../../office/presentation/providers/office_auth_notifier.dart';
 import '../../legal/presentation/providers/legal_auth_notifier.dart';
 import '../../closing/presentation/providers/closing_auth_notifier.dart';
 import '../../mapping/presentation/providers/mapping_auth_notifier.dart';
+import '../../field/presentation/providers/field_auth_notifier.dart';
 
 /// Bridges auth notifiers to GoRouter refreshListenable.
 class AuthRouterRefresh extends ChangeNotifier {
@@ -17,6 +18,7 @@ class AuthRouterRefresh extends ChangeNotifier {
   LegalAuthNotifier? _legal;
   ClosingAuthNotifier? _closing;
   MappingAuthNotifier? _mapping;
+  FieldAuthNotifier? _field;
 
   UserAuthNotifier get notifier => _notifier;
 
@@ -48,6 +50,13 @@ class AuthRouterRefresh extends ChangeNotifier {
     _mapping!.addListener(notifyListeners);
   }
 
+  void attachField(FieldAuthNotifier field) {
+    if (_field == field) return;
+    _field?.removeListener(notifyListeners);
+    _field = field;
+    _field!.addListener(notifyListeners);
+  }
+
   @override
   void dispose() {
     _notifier.removeListener(notifyListeners);
@@ -55,6 +64,7 @@ class AuthRouterRefresh extends ChangeNotifier {
     _legal?.removeListener(notifyListeners);
     _closing?.removeListener(notifyListeners);
     _mapping?.removeListener(notifyListeners);
+    _field?.removeListener(notifyListeners);
     super.dispose();
   }
 }
